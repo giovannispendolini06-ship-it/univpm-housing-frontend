@@ -1,22 +1,29 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { ChatMessage } from "@/lib/types";
+import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 import ChatBubble from "./ChatBubble";
 import TypingIndicator from "./TypingIndicator";
 
 interface ChatPanelProps {
   initialMessages: ChatMessage[];
   /**
-   * Callback opzionale chiamata ad ogni invio: qui va collegata la
-   * chiamata reale all'endpoint /api/chat che parla con OpenAI.
+   * Collegata a /api/chat: riceve il testo scritto dallo studente e
+   * restituisce la risposta di Dado più (eventualmente) le stanze
+   * ricalcolate dal motore di matching.
    */
-  onSendMessage?: (text: string) => Promise<string>;
+  onSendMessage: (
+    text: string,
+    history: { role: ChatMessage["role"]; content: string }[],
+  ) => Promise<{ reply: string; rooms?: RecommendedRoom[] }>;
+  /** Chiamata ogni volta che l'API restituisce una lista stanze aggiornata. */
+  onRoomsUpdate?: (rooms: RecommendedRoom[]) => void;
 }
 
 export default function ChatPanel({
   initialMessages,
   onSendMessage,
+  onRoomsUpdate,
 }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [draft, setDraft] = useState("");
@@ -41,22 +48,36 @@ export default function ChatPanel({
       createdAt: new Date().toISOString(),
     };
 
+    const historyForApi = messages.map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
     setMessages((prev) => [...prev, userMessage]);
     setDraft("");
     setIsTyping(true);
 
     try {
-      const replyText = onSendMessage
-        ? await onSendMessage(text)
-        : "Ricevuto! (collega qui la risposta reale dell'API OpenAI)";
+      const { reply, rooms } = await onSendMessage(text, historyForApi);
 
       const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: replyText,
+        content: reply,
         createdAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
+
+      if (rooms) onRoomsUpdate?.(rooms);
+    } catch {
+      const errorMessage: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content:
+          "Uhm, qualcosa è andato storto dal mio lato. Puoi riprovare tra un attimo?",
+        createdAt: new Date().toISOString(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
     }

@@ -1,29 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChatPanel from "@/components/ChatPanel";
 import RoomList from "@/components/RoomList";
-import { initialMessages, recommendedRooms } from "@/lib/mock-data";
+import { createClientSupabaseClient } from "@/lib/supabase/client";
+import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 
 type MobileTab = "chat" | "rooms";
 
+const WELCOME_MESSAGE: ChatMessage = {
+  id: "welcome",
+  role: "assistant",
+  content: "Ehi! 👋 Sono Dado, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
+  createdAt: new Date().toISOString(),
+};
+
 /**
  * Layout:
- * - Mobile (< md): un solo pannello alla volta, switch con tab in alto
- *   (chat di default, poi "Stanze" quando l'AI ha dei suggerimenti).
+ * - Mobile (< md): un solo pannello alla volta, switch con tab in alto.
  * - Desktop (>= md): split screen, chat a sinistra (fissa), stanze a
- *   destra (scroll indipendente) — come un client di messaggistica.
+ *   destra (scroll indipendente).
+ *
+ * Questa pagina è protetta da middleware.ts: se non sei loggato, Next.js
+ * ti reindirizza automaticamente a /login prima di arrivare qui.
  */
 export default function StudentDashboardPage() {
   const [activeTab, setActiveTab] = useState<MobileTab>("chat");
+  const [studentId, setStudentId] = useState<string | null>(null);
+  const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
 
-  async function handleSendMessage(_text: string): Promise<string> {
-    // TODO: sostituire con la chiamata reale, es.
-    // const res = await fetch("/api/chat", { method: "POST", body: JSON.stringify({ text }) });
-    // const data = await res.json();
-    // return data.reply;
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    return "Ok, segnato! Continua pure, sto aggiornando i suggerimenti.";
+  useEffect(() => {
+    const supabase = createClientSupabaseClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setStudentId(data.user?.id ?? null);
+    });
+  }, []);
+
+  async function handleSendMessage(
+    text: string,
+    history: { role: ChatMessage["role"]; content: string }[],
+  ): Promise<{ reply: string; rooms?: RecommendedRoom[] }> {
+    if (!studentId) {
+      return {
+        reply: "Devi effettuare il login per parlare con me — ricarica la pagina.",
+      };
+    }
+
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ studentId, message: text, history }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      return {
+        reply:
+          data?.error ??
+          "Qualcosa è andato storto dal mio lato, riprova tra poco.",
+      };
+    }
+
+    const data = await res.json();
+    return { reply: data.reply, rooms: data.rooms };
   }
 
   return (
@@ -36,7 +75,7 @@ export default function StudentDashboardPage() {
           onClick={() => setActiveTab("chat")}
         />
         <TabButton
-          label={`Stanze (${recommendedRooms.length})`}
+          label={`Stanze (${rooms.length})`}
           isActive={activeTab === "rooms"}
           onClick={() => setActiveTab("rooms")}
         />
@@ -47,13 +86,14 @@ export default function StudentDashboardPage() {
           className={`${activeTab === "chat" ? "block" : "hidden"} h-full md:block md:border-r md:border-sea-100`}
         >
           <ChatPanel
-            initialMessages={initialMessages}
+            initialMessages={[WELCOME_MESSAGE]}
             onSendMessage={handleSendMessage}
+            onRoomsUpdate={setRooms}
           />
         </div>
 
         <div className={`${activeTab === "rooms" ? "block" : "hidden"} h-full md:block`}>
-          <RoomList rooms={recommendedRooms} />
+          <RoomList rooms={rooms} />
         </div>
       </div>
     </main>
