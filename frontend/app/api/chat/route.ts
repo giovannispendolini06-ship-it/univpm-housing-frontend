@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { DADO_MODEL, getAnthropicClient } from "@/lib/anthropic";
+import { DADO_MODEL, getOpenAIClient } from "@/lib/openai";
 import {
   extractPreferencesBlock,
   mergePreferences,
@@ -7,15 +7,21 @@ import {
 } from "@/lib/matching";
 import { fetchAvailableRooms } from "@/lib/supabase/server";
 import { DADO_SYSTEM_PROMPT } from "@/lib/system-prompt";
-import type { ChatRequestBody, ChatResponseBody, UserPreferences } from "@/lib/types";
+import type {
+  ChatRequestBody,
+  ChatResponseBody,
+  UserPreferences,
+} from "@/lib/types";
 
 export const runtime = "nodejs";
 
 function offlineReply(preferences: UserPreferences): string {
   const bits: string[] = [];
   if (preferences.city) bits.push(`a ${preferences.city}`);
-  if (preferences.budgetMax) bits.push(`con budget fino a €${preferences.budgetMax}`);
-  if (preferences.neighborhood) bits.push(`verso ${preferences.neighborhood}`);
+  if (preferences.budgetMax)
+    bits.push(`con budget fino a €${preferences.budgetMax}`);
+  if (preferences.neighborhood)
+    bits.push(`verso ${preferences.neighborhood}`);
 
   if (bits.length) {
     return `Perfetto — sto cercando stanze ${bits.join(", ")}. Dai un’occhiata ai match a destra e dimmi cosa ti convince o cosa aggiusteresti.`;
@@ -64,23 +70,21 @@ export async function POST(request: Request) {
 
     let reply = "";
 
-    if (process.env.ANTHROPIC_API_KEY) {
-      const anthropic = getAnthropicClient();
-      const completion = await anthropic.messages.create({
+    if (process.env.OPENAI_API_KEY) {
+      const openai = getOpenAIClient();
+      const completion = await openai.chat.completions.create({
         model: DADO_MODEL,
         max_tokens: 800,
-        system: DADO_SYSTEM_PROMPT,
-        messages: incoming.map((m) => ({
-          role: m.role,
-          content: m.content,
-        })),
+        messages: [
+          { role: "system", content: DADO_SYSTEM_PROMPT },
+          ...incoming.map((m) => ({
+            role: m.role as "user" | "assistant",
+            content: m.content,
+          })),
+        ],
       });
 
-      const raw = completion.content
-        .filter((block) => block.type === "text")
-        .map((block) => (block.type === "text" ? block.text : ""))
-        .join("\n");
-
+      const raw = completion.choices[0]?.message?.content ?? "";
       const extracted = extractPreferencesBlock(raw);
       reply = extracted.cleanText;
       preferences = mergePreferences(preferences, extracted.preferences);
