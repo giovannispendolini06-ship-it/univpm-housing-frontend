@@ -39,6 +39,18 @@ npm run dev
 
 Apri [http://localhost:3000](http://localhost:3000) (redirect a `/dashboard`).
 
+## Deploy su Vercel
+
+1. Carica il contenuto di `frontend/` su un repository GitHub (root del progetto Next.js).
+2. Su [vercel.com/new](https://vercel.com/new) importa il repo.
+3. In **Environment Variables** aggiungi almeno:
+   - `OPENAI_API_KEY`
+   - `OPENAI_MODEL` (opzionale, default `gpt-5.5`)
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+4. Deploy. Framework: Next.js (rilevato automaticamente; vedi anche `vercel.json`).
+
 ### Variabili d’ambiente
 
 | Variabile | Uso |
