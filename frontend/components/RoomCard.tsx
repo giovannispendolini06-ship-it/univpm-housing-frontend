@@ -1,49 +1,104 @@
-import type { MatchedRoom } from "@/lib/types";
-import { MatchScoreRing } from "./MatchScoreRing";
+import type { RecommendedRoom } from "@/lib/types";
+import MatchScoreRing from "./MatchScoreRing";
 
-interface RoomCardProps {
-  room: MatchedRoom;
-}
+const POLO_LABELS: Record<RecommendedRoom["polo"], string> = {
+  monte_dago: "Monte Dago",
+  torrette: "Torrette",
+  centro_economia_giurisprudenza: "Economia · Villarey",
+  altro: "Altro polo",
+};
 
-function formatRent(value: number) {
-  return new Intl.NumberFormat("it-IT", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+const WEIGHT_STYLES: Record<
+  RecommendedRoom["matchReasons"][number]["weight"],
+  string
+> = {
+  alto: "bg-sea-50 text-sea-700",
+  medio: "bg-sand-400/15 text-ink",
+  basso: "bg-ink-muted/10 text-ink-muted",
+};
 
-export function RoomCard({ room }: RoomCardProps) {
+export default function RoomCard({ room }: { room: RecommendedRoom }) {
   return (
-    <article className="animate-fade-up border-b border-ink-100 py-4 last:border-b-0">
-      <div className="flex items-start gap-3">
-        <MatchScoreRing score={room.matchScore} />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="font-display text-base font-semibold text-ink-900">
+    <article className="flex gap-3 rounded-xl2 bg-surface p-3 shadow-card transition hover:shadow-lg sm:gap-4 sm:p-4">
+      <img
+        src={room.imageUrl}
+        alt={room.title}
+        className="h-24 w-24 shrink-0 rounded-xl object-cover sm:h-28 sm:w-28"
+      />
+
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        {/* Titolo + badge match */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h3 className="truncate font-display text-[15px] font-bold text-ink">
               {room.title}
             </h3>
-            <p className="shrink-0 font-display text-sm font-semibold text-ink-700">
-              {formatRent(room.rentMonthly)}
-              <span className="font-sans text-xs font-normal text-ink-400">
-                /mese
-              </span>
+            <p className="text-xs text-ink-muted">
+              {room.zone} · {POLO_LABELS[room.polo]}
             </p>
           </div>
-          <p className="mt-0.5 text-sm text-ink-500">
-            {room.neighborhood}, {room.city} · disponibile dal{" "}
-            {new Date(room.availableFrom).toLocaleDateString("it-IT")}
-          </p>
-          <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-ink-700">
-            {room.description}
-          </p>
-          {room.matchReasons.length > 0 && (
-            <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-500">
-              {room.matchReasons.map((reason) => (
-                <li key={reason}>· {reason}</li>
-              ))}
-            </ul>
-          )}
+          <MatchScoreRing score={room.matchScore} size={48} />
+        </div>
+
+        {/* Prezzo + distanza */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+          <span className="font-display font-bold text-ink">
+            {room.priceMonthly}€
+            <span className="ml-0.5 font-body text-xs font-normal text-ink-muted">
+              /mese + {room.estimatedUtilities}€ spese
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-sea-50 px-2 py-0.5 text-xs font-medium text-sea-700">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              className="shrink-0"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+            {room.distanceLabel}
+          </span>
+        </div>
+
+        {/* Servizi inclusi */}
+        <div className="flex flex-wrap gap-1.5">
+          {room.servicesIncluded.map((service) => (
+            <span
+              key={service}
+              className="rounded-full border border-sea-100 px-2 py-0.5 text-[11px] text-ink-muted"
+            >
+              {service}
+            </span>
+          ))}
+        </div>
+
+        {/* Motivazioni AI del match */}
+        <ul className="flex flex-col gap-1 border-t border-bg pt-2">
+          {room.matchReasons.slice(0, 3).map((reason) => (
+            <li key={reason.label} className="flex items-start gap-1.5 text-xs">
+              <span
+                className={`mt-0.5 shrink-0 rounded px-1.5 py-0.5 font-medium ${WEIGHT_STYLES[reason.weight]}`}
+              >
+                {reason.label}
+              </span>
+              <span className="text-ink-muted">{reason.detail}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-auto flex items-center justify-between pt-1">
+          <span className="text-[11px] text-ink-muted">
+            Libera dal {room.availableFrom}
+          </span>
+          <button className="rounded-full bg-sunset-500 px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-sunset-600">
+            Vedi annuncio
+          </button>
         </div>
       </div>
     </article>

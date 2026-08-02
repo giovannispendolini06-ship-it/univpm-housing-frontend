@@ -1,33 +1,33 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const display = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
-  display: "swap",
+  weight: ["500", "700"],
+  variable: "--font-display",
 });
 
-const inter = Inter({
+const body = Inter({
   subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
+  weight: ["400", "500", "600"],
+  variable: "--font-body",
 });
 
 export const metadata: Metadata = {
-  title: "Dado — trova la stanza giusta",
+  title: "Trova casa ad Ancona | Portale Studenti UNIVPM",
   description:
-    "Chatta con Dado e scopri stanze e coinquilini compatibili con il tuo stile di vita.",
+    "Chatta con Dado e scopri le stanze più compatibili con te vicino ai poli UNIVPM.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="it" className={`${spaceGrotesk.variable} ${inter.variable}`}>
-      <body className="min-h-full font-sans antialiased">{children}</body>
+    <html lang="it" className={`${display.variable} ${body.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

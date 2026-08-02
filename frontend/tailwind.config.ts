@@ -1,53 +1,46 @@
 import type { Config } from "tailwindcss";
 
+// Design tokens — identità "Adriatico": teal profondo del mare + corallo
+// del tramonto sul porto di Ancona. Evita di proposito la coppia
+// crema/terracotta ormai da "AI stock design".
 const config: Config = {
-  content: [
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
+        bg: "#F4F8F7", // bianco freddo, non crema
+        surface: "#FFFFFF",
         ink: {
-          50: "#f4f7f4",
-          100: "#e3ebe4",
-          200: "#c5d6c8",
-          300: "#9bb7a0",
-          400: "#6f9477",
-          500: "#4f7858",
-          600: "#3c5f44",
-          700: "#314c38",
-          800: "#293e2f",
-          900: "#223427",
-          950: "#121c15",
+          DEFAULT: "#0F2A2E", // quasi-nero con dominante teal
+          muted: "#5C7A78",
         },
-        clay: {
-          400: "#d4a27f",
-          500: "#c4875a",
-          600: "#b06d3f",
+        sea: {
+          50: "#EAF4F3",
+          100: "#CFE6E4",
+          400: "#1E8F86",
+          600: "#0F6E6A", // primario
+          700: "#0B4F4C",
+          900: "#082F2D",
         },
-        mist: "#eef3ef",
+        sunset: {
+          400: "#FF8A65",
+          500: "#FF6B4A", // accento, uso mirato
+          600: "#E5523A",
+        },
+        sand: {
+          400: "#FFB13D", // score medio
+        },
       },
       fontFamily: {
-        display: ["var(--font-space-grotesk)", "sans-serif"],
-        sans: ["var(--font-inter)", "sans-serif"],
+        display: ["var(--font-display)", "sans-serif"],
+        body: ["var(--font-body)", "sans-serif"],
+      },
+      borderRadius: {
+        xl2: "1.25rem",
       },
       boxShadow: {
-        soft: "0 18px 40px -28px rgba(18, 28, 21, 0.45)",
-      },
-      keyframes: {
-        "fade-up": {
-          "0%": { opacity: "0", transform: "translateY(8px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        pulseDot: {
-          "0%, 80%, 100%": { opacity: "0.35", transform: "scale(0.85)" },
-          "40%": { opacity: "1", transform: "scale(1)" },
-        },
-      },
-      animation: {
-        "fade-up": "fade-up 0.35s ease-out both",
-        pulseDot: "pulseDot 1.2s ease-in-out infinite",
+        card: "0 2px 10px -2px rgba(15, 42, 46, 0.08), 0 1px 2px rgba(15, 42, 46, 0.06)",
+        chat: "0 1px 2px rgba(15, 42, 46, 0.06)",
       },
     },
   },

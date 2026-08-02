@@ -1,69 +1,41 @@
--- Dado: stanze e tenancy (affitti / coinquilini)
--- Eseguire su Supabase SQL editor o via CLI.
+-- ============================================================================
+-- MIGRATION AGGIUNTIVA: room_tenancies
+-- Necessaria perché il matching (requisito 4) deve confrontare le
+-- preferenze dello studente anche con i coinquilini GIÀ presenti in una
+-- stanza/appartamento. Lo schema originale non modellava "chi vive dove
+-- adesso": questa tabella colma il buco.
+-- ============================================================================
 
-create extension if not exists "pgcrypto";
+create table public.room_tenancies (
+  id           uuid primary key default gen_random_uuid(),
+  room_id      uuid not null references public.rooms(id) on delete cascade,
+  student_id   uuid not null references public.users(id) on delete cascade,
+  started_at   date not null default current_date,
+  ended_at     date,  -- null = coinquilino attualmente in casa
 
-create table if not exists public.rooms (
-  id uuid primary key default gen_random_uuid(),
-  title text not null,
-  city text not null,
-  neighborhood text not null,
-  rent_monthly integer not null check (rent_monthly > 0),
-  available_from date not null,
-  beds integer not null default 1 check (beds > 0),
-  amenities text[] not null default '{}',
-  image_url text,
-  lifestyle_tags text[] not null default '{}',
-  cleanliness smallint not null default 3 check (cleanliness between 1 and 5),
-  noise_level smallint not null default 3 check (noise_level between 1 and 5),
-  pets_allowed boolean not null default false,
-  smoking_allowed boolean not null default false,
-  description text not null default '',
-  is_available boolean not null default true,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  created_at   timestamptz not null default now(),
+
+  constraint room_tenancies_dates_check check (ended_at is null or ended_at >= started_at)
 );
 
-create table if not exists public.room_tenancies (
-  id uuid primary key default gen_random_uuid(),
-  room_id uuid not null references public.rooms (id) on delete cascade,
-  user_id uuid references auth.users (id) on delete set null,
-  role text not null check (role in ('seeker', 'tenant', 'landlord')),
-  status text not null default 'interested'
-    check (status in ('interested', 'applied', 'accepted', 'rejected', 'active', 'ended')),
-  move_in_date date,
-  move_out_date date,
-  notes text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
+create index idx_room_tenancies_room_id on public.room_tenancies (room_id);
+create index idx_room_tenancies_student_id on public.room_tenancies (student_id);
+create index idx_room_tenancies_active on public.room_tenancies (room_id) where ended_at is null;
 
-create index if not exists rooms_city_idx on public.rooms (city);
-create index if not exists rooms_available_idx on public.rooms (is_available, available_from);
-create index if not exists room_tenancies_room_idx on public.room_tenancies (room_id);
-create index if not exists room_tenancies_user_idx on public.room_tenancies (user_id);
-
-alter table public.rooms enable row level security;
 alter table public.room_tenancies enable row level security;
 
--- Lettura pubblica delle stanze disponibili
-create policy "rooms_select_available"
-  on public.rooms
-  for select
-  using (is_available = true);
+-- Solo il proprietario dell'immobile e lo studente coinvolto possono leggere
+create policy "room_tenancies_select" on public.room_tenancies
+  for select using (
+    auth.uid() = student_id
+    or exists (
+      select 1 from public.rooms r
+      join public.properties p on p.id = r.property_id
+      where r.id = room_tenancies.room_id and p.owner_id = auth.uid()
+    )
+  );
 
--- I tenancy sono visibili solo al proprietario della riga (o via service role)
-create policy "tenancies_select_own"
-  on public.room_tenancies
-  for select
-  using (auth.uid() = user_id);
-
-create policy "tenancies_insert_own"
-  on public.room_tenancies
-  for insert
-  with check (auth.uid() = user_id);
-
-create policy "tenancies_update_own"
-  on public.room_tenancies
-  for update
-  using (auth.uid() = user_id);
+-- Aggiunta comoda anche a student_profiles per la data d'ingresso raccolta
+-- dalla chat (vedi system prompt Dado, campo preferred_move_in_date)
+alter table public.student_profiles
+  add column if not exists preferred_move_in_date date;

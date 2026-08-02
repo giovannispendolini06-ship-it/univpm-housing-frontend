@@ -1,23 +1,35 @@
+"use client";
+
 interface MatchScoreRingProps {
-  score: number;
-  size?: number;
+  score: number; // 0-100
+  size?: number; // px
 }
 
-export function MatchScoreRing({ score, size = 52 }: MatchScoreRingProps) {
-  const stroke = 5;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const clamped = Math.max(0, Math.min(100, score));
-  const offset = circumference - (clamped / 100) * circumference;
+// Soglie di colore: alto match = teal (identità del brand),
+// medio = sabbia, basso = neutro. Mai rosso: anche un match basso
+// è comunque un'opzione, non un errore.
+function getScoreColor(score: number): { stroke: string; text: string } {
+  if (score >= 85) return { stroke: "#0F6E6A", text: "text-sea-700" };
+  if (score >= 65) return { stroke: "#FFB13D", text: "text-ink" };
+  return { stroke: "#9AAFAD", text: "text-ink-muted" };
+}
 
-  const color =
-    clamped >= 80 ? "#3c5f44" : clamped >= 60 ? "#6f9477" : "#c4875a";
+export default function MatchScoreRing({
+  score,
+  size = 56,
+}: MatchScoreRingProps) {
+  const strokeWidth = 5;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (score / 100) * circumference;
+  const { stroke, text } = getScoreColor(score);
 
   return (
     <div
-      className="relative inline-flex items-center justify-center"
+      className="relative shrink-0"
       style={{ width: size, height: size }}
-      aria-label={`Match score ${clamped}`}
+      role="img"
+      aria-label={`Compatibilità ${score} per cento`}
     >
       <svg width={size} height={size} className="-rotate-90">
         <circle
@@ -25,25 +37,27 @@ export function MatchScoreRing({ score, size = 52 }: MatchScoreRingProps) {
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="#e3ebe4"
-          strokeWidth={stroke}
+          stroke="#E7EFEE"
+          strokeWidth={strokeWidth}
         />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={color}
-          strokeWidth={stroke}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className="transition-[stroke-dashoffset] duration-500 ease-out"
+          className="transition-[stroke-dashoffset] duration-700 ease-out"
         />
       </svg>
-      <span className="absolute font-display text-sm font-semibold text-ink-900">
-        {clamped}
-      </span>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className={`font-display text-sm font-bold ${text}`}>
+          {score}%
+        </span>
+      </div>
     </div>
   );
 }

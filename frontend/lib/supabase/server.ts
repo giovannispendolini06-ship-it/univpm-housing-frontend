@@ -1,91 +1,62 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { Room } from "@/lib/types";
-import { MOCK_ROOMS } from "@/lib/mock-data";
+// lib/supabase/server.ts
+//
+// Due client distinti, per due scopi diversi:
+// 1. `createServerSupabaseClient` — legato ai cookie della request, usa
+//    la sessione dell'utente loggato. Serve per sapere CHI sta scrivendo
+//    (auth) e rispetta le policy RLS.
+// 2. `createServiceSupabaseClient` — usa la Service Role Key, bypassa la
+//    RLS. Va usato SOLO lato server (mai esposto al client) per operazioni
+//    di sistema come scrivere match_scores per conto del motore di matching.
 
-function requireEnv(name: string): string {
+import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
+
+function getRequiredEnv(name: string): string {
   const value = process.env[name];
   if (!value) {
-    throw new Error(`${name} non configurata`);
+    throw new Error(
+      `Variabile d'ambiente mancante: ${name}. Controlla il file .env.local.`,
+    );
   }
   return value;
 }
 
-/** Client con anon key (rispetta RLS; usare con sessione utente quando disponibile). */
-export function createSupabaseAuthClient(accessToken?: string): SupabaseClient {
-  const url = requireEnv("NEXT_PUBLIC_SUPABASE_URL");
-  const anonKey = requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+export async function createServerSupabaseClient() {
+  const cookieStore = await cookies();
+  const supabaseUrl = getRequiredEnv("NEXT_PUBLIC_SUPABASE_URL");
+  const supabaseAnonKey = getRequiredEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
 
-  return createClient(url, anonKey, {
-    global: accessToken
-      ? { headers: { Authorization: `Bearer ${accessToken}` } }
-      : undefined,
-    auth: { persistSession: false, autoRefreshToken: false },
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(
+        cookiesToSet: {
+          name: string;
+          value: string;
+          options?: Parameters<typeof cookieStore.set>[2];
+        }[],
+      ) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options),
+          );
+        } catch {
+          // In un Route Handler chiamato da un Server Component questo può
+          // fallire silenziosamente: è gestito dal middleware di refresh.
+        }
+      },
+    },
   });
 }
 
-/** Client service role — solo lato server, bypassa RLS. */
-export function createSupabaseServiceClient(): SupabaseClient {
-  const url = requireEnv("NEXT_PUBLIC_SUPABASE_URL");
-  const serviceKey = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
+export function createServiceSupabaseClient() {
+  const supabaseUrl = getRequiredEnv("NEXT_PUBLIC_SUPABASE_URL");
+  const serviceRoleKey = getRequiredEnv("SUPABASE_SERVICE_ROLE_KEY");
 
-  return createClient(url, serviceKey, {
+  return createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-}
-
-function mapRoomRow(row: Record<string, unknown>): Room {
-  return {
-    id: String(row.id),
-    title: String(row.title ?? ""),
-    city: String(row.city ?? ""),
-    neighborhood: String(row.neighborhood ?? ""),
-    rentMonthly: Number(row.rent_monthly ?? 0),
-    availableFrom: String(row.available_from ?? ""),
-    beds: Number(row.beds ?? 1),
-    amenities: (row.amenities as string[]) ?? [],
-    imageUrl: row.image_url ? String(row.image_url) : undefined,
-    lifestyleTags: (row.lifestyle_tags as string[]) ?? [],
-    cleanliness: Number(row.cleanliness ?? 3),
-    noiseLevel: Number(row.noise_level ?? 3),
-    petsAllowed: Boolean(row.pets_allowed),
-    smokingAllowed: Boolean(row.smoking_allowed),
-    description: String(row.description ?? ""),
-  };
-}
-
-export async function fetchAvailableRooms(
-  city?: string,
-): Promise<Room[]> {
-  const useMock =
-    process.env.USE_MOCK_DATA === "true" ||
-    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (useMock) {
-    if (!city) return MOCK_ROOMS;
-    return MOCK_ROOMS.filter(
-      (r) => r.city.toLowerCase() === city.toLowerCase(),
-    );
-  }
-
-  const supabase = createSupabaseServiceClient();
-  let query = supabase
-    .from("rooms")
-    .select(
-      "id, title, city, neighborhood, rent_monthly, available_from, beds, amenities, image_url, lifestyle_tags, cleanliness, noise_level, pets_allowed, smoking_allowed, description",
-    )
-    .eq("is_available", true)
-    .order("rent_monthly", { ascending: true });
-
-  if (city) {
-    query = query.ilike("city", city);
-  }
-
-  const { data, error } = await query;
-  if (error) {
-    console.error("Supabase rooms error:", error.message);
-    return MOCK_ROOMS;
-  }
-
-  return (data ?? []).map((row) => mapRoomRow(row as Record<string, unknown>));
 }

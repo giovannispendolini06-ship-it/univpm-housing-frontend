@@ -1,90 +1,143 @@
-import type { Room } from "./types";
+// lib/mock-data.ts
+// Dati fittizi: in produzione sostituisci con fetch a Supabase
+// (join tra rooms, properties e match_scores per lo studente loggato).
 
-/** Dati di esempio — da rimuovere in produzione quando Supabase è attivo. */
-export const MOCK_ROOMS: Room[] = [
+import type { ChatMessage, RecommendedRoom } from "./types";
+
+export const initialMessages: ChatMessage[] = [
   {
-    id: "room-1",
-    title: "Camera luminosa vicino a Navigli",
-    city: "Milano",
-    neighborhood: "Navigli",
-    rentMonthly: 680,
-    availableFrom: "2026-09-01",
-    beds: 1,
-    amenities: ["wifi", "lavanderia", "balcone"],
-    lifestyleTags: ["sociale", "aperitivo", "studenti"],
-    cleanliness: 4,
-    noiseLevel: 3,
-    petsAllowed: false,
-    smokingAllowed: false,
-    description:
-      "Stanza in appartamento condiviso con due coinquilini. Cucina attrezzata e zona living ampia.",
+    id: "m1",
+    role: "assistant",
+    content:
+      "Ehi! 👋 Sono Dado, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
+    createdAt: "2026-08-02T09:00:00.000Z",
   },
   {
-    id: "room-2",
-    title: "Quiet room in Isola",
-    city: "Milano",
-    neighborhood: "Isola",
-    rentMonthly: 750,
-    availableFrom: "2026-08-15",
-    beds: 1,
-    amenities: ["wifi", "scrivania", "aria-condizionata"],
-    lifestyleTags: ["tranquillo", "remote-work", "ordinato"],
-    cleanliness: 5,
-    noiseLevel: 1,
-    petsAllowed: true,
-    smokingAllowed: false,
-    description:
-      "Ideale per chi lavora da remoto. Casa ordinata, regole chiare, coinquilini rispettosi.",
+    id: "m2",
+    role: "user",
+    content: "Ciao! Ingegneria Informatica, secondo anno",
+    createdAt: "2026-08-02T09:00:20.000Z",
   },
   {
-    id: "room-3",
-    title: "Doppia in zona Università",
-    city: "Milano",
-    neighborhood: "Città Studi",
-    rentMonthly: 520,
-    availableFrom: "2026-10-01",
-    beds: 2,
-    amenities: ["wifi", "armadio", "bicicletta"],
-    lifestyleTags: ["studenti", "economico", "sociale"],
-    cleanliness: 3,
-    noiseLevel: 3,
-    petsAllowed: false,
-    smokingAllowed: false,
-    description:
-      "Camera doppia a due passi dal Politecnico. Atmosfera giovane e conviviale.",
+    id: "m3",
+    role: "assistant",
+    content:
+      "Top, quindi Monte Dago. Con la linea 65 (University Link) o la 46/ ci arrivi comodo. Budget mensile realistico?",
+    createdAt: "2026-08-02T09:00:35.000Z",
   },
   {
-    id: "room-4",
-    title: "Stanza con terrazzo a Porta Romana",
-    city: "Milano",
-    neighborhood: "Porta Romana",
-    rentMonthly: 820,
-    availableFrom: "2026-09-10",
-    beds: 1,
-    amenities: ["wifi", "terrazzo", "lavastoviglie"],
-    lifestyleTags: ["design", "tranquillo", "foodie"],
-    cleanliness: 5,
-    noiseLevel: 2,
-    petsAllowed: true,
-    smokingAllowed: false,
-    description:
-      "Appartamento curato, terrazzo condiviso e ottima esposizione. Preferenza per profili ordinati.",
+    id: "m4",
+    role: "user",
+    content: "Diciamo max 420, spese escluse",
+    createdAt: "2026-08-02T09:01:10.000Z",
   },
   {
-    id: "room-5",
-    title: "Camera economica a Bovisa",
-    city: "Milano",
-    neighborhood: "Bovisa",
-    rentMonthly: 450,
-    availableFrom: "2026-08-20",
-    beds: 1,
-    amenities: ["wifi", "riscaldamento"],
-    lifestyleTags: ["economico", "studenti", "essenziale"],
-    cleanliness: 3,
-    noiseLevel: 2,
-    petsAllowed: false,
-    smokingAllowed: true,
-    description:
-      "Soluzione pratica vicino al campus Bovisa. Spazi essenziali, affitto contenuto.",
+    id: "m5",
+    role: "assistant",
+    content:
+      "Perfetto, ho già trovato qualcosa di interessante qui a destra 👉 Dai un'occhiata alle stanze che ho selezionato per te.",
+    createdAt: "2026-08-02T09:01:40.000Z",
+  },
+];
+
+export const recommendedRooms: RecommendedRoom[] = [
+  {
+    id: "r1",
+    propertyId: "p1",
+    title: "Singola luminosa con balcone",
+    zone: "Baraccola",
+    polo: "monte_dago",
+    distanceMinutes: 9,
+    distanceLabel: "9 min • Linea 46/",
+    priceMonthly: 380,
+    estimatedUtilities: 45,
+    imageUrl:
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop",
+    matchScore: 92,
+    matchReasons: [
+      {
+        label: "Budget compatibile",
+        detail: "380€ rientra nei tuoi 420€ massimi",
+        weight: "alto",
+      },
+      {
+        label: "Orari di studio",
+        detail: "Coinquilino attuale studia in silenzio la sera, come te",
+        weight: "alto",
+      },
+      {
+        label: "Vicinanza al polo",
+        detail: "9 minuti da Monte Dago con la 46/",
+        weight: "medio",
+      },
+    ],
+    servicesIncluded: ["Wifi", "Lavatrice", "Riscaldamento centralizzato"],
+    availableFrom: "1 ottobre",
+  },
+  {
+    id: "r2",
+    propertyId: "p2",
+    title: "Doppia uso singola, appartamento condiviso",
+    zone: "Passo Varano",
+    polo: "monte_dago",
+    distanceMinutes: 14,
+    distanceLabel: "14 min • Linea 46/",
+    priceMonthly: 340,
+    estimatedUtilities: 40,
+    imageUrl:
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=800&auto=format&fit=crop",
+    matchScore: 81,
+    matchReasons: [
+      {
+        label: "Budget compatibile",
+        detail: "340€ è ben sotto il tuo massimo",
+        weight: "alto",
+      },
+      {
+        label: "Pulizia",
+        detail: "Livello di ordine dichiarato dai coinquilini in linea col tuo",
+        weight: "medio",
+      },
+      {
+        label: "Vita sociale",
+        detail: "Casa tranquilla, poche feste: come preferisci tu",
+        weight: "medio",
+      },
+    ],
+    servicesIncluded: ["Wifi", "Posto auto", "Terrazzo condiviso"],
+    availableFrom: "15 settembre",
+  },
+  {
+    id: "r3",
+    propertyId: "p3",
+    title: "Singola in centro storico",
+    zone: "Piazza Cavour",
+    polo: "centro_economia_giurisprudenza",
+    distanceMinutes: 25,
+    distanceLabel: "25 min • Linea 1/4 + 46/",
+    priceMonthly: 410,
+    estimatedUtilities: 50,
+    imageUrl:
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=800&auto=format&fit=crop",
+    matchScore: 64,
+    matchReasons: [
+      {
+        label: "Budget compatibile",
+        detail: "410€ rientra nel tuo massimo, di misura",
+        weight: "medio",
+      },
+      {
+        label: "Distanza dal polo",
+        detail: "Più lontana da Monte Dago rispetto ad altre opzioni",
+        weight: "basso",
+      },
+      {
+        label: "Vita di quartiere",
+        detail: "Zona centrale e vivace, utile se ti muovi spesso in città",
+        weight: "medio",
+      },
+    ],
+    servicesIncluded: ["Wifi", "Aria condizionata"],
+    availableFrom: "1 ottobre",
   },
 ];

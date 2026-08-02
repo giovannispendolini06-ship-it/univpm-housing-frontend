@@ -2,59 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg-base: #eef3ef;
-  --bg-panel: #f7faf7;
-  --ink: #223427;
-  --accent: #3c5f44;
-  --accent-warm: #c4875a;
+@layer base {
+  html {
+    @apply bg-bg text-ink;
+  }
+  body {
+    @apply font-body antialiased;
+  }
+  /* Focus visibile per accessibilità da tastiera */
+  :focus-visible {
+    @apply outline-none ring-2 ring-sea-600 ring-offset-2 ring-offset-bg;
+  }
 }
 
-html,
-body {
-  height: 100%;
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme("colors.sea.100") transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme("colors.sea.100");
+    border-radius: 999px;
+  }
 }
 
-body {
-  color: var(--ink);
-  background:
-    radial-gradient(1200px 600px at 10% -10%, #dce8df 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #e8ddd2 0%, transparent 45%),
-    var(--bg-base);
-  font-family: var(--font-inter), sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-::selection {
-  background: #c5d6c8;
-  color: #121c15;
-}
-
-:focus-visible {
-  outline: 2px solid #4f7858;
-  outline-offset: 2px;
-}
-
-/* Scrollbar sottile */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #9bb7a0 transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: #9bb7a0;
-  border-radius: 999px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background: #6f9477;
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

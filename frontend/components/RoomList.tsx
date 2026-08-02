@@ -1,42 +1,39 @@
-import type { MatchedRoom } from "@/lib/types";
-import { RoomCard } from "./RoomCard";
+import type { RecommendedRoom } from "@/lib/types";
+import RoomCard from "./RoomCard";
 
-interface RoomListProps {
-  rooms: MatchedRoom[];
-  isLoading?: boolean;
-}
+export default function RoomList({ rooms }: { rooms: RecommendedRoom[] }) {
+  const sorted = [...rooms].sort((a, b) => b.matchScore - a.matchScore);
 
-export function RoomList({ rooms, isLoading }: RoomListProps) {
-  if (isLoading) {
+  if (sorted.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center px-6 text-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-ink-200 border-t-ink-600" />
-        <p className="mt-4 font-display text-sm text-ink-500">
-          Sto cercando le stanze più adatte...
+      <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
+        <p className="font-display text-sm font-bold text-ink">
+          Ancora nessuna stanza da mostrarti
         </p>
-      </div>
-    );
-  }
-
-  if (!rooms.length) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center px-8 text-center">
-        <p className="font-display text-lg font-semibold text-ink-800">
-          Nessuna stanza ancora
-        </p>
-        <p className="mt-2 max-w-xs text-sm leading-relaxed text-ink-500">
-          Racconta a Dado dove vuoi vivere, il budget e lo stile di vita: le
-          proposte appariranno qui.
+        <p className="max-w-xs text-sm text-ink-muted">
+          Continua a chattare con Dado: appena avrà budget, polo e abitudini
+          troverà le stanze più compatibili con te.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="divide-y-0 px-4 pb-6">
-      {rooms.map((room) => (
-        <RoomCard key={room.id} room={room} />
-      ))}
-    </div>
+    <section className="flex h-full flex-col bg-bg">
+      <header className="border-b border-sea-100 bg-white/80 px-4 py-3 backdrop-blur sm:px-5">
+        <h2 className="font-display text-sm font-bold text-ink">
+          Stanze consigliate per te
+        </h2>
+        <p className="text-xs text-ink-muted">
+          {sorted.length} risultati ordinati per compatibilità
+        </p>
+      </header>
+
+      <div className="scrollbar-thin flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
+        {sorted.map((room) => (
+          <RoomCard key={room.id} room={room} />
+        ))}
+      </div>
+    </section>
   );
 }

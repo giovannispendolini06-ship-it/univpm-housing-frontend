@@ -1,29 +1,21 @@
 import type { ChatMessage } from "@/lib/types";
 
-interface ChatBubbleProps {
-  message: ChatMessage;
-}
-
-export function ChatBubble({ message }: ChatBubbleProps) {
-  const isUser = message.role === "user";
+export default function ChatBubble({ message }: { message: ChatMessage }) {
+  const isAssistant = message.role === "assistant";
 
   return (
     <div
-      className={`flex animate-fade-up ${isUser ? "justify-end" : "justify-start"}`}
+      className={`flex ${isAssistant ? "justify-start" : "justify-end"} w-full`}
     >
       <div
-        className={`max-w-[85%] rounded-2xl px-4 py-3 text-[15px] leading-relaxed ${
-          isUser
-            ? "rounded-br-md bg-ink-800 text-ink-50"
-            : "rounded-bl-md bg-white text-ink-900 shadow-soft ring-1 ring-ink-100"
-        }`}
+        className={[
+          "max-w-[80%] sm:max-w-[70%] rounded-xl2 px-4 py-2.5 text-[15px] leading-relaxed shadow-chat",
+          isAssistant
+            ? "bg-white text-ink rounded-tl-sm"
+            : "bg-sea-600 text-white rounded-tr-sm",
+        ].join(" ")}
       >
-        {!isUser && (
-          <p className="mb-1 font-display text-xs font-semibold uppercase tracking-wide text-ink-500">
-            Dado
-          </p>
-        )}
-        <p className="whitespace-pre-wrap">{message.content}</p>
+        {message.content}
       </div>
     </div>
   );

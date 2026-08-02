@@ -1,131 +1,85 @@
 "use client";
 
 import { useState } from "react";
-import { ChatPanel } from "@/components/ChatPanel";
-import { RoomList } from "@/components/RoomList";
-import type {
-  ChatMessage,
-  ChatResponseBody,
-  MatchedRoom,
-  UserPreferences,
-} from "@/lib/types";
+import ChatPanel from "@/components/ChatPanel";
+import RoomList from "@/components/RoomList";
+import { initialMessages, recommendedRooms } from "@/lib/mock-data";
 
-const WELCOME: ChatMessage = {
-  id: "welcome",
-  role: "assistant",
-  content:
-    "Ciao, sono Dado. Dimmi dove vorresti vivere, quanto puoi spendere e che tipo di casa cerchi: ti propongo le stanze più in linea con te.",
-  createdAt: new Date().toISOString(),
-};
+type MobileTab = "chat" | "rooms";
 
-export default function DashboardPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME]);
-  const [preferences, setPreferences] = useState<UserPreferences>({});
-  const [rooms, setRooms] = useState<MatchedRoom[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [isMatching, setIsMatching] = useState(false);
+/**
+ * Layout:
+ * - Mobile (< md): un solo pannello alla volta, switch con tab in alto
+ *   (chat di default, poi "Stanze" quando l'AI ha dei suggerimenti).
+ * - Desktop (>= md): split screen, chat a sinistra (fissa), stanze a
+ *   destra (scroll indipendente) — come un client di messaggistica.
+ */
+export default function StudentDashboardPage() {
+  const [activeTab, setActiveTab] = useState<MobileTab>("chat");
 
-  async function handleSend(text: string) {
-    const userMessage: ChatMessage = {
-      id: `u-${Date.now()}`,
-      role: "user",
-      content: text,
-      createdAt: new Date().toISOString(),
-    };
-
-    const nextMessages = [...messages, userMessage];
-    setMessages(nextMessages);
-    setIsTyping(true);
-    setIsMatching(true);
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: nextMessages.map(({ role, content }) => ({
-            role,
-            content,
-          })),
-          preferences,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Chat API error: ${response.status}`);
-      }
-
-      const data = (await response.json()) as ChatResponseBody;
-
-      setPreferences(data.preferences);
-      setRooms(data.rooms);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `a-${Date.now()}`,
-          role: "assistant",
-          content: data.reply,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: `err-${Date.now()}`,
-          role: "assistant",
-          content:
-            "Ops, qualcosa non ha funzionato. Riprova tra un attimo — nel frattempo puoi dirmi pure budget e quartiere.",
-          createdAt: new Date().toISOString(),
-        },
-      ]);
-    } finally {
-      setIsTyping(false);
-      setIsMatching(false);
-    }
+  async function handleSendMessage(_text: string): Promise<string> {
+    // TODO: sostituire con la chiamata reale, es.
+    // const res = await fetch("/api/chat", { method: "POST", body: JSON.stringify({ text }) });
+    // const data = await res.json();
+    // return data.reply;
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    return "Ok, segnato! Continua pure, sto aggiornando i suggerimenti.";
   }
 
   return (
-    <main className="mx-auto flex h-[100dvh] max-w-6xl flex-col px-3 py-3 md:px-5 md:py-5">
-      <div className="mb-3 flex items-end justify-between gap-3 px-1">
-        <div>
-          <p className="font-display text-2xl font-bold tracking-tight text-ink-900 md:text-3xl">
-            Dado
-          </p>
-          <p className="text-sm text-ink-500">
-            Chat + matching stanze in un’unica schermata
-          </p>
-        </div>
-        {Object.keys(preferences).length > 0 && (
-          <p className="hidden text-xs text-ink-400 sm:block">
-            Preferenze aggiornate
-          </p>
-        )}
+    <main className="h-dvh bg-bg">
+      {/* Tab bar solo mobile */}
+      <div className="flex border-b border-sea-100 bg-white md:hidden">
+        <TabButton
+          label="Chat"
+          isActive={activeTab === "chat"}
+          onClick={() => setActiveTab("chat")}
+        />
+        <TabButton
+          label={`Stanze (${recommendedRooms.length})`}
+          isActive={activeTab === "rooms"}
+          onClick={() => setActiveTab("rooms")}
+        />
       </div>
 
-      <div className="grid min-h-0 flex-1 gap-3 md:grid-cols-[1.15fr_0.85fr]">
-        <div className="min-h-0 overflow-hidden rounded-3xl bg-[var(--bg-panel)] shadow-soft ring-1 ring-ink-100">
+      <div className="mx-auto grid h-[calc(100dvh-45px)] max-w-7xl grid-cols-1 md:h-dvh md:grid-cols-[minmax(320px,420px)_1fr]">
+        <div
+          className={`${activeTab === "chat" ? "block" : "hidden"} h-full md:block md:border-r md:border-sea-100`}
+        >
           <ChatPanel
-            messages={messages}
-            isTyping={isTyping}
-            onSend={handleSend}
+            initialMessages={initialMessages}
+            onSendMessage={handleSendMessage}
           />
         </div>
 
-        <aside className="flex min-h-0 flex-col overflow-hidden rounded-3xl bg-white/70 shadow-soft ring-1 ring-ink-100 backdrop-blur">
-          <div className="border-b border-ink-100 px-5 py-4">
-            <h2 className="font-display text-lg font-semibold text-ink-900">
-              Stanze per te
-            </h2>
-            <p className="text-xs text-ink-500">
-              Ordinate per match score in tempo reale
-            </p>
-          </div>
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <RoomList rooms={rooms} isLoading={isMatching && !rooms.length} />
-          </div>
-        </aside>
+        <div className={`${activeTab === "rooms" ? "block" : "hidden"} h-full md:block`}>
+          <RoomList rooms={recommendedRooms} />
+        </div>
       </div>
     </main>
+  );
+}
+
+function TabButton({
+  label,
+  isActive,
+  onClick,
+}: {
+  label: string;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={[
+        "flex-1 border-b-2 py-2.5 text-sm font-medium transition",
+        isActive
+          ? "border-sea-600 text-sea-700"
+          : "border-transparent text-ink-muted",
+      ].join(" ")}
+    >
+      {label}
+    </button>
   );
 }
