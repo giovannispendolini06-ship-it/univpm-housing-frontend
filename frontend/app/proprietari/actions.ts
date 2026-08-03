@@ -1,6 +1,7 @@
 "use server";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { sendEmail, buildAdminInquiryEmail, buildInquiryConfirmationEmail } from "@/lib/email";
 
 interface InquiryResult {
   error?: string;
@@ -34,6 +35,25 @@ export async function submitOwnerInquiry(formData: FormData): Promise<InquiryRes
       error:
         "Qualcosa è andato storto nell'invio. Riprova, o scrivici direttamente a info@bindo.it.",
     };
+  }
+
+  // --- Notifica a te: così non devi controllare il pannello a mano -------
+  const adminEmail = buildAdminInquiryEmail({
+    fullName,
+    phone,
+    email,
+    propertyAddress,
+    message,
+  });
+  await sendEmail({
+    to: process.env.ADMIN_NOTIFICATION_EMAIL || "info@bindo.it",
+    ...adminEmail,
+  });
+
+  // --- Conferma di ricezione a chi ha scritto -----------------------------
+  if (email) {
+    const confirmationEmail = buildInquiryConfirmationEmail({ fullName });
+    await sendEmail({ to: email, ...confirmationEmail });
   }
 
   return { success: true };

@@ -6,6 +6,7 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
+import { sendEmail, buildWelcomeEmail } from "@/lib/email";
 
 interface OnboardingResult {
   error?: string;
@@ -28,7 +29,7 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
 
   const { data: profile } = await authClient
     .from("users")
-    .select("role")
+    .select("role, full_name")
     .eq("id", user.id)
     .single();
 
@@ -83,6 +84,14 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
   }
 
   revalidatePath("/onboarding");
+
+  // Email di benvenuto, personalizzata in base al ruolo. Non blocca mai il
+  // flusso: se fallisce, sendEmail() logga soltanto e prosegue.
+  const welcomeEmail = buildWelcomeEmail({
+    fullName: profile?.full_name ?? "",
+    role: role === "owner" ? "owner" : "student",
+  });
+  await sendEmail({ to: user.email ?? "", ...welcomeEmail });
 
   // Solo qui, dopo il successo, chiamiamo redirect (nessun try/catch attorno
   // a questa funzione sul client, così il redirect funziona regolarmente).
