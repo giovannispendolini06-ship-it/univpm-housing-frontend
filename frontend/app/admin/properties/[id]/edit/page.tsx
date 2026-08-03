@@ -1,25 +1,20 @@
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import {
   createServerSupabaseClient,
+  createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import { createProperty } from "../actions";
+import { updateProperty } from "../../actions";
 import SubmitButton from "@/components/SubmitButton";
 
-const SERVICE_OPTIONS = [
-  "Wifi",
-  "Lavatrice",
-  "Riscaldamento centralizzato",
-  "Posto auto",
-  "Aria condizionata",
-  "Terrazzo condiviso",
-];
+export const dynamic = "force-dynamic";
 
-export default async function NewPropertyPage({
-  searchParams,
+export default async function EditPropertyPage({
+  params,
 }: {
-  searchParams: Promise<Record<string, string | undefined>>;
+  params: Promise<{ id: string }>;
 }) {
-  // --- Verifica accesso: solo admin -----------------------------------------
+  const { id } = await params;
+
   const authClient = await createServerSupabaseClient();
   const {
     data: { user },
@@ -35,46 +30,29 @@ export default async function NewPropertyPage({
 
   if (profile?.role !== "admin") redirect("/dashboard");
 
-  // --- Pre-riempimento da un lead esterno o da una richiesta proprietario ---
-  const params = await searchParams;
-  const prefill = {
-    leadId: params.lead_id ?? "",
-    address: params.address ?? "",
-    zone: params.zone ?? "",
-    price: params.price ?? "",
-    title: params.title ?? "",
-    ownerName: params.owner_name ?? "",
-    ownerPhone: params.owner_phone ?? "",
-    ownerEmail: params.owner_email ?? "",
-  };
+  const db = createServiceSupabaseClient();
+  const { data: property } = await db.from("properties").select("*").eq("id", id).single();
+
+  if (!property) notFound();
 
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-3xl">
-        <header className="mb-6">
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Nuovo immobile
-          </h1>
-          <p className="mt-1 text-sm text-ink-muted">
-            Crea l&apos;immobile e la sua prima stanza. Potrai aggiungerne
-            altre in un secondo momento.
-          </p>
-          {prefill.leadId && (
-            <p className="mt-2 rounded-lg bg-sea-50 px-3 py-2 text-xs text-sea-700">
-              Stai creando questo immobile a partire da un annuncio esterno
-              tracciato — verrà collegato automaticamente al salvataggio.
-            </p>
-          )}
-        </header>
+        <a
+          href={`/admin/properties/${id}`}
+          className="mb-4 inline-block text-sm text-ink-muted underline underline-offset-2"
+        >
+          ← Torna all&apos;immobile
+        </a>
 
-        <form action={createProperty} className="space-y-6">
-          <input type="hidden" name="lead_id" value={prefill.leadId} />
+        <h1 className="mb-6 font-display text-2xl font-bold text-ink">
+          Modifica immobile
+        </h1>
 
-          {/* --- Sezione immobile --- */}
+        <form action={updateProperty} className="space-y-6">
+          <input type="hidden" name="property_id" value={property.id} />
+
           <section className="rounded-xl2 bg-surface p-5 shadow-card">
-            <h2 className="mb-4 font-display text-base font-bold text-ink">
-              Immobile
-            </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label className="mb-1 block text-xs font-medium text-ink-muted">
@@ -84,7 +62,7 @@ export default async function NewPropertyPage({
                   type="text"
                   name="address"
                   required
-                  defaultValue={prefill.address}
+                  defaultValue={property.address}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -96,7 +74,7 @@ export default async function NewPropertyPage({
                 <input
                   type="text"
                   name="city"
-                  defaultValue="Ancona"
+                  defaultValue={property.city}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -108,8 +86,7 @@ export default async function NewPropertyPage({
                 <input
                   type="text"
                   name="zone"
-                  defaultValue={prefill.zone}
-                  placeholder="Es. Torrette"
+                  defaultValue={property.zone ?? ""}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -122,6 +99,7 @@ export default async function NewPropertyPage({
                   type="number"
                   step="0.1"
                   name="distance_monte_dago_km"
+                  defaultValue={property.distance_monte_dago_km ?? ""}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -134,6 +112,7 @@ export default async function NewPropertyPage({
                   type="number"
                   step="0.1"
                   name="distance_torrette_km"
+                  defaultValue={property.distance_torrette_km ?? ""}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -146,6 +125,7 @@ export default async function NewPropertyPage({
                   type="number"
                   step="0.1"
                   name="distance_centro_km"
+                  defaultValue={property.distance_centro_km ?? ""}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -156,6 +136,7 @@ export default async function NewPropertyPage({
                 </label>
                 <select
                   name="contract_type"
+                  defaultValue={property.contract_type}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 >
                   <option value="stanza_singola">Stanza singola</option>
@@ -174,7 +155,7 @@ export default async function NewPropertyPage({
                   name="monthly_rent_to_owner"
                   required
                   min={0}
-                  defaultValue={prefill.price}
+                  defaultValue={property.monthly_rent_to_owner}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -185,6 +166,7 @@ export default async function NewPropertyPage({
                 </label>
                 <select
                   name="guarantee_status"
+                  defaultValue={property.guarantee_status}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 >
                   <option value="nessuna">Nessuna</option>
@@ -202,6 +184,7 @@ export default async function NewPropertyPage({
                   type="number"
                   name="deposit_amount"
                   min={0}
+                  defaultValue={property.deposit_amount ?? ""}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -214,7 +197,7 @@ export default async function NewPropertyPage({
                   type="number"
                   name="total_rooms"
                   min={1}
-                  defaultValue={1}
+                  defaultValue={property.total_rooms}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -227,7 +210,7 @@ export default async function NewPropertyPage({
                   type="number"
                   name="bathrooms"
                   min={1}
-                  defaultValue={1}
+                  defaultValue={property.bathrooms}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -240,6 +223,7 @@ export default async function NewPropertyPage({
                   type="number"
                   name="size_sqm"
                   min={0}
+                  defaultValue={property.size_sqm ?? ""}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -251,7 +235,7 @@ export default async function NewPropertyPage({
                 <input
                   type="text"
                   name="floor"
-                  placeholder="Es. 2° piano"
+                  defaultValue={property.floor ?? ""}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
               </div>
@@ -262,16 +246,24 @@ export default async function NewPropertyPage({
                 </label>
                 <select
                   name="status"
-                  defaultValue="attivo"
+                  defaultValue={property.status}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 >
                   <option value="attivo">Attivo (visibile agli studenti)</option>
                   <option value="bozza">Bozza (non ancora visibile)</option>
+                  <option value="affittato">Affittato</option>
+                  <option value="sospeso">Sospeso</option>
                 </select>
               </div>
 
               <div className="flex items-center gap-2 pt-6">
-                <input type="checkbox" name="has_elevator" id="has_elevator" className="h-4 w-4" />
+                <input
+                  type="checkbox"
+                  name="has_elevator"
+                  id="has_elevator"
+                  defaultChecked={property.has_elevator}
+                  className="h-4 w-4"
+                />
                 <label htmlFor="has_elevator" className="text-sm text-ink">
                   Ascensore
                 </label>
@@ -282,7 +274,7 @@ export default async function NewPropertyPage({
                   type="checkbox"
                   name="is_furnished"
                   id="is_furnished"
-                  defaultChecked
+                  defaultChecked={property.is_furnished}
                   className="h-4 w-4"
                 />
                 <label htmlFor="is_furnished" className="text-sm text-ink">
@@ -292,176 +284,40 @@ export default async function NewPropertyPage({
             </div>
           </section>
 
-          {/* --- Sezione contatto proprietario --- */}
           <section className="rounded-xl2 bg-surface p-5 shadow-card">
             <h2 className="mb-1 font-display text-base font-bold text-ink">
               Contatto del proprietario
             </h2>
             <p className="mb-4 text-xs text-ink-muted">
-              Utile finché non ha un suo account sul sito — resta visibile
-              solo a te.
+              Solo per uso interno, finché non ha un account collegato.
             </p>
             <div className="grid gap-3 sm:grid-cols-3">
               <input
                 type="text"
                 name="owner_contact_name"
-                defaultValue={prefill.ownerName}
+                defaultValue={property.owner_contact_name ?? ""}
                 placeholder="Nome e cognome"
                 className="rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
               />
               <input
                 type="tel"
                 name="owner_contact_phone"
-                defaultValue={prefill.ownerPhone}
+                defaultValue={property.owner_contact_phone ?? ""}
                 placeholder="Telefono"
                 className="rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
               />
               <input
                 type="email"
                 name="owner_contact_email"
-                defaultValue={prefill.ownerEmail}
+                defaultValue={property.owner_contact_email ?? ""}
                 placeholder="Email"
                 className="rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
               />
             </div>
           </section>
 
-          {/* --- Sezione prima stanza --- */}
-          <section className="rounded-xl2 bg-surface p-5 shadow-card">
-            <h2 className="mb-1 font-display text-base font-bold text-ink">
-              Prima stanza
-            </h2>
-            <p className="mb-4 text-xs text-ink-muted">
-              Ogni immobile ha almeno una stanza: è quello che vedono gli
-              studenti nella dashboard.
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <label className="mb-1 block text-xs font-medium text-ink-muted">
-                  Nome stanza *
-                </label>
-                <input
-                  type="text"
-                  name="room_label"
-                  required
-                  defaultValue={prefill.title}
-                  placeholder="Es. Singola luminosa con balcone"
-                  className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-ink-muted">
-                  Prezzo mensile (€) *
-                </label>
-                <input
-                  type="number"
-                  name="price_monthly"
-                  required
-                  min={0}
-                  className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-ink-muted">
-                  Spese stimate (€/mese)
-                </label>
-                <input
-                  type="number"
-                  name="estimated_utilities"
-                  min={0}
-                  className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-ink-muted">
-                  Mq stanza
-                </label>
-                <input
-                  type="number"
-                  name="room_size_sqm"
-                  min={0}
-                  className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-ink-muted">
-                  Massimo occupanti
-                </label>
-                <input
-                  type="number"
-                  name="max_occupants"
-                  min={1}
-                  defaultValue={1}
-                  className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-medium text-ink-muted">
-                  Disponibile dal
-                </label>
-                <input
-                  type="date"
-                  name="available_from"
-                  className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 pt-6">
-                <input
-                  type="checkbox"
-                  name="has_private_bathroom"
-                  id="has_private_bathroom"
-                  className="h-4 w-4"
-                />
-                <label htmlFor="has_private_bathroom" className="text-sm text-ink">
-                  Bagno privato
-                </label>
-              </div>
-
-              <div className="flex items-center gap-2 pt-6">
-                <input type="checkbox" name="has_balcony" id="has_balcony" className="h-4 w-4" />
-                <label htmlFor="has_balcony" className="text-sm text-ink">
-                  Balcone
-                </label>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="mb-2 block text-xs font-medium text-ink-muted">
-                  Servizi inclusi
-                </label>
-                <div className="flex flex-wrap gap-3">
-                  {SERVICE_OPTIONS.map((service) => (
-                    <label
-                      key={service}
-                      className="flex items-center gap-1.5 rounded-full border border-sea-100 px-3 py-1.5 text-xs text-ink"
-                    >
-                      <input
-                        type="checkbox"
-                        name="services_included"
-                        value={service}
-                        className="h-3.5 w-3.5"
-                      />
-                      {service}
-                    </label>
-                  ))}
-                </div>
-                <input
-                  type="text"
-                  name="extra_service"
-                  placeholder="Altro servizio (facoltativo)"
-                  className="mt-2 w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-                />
-              </div>
-            </div>
-          </section>
-
           <SubmitButton className="w-full rounded-full bg-sea-600 py-3 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50 sm:w-auto sm:px-8">
-            Crea immobile
+            Salva modifiche
           </SubmitButton>
         </form>
       </div>

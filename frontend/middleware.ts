@@ -2,6 +2,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+function homeForRole(role: string | undefined): string {
+  if (role === "admin") return "/admin";
+  if (role === "owner") return "/owner";
+  return "/dashboard";
+}
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -34,41 +40,54 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Non loggato e prova ad aprire /dashboard o /admin → rimandalo al login
-  if (
-    !user &&
-    (request.nextUrl.pathname.startsWith("/dashboard") ||
-      request.nextUrl.pathname.startsWith("/admin"))
-  ) {
+  const path = request.nextUrl.pathname;
+  const isProtectedArea =
+    path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/owner");
+  const isOnboarding = path.startsWith("/onboarding");
+
+  // Non loggato e prova ad aprire un'area protetta → rimandalo al login
+  if (!user && (isProtectedArea || isOnboarding)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // Già loggato e apre /login → mandalo alla schermata giusta per il suo ruolo
-  if (user && request.nextUrl.pathname === "/login") {
+  if (user && (path === "/login" || isProtectedArea || isOnboarding)) {
     const { data: profile } = await supabase
       .from("users")
-      .select("role")
+      .select("role, profile_completed")
       .eq("id", user.id)
       .single();
 
-    const url = request.nextUrl.clone();
-    url.pathname = profile?.role === "admin" ? "/admin" : "/dashboard";
-    return NextResponse.redirect(url);
-  }
+    const home = homeForRole(profile?.role);
+    // Gli admin non passano mai dall'onboarding.
+    const needsOnboarding = profile?.role !== "admin" && profile?.profile_completed !== true;
 
-  // Admin che prova ad aprire la dashboard studente → rimandalo al suo pannello
-  if (user && request.nextUrl.pathname.startsWith("/dashboard")) {
-    const { data: profile } = await supabase
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (profile?.role === "admin") {
+    // Già loggato e apre /login → mandalo dove deve andare
+    if (path === "/login") {
       const url = request.nextUrl.clone();
-      url.pathname = "/admin";
+      url.pathname = needsOnboarding ? "/onboarding" : home;
+      return NextResponse.redirect(url);
+    }
+
+    // Profilo non completo e prova ad aprire un'altra pagina → onboarding
+    if (needsOnboarding && !isOnboarding) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/onboarding";
+      return NextResponse.redirect(url);
+    }
+
+    // Profilo già completo ma prova a tornare sull'onboarding → area sua
+    if (!needsOnboarding && isOnboarding) {
+      const url = request.nextUrl.clone();
+      url.pathname = home;
+      return NextResponse.redirect(url);
+    }
+
+    // Prova ad aprire l'area di un ruolo diverso dal suo → area sua
+    if (isProtectedArea && !path.startsWith(home)) {
+      const url = request.nextUrl.clone();
+      url.pathname = home;
       return NextResponse.redirect(url);
     }
   }
@@ -77,5 +96,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/admin/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/login",
+    "/admin/:path*",
+    "/owner/:path*",
+    "/onboarding/:path*",
+  ],
 };

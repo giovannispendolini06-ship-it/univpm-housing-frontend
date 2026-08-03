@@ -13,7 +13,7 @@ export default function LandingNavbar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sea-600 font-display text-sm font-bold text-white">
             D
           </div>
-          <span className="font-display text-base font-bold text-ink">Domoria</span>
+          <span className="font-display text-base font-bold text-ink">Bindo</span>
         </Link>
 
         {/* Nav desktop */}
@@ -24,9 +24,9 @@ export default function LandingNavbar() {
           <a href="#proprietari" className="text-sm text-ink-muted transition hover:text-ink">
             Per i proprietari
           </a>
-          <a href="#come-funziona" className="text-sm text-ink-muted transition hover:text-ink">
+          <Link href="/esempi" className="text-sm text-ink-muted transition hover:text-ink">
             Come funziona
-          </a>
+          </Link>
         </nav>
 
         <div className="hidden md:block">
@@ -67,13 +67,13 @@ export default function LandingNavbar() {
           >
             Per i proprietari
           </a>
-          <a
-            href="#come-funziona"
+          <Link
+            href="/esempi"
             onClick={() => setIsOpen(false)}
             className="rounded-lg px-3 py-2.5 text-sm text-ink-muted"
           >
             Come funziona
-          </a>
+          </Link>
           <Link
             href="/login"
             className="mt-2 rounded-full bg-sea-600 px-4 py-2.5 text-center text-sm font-semibold text-white"

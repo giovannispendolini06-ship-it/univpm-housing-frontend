@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SignOutButton from "@/components/SignOutButton";
 
 export default function AdminLayout({
   children,
@@ -21,6 +22,18 @@ export default function AdminLayout({
                 Dashboard
               </Link>
               <Link
+                href="/admin/users"
+                className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:bg-sea-50 hover:text-ink"
+              >
+                Persone
+              </Link>
+              <Link
+                href="/admin/inquiries"
+                className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:bg-sea-50 hover:text-ink"
+              >
+                Richieste
+              </Link>
+              <Link
                 href="/admin/leads"
                 className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:bg-sea-50 hover:text-ink"
               >
@@ -34,12 +47,15 @@ export default function AdminLayout({
               </Link>
             </nav>
           </div>
-          <Link
-            href="/dashboard"
-            className="text-xs text-ink-muted underline underline-offset-2"
-          >
-            ← Torna al sito
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="text-xs text-ink-muted underline underline-offset-2"
+            >
+              ← Torna al sito
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
       </header>
 
