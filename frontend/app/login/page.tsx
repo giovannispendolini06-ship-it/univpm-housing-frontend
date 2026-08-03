@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [consentGiven, setConsentGiven] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,6 +27,11 @@ export default function LoginPage() {
 
     try {
       if (mode === "signup") {
+        if (!consentGiven) {
+          setError("Devi accettare Privacy e Termini di servizio per registrarti.");
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -128,6 +134,28 @@ export default function LoginPage() {
         />
 
         {error && <p className="text-sm text-sunset-600">{error}</p>}
+
+        {mode === "signup" && (
+          <label className="flex items-start gap-2 text-xs text-ink-muted">
+            <input
+              type="checkbox"
+              checked={consentGiven}
+              onChange={(e) => setConsentGiven(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0"
+            />
+            <span>
+              Ho letto e accetto la{" "}
+              <a href="/privacy" target="_blank" className="text-sea-700 underline">
+                Privacy Policy
+              </a>{" "}
+              e i{" "}
+              <a href="/termini" target="_blank" className="text-sea-700 underline">
+                Termini di Servizio
+              </a>
+              .
+            </span>
+          </label>
+        )}
 
         <button
           type="submit"
