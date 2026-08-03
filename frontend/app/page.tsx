@@ -21,7 +21,7 @@ export default function HomePage() {
             number: "1",
             title: "Racconta chi sei",
             description:
-              "Facoltà, polo UNIVPM, budget e data d'ingresso: bastano due minuti di chat, niente moduli infiniti.",
+              "Facoltà, ateneo, budget e data d'ingresso: bastano due minuti di chat, niente moduli infiniti.",
           },
           {
             number: "2",

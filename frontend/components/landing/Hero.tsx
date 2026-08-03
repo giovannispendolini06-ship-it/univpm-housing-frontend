@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeroMockup from "./HeroMockup";
 
 export default function Hero() {
   return (
@@ -6,19 +7,18 @@ export default function Hero() {
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-2 md:py-28">
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-sea-50 px-3 py-1 text-xs font-medium text-sea-700">
-            🎓 Fatto apposta per UNIVPM Ancona
+            🎓 Pensato per chi studia fuori sede
           </span>
 
           <h1 className="mt-4 font-display text-3xl font-bold leading-tight text-ink sm:text-4xl md:text-5xl">
-            Trova casa ad Ancona{" "}
-            <span className="text-sea-600">chattando</span>, non scorrendo
-            annunci a caso.
+            Trova casa <span className="text-sea-600">chattando</span>, non
+            scorrendo annunci a caso.
           </h1>
 
           <p className="mt-4 max-w-md text-base leading-relaxed text-ink-muted sm:text-lg">
             Racconta a Domi la tua facoltà, il tuo budget e le tue abitudini
             di convivenza. Ti proponiamo solo le stanze davvero compatibili
-            con te, vicino al tuo polo.
+            con te, vicino al tuo ateneo.
           </p>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -42,22 +42,14 @@ export default function Hero() {
         </div>
 
         <div className="relative">
-          <div className="overflow-hidden rounded-xl2 shadow-card">
-            <img
-              src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1200&auto=format&fit=crop"
-              alt="Appartamento luminoso per studenti"
-              className="h-72 w-full object-cover sm:h-96"
-            />
-          </div>
-          {/* Card fluttuante stile match score, coerente con la dashboard */}
-          <div className="absolute -bottom-5 -left-4 flex items-center gap-3 rounded-xl2 bg-white px-4 py-3 shadow-card sm:-left-8">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-sea-50 font-display text-sm font-bold text-sea-700">
-              92%
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-ink">Compatibile con te</p>
-              <p className="text-[11px] text-ink-muted">9 min da Monte Dago</p>
-            </div>
+          <HeroMockup />
+
+          {/* Card fluttuante di rinforzo, sempre UI reale non foto */}
+          <div className="absolute -bottom-5 -left-4 hidden items-center gap-2 rounded-xl2 bg-white px-4 py-3 shadow-card sm:-left-8 sm:flex">
+            <span className="h-2 w-2 rounded-full bg-sea-600" />
+            <p className="text-[11px] font-medium text-ink-muted">
+              Compatibilità calcolata in tempo reale
+            </p>
           </div>
         </div>
       </div>

@@ -11,8 +11,8 @@ export default function LandingFooter() {
           </div>
 
           <p className="max-w-sm text-xs leading-relaxed text-ink-muted">
-            Piattaforma indipendente per studenti e proprietari ad Ancona.
-            Non affiliata a UNIVPM.
+            Piattaforma indipendente per studenti fuori sede e proprietari di
+            casa. Non affiliata a nessuna università.
           </p>
 
           <a
