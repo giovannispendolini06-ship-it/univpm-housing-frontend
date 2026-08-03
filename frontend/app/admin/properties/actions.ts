@@ -6,6 +6,7 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
+import { recalculateMatchesForRoom } from "@/lib/matching-rooms";
 
 // ---------------------------------------------------------------------------
 // Stessa guardia di sicurezza usata in app/admin/leads/actions.ts
@@ -97,24 +98,32 @@ export async function createProperty(formData: FormData) {
   const extraService = String(formData.get("extra_service") ?? "").trim();
   if (extraService) services.push(extraService);
 
-  const { error: roomError } = await db.from("rooms").insert({
-    property_id: property.id,
-    room_label: roomLabel,
-    price_monthly: roomPrice,
-    estimated_utilities: numberOrNull(formData.get("estimated_utilities")) ?? 0,
-    size_sqm: numberOrNull(formData.get("room_size_sqm")),
-    has_private_bathroom: formData.get("has_private_bathroom") === "on",
-    has_balcony: formData.get("has_balcony") === "on",
-    max_occupants: numberOrNull(formData.get("max_occupants")) ?? 1,
-    services_included: services,
-    is_available: true,
-    available_from: String(formData.get("available_from") ?? "").trim() || null,
-    status: "attivo",
-  });
+  const { data: newRoom, error: roomError } = await db
+    .from("rooms")
+    .insert({
+      property_id: property.id,
+      room_label: roomLabel,
+      price_monthly: roomPrice,
+      estimated_utilities: numberOrNull(formData.get("estimated_utilities")) ?? 0,
+      size_sqm: numberOrNull(formData.get("room_size_sqm")),
+      has_private_bathroom: formData.get("has_private_bathroom") === "on",
+      has_balcony: formData.get("has_balcony") === "on",
+      max_occupants: numberOrNull(formData.get("max_occupants")) ?? 1,
+      services_included: services,
+      is_available: true,
+      available_from: String(formData.get("available_from") ?? "").trim() || null,
+      status: "attivo",
+    })
+    .select("id")
+    .single();
 
-  if (roomError) {
-    throw new Error(`Immobile creato ma errore nella stanza: ${roomError.message}`);
+  if (roomError || !newRoom) {
+    throw new Error(`Immobile creato ma errore nella stanza: ${roomError?.message}`);
   }
+
+  // Aggiorna subito la compatibilità per tutti gli studenti già registrati,
+  // così questa stanza compare per loro senza dover riscrivere a Nomi.
+  await recalculateMatchesForRoom(db, newRoom.id);
 
   // --- 3. Se veniamo da un lead esterno, colleghiamolo -----------------------
   const leadId = String(formData.get("lead_id") ?? "");
@@ -444,6 +453,10 @@ export async function updateRoom(formData: FormData) {
 
   if (error) throw new Error(`Errore nell'aggiornamento della stanza: ${error.message}`);
 
+  // Prezzo/servizi potrebbero essere cambiati: aggiorniamo la
+  // compatibilità per tutti, non solo per chi tornerà a chattare.
+  await recalculateMatchesForRoom(db, roomId);
+
   revalidatePath(`/admin/properties/${propertyId}`);
 }
 
@@ -464,22 +477,28 @@ export async function addRoom(formData: FormData) {
 
   const services = formData.getAll("services_included").map(String);
 
-  const { error } = await db.from("rooms").insert({
-    property_id: propertyId,
-    room_label: roomLabel,
-    price_monthly: roomPrice,
-    estimated_utilities: numberOrNull(formData.get("estimated_utilities")) ?? 0,
-    size_sqm: numberOrNull(formData.get("room_size_sqm")),
-    has_private_bathroom: formData.get("has_private_bathroom") === "on",
-    has_balcony: formData.get("has_balcony") === "on",
-    max_occupants: numberOrNull(formData.get("max_occupants")) ?? 1,
-    services_included: services,
-    is_available: true,
-    available_from: String(formData.get("available_from") ?? "").trim() || null,
-    status: "attivo",
-  });
+  const { data: newRoom, error } = await db
+    .from("rooms")
+    .insert({
+      property_id: propertyId,
+      room_label: roomLabel,
+      price_monthly: roomPrice,
+      estimated_utilities: numberOrNull(formData.get("estimated_utilities")) ?? 0,
+      size_sqm: numberOrNull(formData.get("room_size_sqm")),
+      has_private_bathroom: formData.get("has_private_bathroom") === "on",
+      has_balcony: formData.get("has_balcony") === "on",
+      max_occupants: numberOrNull(formData.get("max_occupants")) ?? 1,
+      services_included: services,
+      is_available: true,
+      available_from: String(formData.get("available_from") ?? "").trim() || null,
+      status: "attivo",
+    })
+    .select("id")
+    .single();
 
-  if (error) throw new Error(`Errore nella creazione della stanza: ${error.message}`);
+  if (error || !newRoom) throw new Error(`Errore nella creazione della stanza: ${error?.message}`);
+
+  await recalculateMatchesForRoom(db, newRoom.id);
 
   revalidatePath(`/admin/properties/${propertyId}`);
 }
