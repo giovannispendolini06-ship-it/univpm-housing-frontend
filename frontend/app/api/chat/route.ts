@@ -3,7 +3,7 @@
 // Flusso:
 // 1. Riceve { studentId, message, history } dal ChatPanel React.
 // 2. Verifica che lo studente sia autenticato e coincida con studentId.
-// 3. Chiama OpenAI con il system prompt di Dado + storico conversazione.
+// 3. Chiama OpenAI con il system prompt di Domi + storico conversazione.
 // 4. Se il modello ha prodotto il blocco <STUDENT_DATA_JSON>, aggiorna
 //    student_profiles su Supabase.
 // 5. Recupera le stanze disponibili ad Ancona e i relativi coinquilini
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error("[api/chat] Errore nel calcolo dei match:", err);
     // Anche qui: un fallimento nel matching non deve impedire allo
-    // studente di continuare a chattare con Dado.
+    // studente di continuare a chattare con Domi.
     rooms = [];
   }
 

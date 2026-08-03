@@ -13,7 +13,7 @@ export default function LandingNavbar() {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sea-600 font-display text-sm font-bold text-white">
             D
           </div>
-          <span className="font-display text-base font-bold text-ink">Dado</span>
+          <span className="font-display text-base font-bold text-ink">Domoria</span>
         </Link>
 
         {/* Nav desktop */}

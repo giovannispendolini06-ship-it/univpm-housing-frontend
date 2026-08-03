@@ -15,9 +15,9 @@ const body = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Trova casa ad Ancona | Portale Studenti UNIVPM",
+  title: "Domoria | Trova casa ad Ancona per studenti UNIVPM",
   description:
-    "Chatta con Dado e scopri le stanze più compatibili con te vicino ai poli UNIVPM.",
+    "Chatta con Domi e scopri le stanze più compatibili con te vicino ai poli UNIVPM.",
 };
 
 export default function RootLayout({

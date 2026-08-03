@@ -60,8 +60,8 @@ export default function LoginPage() {
           </h1>
           <p className="text-sm text-ink-muted">
             {mode === "signup"
-              ? "Per parlare con Dado e vedere le stanze consigliate"
-              : "Accedi per continuare con Dado"}
+              ? "Per parlare con Domi e vedere le stanze consigliate"
+              : "Accedi per continuare con Domi"}
           </p>
         </div>
 

@@ -7,7 +7,7 @@ export default function LandingFooter() {
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-sea-600 font-display text-sm font-bold text-white">
               D
             </div>
-            <span className="font-display text-base font-bold text-ink">Dado</span>
+            <span className="font-display text-base font-bold text-ink">Domoria</span>
           </div>
 
           <p className="max-w-sm text-xs leading-relaxed text-ink-muted">
@@ -16,15 +16,15 @@ export default function LandingFooter() {
           </p>
 
           <a
-            href="mailto:info@dado-ancona.it"
+            href="mailto:info@domoria.it"
             className="text-sm font-medium text-sea-700 underline underline-offset-2"
           >
-            info@dado-ancona.it
+            info@domoria.it
           </a>
         </div>
 
         <p className="mt-8 text-xs text-ink-muted">
-          © {new Date().getFullYear()} Dado. Tutti i diritti riservati.
+          © {new Date().getFullYear()} Domoria. Tutti i diritti riservati.
         </p>
       </div>
     </footer>

@@ -9,7 +9,7 @@ interface ChatPanelProps {
   initialMessages: ChatMessage[];
   /**
    * Collegata a /api/chat: riceve il testo scritto dallo studente e
-   * restituisce la risposta di Dado più (eventualmente) le stanze
+   * restituisce la risposta di Domi più (eventualmente) le stanze
    * ricalcolate dal motore di matching.
    */
   onSendMessage: (
@@ -98,7 +98,7 @@ export default function ChatPanel({
           D
         </div>
         <div>
-          <h1 className="font-display text-sm font-bold text-ink">Dado</h1>
+          <h1 className="font-display text-sm font-bold text-ink">Domi</h1>
           <p className="text-xs text-ink-muted">
             Il tuo assistente casa · UNIVPM Ancona
           </p>

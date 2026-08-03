@@ -12,9 +12,9 @@ export default function HomePage() {
       <HowItWorksSection
         id="studenti"
         eyebrow="Per gli studenti"
-        title="Tre passaggi, e Dado fa il resto"
+        title="Tre passaggi, e Domi fa il resto"
         variant="muted"
-        ctaLabel="Inizia a chattare con Dado"
+        ctaLabel="Inizia a chattare con Domi"
         ctaHref="/login"
         steps={[
           {
@@ -25,7 +25,7 @@ export default function HomePage() {
           },
           {
             number: "2",
-            title: "Dado capisce le tue abitudini",
+            title: "Domi capisce le tue abitudini",
             description:
               "Orari di studio, vita sociale, pulizia: informazioni che di solito si scoprono solo dopo aver firmato.",
           },
@@ -44,7 +44,7 @@ export default function HomePage() {
         title="Affitta senza gestire tu le trattative"
         variant="default"
         ctaLabel="Proponi il tuo immobile"
-        ctaHref="mailto:info@dado-ancona.it?subject=Voglio%20affittare%20con%20Dado"
+        ctaHref="mailto:info@domoria.it?subject=Voglio%20affittare%20con%20Domi"
         steps={[
           {
             number: "1",

@@ -11,7 +11,7 @@ type MobileTab = "chat" | "rooms";
 const WELCOME_MESSAGE: ChatMessage = {
   id: "welcome",
   role: "assistant",
-  content: "Ehi! 👋 Sono Dado, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
+  content: "Ehi! 👋 Sono Domi, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
   createdAt: new Date().toISOString(),
 };
 
