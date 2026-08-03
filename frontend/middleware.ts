@@ -45,11 +45,32 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Già loggato e apre /login → mandalo direttamente alla dashboard
+  // Già loggato e apre /login → mandalo alla schermata giusta per il suo ruolo
   if (user && request.nextUrl.pathname === "/login") {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = profile?.role === "admin" ? "/admin" : "/dashboard";
     return NextResponse.redirect(url);
+  }
+
+  // Admin che prova ad aprire la dashboard studente → rimandalo al suo pannello
+  if (user && request.nextUrl.pathname.startsWith("/dashboard")) {
+    const { data: profile } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.role === "admin") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin";
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import ChatPanel from "@/components/ChatPanel";
 import RoomList from "@/components/RoomList";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
@@ -11,7 +12,7 @@ type MobileTab = "chat" | "rooms";
 const WELCOME_MESSAGE: ChatMessage = {
   id: "welcome",
   role: "assistant",
-  content: "Ehi! 👋 Sono Domi, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
+  content: "Ehi! 👋 Sono Nomi, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
   createdAt: new Date().toISOString(),
 };
 
@@ -27,12 +28,25 @@ const WELCOME_MESSAGE: ChatMessage = {
 export default function StudentDashboardPage() {
   const [activeTab, setActiveTab] = useState<MobileTab>("chat");
   const [studentId, setStudentId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
 
   useEffect(() => {
     const supabase = createClientSupabaseClient();
     supabase.auth.getUser().then(({ data }) => {
-      setStudentId(data.user?.id ?? null);
+      const userId = data.user?.id ?? null;
+      setStudentId(userId);
+
+      if (userId) {
+        supabase
+          .from("users")
+          .select("role")
+          .eq("id", userId)
+          .single()
+          .then(({ data: profile }) => {
+            setIsAdmin(profile?.role === "admin");
+          });
+      }
     });
   }, []);
 
@@ -66,7 +80,16 @@ export default function StudentDashboardPage() {
   }
 
   return (
-    <main className="h-dvh bg-bg">
+    <main className="relative h-dvh bg-bg">
+      {isAdmin && (
+        <Link
+          href="/admin"
+          className="fixed right-3 top-3 z-50 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white shadow-card"
+        >
+          Admin
+        </Link>
+      )}
+
       {/* Tab bar solo mobile */}
       <div className="flex border-b border-sea-100 bg-white md:hidden">
         <TabButton
