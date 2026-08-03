@@ -6,6 +6,7 @@ import {
 import { uploadPropertyImages, assignPropertyOwner } from "../actions";
 import DeleteImageButton from "../DeleteImageButton";
 import DeletePropertyButton from "../DeletePropertyButton";
+import SubmitButton from "@/components/SubmitButton";
 
 export const dynamic = "force-dynamic";
 
@@ -111,12 +112,9 @@ export default async function PropertyDetailPage({
               placeholder="Email con cui il proprietario si è registrato"
               className="min-w-[240px] flex-1 rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
             />
-            <button
-              type="submit"
-              className="rounded-full bg-sea-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sea-700"
-            >
+            <SubmitButton className="rounded-full bg-sea-600 px-4 py-2 text-xs font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50">
               {isAssignedToRealOwner ? "Ricollega" : "Collega account"}
-            </button>
+            </SubmitButton>
           </form>
           <p className="mt-2 text-[11px] text-ink-muted">
             Il proprietario deve essersi già registrato sul sito scegliendo
@@ -156,12 +154,9 @@ export default async function PropertyDetailPage({
               required
               className="text-sm text-ink-muted file:mr-3 file:rounded-full file:border-0 file:bg-sea-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-sea-700"
             />
-            <button
-              type="submit"
-              className="rounded-full bg-sea-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sea-700"
-            >
+            <SubmitButton className="rounded-full bg-sea-600 px-4 py-2 text-xs font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50">
               Carica foto
-            </button>
+            </SubmitButton>
           </form>
           <p className="mt-2 text-[11px] text-ink-muted">
             Puoi selezionare più foto insieme. Formati supportati: JPG, PNG, WEBP.

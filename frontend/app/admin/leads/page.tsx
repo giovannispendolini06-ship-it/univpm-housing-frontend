@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   createServerSupabaseClient,
@@ -6,6 +5,7 @@ import {
 } from "@/lib/supabase/server";
 import { linkLeadToProperty, updateLeadStatus } from "./actions";
 import LeadForm from "./LeadForm";
+import SubmitButton from "@/components/SubmitButton";
 
 export const dynamic = "force-dynamic";
 
@@ -33,23 +33,8 @@ const STATUS_STYLES: Record<string, string> = {
   convertito: "bg-sea-600 text-white",
 };
 
-function buildNewPropertyHref(lead: {
-  id: string;
-  title?: string | null;
-  zone?: string | null;
-  address?: string | null;
-  price?: number | null;
-}) {
-  const params = new URLSearchParams();
-  params.set("lead_id", lead.id);
-  if (lead.title) params.set("title", lead.title);
-  if (lead.zone) params.set("zone", lead.zone);
-  if (lead.address) params.set("address", lead.address);
-  if (lead.price != null) params.set("price", String(lead.price));
-  return `/admin/properties/new?${params.toString()}`;
-}
-
 export default async function AdminLeadsPage() {
+  // --- Verifica accesso: solo utenti con ruolo 'admin' -------------------
   const authClient = await createServerSupabaseClient();
   const {
     data: { user },
@@ -65,6 +50,8 @@ export default async function AdminLeadsPage() {
 
   if (profile?.role !== "admin") redirect("/dashboard");
 
+  // --- Dati: usiamo il service client perché un admin deve poter vedere
+  // TUTTI i lead e TUTTI gli immobili, non solo quelli di sua proprietà ---
   const db = createServiceSupabaseClient();
 
   const { data: leads } = await db
@@ -93,6 +80,7 @@ export default async function AdminLeadsPage() {
           </p>
         </header>
 
+        {/* Form: aggiungi nuovo lead, con anteprima automatica da link */}
         <section className="mb-8 rounded-xl2 bg-surface p-5 shadow-card">
           <h2 className="mb-4 font-display text-base font-bold text-ink">
             Aggiungi un annuncio
@@ -100,6 +88,7 @@ export default async function AdminLeadsPage() {
           <LeadForm />
         </section>
 
+        {/* Lista lead */}
         <section className="space-y-3">
           <h2 className="font-display text-base font-bold text-ink">
             Annunci tracciati ({leads?.length ?? 0})
@@ -145,18 +134,21 @@ export default async function AdminLeadsPage() {
                       Vedi annuncio originale ↗
                     </a>
                   </div>
-
-                  {!lead.matched_property_id && (
-                    <Link
-                      href={buildNewPropertyHref(lead)}
-                      className="shrink-0 rounded-full bg-sea-600 px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-sea-700"
-                    >
-                      Trasforma in immobile →
-                    </Link>
-                  )}
                 </div>
 
+                {!lead.matched_property_id && (
+                  <div className="mt-3">
+                    <a
+                      href={`/admin/properties/new?lead_id=${lead.id}&address=${encodeURIComponent(lead.address ?? "")}&zone=${encodeURIComponent(lead.zone ?? "")}&price=${lead.price ?? ""}&title=${encodeURIComponent(lead.title ?? "")}`}
+                      className="inline-block rounded-full bg-sea-600 px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-sea-700"
+                    >
+                      Trasforma in immobile →
+                    </a>
+                  </div>
+                )}
+
                 <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-bg pt-3">
+                  {/* Collega a un immobile */}
                   <form action={linkLeadToProperty} className="flex items-center gap-2">
                     <input type="hidden" name="lead_id" value={lead.id} />
                     <select
@@ -169,19 +161,16 @@ export default async function AdminLeadsPage() {
                       </option>
                       {(properties ?? []).map((property) => (
                         <option key={property.id} value={property.id}>
-                          {property.address}{" "}
-                          {property.zone ? `· ${property.zone}` : ""}
+                          {property.address} {property.zone ? `· ${property.zone}` : ""}
                         </option>
                       ))}
                     </select>
-                    <button
-                      type="submit"
-                      className="rounded-full bg-sunset-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sunset-600"
-                    >
+                    <SubmitButton className="rounded-full bg-sunset-500 px-3 py-1.5 text-xs font-semibold text-white transition enabled:hover:bg-sunset-600 disabled:opacity-50">
                       Collega
-                    </button>
+                    </SubmitButton>
                   </form>
 
+                  {/* Cambia stato */}
                   <form action={updateLeadStatus} className="flex items-center gap-2">
                     <input type="hidden" name="lead_id" value={lead.id} />
                     <select
@@ -195,12 +184,9 @@ export default async function AdminLeadsPage() {
                         </option>
                       ))}
                     </select>
-                    <button
-                      type="submit"
-                      className="rounded-full border border-sea-200 px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-sea-400"
-                    >
+                    <SubmitButton className="rounded-full border border-sea-200 px-3 py-1.5 text-xs font-semibold text-ink transition enabled:hover:border-sea-400 disabled:opacity-50">
                       Aggiorna stato
-                    </button>
+                    </SubmitButton>
                   </form>
                 </div>
 

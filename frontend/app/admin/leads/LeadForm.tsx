@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { createLead, fetchListingPreview, type ListingPreview } from "./actions";
+import SubmitButton from "@/components/SubmitButton";
 
 const SOURCE_OPTIONS = [
   { value: "idealista", label: "Idealista" },
@@ -164,12 +165,9 @@ export default function LeadForm() {
       </div>
 
       <div className="sm:col-span-2">
-        <button
-          type="submit"
-          className="rounded-full bg-sea-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sea-700"
-        >
+        <SubmitButton className="rounded-full bg-sea-600 px-5 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50">
           Aggiungi annuncio
-        </button>
+        </SubmitButton>
       </div>
     </form>
   );
