@@ -43,35 +43,49 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isProtectedArea =
     path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/owner");
+  const isOnboarding = path.startsWith("/onboarding");
 
   // Non loggato e prova ad aprire un'area protetta → rimandalo al login
-  if (!user && isProtectedArea) {
+  if (!user && (isProtectedArea || isOnboarding)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  // Da qui in poi ci serve sapere il ruolo solo se l'utente è loggato e sta
-  // toccando /login oppure un'area protetta di un ruolo diverso dal suo.
-  if (user && (path === "/login" || isProtectedArea)) {
+  if (user && (path === "/login" || isProtectedArea || isOnboarding)) {
     const { data: profile } = await supabase
       .from("users")
-      .select("role")
+      .select("role, profile_completed")
       .eq("id", user.id)
       .single();
 
     const home = homeForRole(profile?.role);
+    // Gli admin non passano mai dall'onboarding.
+    const needsOnboarding = profile?.role !== "admin" && profile?.profile_completed !== true;
 
-    // Già loggato e apre /login → mandalo alla sua schermata
+    // Già loggato e apre /login → mandalo dove deve andare
     if (path === "/login") {
+      const url = request.nextUrl.clone();
+      url.pathname = needsOnboarding ? "/onboarding" : home;
+      return NextResponse.redirect(url);
+    }
+
+    // Profilo non completo e prova ad aprire un'altra pagina → onboarding
+    if (needsOnboarding && !isOnboarding) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/onboarding";
+      return NextResponse.redirect(url);
+    }
+
+    // Profilo già completo ma prova a tornare sull'onboarding → area sua
+    if (!needsOnboarding && isOnboarding) {
       const url = request.nextUrl.clone();
       url.pathname = home;
       return NextResponse.redirect(url);
     }
 
-    // Prova ad aprire un'area che non è la sua → rimandalo alla sua
-    const isInOwnArea = path.startsWith(home);
-    if (!isInOwnArea) {
+    // Prova ad aprire l'area di un ruolo diverso dal suo → area sua
+    if (isProtectedArea && !path.startsWith(home)) {
       const url = request.nextUrl.clone();
       url.pathname = home;
       return NextResponse.redirect(url);
@@ -82,5 +96,11 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/admin/:path*", "/owner/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/login",
+    "/admin/:path*",
+    "/owner/:path*",
+    "/onboarding/:path*",
+  ],
 };
