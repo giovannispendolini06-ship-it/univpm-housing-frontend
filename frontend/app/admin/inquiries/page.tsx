@@ -3,8 +3,24 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
+import { updateInquiryStatus } from "./actions";
+import SubmitButton from "@/components/SubmitButton";
 
 export const dynamic = "force-dynamic";
+
+const STATUS_LABELS: Record<string, string> = {
+  nuovo: "Nuovo",
+  contattato: "Contattato",
+  convertito: "Convertito",
+  scartato: "Scartato",
+};
+
+const STATUS_STYLES: Record<string, string> = {
+  nuovo: "bg-sea-50 text-sea-700",
+  contattato: "bg-sand-400/15 text-ink",
+  convertito: "bg-sea-600 text-white",
+  scartato: "bg-ink-muted/10 text-ink-muted",
+};
 
 export default async function AdminInquiriesPage() {
   const authClient = await createServerSupabaseClient();
@@ -37,7 +53,8 @@ export default async function AdminInquiriesPage() {
           </h1>
           <p className="mt-1 text-sm text-ink-muted">
             Persone che hanno compilato il form &quot;Proponi il tuo immobile&quot;
-            sul sito.
+            sul sito. Aggiorna lo stato man mano che le contatti, e trasformale
+            in un immobile vero quando sei pronto.
           </p>
         </header>
 
@@ -51,7 +68,12 @@ export default async function AdminInquiriesPage() {
               <article key={inquiry.id} className="rounded-xl2 bg-surface p-4 shadow-card sm:p-5">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <h3 className="font-display text-sm font-bold text-ink">
+                    <span
+                      className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_STYLES[inquiry.status] ?? ""}`}
+                    >
+                      {STATUS_LABELS[inquiry.status] ?? inquiry.status}
+                    </span>
+                    <h3 className="mt-1.5 font-display text-sm font-bold text-ink">
                       {inquiry.full_name}
                     </h3>
                     <p className="text-xs text-ink-muted">
@@ -86,6 +108,35 @@ export default async function AdminInquiriesPage() {
                     {inquiry.message}
                   </p>
                 )}
+
+                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-bg pt-3">
+                  {/* Trasforma in immobile: pre-compila indirizzo + contatti */}
+                  <a
+                    href={`/admin/properties/new?address=${encodeURIComponent(inquiry.property_address ?? "")}&owner_name=${encodeURIComponent(inquiry.full_name)}&owner_phone=${encodeURIComponent(inquiry.phone)}&owner_email=${encodeURIComponent(inquiry.email ?? "")}`}
+                    className="rounded-full bg-sea-600 px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-sea-700"
+                  >
+                    Trasforma in immobile →
+                  </a>
+
+                  {/* Cambia stato */}
+                  <form action={updateInquiryStatus} className="flex items-center gap-2">
+                    <input type="hidden" name="inquiry_id" value={inquiry.id} />
+                    <select
+                      name="status"
+                      defaultValue={inquiry.status}
+                      className="rounded-lg border border-sea-100 px-2 py-1.5 text-xs focus:border-sea-400 focus:outline-none"
+                    >
+                      {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                    <SubmitButton className="rounded-full border border-sea-200 px-3 py-1.5 text-xs font-semibold text-ink transition enabled:hover:border-sea-400 disabled:opacity-50">
+                      Aggiorna stato
+                    </SubmitButton>
+                  </form>
+                </div>
               </article>
             ))}
           </div>

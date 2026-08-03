@@ -35,7 +35,7 @@ export default async function NewPropertyPage({
 
   if (profile?.role !== "admin") redirect("/dashboard");
 
-  // --- Pre-riempimento da un lead esterno, se arriviamo da lì ---------------
+  // --- Pre-riempimento da un lead esterno o da una richiesta proprietario ---
   const params = await searchParams;
   const prefill = {
     leadId: params.lead_id ?? "",
@@ -43,6 +43,9 @@ export default async function NewPropertyPage({
     zone: params.zone ?? "",
     price: params.price ?? "",
     title: params.title ?? "",
+    ownerName: params.owner_name ?? "",
+    ownerPhone: params.owner_phone ?? "",
+    ownerEmail: params.owner_email ?? "",
   };
 
   return (
@@ -302,18 +305,21 @@ export default async function NewPropertyPage({
               <input
                 type="text"
                 name="owner_contact_name"
+                defaultValue={prefill.ownerName}
                 placeholder="Nome e cognome"
                 className="rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
               />
               <input
                 type="tel"
                 name="owner_contact_phone"
+                defaultValue={prefill.ownerPhone}
                 placeholder="Telefono"
                 className="rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
               />
               <input
                 type="email"
                 name="owner_contact_email"
+                defaultValue={prefill.ownerEmail}
                 placeholder="Email"
                 className="rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
               />
