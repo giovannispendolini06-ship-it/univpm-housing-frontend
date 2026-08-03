@@ -77,33 +77,41 @@ function extractMetaTag(html: string, property: string): string | null {
   return null;
 }
 
-export async function fetchListingPreview(url: string): Promise<ListingPreview> {
+export interface ListingPreviewResult {
+  preview?: ListingPreview;
+  error?: string;
+}
+
+export async function fetchListingPreview(url: string): Promise<ListingPreviewResult> {
   await assertAdmin();
 
   if (!url || !url.startsWith("http")) {
-    throw new Error("Link non valido.");
+    return { error: "Link non valido." };
   }
 
   let html: string;
   try {
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; DomoriaBot/1.0)",
+        "User-Agent": "Mozilla/5.0 (compatible; BindoBot/1.0)",
       },
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) throw new Error(String(res.status));
     html = await res.text();
   } catch {
-    throw new Error(
-      "Non sono riuscito a recuperare un'anteprima automatica per questo link. Compila i campi a mano qui sotto.",
-    );
+    return {
+      error:
+        "Non sono riuscito a recuperare un'anteprima automatica per questo link (il sito potrebbe bloccare le richieste automatiche). Compila i campi a mano qui sotto.",
+    };
   }
 
   return {
-    title: extractMetaTag(html, "og:title"),
-    image: extractMetaTag(html, "og:image"),
-    description: extractMetaTag(html, "og:description"),
+    preview: {
+      title: extractMetaTag(html, "og:title"),
+      image: extractMetaTag(html, "og:image"),
+      description: extractMetaTag(html, "og:description"),
+    },
   };
 }
 

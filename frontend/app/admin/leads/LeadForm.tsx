@@ -21,18 +21,18 @@ export default function LeadForm() {
   function handleFetchPreview() {
     setPreviewError(null);
     startFetching(async () => {
-      try {
-        const result = await fetchListingPreview(url);
-        setPreview(result);
-        if (!result.title && !result.image) {
-          setPreviewError(
-            "Nessuna anteprima trovata per questo link: compila i campi a mano.",
-          );
-        }
-      } catch (err) {
+      const result = await fetchListingPreview(url);
+
+      if (result.error) {
         setPreview(null);
+        setPreviewError(result.error);
+        return;
+      }
+
+      setPreview(result.preview ?? null);
+      if (!result.preview?.title && !result.preview?.image) {
         setPreviewError(
-          err instanceof Error ? err.message : "Errore nel recupero dell'anteprima.",
+          "Nessuna anteprima trovata per questo link: compila i campi a mano.",
         );
       }
     });
