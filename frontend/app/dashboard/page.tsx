@@ -25,29 +25,76 @@ const WELCOME_MESSAGE: ChatMessage = {
  *
  * Questa pagina è protetta da middleware.ts: se non sei loggato, Next.js
  * ti reindirizza automaticamente a /login prima di arrivare qui.
+ *
+ * Al primo caricamento, ricarica dal database la conversazione con Nomi
+ * e le stanze già calcolate (invece di ripartire sempre da zero): due
+ * semplici query indicizzate, nessuna chiamata a OpenAI, quindi resta
+ * leggero e veloce anche per chi torna il giorno dopo.
  */
 export default function StudentDashboardPage() {
   const [activeTab, setActiveTab] = useState<MobileTab>("chat");
   const [studentId, setStudentId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
+  // null = ancora in caricamento: evita di mostrare per un istante il
+  // messaggio di benvenuto e poi "saltare" alla cronologia vera.
+  const [initialMessages, setInitialMessages] = useState<ChatMessage[] | null>(null);
 
   useEffect(() => {
     const supabase = createClientSupabaseClient();
+
     supabase.auth.getUser().then(({ data }) => {
       const userId = data.user?.id ?? null;
       setStudentId(userId);
 
-      if (userId) {
-        supabase
-          .from("users")
-          .select("role")
-          .eq("id", userId)
-          .single()
-          .then(({ data: profile }) => {
-            setIsAdmin(profile?.role === "admin");
-          });
+      if (!userId) {
+        setInitialMessages([WELCOME_MESSAGE]);
+        return;
       }
+
+      // Ruolo (per il badge Admin)
+      supabase
+        .from("users")
+        .select("role")
+        .eq("id", userId)
+        .single()
+        .then(({ data: profile }) => {
+          setIsAdmin(profile?.role === "admin");
+        });
+
+      // Storico chat: se esiste già una conversazione, la ricarichiamo
+      // invece del messaggio di benvenuto.
+      supabase
+        .from("chat_messages")
+        .select("id, role, content, created_at")
+        .eq("student_id", userId)
+        .order("created_at", { ascending: true })
+        .then(({ data: history, error }) => {
+          if (error) {
+            console.error("Errore nel caricamento della cronologia chat:", error);
+            setInitialMessages([WELCOME_MESSAGE]);
+            return;
+          }
+          if (history && history.length > 0) {
+            setInitialMessages(
+              history.map((m) => ({
+                id: m.id,
+                role: m.role as ChatMessage["role"],
+                content: m.content,
+                createdAt: m.created_at,
+              })),
+            );
+          } else {
+            setInitialMessages([WELCOME_MESSAGE]);
+          }
+        });
+
+      // Stanze già calcolate in precedenza: così non serve riscrivere a
+      // Nomi solo per rivederle.
+      fetch(`/api/matches?studentId=${userId}`)
+        .then((res) => (res.ok ? res.json() : { rooms: [] }))
+        .then((data) => setRooms(data.rooms ?? []))
+        .catch(() => setRooms([]));
     });
   }, []);
 
@@ -112,11 +159,17 @@ export default function StudentDashboardPage() {
         <div
           className={`${activeTab === "chat" ? "block" : "hidden"} h-full md:block md:border-r md:border-sea-100`}
         >
-          <ChatPanel
-            initialMessages={[WELCOME_MESSAGE]}
-            onSendMessage={handleSendMessage}
-            onRoomsUpdate={setRooms}
-          />
+          {initialMessages ? (
+            <ChatPanel
+              initialMessages={initialMessages}
+              onSendMessage={handleSendMessage}
+              onRoomsUpdate={setRooms}
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-ink-muted">
+              Caricamento...
+            </div>
+          )}
         </div>
 
         <div className={`${activeTab === "rooms" ? "block" : "hidden"} h-full md:block`}>

@@ -3,12 +3,15 @@
 // Flusso:
 // 1. Riceve { studentId, message, history } dal ChatPanel React.
 // 2. Verifica che lo studente sia autenticato e coincida con studentId.
-// 3. Chiama OpenAI con il system prompt di Domi + storico conversazione.
+// 3. Chiama OpenAI con il system prompt di Nomi + storico conversazione.
 // 4. Se il modello ha prodotto il blocco <STUDENT_DATA_JSON>, aggiorna
 //    student_profiles su Supabase.
 // 5. Recupera le stanze disponibili ad Ancona e i relativi coinquilini
 //    attuali, ricalcola i match_scores e li salva.
-// 6. Risponde con { reply, rooms } pronto per il frontend.
+// 6. Salva il turno di conversazione (messaggio + risposta) in
+//    chat_messages, così resta disponibile la prossima volta che lo
+//    studente riapre il sito.
+// 7. Risponde con { reply, rooms } pronto per il frontend.
 
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenAIClient, OPENAI_MODEL } from "@/lib/openai";
@@ -17,10 +20,8 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import {
-  calculateMatchScore,
-  type StudentProfileRow,
-} from "@/lib/matching";
+import type { StudentProfileRow } from "@/lib/matching";
+import { computeRoomMatches } from "@/lib/matching-rooms";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -169,19 +170,27 @@ export async function POST(request: NextRequest) {
           );
 
         if (upsertError) {
-          // Non blocchiamo la risposta all'utente per un errore di
-          // salvataggio: lo logghiamo e proseguiamo comunque.
           console.error("[api/chat] Errore upsert student_profiles:", upsertError);
         }
       }
     } catch (err) {
       console.error("[api/chat] JSON non valido nel blocco STUDENT_DATA_JSON:", err);
-      // Continuiamo comunque: il messaggio di chat resta valido anche se
-      // l'estrazione strutturata fallisce.
     }
   }
 
-  // --- 5. Recupero profilo aggiornato, stanze e calcolo match -------------
+  // --- 5. Salva il turno di conversazione nello storico ---------------------
+  // Non blocca mai la risposta: se il salvataggio fallisce, lo studente
+  // vede comunque la risposta di Nomi, semplicemente non resterà salvata.
+  try {
+    await db.from("chat_messages").insert([
+      { student_id: userId, role: "user", content: message },
+      { student_id: userId, role: "assistant", content: replyForUser },
+    ]);
+  } catch (err) {
+    console.error("[api/chat] Errore salvataggio chat_messages:", err);
+  }
+
+  // --- 6. Recupero profilo aggiornato, stanze e calcolo match -------------
   let rooms: unknown[] = [];
   try {
     const { data: studentProfile, error: profileError } = await db
@@ -192,15 +201,11 @@ export async function POST(request: NextRequest) {
 
     if (profileError) throw profileError;
 
-    // Se il profilo non ha ancora i campi minimi, non calcoliamo match:
-    // rispondiamo solo con la chat.
     if (studentProfile?.polo_univpm && studentProfile?.budget_max) {
       rooms = await computeRoomMatches(db, studentProfile as StudentProfileRow);
     }
   } catch (err) {
     console.error("[api/chat] Errore nel calcolo dei match:", err);
-    // Anche qui: un fallimento nel matching non deve impedire allo
-    // studente di continuare a chattare con Domi.
     rooms = [];
   }
 
@@ -235,122 +240,4 @@ function buildProfileUpdatePayload(extracted: Record<string, unknown>) {
     }
   }
   return payload;
-}
-
-// ---------------------------------------------------------------------------
-// Helper: recupera stanze disponibili + coinquilini attuali e calcola/salva
-// i match_scores per lo studente corrente.
-// ---------------------------------------------------------------------------
-async function computeRoomMatches(
-  db: ReturnType<typeof createServiceSupabaseClient>,
-  student: StudentProfileRow,
-) {
-  const { data: roomsData, error: roomsError } = await db
-    .from("rooms")
-    .select(
-      `
-      id, price_monthly, estimated_utilities, is_available, room_label,
-      services_included, available_from,
-      properties:property_id!inner (
-        id, zone, distance_monte_dago_km, distance_torrette_km, distance_centro_km, city, status
-      )
-    `,
-    )
-    .eq("is_available", true)
-    .eq("properties.city", "Ancona")
-    .eq("properties.status", "attivo")
-    .limit(50);
-
-  if (roomsError) throw roomsError;
-  if (!roomsData || roomsData.length === 0) return [];
-
-  // NB: qui assumiamo l'esistenza di `room_tenancies` (room_id, student_id,
-  // ended_at) per sapere chi vive già in ciascuna property — vedi il
-  // commento in lib/matching.ts per la migration da aggiungere.
-  const propertyIds = roomsData
-    .map((r: any) => r.properties?.id)
-    .filter(Boolean);
-
-  const { data: tenancies, error: tenanciesError } = await db
-    .from("room_tenancies")
-    .select("student_id, room_id, ended_at, rooms:room_id ( property_id )")
-    .is("ended_at", null)
-    .in("rooms.property_id", propertyIds);
-
-  if (tenanciesError) {
-    console.error("[api/chat] room_tenancies non disponibile:", tenanciesError);
-  }
-
-  const roommateStudentIds = Array.from(
-    new Set((tenancies ?? []).map((t: any) => t.student_id)),
-  );
-
-  const { data: roommateProfiles } = roommateStudentIds.length
-    ? await db.from("student_profiles").select("*").in("user_id", roommateStudentIds)
-    : { data: [] as StudentProfileRow[] };
-
-  const roommatesByProperty = new Map<string, StudentProfileRow[]>();
-  for (const tenancy of tenancies ?? []) {
-    const propertyId = (tenancy as any).rooms?.property_id;
-    if (!propertyId) continue;
-    const profile = (roommateProfiles ?? []).find(
-      (p) => p.user_id === (tenancy as any).student_id,
-    );
-    if (!profile) continue;
-    const list = roommatesByProperty.get(propertyId) ?? [];
-    list.push(profile);
-    roommatesByProperty.set(propertyId, list);
-  }
-
-  const matchRows: {
-    student_id: string;
-    room_id: string;
-    compatibility_score: number;
-    ai_reasoning: unknown;
-    algorithm_version: string;
-  }[] = [];
-
-  const enrichedRooms = roomsData.map((room: any) => {
-    const property = room.properties;
-    const roommates = roommatesByProperty.get(property?.id) ?? [];
-
-    const { score, reasoning } = calculateMatchScore(
-      student,
-      room,
-      property,
-      roommates,
-    );
-
-    matchRows.push({
-      student_id: student.user_id,
-      room_id: room.id,
-      compatibility_score: score,
-      ai_reasoning: { reasons: reasoning },
-      algorithm_version: "v1",
-    });
-
-    return {
-      id: room.id,
-      title: room.room_label,
-      zone: property?.zone ?? null,
-      priceMonthly: room.price_monthly,
-      estimatedUtilities: room.estimated_utilities,
-      servicesIncluded: room.services_included ?? [],
-      availableFrom: room.available_from,
-      matchScore: score,
-      matchReasons: reasoning,
-    };
-  });
-
-  // Persistiamo i punteggi (upsert: uno studente può essere ricalcolato
-  // più volte sulla stessa stanza mano a mano che il profilo si arricchisce).
-  const { error: matchUpsertError } = await db
-    .from("match_scores")
-    .upsert(matchRows, { onConflict: "student_id,room_id" });
-
-  if (matchUpsertError) {
-    console.error("[api/chat] Errore salvataggio match_scores:", matchUpsertError);
-  }
-
-  return enrichedRooms.sort((a, b) => b.matchScore - a.matchScore).slice(0, 10);
 }
