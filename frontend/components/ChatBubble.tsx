@@ -1,12 +1,14 @@
 import type { ChatMessage } from "@/lib/types";
+import NomiAvatar from "./NomiAvatar";
 
 export default function ChatBubble({ message }: { message: ChatMessage }) {
   const isAssistant = message.role === "assistant";
 
   return (
     <div
-      className={`flex ${isAssistant ? "justify-start" : "justify-end"} w-full`}
+      className={`flex items-end gap-2 ${isAssistant ? "justify-start" : "justify-end"} w-full`}
     >
+      {isAssistant && <NomiAvatar size={26} />}
       <div
         className={[
           "max-w-[80%] sm:max-w-[70%] rounded-xl2 px-4 py-2.5 text-[15px] leading-relaxed shadow-chat",

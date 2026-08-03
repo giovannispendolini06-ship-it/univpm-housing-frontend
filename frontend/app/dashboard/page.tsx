@@ -6,6 +6,7 @@ import ChatPanel from "@/components/ChatPanel";
 import RoomList from "@/components/RoomList";
 import SignOutButton from "@/components/SignOutButton";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
+import LoadingRing from "@/components/LoadingRing";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 
@@ -171,11 +172,7 @@ export default function StudentDashboardPage() {
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3">
-              <div className="flex gap-1.5">
-                <span className="h-2 w-2 animate-bounce rounded-full bg-sea-400 [animation-delay:-0.3s]" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-sea-400 [animation-delay:-0.15s]" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-sea-400" />
-              </div>
+              <LoadingRing size={36} />
               <p className="text-sm text-ink-muted">Sto ritrovando la tua chat...</p>
             </div>
           )}
