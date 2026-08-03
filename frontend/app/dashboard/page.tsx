@@ -170,8 +170,13 @@ export default function StudentDashboardPage() {
               onRoomsUpdate={setRooms}
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-ink-muted">
-              Caricamento...
+            <div className="flex h-full flex-col items-center justify-center gap-3">
+              <div className="flex gap-1.5">
+                <span className="h-2 w-2 animate-bounce rounded-full bg-sea-400 [animation-delay:-0.3s]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-sea-400 [animation-delay:-0.15s]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-sea-400" />
+              </div>
+              <p className="text-sm text-ink-muted">Sto ritrovando la tua chat...</p>
             </div>
           )}
         </div>

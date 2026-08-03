@@ -6,12 +6,28 @@ export default function RoomList({ rooms }: { rooms: RecommendedRoom[] }) {
 
   if (sorted.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
+      <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sea-50">
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-sea-500"
+          >
+            <path d="M3 10.5 12 3l9 7.5" />
+            <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" />
+          </svg>
+        </div>
         <p className="font-display text-sm font-bold text-ink">
           Ancora nessuna stanza da mostrarti
         </p>
         <p className="max-w-xs text-sm text-ink-muted">
-          Continua a chattare con Domi: appena avrà budget, polo e abitudini
+          Continua a chattare con Nomi: appena avrà budget, polo e abitudini
           troverà le stanze più compatibili con te.
         </p>
       </div>

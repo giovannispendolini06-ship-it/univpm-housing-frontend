@@ -6,7 +6,18 @@ import TiltCard from "./TiltCard";
 export default function Hero() {
   return (
     <section className="relative overflow-hidden bg-bg">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-2 md:py-28">
+      {/* Sfumature decorative di sfondo: solo CSS, nessuna immagine da
+          caricare, quindi non appesantiscono la pagina. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-sea-100/60 blur-3xl"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 top-40 h-[360px] w-[360px] rounded-full bg-sunset-500/10 blur-3xl"
+      />
+
+      <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-2 md:py-28">
         <div>
           <Reveal>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-sea-50 px-3 py-1 text-xs font-medium text-sea-700">

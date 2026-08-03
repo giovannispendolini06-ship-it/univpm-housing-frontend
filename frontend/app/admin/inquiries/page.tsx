@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Phone, Mail, MapPin } from "lucide-react";
 import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
@@ -76,15 +77,15 @@ export default async function AdminInquiriesPage() {
                     <h3 className="mt-1.5 font-display text-sm font-bold text-ink">
                       {inquiry.full_name}
                     </h3>
-                    <p className="text-xs text-ink-muted">
-                      📞{" "}
+                    <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-ink-muted">
+                      <Phone size={13} className="shrink-0 text-sea-500" />
                       <a href={`tel:${inquiry.phone}`} className="underline">
                         {inquiry.phone}
                       </a>
                       {inquiry.email ? (
                         <>
-                          {" "}
-                          · ✉️{" "}
+                          <span>·</span>
+                          <Mail size={13} className="shrink-0 text-sea-500" />
                           <a href={`mailto:${inquiry.email}`} className="underline">
                             {inquiry.email}
                           </a>
@@ -100,7 +101,10 @@ export default async function AdminInquiriesPage() {
                 </div>
 
                 {inquiry.property_address && (
-                  <p className="mt-2 text-sm text-ink">📍 {inquiry.property_address}</p>
+                  <p className="mt-2 flex items-center gap-1.5 text-sm text-ink">
+                    <MapPin size={15} className="shrink-0 text-sea-600" />
+                    {inquiry.property_address}
+                  </p>
                 )}
 
                 {inquiry.message && (

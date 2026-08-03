@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Phone, IdCard } from "lucide-react";
 import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
@@ -43,8 +44,14 @@ function PersonCard({ person }: { person: Person }) {
         </h3>
         <p className="truncate text-xs text-ink-muted">{person.email}</p>
         <div className="mt-1.5 space-y-0.5 text-[11px] text-ink-muted">
-          <p>📞 {person.phone || "non fornito"}</p>
-          <p>🪪 {person.fiscal_code || "non fornito"}</p>
+          <p className="flex items-center gap-1.5">
+            <Phone size={12} className="shrink-0 text-sea-500" />
+            {person.phone || "non fornito"}
+          </p>
+          <p className="flex items-center gap-1.5">
+            <IdCard size={12} className="shrink-0 text-sea-500" />
+            {person.fiscal_code || "non fornito"}
+          </p>
         </div>
       </div>
     </Link>
