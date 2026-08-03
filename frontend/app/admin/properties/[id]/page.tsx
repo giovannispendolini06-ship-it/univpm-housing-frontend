@@ -8,6 +8,7 @@ import { uploadPropertyImages, assignPropertyOwner, addRoom } from "../actions";
 import DeleteImageButton from "../DeleteImageButton";
 import DeletePropertyButton from "../DeletePropertyButton";
 import EditRoomRow from "../EditRoomRow";
+import RoomTenancyControl from "../RoomTenancyControl";
 import SubmitButton from "@/components/SubmitButton";
 
 export const dynamic = "force-dynamic";
@@ -59,6 +60,24 @@ export default async function PropertyDetailPage({
     .select("*")
     .eq("property_id", id)
     .order("created_at", { ascending: true });
+
+  // --- Affitti attivi per le stanze di questo immobile ------------------
+  const roomIds = (property.rooms ?? []).map((r: { id: string }) => r.id);
+  const { data: tenancies } =
+    roomIds.length > 0
+      ? await db
+          .from("room_tenancies")
+          .select("id, room_id, started_at, users:student_id(full_name)")
+          .in("room_id", roomIds)
+          .is("ended_at", null)
+      : { data: [] as never[] };
+
+  const tenancyByRoom = new Map(
+    (tenancies ?? []).map((t: any) => [
+      t.room_id,
+      { id: t.id, started_at: t.started_at, tenantName: t.users?.full_name ?? "Studente" },
+    ]),
+  );
 
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
@@ -191,7 +210,14 @@ export default async function PropertyDetailPage({
                 is_available: boolean;
                 available_from: string | null;
               }) => (
-                <EditRoomRow key={room.id} room={room} propertyId={property.id} />
+                <div key={room.id} className="space-y-1.5">
+                  <EditRoomRow room={room} propertyId={property.id} />
+                  <RoomTenancyControl
+                    roomId={room.id}
+                    propertyId={property.id}
+                    tenancy={tenancyByRoom.get(room.id) ?? null}
+                  />
+                </div>
               ),
             )}
           </div>

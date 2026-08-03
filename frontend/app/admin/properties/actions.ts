@@ -272,6 +272,94 @@ export async function assignPropertyOwner(formData: FormData) {
 }
 
 // ---------------------------------------------------------------------------
+// Registra un affitto vero: collega uno studente già registrato a una
+// stanza specifica. Da questo momento la stanza conta come occupata nei
+// calcoli finanziari, e lo studente compare tra gli "Affittuari".
+// ---------------------------------------------------------------------------
+export async function createTenancy(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const roomId = String(formData.get("room_id") ?? "");
+  const propertyId = String(formData.get("property_id") ?? "");
+  const studentEmail = String(formData.get("student_email") ?? "").trim().toLowerCase();
+  const startedAt =
+    String(formData.get("started_at") ?? "").trim() ||
+    new Date().toISOString().slice(0, 10);
+
+  if (!roomId || !studentEmail) {
+    throw new Error("Email dello studente mancante.");
+  }
+
+  const { data: student } = await db
+    .from("users")
+    .select("id, role")
+    .eq("email", studentEmail)
+    .maybeSingle();
+
+  if (!student) {
+    throw new Error(
+      "Nessun account trovato con questa email. Lo studente deve prima registrarsi sul sito.",
+    );
+  }
+  if (student.role !== "student") {
+    throw new Error("Questo account non è registrato come studente.");
+  }
+
+  const { error: tenancyError } = await db.from("room_tenancies").insert({
+    room_id: roomId,
+    student_id: student.id,
+    started_at: startedAt,
+  });
+  if (tenancyError) {
+    throw new Error(`Errore nella registrazione dell'affitto: ${tenancyError.message}`);
+  }
+
+  const { error: roomError } = await db
+    .from("rooms")
+    .update({ is_available: false })
+    .eq("id", roomId);
+  if (roomError) {
+    throw new Error(`Affitto registrato ma errore nell'aggiornare la stanza: ${roomError.message}`);
+  }
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath("/admin");
+  revalidatePath("/admin/users");
+}
+
+// ---------------------------------------------------------------------------
+// Termina un affitto: la stanza torna disponibile, lo studente resta
+// comunque nello storico "Affittuari" (ha affittato, anche se non più ora).
+// ---------------------------------------------------------------------------
+export async function endTenancy(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const tenancyId = String(formData.get("tenancy_id") ?? "");
+  const roomId = String(formData.get("room_id") ?? "");
+  const propertyId = String(formData.get("property_id") ?? "");
+
+  if (!tenancyId || !roomId) throw new Error("Dati mancanti.");
+
+  const { error: tenancyError } = await db
+    .from("room_tenancies")
+    .update({ ended_at: new Date().toISOString().slice(0, 10) })
+    .eq("id", tenancyId);
+  if (tenancyError) throw new Error(`Errore: ${tenancyError.message}`);
+
+  const { error: roomError } = await db
+    .from("rooms")
+    .update({ is_available: true })
+    .eq("id", roomId);
+  if (roomError) throw new Error(`Errore nell'aggiornare la stanza: ${roomError.message}`);
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+  revalidatePath("/admin");
+  revalidatePath("/admin/users");
+}
+
+// ---------------------------------------------------------------------------
 // Aggiorna i dati di un immobile già esistente.
 // ---------------------------------------------------------------------------
 export async function updateProperty(formData: FormData) {
