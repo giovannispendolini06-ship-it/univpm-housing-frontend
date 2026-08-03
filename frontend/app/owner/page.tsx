@@ -4,6 +4,7 @@ import {
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
 import SignOutButton from "@/components/SignOutButton";
+import DeleteAccountButton from "@/components/DeleteAccountButton";
 
 export const dynamic = "force-dynamic";
 
@@ -80,7 +81,10 @@ export default async function OwnerDashboardPage() {
               I tuoi immobili e il loro stato in questo momento.
             </p>
           </div>
-          <SignOutButton className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card" />
+          <div className="flex flex-col items-end gap-1.5">
+            <SignOutButton className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card" />
+            <DeleteAccountButton isOwner />
+          </div>
         </header>
 
         {!properties || properties.length === 0 ? (
