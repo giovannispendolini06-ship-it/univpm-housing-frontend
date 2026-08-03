@@ -270,3 +270,128 @@ export async function assignPropertyOwner(formData: FormData) {
 
   revalidatePath(`/admin/properties/${propertyId}`);
 }
+
+// ---------------------------------------------------------------------------
+// Aggiorna i dati di un immobile già esistente.
+// ---------------------------------------------------------------------------
+export async function updateProperty(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const propertyId = String(formData.get("property_id") ?? "");
+  if (!propertyId) throw new Error("ID immobile mancante.");
+
+  const address = String(formData.get("address") ?? "").trim();
+  const monthlyRentToOwner = numberOrNull(formData.get("monthly_rent_to_owner"));
+  if (!address) throw new Error("L'indirizzo è obbligatorio.");
+  if (monthlyRentToOwner === null) {
+    throw new Error("Il canone al proprietario è obbligatorio.");
+  }
+
+  const { error } = await db
+    .from("properties")
+    .update({
+      address,
+      city: String(formData.get("city") ?? "Ancona").trim() || "Ancona",
+      zone: String(formData.get("zone") ?? "").trim() || null,
+      distance_monte_dago_km: numberOrNull(formData.get("distance_monte_dago_km")),
+      distance_torrette_km: numberOrNull(formData.get("distance_torrette_km")),
+      distance_centro_km: numberOrNull(formData.get("distance_centro_km")),
+      contract_type: String(formData.get("contract_type") ?? "stanza_singola"),
+      monthly_rent_to_owner: monthlyRentToOwner,
+      guarantee_status: String(formData.get("guarantee_status") ?? "nessuna"),
+      deposit_amount: numberOrNull(formData.get("deposit_amount")),
+      total_rooms: numberOrNull(formData.get("total_rooms")) ?? 1,
+      bathrooms: numberOrNull(formData.get("bathrooms")) ?? 1,
+      size_sqm: numberOrNull(formData.get("size_sqm")),
+      floor: String(formData.get("floor") ?? "").trim() || null,
+      has_elevator: formData.get("has_elevator") === "on",
+      is_furnished: formData.get("is_furnished") === "on",
+      status: String(formData.get("status") ?? "attivo"),
+      owner_contact_name: String(formData.get("owner_contact_name") ?? "").trim() || null,
+      owner_contact_phone: String(formData.get("owner_contact_phone") ?? "").trim() || null,
+      owner_contact_email: String(formData.get("owner_contact_email") ?? "").trim() || null,
+    })
+    .eq("id", propertyId);
+
+  if (error) throw new Error(`Errore nell'aggiornamento: ${error.message}`);
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+  redirect(`/admin/properties/${propertyId}`);
+}
+
+// ---------------------------------------------------------------------------
+// Aggiorna una stanza esistente.
+// ---------------------------------------------------------------------------
+export async function updateRoom(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const roomId = String(formData.get("room_id") ?? "");
+  const propertyId = String(formData.get("property_id") ?? "");
+  if (!roomId) throw new Error("ID stanza mancante.");
+
+  const roomLabel = String(formData.get("room_label") ?? "").trim();
+  const roomPrice = numberOrNull(formData.get("price_monthly"));
+  if (!roomLabel) throw new Error("Il nome della stanza è obbligatorio.");
+  if (roomPrice === null) throw new Error("Il prezzo è obbligatorio.");
+
+  const services = formData.getAll("services_included").map(String);
+
+  const { error } = await db
+    .from("rooms")
+    .update({
+      room_label: roomLabel,
+      price_monthly: roomPrice,
+      estimated_utilities: numberOrNull(formData.get("estimated_utilities")) ?? 0,
+      size_sqm: numberOrNull(formData.get("room_size_sqm")),
+      has_private_bathroom: formData.get("has_private_bathroom") === "on",
+      has_balcony: formData.get("has_balcony") === "on",
+      max_occupants: numberOrNull(formData.get("max_occupants")) ?? 1,
+      services_included: services,
+      is_available: formData.get("is_available") === "on",
+      available_from: String(formData.get("available_from") ?? "").trim() || null,
+    })
+    .eq("id", roomId);
+
+  if (error) throw new Error(`Errore nell'aggiornamento della stanza: ${error.message}`);
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+}
+
+// ---------------------------------------------------------------------------
+// Aggiunge una nuova stanza a un immobile già esistente.
+// ---------------------------------------------------------------------------
+export async function addRoom(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const propertyId = String(formData.get("property_id") ?? "");
+  if (!propertyId) throw new Error("ID immobile mancante.");
+
+  const roomLabel = String(formData.get("room_label") ?? "").trim();
+  const roomPrice = numberOrNull(formData.get("price_monthly"));
+  if (!roomLabel) throw new Error("Il nome della stanza è obbligatorio.");
+  if (roomPrice === null) throw new Error("Il prezzo è obbligatorio.");
+
+  const services = formData.getAll("services_included").map(String);
+
+  const { error } = await db.from("rooms").insert({
+    property_id: propertyId,
+    room_label: roomLabel,
+    price_monthly: roomPrice,
+    estimated_utilities: numberOrNull(formData.get("estimated_utilities")) ?? 0,
+    size_sqm: numberOrNull(formData.get("room_size_sqm")),
+    has_private_bathroom: formData.get("has_private_bathroom") === "on",
+    has_balcony: formData.get("has_balcony") === "on",
+    max_occupants: numberOrNull(formData.get("max_occupants")) ?? 1,
+    services_included: services,
+    is_available: true,
+    available_from: String(formData.get("available_from") ?? "").trim() || null,
+    status: "attivo",
+  });
+
+  if (error) throw new Error(`Errore nella creazione della stanza: ${error.message}`);
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+}

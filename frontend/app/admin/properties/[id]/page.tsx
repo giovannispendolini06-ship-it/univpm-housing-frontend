@@ -1,11 +1,13 @@
+import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import { uploadPropertyImages, assignPropertyOwner } from "../actions";
+import { uploadPropertyImages, assignPropertyOwner, addRoom } from "../actions";
 import DeleteImageButton from "../DeleteImageButton";
 import DeletePropertyButton from "../DeletePropertyButton";
+import EditRoomRow from "../EditRoomRow";
 import SubmitButton from "@/components/SubmitButton";
 
 export const dynamic = "force-dynamic";
@@ -77,6 +79,12 @@ export default async function PropertyDetailPage({
               {property.zone ?? "Zona non specificata"} · {property.city} ·{" "}
               {property.monthly_rent_to_owner}€/mese al proprietario
             </p>
+            <Link
+              href={`/admin/properties/${property.id}/edit`}
+              className="mt-1 inline-block text-xs font-medium text-sea-700 underline underline-offset-2"
+            >
+              Modifica dati immobile
+            </Link>
           </div>
           <DeletePropertyButton propertyId={property.id} />
         </div>
@@ -170,20 +178,63 @@ export default async function PropertyDetailPage({
           </h2>
           <div className="space-y-2">
             {(property.rooms ?? []).map(
-              (room: { id: string; room_label: string; price_monthly: number; is_available: boolean }) => (
-                <div
-                  key={room.id}
-                  className="flex items-center justify-between rounded-xl border border-sea-100 px-3 py-2"
-                >
-                  <span className="text-sm text-ink">{room.room_label}</span>
-                  <span className="text-xs text-ink-muted">
-                    {room.price_monthly}€/mese ·{" "}
-                    {room.is_available ? "libera" : "occupata"}
-                  </span>
-                </div>
+              (room: {
+                id: string;
+                room_label: string;
+                price_monthly: number;
+                estimated_utilities: number;
+                size_sqm: number | null;
+                has_private_bathroom: boolean;
+                has_balcony: boolean;
+                max_occupants: number;
+                services_included: string[];
+                is_available: boolean;
+                available_from: string | null;
+              }) => (
+                <EditRoomRow key={room.id} room={room} propertyId={property.id} />
               ),
             )}
           </div>
+
+          <details className="mt-4">
+            <summary className="cursor-pointer text-xs font-semibold text-sea-700">
+              + Aggiungi un&apos;altra stanza
+            </summary>
+            <form action={addRoom} className="mt-3 space-y-2 rounded-xl border border-sea-100 bg-bg p-3">
+              <input type="hidden" name="property_id" value={property.id} />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  name="room_label"
+                  required
+                  placeholder="Nome stanza"
+                  className="rounded-lg border border-sea-100 px-2 py-1.5 text-xs focus:border-sea-400 focus:outline-none"
+                />
+                <input
+                  type="number"
+                  name="price_monthly"
+                  required
+                  placeholder="Prezzo €"
+                  className="rounded-lg border border-sea-100 px-2 py-1.5 text-xs focus:border-sea-400 focus:outline-none"
+                />
+                <input
+                  type="number"
+                  name="estimated_utilities"
+                  placeholder="Spese €"
+                  className="rounded-lg border border-sea-100 px-2 py-1.5 text-xs focus:border-sea-400 focus:outline-none"
+                />
+                <input
+                  type="number"
+                  name="max_occupants"
+                  placeholder="Max occupanti"
+                  className="rounded-lg border border-sea-100 px-2 py-1.5 text-xs focus:border-sea-400 focus:outline-none"
+                />
+              </div>
+              <SubmitButton className="rounded-full bg-sea-600 px-3.5 py-1.5 text-xs font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50">
+                Aggiungi stanza
+              </SubmitButton>
+            </form>
+          </details>
         </section>
       </div>
     </main>
