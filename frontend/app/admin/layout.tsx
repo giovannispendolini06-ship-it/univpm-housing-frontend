@@ -28,6 +28,12 @@ export default function AdminLayout({
                 Persone
               </Link>
               <Link
+                href="/admin/inquiries"
+                className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:bg-sea-50 hover:text-ink"
+              >
+                Richieste
+              </Link>
+              <Link
                 href="/admin/leads"
                 className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:bg-sea-50 hover:text-ink"
               >

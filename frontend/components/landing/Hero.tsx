@@ -38,7 +38,7 @@ export default function Hero() {
                 Sono uno studente →
               </Link>
               <a
-                href="#proprietari"
+                href="/proprietari"
                 className="rounded-full border border-sea-200 bg-white px-6 py-3 text-center text-sm font-semibold text-ink transition hover:border-sea-400"
               >
                 Sono un proprietario
@@ -48,7 +48,10 @@ export default function Hero() {
 
           <Reveal delay={320}>
             <p className="mt-4 text-xs text-ink-muted">
-              Gratis per gli studenti. Nessuna carta di credito richiesta.
+              Gratis per gli studenti. Nessuna carta di credito richiesta. ·{" "}
+              <Link href="/esempi" className="text-sea-700 underline underline-offset-2">
+                Vedi un esempio
+              </Link>
             </p>
           </Reveal>
         </div>

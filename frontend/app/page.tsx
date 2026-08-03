@@ -44,7 +44,7 @@ export default function HomePage() {
         title="Affitta senza gestire tu le trattative"
         variant="default"
         ctaLabel="Proponi il tuo immobile"
-        ctaHref="mailto:info@bindo.it?subject=Voglio%20affittare%20con%20Nomi"
+        ctaHref="/proprietari"
         steps={[
           {
             number: "1",
