@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SignOutButton from "@/components/SignOutButton";
 
 export default function AdminLayout({
   children,
@@ -40,12 +41,15 @@ export default function AdminLayout({
               </Link>
             </nav>
           </div>
-          <Link
-            href="/dashboard"
-            className="text-xs text-ink-muted underline underline-offset-2"
-          >
-            ← Torna al sito
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="text-xs text-ink-muted underline underline-offset-2"
+            >
+              ← Torna al sito
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
       </header>
 

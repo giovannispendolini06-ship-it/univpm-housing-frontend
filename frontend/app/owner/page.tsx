@@ -3,6 +3,7 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
+import SignOutButton from "@/components/SignOutButton";
 
 export const dynamic = "force-dynamic";
 
@@ -70,13 +71,16 @@ export default async function OwnerDashboardPage() {
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-3xl">
-        <header className="mb-6">
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Ciao{profile?.full_name ? `, ${profile.full_name}` : ""} 👋
-          </h1>
-          <p className="mt-1 text-sm text-ink-muted">
-            I tuoi immobili e il loro stato in questo momento.
-          </p>
+        <header className="mb-6 flex items-start justify-between gap-3">
+          <div>
+            <h1 className="font-display text-2xl font-bold text-ink">
+              Ciao{profile?.full_name ? `, ${profile.full_name}` : ""} 👋
+            </h1>
+            <p className="mt-1 text-sm text-ink-muted">
+              I tuoi immobili e il loro stato in questo momento.
+            </p>
+          </div>
+          <SignOutButton className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card" />
         </header>
 
         {!properties || properties.length === 0 ? (

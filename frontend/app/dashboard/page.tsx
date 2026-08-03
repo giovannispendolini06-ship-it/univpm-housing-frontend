@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import ChatPanel from "@/components/ChatPanel";
 import RoomList from "@/components/RoomList";
+import SignOutButton from "@/components/SignOutButton";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 
@@ -81,14 +82,17 @@ export default function StudentDashboardPage() {
 
   return (
     <main className="relative h-dvh bg-bg">
-      {isAdmin && (
-        <Link
-          href="/admin"
-          className="fixed right-3 top-3 z-50 rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white shadow-card"
-        >
-          Admin
-        </Link>
-      )}
+      <div className="fixed right-3 top-3 z-50 flex items-center gap-2">
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white shadow-card"
+          >
+            Admin
+          </Link>
+        )}
+        <SignOutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card" />
+      </div>
 
       {/* Tab bar solo mobile */}
       <div className="flex border-b border-sea-100 bg-white md:hidden">
