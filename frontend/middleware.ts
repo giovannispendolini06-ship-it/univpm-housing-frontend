@@ -34,8 +34,12 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Non loggato e prova ad aprire /dashboard → rimandalo al login
-  if (!user && request.nextUrl.pathname.startsWith("/dashboard")) {
+  // Non loggato e prova ad aprire /dashboard o /admin → rimandalo al login
+  if (
+    !user &&
+    (request.nextUrl.pathname.startsWith("/dashboard") ||
+      request.nextUrl.pathname.startsWith("/admin"))
+  ) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
@@ -52,5 +56,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login"],
+  matcher: ["/dashboard/:path*", "/login", "/admin/:path*"],
 };

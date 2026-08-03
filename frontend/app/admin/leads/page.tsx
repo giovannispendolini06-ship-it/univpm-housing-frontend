@@ -3,8 +3,7 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import { linkLeadToProperty, updateLeadStatus } from "./actions";
-import LeadForm from "./LeadForm";
+import { createLead, linkLeadToProperty, updateLeadStatus } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -79,12 +78,98 @@ export default async function AdminLeadsPage() {
           </p>
         </header>
 
-        {/* Form: aggiungi nuovo lead, con anteprima automatica da link */}
+        {/* Form: aggiungi nuovo lead */}
         <section className="mb-8 rounded-xl2 bg-surface p-5 shadow-card">
           <h2 className="mb-4 font-display text-base font-bold text-ink">
             Aggiungi un annuncio
           </h2>
-          <LeadForm />
+          <form action={createLead} className="grid gap-3 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Link dell&apos;annuncio *
+              </label>
+              <input
+                type="url"
+                name="external_url"
+                required
+                placeholder="https://www.idealista.it/immobile/..."
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Portale
+              </label>
+              <select
+                name="source"
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              >
+                {Object.entries(SOURCE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Titolo annuncio
+              </label>
+              <input
+                type="text"
+                name="title"
+                placeholder="Es. Singola in zona Torrette"
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Prezzo (€/mese)
+              </label>
+              <input
+                type="number"
+                name="price"
+                min={0}
+                step={1}
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Zona
+              </label>
+              <input
+                type="text"
+                name="zone"
+                placeholder="Es. Torrette"
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Indirizzo (se noto)
+              </label>
+              <input
+                type="text"
+                name="address"
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <button
+                type="submit"
+                className="rounded-full bg-sea-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sea-700"
+              >
+                Aggiungi annuncio
+              </button>
+            </div>
+          </form>
         </section>
 
         {/* Lista lead */}

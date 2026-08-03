@@ -34,80 +34,6 @@ async function assertAdmin() {
 }
 
 // ---------------------------------------------------------------------------
-// Recupera un'anteprima dell'annuncio esterno usando i metadati Open Graph
-// (gli stessi che WhatsApp/Facebook usano per mostrare l'anteprima di un
-// link). Non è uno scraper completo: legge solo dati pubblici pensati per
-// essere condivisi, e se il sito blocca la richiesta si torna al
-// riempimento manuale, senza bloccare l'admin.
-// ---------------------------------------------------------------------------
-export interface ListingPreview {
-  title: string | null;
-  image: string | null;
-  description: string | null;
-}
-
-function decodeHtmlEntities(text: string): string {
-  return text
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-}
-
-function extractMetaTag(html: string, property: string): string | null {
-  const patterns = [
-    new RegExp(
-      `<meta[^>]+property=["']${property}["'][^>]+content=["']([^"']+)["']`,
-      "i",
-    ),
-    new RegExp(
-      `<meta[^>]+content=["']([^"']+)["'][^>]+property=["']${property}["']`,
-      "i",
-    ),
-    new RegExp(
-      `<meta[^>]+name=["']${property}["'][^>]+content=["']([^"']+)["']`,
-      "i",
-    ),
-  ];
-  for (const pattern of patterns) {
-    const match = html.match(pattern);
-    if (match) return decodeHtmlEntities(match[1]);
-  }
-  return null;
-}
-
-export async function fetchListingPreview(url: string): Promise<ListingPreview> {
-  await assertAdmin();
-
-  if (!url || !url.startsWith("http")) {
-    throw new Error("Link non valido.");
-  }
-
-  let html: string;
-  try {
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; DomoriaBot/1.0)",
-      },
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) throw new Error(String(res.status));
-    html = await res.text();
-  } catch {
-    throw new Error(
-      "Non sono riuscito a recuperare un'anteprima automatica per questo link. Compila i campi a mano qui sotto.",
-    );
-  }
-
-  return {
-    title: extractMetaTag(html, "og:title"),
-    image: extractMetaTag(html, "og:image"),
-    description: extractMetaTag(html, "og:description"),
-  };
-}
-
-// ---------------------------------------------------------------------------
 // Crea un nuovo lead esterno (un annuncio trovato su Idealista/Subito/ecc.)
 // ---------------------------------------------------------------------------
 export async function createLead(formData: FormData) {
@@ -122,9 +48,6 @@ export async function createLead(formData: FormData) {
   const priceRaw = formData.get("price");
   const price = priceRaw ? Number(priceRaw) : null;
 
-  const imageUrl = String(formData.get("image_url") ?? "").trim();
-  const description = String(formData.get("description") ?? "").trim();
-
   const { error } = await db.from("leads_external").insert({
     source: String(formData.get("source") ?? "altro"),
     external_url: externalUrl,
@@ -134,10 +57,6 @@ export async function createLead(formData: FormData) {
     address: String(formData.get("address") ?? "").trim() || null,
     contract_type: String(formData.get("contract_type") ?? "") || null,
     status: "nuovo",
-    raw_data: {
-      ...(imageUrl ? { image_url: imageUrl } : {}),
-      ...(description ? { description } : {}),
-    },
   });
 
   if (error) {
