@@ -12,9 +12,9 @@ export default function HomePage() {
       <HowItWorksSection
         id="studenti"
         eyebrow="Per gli studenti"
-        title="Tre passaggi, e Domi fa il resto"
+        title="Tre passaggi, e Nomi fa il resto"
         variant="muted"
-        ctaLabel="Inizia a chattare con Domi"
+        ctaLabel="Inizia a chattare con Nomi"
         ctaHref="/login"
         steps={[
           {
@@ -25,7 +25,7 @@ export default function HomePage() {
           },
           {
             number: "2",
-            title: "Domi capisce le tue abitudini",
+            title: "Nomi capisce le tue abitudini",
             description:
               "Orari di studio, vita sociale, pulizia: informazioni che di solito si scoprono solo dopo aver firmato.",
           },
@@ -44,7 +44,7 @@ export default function HomePage() {
         title="Affitta senza gestire tu le trattative"
         variant="default"
         ctaLabel="Proponi il tuo immobile"
-        ctaHref="mailto:info@domoria.it?subject=Voglio%20affittare%20con%20Domi"
+        ctaHref="mailto:info@bindo.it?subject=Voglio%20affittare%20con%20Nomi"
         steps={[
           {
             number: "1",

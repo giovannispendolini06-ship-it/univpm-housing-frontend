@@ -16,7 +16,7 @@ export default function Hero() {
           </h1>
 
           <p className="mt-4 max-w-md text-base leading-relaxed text-ink-muted sm:text-lg">
-            Racconta a Domi la tua facoltà, il tuo budget e le tue abitudini
+            Racconta a Nomi la tua facoltà, il tuo budget e le tue abitudini
             di convivenza. Ti proponiamo solo le stanze davvero compatibili
             con te, vicino al tuo ateneo.
           </p>
