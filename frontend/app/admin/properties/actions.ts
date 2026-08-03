@@ -129,3 +129,106 @@ export async function createProperty(formData: FormData) {
   revalidatePath("/admin/leads");
   redirect("/admin/properties");
 }
+
+// ---------------------------------------------------------------------------
+// Carica una o più foto per un immobile già esistente, dentro il bucket
+// Storage "property-photos", e salva i link in property_images.
+// ---------------------------------------------------------------------------
+export async function uploadPropertyImages(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const propertyId = String(formData.get("property_id") ?? "");
+  if (!propertyId) throw new Error("ID immobile mancante.");
+
+  const files = formData.getAll("images").filter((f): f is File => f instanceof File && f.size > 0);
+  if (files.length === 0) {
+    throw new Error("Seleziona almeno una foto prima di caricare.");
+  }
+
+  for (const file of files) {
+    const extension = file.name.split(".").pop() || "jpg";
+    const path = `${propertyId}/${crypto.randomUUID()}.${extension}`;
+
+    const { error: uploadError } = await db.storage
+      .from("property-photos")
+      .upload(path, file, { contentType: file.type || "image/jpeg" });
+
+    if (uploadError) {
+      throw new Error(`Errore nel caricamento di "${file.name}": ${uploadError.message}`);
+    }
+
+    const { data: publicUrlData } = db.storage.from("property-photos").getPublicUrl(path);
+
+    const { error: insertError } = await db.from("property_images").insert({
+      property_id: propertyId,
+      url: publicUrlData.publicUrl,
+    });
+
+    if (insertError) {
+      throw new Error(`Foto caricata ma non salvata nel database: ${insertError.message}`);
+    }
+  }
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+}
+
+// ---------------------------------------------------------------------------
+// Elimina una singola foto (dal database E dallo Storage).
+// ---------------------------------------------------------------------------
+export async function deletePropertyImage(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const imageId = String(formData.get("image_id") ?? "");
+  const propertyId = String(formData.get("property_id") ?? "");
+  if (!imageId) throw new Error("ID foto mancante.");
+
+  const { data: image } = await db
+    .from("property_images")
+    .select("url")
+    .eq("id", imageId)
+    .single();
+
+  if (image?.url) {
+    const path = image.url.split("/property-photos/")[1];
+    if (path) await db.storage.from("property-photos").remove([path]);
+  }
+
+  const { error } = await db.from("property_images").delete().eq("id", imageId);
+  if (error) throw new Error(`Errore nell'eliminazione della foto: ${error.message}`);
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+}
+
+// ---------------------------------------------------------------------------
+// Elimina un intero immobile: cancella prima le foto dallo Storage, poi
+// l'immobile (le stanze e i record delle foto si cancellano da soli, sono
+// collegati con "on delete cascade").
+// ---------------------------------------------------------------------------
+export async function deleteProperty(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const propertyId = String(formData.get("property_id") ?? "");
+  if (!propertyId) throw new Error("ID immobile mancante.");
+
+  const { data: images } = await db
+    .from("property_images")
+    .select("url")
+    .eq("property_id", propertyId);
+
+  const paths = (images ?? [])
+    .map((img) => img.url.split("/property-photos/")[1])
+    .filter((p): p is string => Boolean(p));
+
+  if (paths.length > 0) {
+    await db.storage.from("property-photos").remove(paths);
+  }
+
+  const { error } = await db.from("properties").delete().eq("id", propertyId);
+  if (error) throw new Error(`Errore nell'eliminazione dell'immobile: ${error.message}`);
+
+  revalidatePath("/admin/properties");
+  redirect("/admin/properties");
+}
