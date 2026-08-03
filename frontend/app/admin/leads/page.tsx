@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import { createLead, linkLeadToProperty, updateLeadStatus } from "./actions";
+import { linkLeadToProperty, updateLeadStatus } from "./actions";
+import LeadForm from "./LeadForm";
 
 export const dynamic = "force-dynamic";
 
@@ -31,8 +33,23 @@ const STATUS_STYLES: Record<string, string> = {
   convertito: "bg-sea-600 text-white",
 };
 
+function buildNewPropertyHref(lead: {
+  id: string;
+  title?: string | null;
+  zone?: string | null;
+  address?: string | null;
+  price?: number | null;
+}) {
+  const params = new URLSearchParams();
+  params.set("lead_id", lead.id);
+  if (lead.title) params.set("title", lead.title);
+  if (lead.zone) params.set("zone", lead.zone);
+  if (lead.address) params.set("address", lead.address);
+  if (lead.price != null) params.set("price", String(lead.price));
+  return `/admin/properties/new?${params.toString()}`;
+}
+
 export default async function AdminLeadsPage() {
-  // --- Verifica accesso: solo utenti con ruolo 'admin' -------------------
   const authClient = await createServerSupabaseClient();
   const {
     data: { user },
@@ -48,8 +65,6 @@ export default async function AdminLeadsPage() {
 
   if (profile?.role !== "admin") redirect("/dashboard");
 
-  // --- Dati: usiamo il service client perché un admin deve poter vedere
-  // TUTTI i lead e TUTTI gli immobili, non solo quelli di sua proprietà ---
   const db = createServiceSupabaseClient();
 
   const { data: leads } = await db
@@ -78,101 +93,13 @@ export default async function AdminLeadsPage() {
           </p>
         </header>
 
-        {/* Form: aggiungi nuovo lead */}
         <section className="mb-8 rounded-xl2 bg-surface p-5 shadow-card">
           <h2 className="mb-4 font-display text-base font-bold text-ink">
             Aggiungi un annuncio
           </h2>
-          <form action={createLead} className="grid gap-3 sm:grid-cols-2">
-            <div className="sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium text-ink-muted">
-                Link dell&apos;annuncio *
-              </label>
-              <input
-                type="url"
-                name="external_url"
-                required
-                placeholder="https://www.idealista.it/immobile/..."
-                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-xs font-medium text-ink-muted">
-                Portale
-              </label>
-              <select
-                name="source"
-                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-              >
-                {Object.entries(SOURCE_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-xs font-medium text-ink-muted">
-                Titolo annuncio
-              </label>
-              <input
-                type="text"
-                name="title"
-                placeholder="Es. Singola in zona Torrette"
-                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-xs font-medium text-ink-muted">
-                Prezzo (€/mese)
-              </label>
-              <input
-                type="number"
-                name="price"
-                min={0}
-                step={1}
-                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-xs font-medium text-ink-muted">
-                Zona
-              </label>
-              <input
-                type="text"
-                name="zone"
-                placeholder="Es. Torrette"
-                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium text-ink-muted">
-                Indirizzo (se noto)
-              </label>
-              <input
-                type="text"
-                name="address"
-                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <button
-                type="submit"
-                className="rounded-full bg-sea-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sea-700"
-              >
-                Aggiungi annuncio
-              </button>
-            </div>
-          </form>
+          <LeadForm />
         </section>
 
-        {/* Lista lead */}
         <section className="space-y-3">
           <h2 className="font-display text-base font-bold text-ink">
             Annunci tracciati ({leads?.length ?? 0})
@@ -218,10 +145,18 @@ export default async function AdminLeadsPage() {
                       Vedi annuncio originale ↗
                     </a>
                   </div>
+
+                  {!lead.matched_property_id && (
+                    <Link
+                      href={buildNewPropertyHref(lead)}
+                      className="shrink-0 rounded-full bg-sea-600 px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-sea-700"
+                    >
+                      Trasforma in immobile →
+                    </Link>
+                  )}
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-bg pt-3">
-                  {/* Collega a un immobile */}
                   <form action={linkLeadToProperty} className="flex items-center gap-2">
                     <input type="hidden" name="lead_id" value={lead.id} />
                     <select
@@ -234,7 +169,8 @@ export default async function AdminLeadsPage() {
                       </option>
                       {(properties ?? []).map((property) => (
                         <option key={property.id} value={property.id}>
-                          {property.address} {property.zone ? `· ${property.zone}` : ""}
+                          {property.address}{" "}
+                          {property.zone ? `· ${property.zone}` : ""}
                         </option>
                       ))}
                     </select>
@@ -246,7 +182,6 @@ export default async function AdminLeadsPage() {
                     </button>
                   </form>
 
-                  {/* Cambia stato */}
                   <form action={updateLeadStatus} className="flex items-center gap-2">
                     <input type="hidden" name="lead_id" value={lead.id} />
                     <select
