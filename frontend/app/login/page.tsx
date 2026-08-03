@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 
 type Mode = "signin" | "signup";
+type SignupRole = "student" | "owner";
 
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClientSupabaseClient();
 
   const [mode, setMode] = useState<Mode>("signin");
+  const [role, setRole] = useState<SignupRole>("student");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,7 +29,7 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName, role: "student" } },
+          options: { data: { full_name: fullName, role } },
         });
         if (error) throw error;
       } else {
@@ -35,6 +37,9 @@ export default function LoginPage() {
         if (error) throw error;
       }
 
+      // Il middleware si occupa di mandare ognuno alla schermata giusta
+      // in base al ruolo (studente -> /dashboard, proprietario -> /owner,
+      // admin -> /admin), quindi qui basta un punto di partenza generico.
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
@@ -60,20 +65,47 @@ export default function LoginPage() {
           </h1>
           <p className="text-sm text-ink-muted">
             {mode === "signup"
-              ? "Per parlare con Domi e vedere le stanze consigliate"
-              : "Accedi per continuare con Domi"}
+              ? "Per parlare con Nomi e vedere le stanze consigliate"
+              : "Accedi per continuare"}
           </p>
         </div>
 
         {mode === "signup" && (
-          <input
-            type="text"
-            placeholder="Nome e cognome"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-            className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-          />
+          <>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setRole("student")}
+                className={`flex-1 rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                  role === "student"
+                    ? "border-sea-600 bg-sea-50 text-sea-700"
+                    : "border-sea-100 text-ink-muted"
+                }`}
+              >
+                Sono studente
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("owner")}
+                className={`flex-1 rounded-xl border px-3 py-2 text-sm font-medium transition ${
+                  role === "owner"
+                    ? "border-sea-600 bg-sea-50 text-sea-700"
+                    : "border-sea-100 text-ink-muted"
+                }`}
+              >
+                Sono proprietario
+              </button>
+            </div>
+
+            <input
+              type="text"
+              placeholder="Nome e cognome"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+            />
+          </>
         )}
 
         <input

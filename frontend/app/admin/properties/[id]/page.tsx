@@ -3,7 +3,7 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import { uploadPropertyImages } from "../actions";
+import { uploadPropertyImages, assignPropertyOwner } from "../actions";
 import DeleteImageButton from "../DeleteImageButton";
 import DeletePropertyButton from "../DeletePropertyButton";
 
@@ -43,6 +43,14 @@ export default async function PropertyDetailPage({
 
   if (!property) notFound();
 
+  const { data: currentOwnerAccount } = await db
+    .from("users")
+    .select("email, role, full_name")
+    .eq("id", property.owner_id)
+    .single();
+
+  const isAssignedToRealOwner = currentOwnerAccount?.role === "owner";
+
   const { data: images } = await db
     .from("property_images")
     .select("*")
@@ -71,6 +79,50 @@ export default async function PropertyDetailPage({
           </div>
           <DeletePropertyButton propertyId={property.id} />
         </div>
+
+        {/* --- Proprietario --- */}
+        <section className="mb-6 rounded-xl2 bg-surface p-5 shadow-card">
+          <h2 className="mb-1 font-display text-base font-bold text-ink">
+            Proprietario
+          </h2>
+
+          {isAssignedToRealOwner ? (
+            <p className="mb-4 rounded-lg bg-sea-50 px-3 py-2 text-sm text-sea-700">
+              ✓ Collegato all&apos;account di {currentOwnerAccount?.full_name} (
+              {currentOwnerAccount?.email}) — può vedere questo immobile nella
+              sua area riservata.
+            </p>
+          ) : (
+            <p className="mb-4 rounded-lg bg-sand-400/15 px-3 py-2 text-sm text-ink">
+              Non ancora collegato a un account reale. Contatti che hai
+              salvato: {property.owner_contact_name || "—"}
+              {property.owner_contact_phone ? ` · ${property.owner_contact_phone}` : ""}
+              {property.owner_contact_email ? ` · ${property.owner_contact_email}` : ""}
+            </p>
+          )}
+
+          <form action={assignPropertyOwner} className="flex flex-wrap items-center gap-2">
+            <input type="hidden" name="property_id" value={property.id} />
+            <input
+              type="email"
+              name="owner_email"
+              required
+              defaultValue={property.owner_contact_email ?? ""}
+              placeholder="Email con cui il proprietario si è registrato"
+              className="min-w-[240px] flex-1 rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="rounded-full bg-sea-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sea-700"
+            >
+              {isAssignedToRealOwner ? "Ricollega" : "Collega account"}
+            </button>
+          </form>
+          <p className="mt-2 text-[11px] text-ink-muted">
+            Il proprietario deve essersi già registrato sul sito scegliendo
+            &quot;Sono proprietario&quot; prima che tu possa collegarlo qui.
+          </p>
+        </section>
 
         {/* --- Foto --- */}
         <section className="mb-6 rounded-xl2 bg-surface p-5 shadow-card">

@@ -232,3 +232,41 @@ export async function deleteProperty(formData: FormData) {
   revalidatePath("/admin/properties");
   redirect("/admin/properties");
 }
+
+// ---------------------------------------------------------------------------
+// Collega un immobile all'account REALE del proprietario (che deve essersi
+// già registrato sul sito scegliendo "Sono proprietario"). Finché non viene
+// chiamata questa azione, l'immobile resta assegnato al tuo account admin.
+// ---------------------------------------------------------------------------
+export async function assignPropertyOwner(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const propertyId = String(formData.get("property_id") ?? "");
+  const ownerEmail = String(formData.get("owner_email") ?? "").trim().toLowerCase();
+
+  if (!propertyId || !ownerEmail) {
+    throw new Error("Email del proprietario mancante.");
+  }
+
+  const { data: ownerUser } = await db
+    .from("users")
+    .select("id, role")
+    .eq("email", ownerEmail)
+    .maybeSingle();
+
+  if (!ownerUser) {
+    throw new Error(
+      "Nessun account trovato con questa email. Il proprietario deve prima registrarsi sul sito scegliendo 'Sono proprietario'.",
+    );
+  }
+
+  const { error } = await db
+    .from("properties")
+    .update({ owner_id: ownerUser.id })
+    .eq("id", propertyId);
+
+  if (error) throw new Error(`Errore nell'assegnazione: ${error.message}`);
+
+  revalidatePath(`/admin/properties/${propertyId}`);
+}
