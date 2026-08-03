@@ -70,7 +70,7 @@ export default function EditRoomRow({
       <input type="hidden" name="room_id" value={room.id} />
       <input type="hidden" name="property_id" value={propertyId} />
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <input
           type="text"
           name="room_label"

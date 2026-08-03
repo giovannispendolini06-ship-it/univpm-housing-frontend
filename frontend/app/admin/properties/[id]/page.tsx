@@ -202,7 +202,7 @@ export default async function PropertyDetailPage({
             </summary>
             <form action={addRoom} className="mt-3 space-y-2 rounded-xl border border-sea-100 bg-bg p-3">
               <input type="hidden" name="property_id" value={property.id} />
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 <input
                   type="text"
                   name="room_label"
