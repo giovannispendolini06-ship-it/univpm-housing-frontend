@@ -70,3 +70,35 @@ export async function updateUserProfile(formData: FormData) {
   revalidatePath(`/admin/users/${userId}`);
   redirect("/admin/users");
 }
+
+// ---------------------------------------------------------------------------
+// Elimina completamente un account: prima la foto dallo Storage, poi
+// l'account di autenticazione vero e proprio. Cancellare da auth.users fa
+// "a cascata" anche su public.users e su tutto quello che dipende da lui
+// (se era un proprietario, anche i SUOI IMMOBILI vengono cancellati insieme
+// a lui — per questo il tasto in interfaccia chiede sempre conferma).
+// ---------------------------------------------------------------------------
+export async function deleteUser(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const userId = String(formData.get("user_id") ?? "");
+  if (!userId) throw new Error("ID utente mancante.");
+
+  const { data: person } = await db
+    .from("users")
+    .select("avatar_url")
+    .eq("id", userId)
+    .single();
+
+  if (person?.avatar_url) {
+    const path = person.avatar_url.split("/avatars/")[1];
+    if (path) await db.storage.from("avatars").remove([path]);
+  }
+
+  const { error } = await db.auth.admin.deleteUser(userId);
+  if (error) throw new Error(`Errore nell'eliminazione: ${error.message}`);
+
+  revalidatePath("/admin/users");
+  redirect("/admin/users");
+}

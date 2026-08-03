@@ -5,6 +5,7 @@ import {
 } from "@/lib/supabase/server";
 import { updateUserProfile } from "../actions";
 import SubmitButton from "@/components/SubmitButton";
+import DeleteUserButton from "../DeleteUserButton";
 
 export const dynamic = "force-dynamic";
 
@@ -45,9 +46,12 @@ export default async function EditUserPage({
           ← Torna alle persone
         </a>
 
-        <h1 className="mb-6 font-display text-2xl font-bold text-ink">
-          Modifica {person.full_name}
-        </h1>
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <h1 className="font-display text-2xl font-bold text-ink">
+            Modifica {person.full_name}
+          </h1>
+          <DeleteUserButton userId={person.id} fullName={person.full_name} role={person.role} />
+        </div>
 
         <form action={updateUserProfile} className="space-y-4 rounded-xl2 bg-surface p-5 shadow-card">
           <input type="hidden" name="user_id" value={person.id} />
