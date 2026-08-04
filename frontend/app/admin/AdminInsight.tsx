@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import VestaAvatar from "@/components/VestaAvatar";
 import { generateAdminInsight } from "./actions";
 
 export default function AdminInsight() {
@@ -8,8 +9,7 @@ export default function AdminInsight() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  function handleGenerate() {
-    setError(null);
+  useEffect(() => {
     startTransition(async () => {
       try {
         const text = await generateAdminInsight();
@@ -20,27 +20,25 @@ export default function AdminInsight() {
         );
       }
     });
-  }
+  }, []);
 
   return (
     <section className="rounded-xl2 bg-surface p-5 shadow-card">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center gap-3">
+        <VestaAvatar size={30} className="shrink-0" />
         <div>
           <h2 className="font-display text-base font-bold text-ink">
-            Analisi AI
+            Il punto di Vesta
           </h2>
           <p className="text-xs text-ink-muted">
-            Un commento generato da Nomi sui numeri qui sotto.
+            Un commento generato da Vesta sui numeri qui sotto.
           </p>
         </div>
-        <button
-          onClick={handleGenerate}
-          disabled={isPending}
-          className="shrink-0 rounded-full bg-sea-600 px-4 py-2 text-xs font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
-        >
-          {isPending ? "Sto analizzando..." : insight ? "Rigenera" : "Genera analisi"}
-        </button>
       </div>
+
+      {isPending && !insight && (
+        <p className="mt-4 text-sm text-ink-muted">Sto analizzando...</p>
+      )}
 
       {error && <p className="mt-3 text-sm text-sunset-600">{error}</p>}
 

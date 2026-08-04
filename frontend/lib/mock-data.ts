@@ -9,7 +9,7 @@ export const initialMessages: ChatMessage[] = [
     id: "m1",
     role: "assistant",
     content:
-      "Ehi! 👋 Sono Domi, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
+      "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
     createdAt: "2026-08-02T09:00:00.000Z",
   },
   {

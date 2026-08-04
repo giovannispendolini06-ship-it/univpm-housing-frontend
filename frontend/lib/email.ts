@@ -10,8 +10,8 @@ function getResendClient(): Resend | null {
 // Finché non hai un dominio verificato, le email partono da questo
 // indirizzo di test di Resend — funziona subito, senza configurazione.
 // Quando avrai un dominio tuo: 1) verificalo su resend.com/domains,
-// 2) aggiorna questa riga con qualcosa tipo "Bindo <info@tuodominio.it>".
-const FROM_ADDRESS = "Bindo <onboarding@resend.dev>";
+// 2) aggiorna questa riga con qualcosa tipo "Coabito <info@tuodominio.it>".
+const FROM_ADDRESS = "Coabito <onboarding@resend.dev>";
 
 interface SendEmailInput {
   to: string;
@@ -44,7 +44,7 @@ export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<
 // TEMPLATE BRANDIZZATO
 // Stessi colori/font del sito (tema "Adriatico": teal profondo + corallo),
 // con la mission richiamata subito sotto il logo in ogni email — così anche
-// chi legge solo l'email capisce cos'è Bindo, non solo chi visita il sito.
+// chi legge solo l'email capisce cos'è Coabito, non solo chi visita il sito.
 // ============================================================================
 
 const COLORS = {
@@ -82,10 +82,10 @@ function renderEmailLayout({
                 <table role="presentation" cellpadding="0" cellspacing="0">
                   <tr>
                     <td style="width:36px; height:36px; background-color:#ffffff; border-radius:50%; text-align:center; vertical-align:middle; font-weight:bold; color:${COLORS.sea600}; font-size:16px; font-family: Georgia, serif;">
-                      B
+                      C
                     </td>
                     <td style="padding-left:10px; color:#ffffff; font-size:19px; font-weight:bold;">
-                      Bindo
+                      Coabito
                     </td>
                   </tr>
                 </table>
@@ -106,11 +106,11 @@ function renderEmailLayout({
             <tr>
               <td style="padding:20px 32px; background-color:${COLORS.bg}; border-top:1px solid ${COLORS.sea100};">
                 <p style="margin:0; font-size:12px; color:${COLORS.inkMuted}; line-height:1.6;">
-                  Bindo aiuta chi studia fuori sede a trovare casa vicino al
+                  Coabito aiuta chi studia fuori sede a trovare casa vicino al
                   proprio ateneo, e i proprietari ad affittare senza perdite
                   di tempo.<br />
                   Domande? Scrivici a
-                  <a href="mailto:info@bindo.it" style="color:${COLORS.sea600};">info@bindo.it</a>
+                  <a href="mailto:info@coabito.it" style="color:${COLORS.sea600};">info@coabito.it</a>
                 </p>
               </td>
             </tr>
@@ -162,7 +162,7 @@ export function buildAdminInquiryEmail(input: {
   return {
     subject: `Nuova richiesta proprietario: ${input.fullName}`,
     html: renderEmailLayout({
-      preheader: `${input.fullName} ha proposto un immobile su Bindo`,
+      preheader: `${input.fullName} ha proposto un immobile su Coabito`,
       bodyHtml,
     }),
   };
@@ -177,7 +177,7 @@ export function buildInquiryConfirmationEmail(input: { fullName: string }) {
       Ciao ${input.fullName}, ci siamo! 👋
     </h1>
     <p style="margin:0 0 16px; color:${COLORS.ink};">
-      Grazie per aver proposto il tuo immobile su <strong>Bindo</strong>. Lo
+      Grazie per aver proposto il tuo immobile su <strong>Coabito</strong>. Lo
       abbiamo ricevuto e lo stiamo già guardando.
     </p>
     <p style="margin:0 0 16px; color:${COLORS.ink};">
@@ -194,7 +194,7 @@ export function buildInquiryConfirmationEmail(input: { fullName: string }) {
   return {
     subject: "Abbiamo ricevuto la tua richiesta",
     html: renderEmailLayout({
-      preheader: "Grazie per aver proposto il tuo immobile su Bindo",
+      preheader: "Grazie per aver proposto il tuo immobile su Coabito",
       bodyHtml,
     }),
   };
@@ -208,20 +208,20 @@ export function buildWelcomeEmail(input: { fullName: string; role: "student" | "
 
   const bodyHtml = `
     <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
-      Benvenuto${isOwner ? "" : "/a"} su Bindo, ${input.fullName}! 🎉
+      Benvenuto${isOwner ? "" : "/a"} su Coabito, ${input.fullName}! 🎉
     </h1>
     <p style="margin:0 0 16px; color:${COLORS.ink};">
       ${
         isOwner
           ? "Il tuo profilo è pronto. Da qui in poi ci pensiamo noi a trovarti inquilini seri: filtriamo gli studenti compatibili, tu decidi solo con chi firmare."
-          : "Il tuo profilo è pronto. Nomi, il nostro assistente, ti aspetta per capire facoltà, budget e abitudini — e proporti solo le stanze davvero compatibili con te, non l'ennesimo annuncio a caso."
+          : "Il tuo profilo è pronto. Vesta, la nostra assistente, ti aspetta per capire facoltà, budget e abitudini — e proporti solo le stanze davvero compatibili con te, non l'ennesimo annuncio a caso."
       }
     </p>
-    ${ctaButton(isOwner ? "Vai alla tua area" : "Inizia a chattare con Nomi", `${SITE_URL}/${isOwner ? "owner" : "dashboard"}`)}
+    ${ctaButton(isOwner ? "Vai alla tua area" : "Inizia a chattare con Vesta", `${SITE_URL}/${isOwner ? "owner" : "dashboard"}`)}
   `;
 
   return {
-    subject: "Benvenuto su Bindo! 🎉",
+    subject: "Benvenuto su Coabito! 🎉",
     html: renderEmailLayout({
       preheader: "Il tuo profilo è pronto",
       bodyHtml,
