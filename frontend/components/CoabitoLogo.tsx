@@ -4,16 +4,16 @@ interface CoabitoLogoProps {
 }
 
 /**
- * Il logomark di Coabito: non un cerchio con una lettera dentro (il
- * pattern più generico e riconoscibile di un logo fatto "in fretta"),
- * ma un piccolo pittogramma che racconta la doppia anima del prodotto —
- * una casa, e un arco che richiama lo stesso "anello di compatibilità"
- * usato nelle schede stanza (MatchScoreRing) — così anche il logo parla
- * la stessa lingua visiva del resto del prodotto, invece di essere un
- * elemento isolato e sostituibile.
+ * Il logomark di Coabito: un attaccapanni con un abito appeso, stilizzato
+ * in modo essenziale. Nasce da un gioco di parole nel nome stesso —
+ * "co-ABITO" contiene la parola "abito" (vestito) — reso visivamente
+ * invece che forzando le lettere a sembrare un indumento (rischioso da
+ * eseguire bene). Il piccolo bottone corallo è un dettaglio di calore,
+ * non solo decorativo: richiama anche un possibile nome per la mascotte
+ * dell'assistente ("Bottone").
  *
- * Il badge è un quadrato arrotondato, non un cerchio: apposta per non
- * ripetere la stessa identica forma usata ovunque per bottoni e badge.
+ * Il badge è un quadrato arrotondato, non un cerchio: stessa scelta di
+ * prima, per non ripetere la forma usata ovunque per bottoni e badge.
  */
 export default function CoabitoLogo({ size = 32, className = "" }: CoabitoLogoProps) {
   return (
@@ -25,17 +25,21 @@ export default function CoabitoLogo({ size = 32, className = "" }: CoabitoLogoPr
       aria-hidden="true"
     >
       <rect width="32" height="32" rx="9" fill="#0F6E6A" />
-      {/* Casa: tetto + corpo, con una porta "ritagliata" nel colore di sfondo */}
-      <path d="M16 6 L25 14.5 H22.5 V25 H9.5 V14.5 H7 Z" fill="#ffffff" />
-      <rect x="14" y="19" width="4" height="6" rx="0.5" fill="#0F6E6A" />
-      {/* Arco: lo stesso motivo del MatchScoreRing usato nelle schede stanza */}
+      {/* Gancio dell'attaccapanni */}
       <path
-        d="M22 8.5 A5.5 5.5 0 0 1 25.5 13"
-        stroke="#FF6B4A"
-        strokeWidth="2"
-        strokeLinecap="round"
+        d="M16 6.5 Q16 3.5 19 4.5"
+        stroke="#ffffff"
+        strokeWidth="1.5"
         fill="none"
+        strokeLinecap="round"
       />
+      {/* Maglietta appesa: incavo del colletto, spalle, maniche, corpo */}
+      <path
+        d="M13 8 L16 10.2 L19 8 L24.5 12 L21 15.2 L21 26 L11 26 L11 15.2 L7.5 12 Z"
+        fill="#ffffff"
+      />
+      {/* Bottone, dettaglio di calore */}
+      <circle cx="16" cy="18" r="1.3" fill="#FF6B4A" />
     </svg>
   );
 }

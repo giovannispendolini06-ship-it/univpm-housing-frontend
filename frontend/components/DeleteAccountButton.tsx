@@ -15,7 +15,7 @@ export default function DeleteAccountButton({
   function handleClick() {
     const warning = isOwner
       ? "Eliminare definitivamente il tuo account? Verranno eliminati anche TUTTI i tuoi immobili e i relativi dati. L'azione non si può annullare."
-      : "Eliminare definitivamente il tuo account? Tutti i tuoi dati (chat con Nomi, profilo) verranno cancellati. L'azione non si può annullare.";
+      : "Eliminare definitivamente il tuo account? Tutti i tuoi dati (chat con Vesta, profilo) verranno cancellati. L'azione non si può annullare.";
 
     if (!window.confirm(warning)) return;
     if (!window.confirm("Sei sicuro? Non potrai recuperare l'account dopo.")) return;

@@ -1,158 +1,145 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import VestaAvatar from "@/components/VestaAvatar";
+import { Sparkles, Image as ImageIcon, X } from "lucide-react";
 import { parsePropertyFromInput } from "../actions";
 
-type ParsedProperty = Record<string, unknown>;
+/**
+ * Scrive i valori estratti dall'AI direttamente nei campi veri del form,
+ * usando i loro attributi "name" — funziona con il form HTML classico
+ * che già avevamo, senza doverlo riscrivere come form controllato da
+ * React. Gestisce anche i checkbox multipli (es. servizi inclusi).
+ */
+function fillForm(form: HTMLFormElement, data: Record<string, unknown>) {
+  for (const [key, value] of Object.entries(data)) {
+    if (value === null || value === undefined || value === "") continue;
+    const elements = form.elements.namedItem(key);
+    if (!elements) continue;
 
-function setInputValue(form: HTMLFormElement, name: string, value: string | number | boolean) {
-  const el = form.elements.namedItem(name);
-  if (!el) return;
-
-  if (el instanceof HTMLInputElement) {
-    if (el.type === "checkbox") {
-      el.checked = Boolean(value);
-    } else {
-      el.value = String(value);
+    if (elements instanceof RadioNodeList) {
+      const values = Array.isArray(value) ? value.map(String) : [String(value)];
+      elements.forEach((el) => {
+        if (el instanceof HTMLInputElement && el.type === "checkbox") {
+          el.checked = values.includes(el.value);
+        }
+      });
+    } else if (elements instanceof HTMLInputElement) {
+      if (elements.type === "checkbox") {
+        elements.checked = Boolean(value);
+      } else {
+        elements.value = String(value);
+      }
+    } else if (
+      elements instanceof HTMLSelectElement ||
+      elements instanceof HTMLTextAreaElement
+    ) {
+      elements.value = String(value);
     }
-  } else if (el instanceof HTMLSelectElement) {
-    el.value = String(value);
-  } else if (el instanceof HTMLTextAreaElement) {
-    el.value = String(value);
   }
 }
 
-function applyParsedData(form: HTMLFormElement, data: ParsedProperty) {
-  const stringFields = [
-    "address",
-    "city",
-    "zone",
-    "contract_type",
-    "guarantee_status",
-    "floor",
-    "status",
-    "owner_contact_name",
-    "owner_contact_phone",
-    "owner_contact_email",
-    "room_label",
-    "available_from",
-  ] as const;
-
-  for (const field of stringFields) {
-    const value = data[field];
-    if (typeof value === "string" && value.trim()) {
-      setInputValue(form, field, value);
-    }
-  }
-
-  const numberFields = [
-    "distance_monte_dago_km",
-    "distance_torrette_km",
-    "distance_centro_km",
-    "monthly_rent_to_owner",
-    "deposit_amount",
-    "total_rooms",
-    "bathrooms",
-    "size_sqm",
-    "price_monthly",
-    "estimated_utilities",
-    "room_size_sqm",
-    "max_occupants",
-  ] as const;
-
-  for (const field of numberFields) {
-    const value = data[field];
-    if (typeof value === "number" && Number.isFinite(value)) {
-      setInputValue(form, field, value);
-    }
-  }
-
-  const booleanFields = ["has_elevator", "is_furnished", "has_private_bathroom", "has_balcony"] as const;
-  for (const field of booleanFields) {
-    if (typeof data[field] === "boolean") {
-      setInputValue(form, field, data[field] as boolean);
-    }
-  }
-
-  const services = data.services_included;
-  if (Array.isArray(services)) {
-    const checkboxes = form.querySelectorAll<HTMLInputElement>(
-      'input[name="services_included"]',
-    );
-    const selected = new Set(services.map(String));
-    checkboxes.forEach((cb) => {
-      cb.checked = selected.has(cb.value);
-    });
-  }
-}
-
-export default function AIFillAssistant() {
-  const [rawText, setRawText] = useState("");
+export default function AIFillAssistant({ formId }: { formId: string }) {
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    setImage(file);
+    setImagePreview(file ? URL.createObjectURL(file) : null);
+  }
+
+  function removeImage() {
+    setImage(null);
+    setImagePreview(null);
+  }
+
   function handleFill() {
+    if (!description.trim() && !image) return;
     setError(null);
     setSuccess(false);
 
     startTransition(async () => {
       try {
-        const parsed = await parsePropertyFromInput(rawText);
-        const form = document.querySelector("form");
-        if (!form) {
-          throw new Error("Form non trovato nella pagina.");
-        }
-        applyParsedData(form, parsed);
+        const formData = new FormData();
+        formData.set("description", description);
+        if (image) formData.set("image", image);
+
+        const data = await parsePropertyFromInput(formData);
+        const form = document.getElementById(formId) as HTMLFormElement | null;
+        if (!form) throw new Error("Modulo non trovato nella pagina.");
+        fillForm(form, data);
         setSuccess(true);
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "Non sono riuscita a leggere l'annuncio. Riprova con un testo più completo.",
-        );
+        setError(err instanceof Error ? err.message : "Errore nell'interpretazione.");
       }
     });
   }
 
   return (
-    <section className="rounded-xl2 border border-sea-100 bg-sea-50/60 p-5 shadow-card">
-      <div className="mb-3 flex items-center gap-2.5">
-        <VestaAvatar size={30} />
-        <div>
-          <h2 className="font-display text-base font-bold text-ink">Compilazione assistita</h2>
-          <p className="text-xs text-ink-muted">
-            Incolla il testo di un annuncio: Vesta prova a riempire i campi sotto.
-          </p>
-        </div>
+    <div className="mb-6 rounded-xl2 border border-dashed border-sea-300 bg-sea-50 p-4">
+      <div className="mb-2 flex items-center gap-2">
+        <Sparkles size={16} className="text-sea-600" />
+        <h3 className="font-display text-sm font-bold text-ink">Compila con l&apos;AI</h3>
       </div>
+      <p className="mb-3 text-xs text-ink-muted">
+        Scrivi una descrizione libera e/o carica una foto (planimetria, documento, foto di
+        un annuncio) — Vesta prova a riempire i campi qui sotto da solo. Controlla sempre
+        tutto prima di salvare.
+      </p>
 
       <textarea
-        value={rawText}
-        onChange={(e) => setRawText(e.target.value)}
-        rows={5}
-        placeholder="Es. Stanza singola in via Vanvitelli, Torrette, 380€ + 45 spese, arredata, wifi e lavatrice..."
-        className="w-full rounded-xl border border-sea-100 bg-white px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        rows={3}
+        placeholder="Es: Appartamento in via del Verziere zona Torrette, 100mq al 3° piano con ascensore, arredato. Due stanze, canone 1000€/mese..."
+        className="mb-3 w-full rounded-xl border border-sea-200 bg-white px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
       />
 
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={handleFill}
-          disabled={isPending || !rawText.trim()}
-          className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
-        >
-          {isPending ? "Sto leggendo l'annuncio..." : "Riempi i campi"}
-        </button>
-        {success && (
-          <p className="text-xs text-sea-700">
-            Fatto — controlla i valori prima di salvare.
-          </p>
-        )}
-      </div>
+      {imagePreview ? (
+        <div className="mb-3 flex items-center gap-3 rounded-xl border border-sea-200 bg-white p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imagePreview}
+            alt="Anteprima"
+            className="h-16 w-16 rounded-lg object-cover"
+          />
+          <span className="flex-1 truncate text-xs text-ink-muted">{image?.name}</span>
+          <button
+            type="button"
+            onClick={removeImage}
+            aria-label="Rimuovi immagine"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-ink-muted transition hover:bg-sunset-500/10 hover:text-sunset-600"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      ) : (
+        <label className="mb-3 flex cursor-pointer items-center gap-2 text-xs font-medium text-sea-700">
+          <ImageIcon size={15} />
+          Carica una foto (planimetria, documento, annuncio...)
+          <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+        </label>
+      )}
 
-      {error && <p className="mt-2 text-sm text-sunset-600">{error}</p>}
-    </section>
+      {error && <p className="mb-2 text-xs text-sunset-600">{error}</p>}
+      {success && (
+        <p className="mb-2 text-xs text-sea-700">
+          ✓ Campi compilati qui sotto — controllali prima di salvare.
+        </p>
+      )}
+
+      <button
+        type="button"
+        onClick={handleFill}
+        disabled={isPending || (!description.trim() && !image)}
+        className="rounded-full bg-sea-600 px-4 py-2 text-xs font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
+      >
+        {isPending ? "Sto leggendo..." : "Compila i campi"}
+      </button>
+    </div>
   );
 }

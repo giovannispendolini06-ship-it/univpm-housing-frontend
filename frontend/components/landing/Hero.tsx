@@ -43,7 +43,7 @@ export default function Hero() {
 
           <Reveal delay={160}>
             <p className="mt-4 max-w-md text-base leading-relaxed text-ink-muted sm:text-lg">
-              Racconta a Nomi la tua facoltà, il tuo budget e le tue abitudini
+              Racconta a Vesta la tua facoltà, il tuo budget e le tue abitudini
               di convivenza. Ti proponiamo solo le stanze davvero compatibili
               con te, vicino al tuo ateneo.
             </p>

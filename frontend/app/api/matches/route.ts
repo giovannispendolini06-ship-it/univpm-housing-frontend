@@ -1,7 +1,7 @@
 // app/api/matches/route.ts
 //
 // Serve a UNA cosa sola: far ritrovare subito le stanze compatibili a uno
-// studente che riapre il sito, senza dover riscrivere a Nomi. Nessuna
+// studente che riapre il sito, senza dover riscrivere a Vesta. Nessuna
 // chiamata a OpenAI qui dentro — solo letture dal database e lo stesso
 // calcolo di compatibilità già usato in /api/chat, quindi resta leggero
 // e veloce (nessun costo AI, solo query indicizzate).
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     if (!studentProfile?.polo_univpm || !studentProfile?.budget_max) {
       // Profilo non ancora completo: nessuna stanza da proporre finché
-      // Nomi non ha raccolto almeno polo e budget.
+      // Vesta non ha raccolto almeno polo e budget.
       return NextResponse.json({ rooms: [] });
     }
 

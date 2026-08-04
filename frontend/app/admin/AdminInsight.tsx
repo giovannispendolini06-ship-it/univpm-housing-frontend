@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { generateAdminInsight } from "./actions";
-import NomiAvatar from "@/components/NomiAvatar";
+import VestaAvatar from "@/components/VestaAvatar";
 
 export default function AdminInsight() {
   const [insight, setInsight] = useState<string | null>(null);
@@ -34,9 +34,9 @@ export default function AdminInsight() {
     <section className="rounded-xl2 bg-gradient-to-br from-sea-600 to-sea-700 p-5 text-white shadow-card sm:p-6">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <NomiAvatar size={30} />
+          <VestaAvatar size={30} />
           <div>
-            <h2 className="font-display text-base font-bold">Il punto di Nomi</h2>
+            <h2 className="font-display text-base font-bold">Il punto di Vesta</h2>
             <p className="text-xs text-sea-100">La lettura di oggi, aggiornata in automatico</p>
           </div>
         </div>

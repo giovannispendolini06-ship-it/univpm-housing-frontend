@@ -27,7 +27,7 @@ export default function RoomList({ rooms }: { rooms: RecommendedRoom[] }) {
           Ancora nessuna stanza da mostrarti
         </p>
         <p className="max-w-xs text-sm text-ink-muted">
-          Continua a chattare con Nomi: appena avrà budget, polo e abitudini
+          Continua a chattare con Vesta: appena avrà budget, polo e abitudini
           troverà le stanze più compatibili con te.
         </p>
       </div>

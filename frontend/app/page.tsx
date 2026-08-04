@@ -12,9 +12,9 @@ export default function HomePage() {
       <HowItWorksSection
         id="studenti"
         eyebrow="Per gli studenti"
-        title="Tre passaggi, e Nomi fa il resto"
+        title="Tre passaggi, e Vesta fa il resto"
         variant="muted"
-        ctaLabel="Inizia a chattare con Nomi"
+        ctaLabel="Inizia a chattare con Vesta"
         ctaHref="/login"
         steps={[
           {
@@ -25,7 +25,7 @@ export default function HomePage() {
           },
           {
             number: "2",
-            title: "Nomi capisce le tue abitudini",
+            title: "Vesta capisce le tue abitudini",
             description:
               "Orari di studio, vita sociale, pulizia: informazioni che di solito si scoprono solo dopo aver firmato.",
           },

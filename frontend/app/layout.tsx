@@ -24,20 +24,20 @@ export const metadata: Metadata = {
     template: "%s | Coabito",
   },
   description:
-    "Chatta con Nomi e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+    "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
   openGraph: {
     type: "website",
     locale: "it_IT",
     siteName: "Coabito",
     title: "Coabito | Trova casa vicino alla tua università",
     description:
-      "Chatta con Nomi e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+      "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
   },
   twitter: {
     card: "summary",
     title: "Coabito | Trova casa vicino alla tua università",
     description:
-      "Chatta con Nomi e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+      "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
   },
   robots: {
     index: true,

@@ -7,8 +7,7 @@ import {
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
 import { getOpenAIClient, OPENAI_MODEL } from "@/lib/openai";
-import { computeRoomMatches } from "@/lib/matching-rooms";
-import type { StudentProfileRow } from "@/lib/matching";
+import { recalculateMatchesForRoom } from "@/lib/matching-rooms";
 
 // ---------------------------------------------------------------------------
 // Stessa guardia di sicurezza usata in app/admin/leads/actions.ts
@@ -100,24 +99,32 @@ export async function createProperty(formData: FormData) {
   const extraService = String(formData.get("extra_service") ?? "").trim();
   if (extraService) services.push(extraService);
 
-  const { error: roomError } = await db.from("rooms").insert({
-    property_id: property.id,
-    room_label: roomLabel,
-    price_monthly: roomPrice,
-    estimated_utilities: numberOrNull(formData.get("estimated_utilities")) ?? 0,
-    size_sqm: numberOrNull(formData.get("room_size_sqm")),
-    has_private_bathroom: formData.get("has_private_bathroom") === "on",
-    has_balcony: formData.get("has_balcony") === "on",
-    max_occupants: numberOrNull(formData.get("max_occupants")) ?? 1,
-    services_included: services,
-    is_available: true,
-    available_from: String(formData.get("available_from") ?? "").trim() || null,
-    status: "attivo",
-  });
+  const { data: newRoom, error: roomError } = await db
+    .from("rooms")
+    .insert({
+      property_id: property.id,
+      room_label: roomLabel,
+      price_monthly: roomPrice,
+      estimated_utilities: numberOrNull(formData.get("estimated_utilities")) ?? 0,
+      size_sqm: numberOrNull(formData.get("room_size_sqm")),
+      has_private_bathroom: formData.get("has_private_bathroom") === "on",
+      has_balcony: formData.get("has_balcony") === "on",
+      max_occupants: numberOrNull(formData.get("max_occupants")) ?? 1,
+      services_included: services,
+      is_available: true,
+      available_from: String(formData.get("available_from") ?? "").trim() || null,
+      status: "attivo",
+    })
+    .select("id")
+    .single();
 
-  if (roomError) {
-    throw new Error(`Immobile creato ma errore nella stanza: ${roomError.message}`);
+  if (roomError || !newRoom) {
+    throw new Error(`Immobile creato ma errore nella stanza: ${roomError?.message}`);
   }
+
+  // Aggiorna subito la compatibilità per tutti gli studenti già registrati,
+  // così questa stanza compare per loro senza dover riscrivere a Vesta.
+  await recalculateMatchesForRoom(db, newRoom.id);
 
   // --- 3. Se veniamo da un lead esterno, colleghiamolo -----------------------
   const leadId = String(formData.get("lead_id") ?? "");
@@ -447,6 +454,8 @@ export async function updateRoom(formData: FormData) {
 
   if (error) throw new Error(`Errore nell'aggiornamento della stanza: ${error.message}`);
 
+  await recalculateMatchesForRoom(db, roomId);
+
   revalidatePath(`/admin/properties/${propertyId}`);
 }
 
@@ -467,107 +476,128 @@ export async function addRoom(formData: FormData) {
 
   const services = formData.getAll("services_included").map(String);
 
-  const { error } = await db.from("rooms").insert({
-    property_id: propertyId,
-    room_label: roomLabel,
-    price_monthly: roomPrice,
-    estimated_utilities: numberOrNull(formData.get("estimated_utilities")) ?? 0,
-    size_sqm: numberOrNull(formData.get("room_size_sqm")),
-    has_private_bathroom: formData.get("has_private_bathroom") === "on",
-    has_balcony: formData.get("has_balcony") === "on",
-    max_occupants: numberOrNull(formData.get("max_occupants")) ?? 1,
-    services_included: services,
-    is_available: true,
-    available_from: String(formData.get("available_from") ?? "").trim() || null,
-    status: "attivo",
-  });
+  const { data: newRoom, error } = await db
+    .from("rooms")
+    .insert({
+      property_id: propertyId,
+      room_label: roomLabel,
+      price_monthly: roomPrice,
+      estimated_utilities: numberOrNull(formData.get("estimated_utilities")) ?? 0,
+      size_sqm: numberOrNull(formData.get("room_size_sqm")),
+      has_private_bathroom: formData.get("has_private_bathroom") === "on",
+      has_balcony: formData.get("has_balcony") === "on",
+      max_occupants: numberOrNull(formData.get("max_occupants")) ?? 1,
+      services_included: services,
+      is_available: true,
+      available_from: String(formData.get("available_from") ?? "").trim() || null,
+      status: "attivo",
+    })
+    .select("id")
+    .single();
 
-  if (error) throw new Error(`Errore nella creazione della stanza: ${error.message}`);
+  if (error || !newRoom) {
+    throw new Error(`Errore nella creazione della stanza: ${error?.message}`);
+  }
+
+  await recalculateMatchesForRoom(db, newRoom.id);
 
   revalidatePath(`/admin/properties/${propertyId}`);
 }
 
 // ---------------------------------------------------------------------------
-// Ricalcola i match_scores per tutti gli studenti con profilo sufficiente
-// dopo aver creato o modificato una stanza, così la dashboard si aggiorna
-// subito quando riaprono il sito — senza dover riscrivere a Vesta.
-// ---------------------------------------------------------------------------
-export async function recalculateMatchesForRoom(roomId: string) {
-  await assertAdmin();
-  const db = createServiceSupabaseClient();
-
-  const { data: room } = await db
-    .from("rooms")
-    .select("id, property_id, is_available")
-    .eq("id", roomId)
-    .maybeSingle();
-
-  if (!room?.is_available) return;
-
-  const { data: students } = await db
-    .from("student_profiles")
-    .select("*")
-    .not("polo_univpm", "is", null)
-    .not("budget_max", "is", null);
-
-  for (const student of students ?? []) {
-    try {
-      await computeRoomMatches(db, student as StudentProfileRow);
-    } catch (err) {
-      console.error(
-        `[recalculateMatchesForRoom] Errore per studente ${student.user_id}:`,
-        err,
-      );
-    }
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Legge un annuncio incollato dall'admin e restituisce i campi del form
-// in JSON, da usare in AIFillAssistant.tsx.
+// Compilazione assistita: legge una descrizione libera (testo) e/o
+// un'immagine (foto di una planimetria, di un documento, di un annuncio
+// già pubblicato) e prova a estrarre i campi del form immobile + prima
+// stanza. L'admin controlla sempre il risultato prima di salvare: questa
+// funzione non scrive nulla sul database da sola, restituisce solo dati
+// da mettere nei campi.
 // ---------------------------------------------------------------------------
 export async function parsePropertyFromInput(
-  rawText: string,
+  formData: FormData,
 ): Promise<Record<string, unknown>> {
   await assertAdmin();
 
-  const trimmed = rawText.trim();
-  if (!trimmed) {
-    throw new Error("Incolla prima il testo dell'annuncio.");
+  const description = String(formData.get("description") ?? "").trim();
+  const imageFile = formData.get("image") as File | null;
+  const hasImage = imageFile && imageFile.size > 0;
+
+  if (!description && !hasImage) {
+    throw new Error("Scrivi una descrizione o carica un'immagine prima di continuare.");
+  }
+
+  const SYSTEM_PROMPT = `Sei un assistente che estrae dati strutturati su un immobile per studenti fuori sede. Ricevi una descrizione testuale e/o un'immagine (foto di una planimetria, di un documento, di un annuncio già pubblicato, o di un messaggio del proprietario). Estrai tutto quello che riesci a leggere o dedurre con ragionevole sicurezza da entrambe le fonti insieme.
+
+Rispondi SOLO con un oggetto JSON valido, senza markdown, senza testo prima o dopo. Ometti i campi che non riesci a dedurre: non inventare mai numeri o dettagli che non sono presenti nel testo o nell'immagine.
+
+Campi possibili, con questi nomi esatti:
+{
+  "address": string,
+  "city": string (default "Ancona" se non specificato altrimenti),
+  "zone": string,
+  "distance_monte_dago_km": number,
+  "distance_torrette_km": number,
+  "distance_centro_km": number,
+  "contract_type": "stanza_singola" | "stanza_doppia" | "intero_appartamento" | "transitorio",
+  "monthly_rent_to_owner": number,
+  "guarantee_status": "nessuna" | "deposito_cauzionale" | "fideiussione" | "garante_terzo",
+  "deposit_amount": number,
+  "total_rooms": number,
+  "bathrooms": number,
+  "size_sqm": number,
+  "floor": string,
+  "has_elevator": boolean,
+  "is_furnished": boolean,
+  "owner_contact_name": string,
+  "owner_contact_phone": string,
+  "owner_contact_email": string,
+  "room_label": string (nome della prima stanza descritta),
+  "price_monthly": number (prezzo della prima stanza),
+  "estimated_utilities": number,
+  "room_size_sqm": number,
+  "max_occupants": number,
+  "has_private_bathroom": boolean,
+  "has_balcony": boolean,
+  "services_included": string[] (SOLO tra questi valori esatti: "Wifi", "Lavatrice", "Riscaldamento centralizzato", "Posto auto", "Aria condizionata", "Terrazzo condiviso"),
+  "available_from": string (formato YYYY-MM-DD, solo se una data è chiaramente specificata o deducibile)
+}
+
+Se ricevi una planimetria: conta le stanze visibili per "total_rooms", leggi eventuali metrature scritte sul disegno per "size_sqm"/"room_size_sqm", e nota bagni/balconi se disegnati.`;
+
+  // Costruisce il messaggio: solo testo se non c'è immagine, altrimenti un
+  // messaggio "multimodale" con testo + immagine insieme.
+  let userContent: string | Array<Record<string, unknown>>;
+
+  if (hasImage) {
+    const buffer = Buffer.from(await imageFile!.arrayBuffer());
+    const base64 = buffer.toString("base64");
+    const dataUrl = `data:${imageFile!.type};base64,${base64}`;
+
+    const parts: Array<Record<string, unknown>> = [];
+    if (description) parts.push({ type: "text", text: description });
+    parts.push({ type: "image_url", image_url: { url: dataUrl } });
+    userContent = parts;
+  } else {
+    userContent = description;
   }
 
   const openai = getOpenAIClient();
   const completion = await openai.chat.completions.create({
     model: OPENAI_MODEL,
-    max_completion_tokens: 1024,
-    response_format: { type: "json_object" },
+    max_completion_tokens: 800,
     messages: [
-      {
-        role: "system",
-        content:
-          "Sei un assistente che estrae dati immobiliari da annunci in italiano. " +
-          "Rispondi SOLO con un JSON valido. Usa null per i campi non trovati. " +
-          "Chiavi ammesse: address, city, zone, distance_monte_dago_km, distance_torrette_km, " +
-          "distance_centro_km, contract_type (stanza_singola|stanza_doppia|intero_appartamento|transitorio), " +
-          "monthly_rent_to_owner, guarantee_status (nessuna|deposito_cauzionale|fideiussione|garante_terzo), " +
-          "deposit_amount, total_rooms, bathrooms, size_sqm, floor, has_elevator, is_furnished, status (attivo|bozza), " +
-          "owner_contact_name, owner_contact_phone, owner_contact_email, room_label, price_monthly, " +
-          "estimated_utilities, room_size_sqm, max_occupants, available_from (YYYY-MM-DD), " +
-          "has_private_bathroom, has_balcony, services_included (array di stringhe tra Wifi, Lavatrice, " +
-          "Riscaldamento centralizzato, Posto auto, Aria condizionata, Terrazzo condiviso).",
-      },
-      { role: "user", content: trimmed },
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: userContent as never },
     ],
   });
 
-  const content = completion.choices[0]?.message?.content?.trim();
-  if (!content) {
-    throw new Error("Non sono riuscita a estrarre dati dal testo.");
-  }
+  const raw = completion.choices[0]?.message?.content?.trim() ?? "{}";
+  const cleaned = raw.replace(/^```json\s*|```$/g, "").trim();
 
   try {
-    return JSON.parse(content) as Record<string, unknown>;
+    return JSON.parse(cleaned);
   } catch {
-    throw new Error("Risposta del modello non valida. Riprova.");
+    throw new Error(
+      "Non sono riuscito a interpretare quello che mi hai dato. Prova a riformulare il testo o usa un'immagine più chiara.",
+    );
   }
 }
