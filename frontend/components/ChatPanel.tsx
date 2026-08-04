@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 import ChatBubble from "./ChatBubble";
 import TypingIndicator from "./TypingIndicator";
+import VestaAvatar from "./VestaAvatar";
 
 interface ChatPanelProps {
   initialMessages: ChatMessage[];
   /**
    * Collegata a /api/chat: riceve il testo scritto dallo studente e
-   * restituisce la risposta di Domi più (eventualmente) le stanze
+   * restituisce la risposta di Vesta più (eventualmente) le stanze
    * ricalcolate dal motore di matching.
    */
   onSendMessage: (
@@ -94,11 +95,9 @@ export default function ChatPanel({
     <section className="flex h-full flex-col bg-bg">
       {/* Header */}
       <header className="flex items-center gap-3 border-b border-sea-100 bg-white/80 px-4 py-3 backdrop-blur">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sea-600 font-display text-sm font-bold text-white">
-          D
-        </div>
+        <VestaAvatar size={36} />
         <div>
-          <h1 className="font-display text-sm font-bold text-ink">Domi</h1>
+          <h1 className="font-display text-sm font-bold text-ink">Vesta</h1>
           <p className="text-xs text-ink-muted">
             Il tuo assistente casa · UNIVPM Ancona
           </p>

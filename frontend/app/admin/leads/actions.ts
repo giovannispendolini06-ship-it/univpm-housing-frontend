@@ -93,7 +93,7 @@ export async function fetchListingPreview(url: string): Promise<ListingPreviewRe
   try {
     const res = await fetch(url, {
       headers: {
-        "User-Agent": "CoabitoBot/1.0",
+        "User-Agent": "Mozilla/5.0 (compatible; CoabitoBot/1.0)",
       },
       signal: AbortSignal.timeout(8000),
     });

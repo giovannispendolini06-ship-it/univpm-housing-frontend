@@ -214,7 +214,7 @@ export function buildWelcomeEmail(input: { fullName: string; role: "student" | "
       ${
         isOwner
           ? "Il tuo profilo è pronto. Da qui in poi ci pensiamo noi a trovarti inquilini seri: filtriamo gli studenti compatibili, tu decidi solo con chi firmare."
-          : "Il tuo profilo è pronto. Vesta, la nostra assistente, ti aspetta per capire facoltà, budget e abitudini — e proporti solo le stanze davvero compatibili con te, non l'ennesimo annuncio a caso."
+          : "Il tuo profilo è pronto. Vesta, il nostro assistente, ti aspetta per capire facoltà, budget e abitudini — e proporti solo le stanze davvero compatibili con te, non l'ennesimo annuncio a caso."
       }
     </p>
     ${ctaButton(isOwner ? "Vai alla tua area" : "Inizia a chattare con Vesta", `${SITE_URL}/${isOwner ? "owner" : "dashboard"}`)}

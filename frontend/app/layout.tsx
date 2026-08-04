@@ -15,22 +15,33 @@ const body = Inter({
   variable: "--font-body",
 });
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://coabito.it";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://univpm-housing-frontend.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Coabito | Trova casa vicino alla tua università",
+  title: {
+    default: "Coabito | Trova casa vicino alla tua università",
+    template: "%s | Coabito",
+  },
   description:
     "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
   openGraph: {
+    type: "website",
+    locale: "it_IT",
+    siteName: "Coabito",
     title: "Coabito | Trova casa vicino alla tua università",
     description:
       "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
-    url: SITE_URL,
-    siteName: "Coabito",
-    locale: "it_IT",
-    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "Coabito | Trova casa vicino alla tua università",
+    description:
+      "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
