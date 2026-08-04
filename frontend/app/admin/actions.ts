@@ -36,12 +36,13 @@ export async function generateAdminInsight(): Promise<string> {
   await assertAdmin();
   const db = createServiceSupabaseClient();
 
-  const [{ data: properties }, { data: rooms }, { data: leads }, { data: users }] =
+  const [{ data: properties }, { data: rooms }, { data: leads }, { data: users }, { data: inquiries }] =
     await Promise.all([
       db.from("properties").select("id, status, monthly_rent_to_owner"),
       db.from("rooms").select("id, property_id, price_monthly, is_available"),
       db.from("leads_external").select("status"),
       db.from("users").select("role"),
+      db.from("owner_inquiries").select("status"),
     ]);
 
   const occupiedRooms = (rooms ?? []).filter((r) => !r.is_available);
@@ -64,6 +65,9 @@ export async function generateAdminInsight(): Promise<string> {
     studenti_registrati: (users ?? []).filter((u) => u.role === "student").length,
     lead_esterni_totali: leads?.length ?? 0,
     lead_da_lavorare: (leads ?? []).filter((l) => l.status === "nuovo").length,
+    richieste_proprietari_totali: inquiries?.length ?? 0,
+    richieste_proprietari_da_contattare: (inquiries ?? []).filter((i) => i.status === "nuovo").length,
+    richieste_proprietari_convertite: (inquiries ?? []).filter((i) => i.status === "convertito").length,
   };
 
   const openai = getOpenAIClient();
