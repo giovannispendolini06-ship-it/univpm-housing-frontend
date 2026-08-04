@@ -144,7 +144,7 @@ export default function LoginPage() {
           </h1>
           <p className="text-sm text-ink-muted">
             {mode === "signup"
-              ? "Per parlare con Nomi e vedere le stanze consigliate"
+              ? "Per parlare con Vesta e vedere le stanze consigliate"
               : "Accedi per continuare"}
           </p>
         </div>

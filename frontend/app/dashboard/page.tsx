@@ -13,7 +13,7 @@ type MobileTab = "chat" | "rooms";
 const WELCOME_MESSAGE: ChatMessage = {
   id: "welcome",
   role: "assistant",
-  content: "Ehi! 👋 Sono Nomi, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
+  content: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
   createdAt: new Date().toISOString(),
 };
 
@@ -26,7 +26,7 @@ const WELCOME_MESSAGE: ChatMessage = {
  * Questa pagina è protetta da middleware.ts: se non sei loggato, Next.js
  * ti reindirizza automaticamente a /login prima di arrivare qui.
  *
- * Al primo caricamento, ricarica dal database la conversazione con Nomi
+ * Al primo caricamento, ricarica dal database la conversazione con Vesta
  * e le stanze già calcolate (invece di ripartire sempre da zero): due
  * semplici query indicizzate, nessuna chiamata a OpenAI, quindi resta
  * leggero e veloce anche per chi torna il giorno dopo.
@@ -90,7 +90,7 @@ export default function StudentDashboardPage() {
         });
 
       // Stanze già calcolate in precedenza: così non serve riscrivere a
-      // Nomi solo per rivederle.
+      // Vesta solo per rivederle.
       fetch(`/api/matches?studentId=${userId}`)
         .then((res) => (res.ok ? res.json() : { rooms: [] }))
         .then((data) => setRooms(data.rooms ?? []))

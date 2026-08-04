@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Informativa Privacy | Bindo",
+  title: "Informativa Privacy | Coabito",
 };
 
 export default function PrivacyPage() {
@@ -25,8 +25,8 @@ export default function PrivacyPage() {
             <p>
               Il Titolare del trattamento dei dati è <strong>[RAGIONE SOCIALE DA COMPILARE]</strong>,
               con sede in [INDIRIZZO DA COMPILARE], contattabile all&apos;indirizzo email{" "}
-              <a href="mailto:privacy@bindo.it" className="text-sea-700 underline">
-                privacy@bindo.it
+              <a href="mailto:privacy@coabito.it" className="text-sea-700 underline">
+                privacy@coabito.it
               </a>
               .
             </p>
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
               <li>Nome e cognome, indirizzo email, numero di telefono</li>
               <li>Codice fiscale o partita IVA</li>
               <li>Foto profilo</li>
-              <li>Contenuto delle conversazioni con l&apos;assistente Nomi (per gli studenti)</li>
+              <li>Contenuto delle conversazioni con l&apos;assistente Vesta (per gli studenti)</li>
             </ul>
             <p className="mb-1 font-semibold">Solo per gli studenti, in aggiunta:</p>
             <ul className="mb-2 list-disc space-y-1 pl-5">
@@ -84,7 +84,7 @@ export default function PrivacyPage() {
               4. Come trattiamo i tuoi dati con l&apos;intelligenza artificiale
             </h2>
             <p>
-              Quando chatti con il nostro assistente Nomi, i tuoi messaggi vengono inviati a{" "}
+              Quando chatti con il nostro assistente Vesta, i tuoi messaggi vengono inviati a{" "}
               <strong>OpenAI</strong> (fornitore del modello linguistico) per generare le risposte.
               OpenAI ha sede negli Stati Uniti: il trasferimento dei dati verso un paese extra-UE
               avviene sulla base delle Clausole Contrattuali Standard approvate dalla Commissione
@@ -148,8 +148,8 @@ export default function PrivacyPage() {
             </ul>
             <p className="mt-2">
               Per esercitare questi diritti, scrivici a{" "}
-              <a href="mailto:privacy@bindo.it" className="text-sea-700 underline">
-                privacy@bindo.it
+              <a href="mailto:privacy@coabito.it" className="text-sea-700 underline">
+                privacy@coabito.it
               </a>
               .
             </p>

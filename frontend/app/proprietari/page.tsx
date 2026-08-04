@@ -4,7 +4,7 @@ import Reveal from "@/components/landing/Reveal";
 import OwnerInquiryForm from "./OwnerInquiryForm";
 
 export const metadata = {
-  title: "Proponi il tuo immobile | Bindo",
+  title: "Proponi il tuo immobile | Coabito",
   description:
     "Affitta il tuo immobile a studenti verificati, senza gestire tu le trattative.",
 };
@@ -54,8 +54,8 @@ export default function OwnersPage() {
 
               <div className="rounded-xl2 bg-white p-4 text-xs text-ink-muted shadow-card">
                 Preferisci scriverci direttamente?{" "}
-                <a href="mailto:info@bindo.it" className="text-sea-700 underline">
-                  info@bindo.it
+                <a href="mailto:info@coabito.it" className="text-sea-700 underline">
+                  info@coabito.it
                 </a>
               </div>
             </div>

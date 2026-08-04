@@ -35,7 +35,7 @@ export default async function OnboardingPage() {
         <p className="mt-1 text-sm text-ink-muted">
           {role === "owner"
             ? "Qualche dato in più prima di iniziare a gestire i tuoi immobili."
-            : "Qualche dato in più prima di parlare con Nomi."}
+            : "Qualche dato in più prima di parlare con Vesta."}
         </p>
 
         <div className="mt-5">

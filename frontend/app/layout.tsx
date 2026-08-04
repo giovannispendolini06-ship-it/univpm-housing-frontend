@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const display = Space_Grotesk({
@@ -14,10 +15,23 @@ const body = Inter({
   variable: "--font-body",
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://coabito.it";
+
 export const metadata: Metadata = {
-  title: "Bindo | Trova casa vicino alla tua università",
+  metadataBase: new URL(SITE_URL),
+  title: "Coabito | Trova casa vicino alla tua università",
   description:
-    "Chatta con Nomi e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+    "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+  openGraph: {
+    title: "Coabito | Trova casa vicino alla tua università",
+    description:
+      "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+    url: SITE_URL,
+    siteName: "Coabito",
+    locale: "it_IT",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -27,7 +41,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="it" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
