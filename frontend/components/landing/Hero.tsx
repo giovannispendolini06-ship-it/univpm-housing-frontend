@@ -6,16 +6,25 @@ import TiltCard from "./TiltCard";
 export default function Hero() {
   return (
     <section className="relative overflow-hidden bg-bg">
-      {/* Sfumature decorative di sfondo: solo CSS, nessuna immagine da
-          caricare, quindi non appesantiscono la pagina. */}
-      <div
+      {/* Anelli decorativi sottili: stesso motivo visivo del logo e del
+          punteggio di compatibilità (MatchScoreRing), non una sfumatura
+          sfocata generica. Solo tratti, nessun riempimento: composizione
+          volutamente asimmetrica, non centrata. */}
+      <svg
         aria-hidden="true"
-        className="pointer-events-none absolute -left-32 -top-32 h-[420px] w-[420px] rounded-full bg-sea-100/60 blur-3xl"
-      />
-      <div
+        className="pointer-events-none absolute -left-24 -top-24 h-[380px] w-[380px] text-sea-600/[0.07]"
+        viewBox="0 0 100 100"
+      >
+        <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="1.4" />
+        <circle cx="50" cy="50" r="33" fill="none" stroke="currentColor" strokeWidth="1.4" />
+      </svg>
+      <svg
         aria-hidden="true"
-        className="pointer-events-none absolute -right-24 top-40 h-[360px] w-[360px] rounded-full bg-sunset-500/10 blur-3xl"
-      />
+        className="pointer-events-none absolute -right-16 bottom-0 h-[220px] w-[220px] text-sunset-500/[0.1]"
+        viewBox="0 0 100 100"
+      >
+        <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="1.6" strokeDasharray="6 5" />
+      </svg>
 
       <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 md:grid-cols-2 md:py-28">
         <div>
@@ -50,7 +59,7 @@ export default function Hero() {
               </Link>
               <a
                 href="/proprietari"
-                className="rounded-full border border-sea-200 bg-white px-6 py-3 text-center text-sm font-semibold text-ink transition hover:border-sea-400"
+                className="rounded-xl2 border border-sea-200 bg-white px-6 py-3 text-center text-sm font-semibold text-ink transition hover:border-sea-400"
               >
                 Sono un proprietario
               </a>
