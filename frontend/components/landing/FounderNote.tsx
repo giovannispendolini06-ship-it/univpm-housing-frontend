@@ -16,9 +16,9 @@ export default function FounderNote() {
           </div>
 
           <p className="font-display text-xl leading-relaxed text-white sm:text-2xl">
-            &ldquo;Ho vissuto anch&apos;io la ricerca di una stanza ad Ancona senza sapere
-            nulla di chi ci avrei convissuto. Coabito è il servizio che avrei
-            voluto trovare io, il primo anno.&rdquo;
+            &ldquo;Anche io ho cercato casa ad Ancona da studente, senza sapere
+            nulla delle persone con cui avrei convissuto. Coabito è il
+            servizio che avrei voluto avere io, il primo anno.&rdquo;
           </p>
 
           <p className="mt-6 text-sm font-medium text-sea-100">
