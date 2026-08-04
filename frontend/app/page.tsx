@@ -1,6 +1,7 @@
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import Hero from "@/components/landing/Hero";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
+import FaqSection from "@/components/landing/FaqSection";
 import LandingFooter from "@/components/landing/LandingFooter";
 
 export default function HomePage() {
@@ -12,9 +13,9 @@ export default function HomePage() {
       <HowItWorksSection
         id="studenti"
         eyebrow="Per gli studenti"
-        title="Tre passaggi, e Nomi fa il resto"
+        title="Tre passaggi, e Vesta fa il resto"
         variant="muted"
-        ctaLabel="Inizia a chattare con Nomi"
+        ctaLabel="Inizia a chattare con Vesta"
         ctaHref="/login"
         steps={[
           {
@@ -25,7 +26,7 @@ export default function HomePage() {
           },
           {
             number: "2",
-            title: "Nomi capisce le tue abitudini",
+            title: "Vesta capisce le tue abitudini",
             description:
               "Orari di studio, vita sociale, pulizia: informazioni che di solito si scoprono solo dopo aver firmato.",
           },
@@ -66,6 +67,8 @@ export default function HomePage() {
           },
         ]}
       />
+
+      <FaqSection />
 
       <LandingFooter />
     </main>
