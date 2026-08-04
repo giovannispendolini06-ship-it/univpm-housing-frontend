@@ -6,7 +6,7 @@ export default function ChatBubble({ message }: { message: ChatMessage }) {
 
   return (
     <div
-      className={`flex items-end gap-2 ${isAssistant ? "justify-start" : "justify-end"} w-full`}
+      className={`flex items-end gap-2 ${isAssistant ? "justify-start" : "justify-end"} w-full animate-fade-in-up`}
     >
       {isAssistant && <NomiAvatar size={26} />}
       <div

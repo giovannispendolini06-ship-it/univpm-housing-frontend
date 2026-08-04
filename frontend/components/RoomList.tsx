@@ -46,8 +46,14 @@ export default function RoomList({ rooms }: { rooms: RecommendedRoom[] }) {
       </header>
 
       <div className="scrollbar-thin flex-1 space-y-3 overflow-y-auto px-4 py-4 sm:px-5">
-        {sorted.map((room) => (
-          <RoomCard key={room.id} room={room} />
+        {sorted.map((room, index) => (
+          <div
+            key={room.id}
+            className="animate-fade-in-up"
+            style={{ animationDelay: `${Math.min(index, 6) * 60}ms` }}
+          >
+            <RoomCard room={room} />
+          </div>
         ))}
       </div>
     </section>

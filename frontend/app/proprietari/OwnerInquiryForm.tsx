@@ -7,6 +7,9 @@ export default function OwnerInquiryForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
+  // Timestamp di quando il form è comparso a schermo: usato lato server
+  // per capire se è stato compilato "troppo in fretta" per essere un umano.
+  const [renderedAt] = useState(() => Date.now());
 
   function handleSubmit(formData: FormData) {
     setError(null);
@@ -22,7 +25,7 @@ export default function OwnerInquiryForm() {
 
   if (success) {
     return (
-      <div className="rounded-xl2 bg-sea-50 p-6 text-center shadow-card">
+      <div className="animate-pop-in rounded-xl2 bg-sea-50 p-6 text-center shadow-card">
         <p className="font-display text-base font-bold text-sea-700">
           Richiesta ricevuta! 🎉
         </p>
@@ -35,6 +38,14 @@ export default function OwnerInquiryForm() {
 
   return (
     <form action={handleSubmit} className="space-y-4 rounded-xl2 bg-surface p-6 shadow-card">
+      {/* Campo trappola: invisibile per un umano, spesso compilato dai bot.
+          Se arriva pieno, il server scarta la richiesta senza dirlo. */}
+      <div className="absolute -left-[9999px] opacity-0" aria-hidden="true">
+        <label htmlFor="website">Non compilare questo campo</label>
+        <input type="text" id="website" name="website" tabIndex={-1} autoComplete="off" />
+      </div>
+      <input type="hidden" name="rendered_at" value={renderedAt} />
+
       <div>
         <label className="mb-1 block text-xs font-medium text-ink-muted">
           Nome e cognome *

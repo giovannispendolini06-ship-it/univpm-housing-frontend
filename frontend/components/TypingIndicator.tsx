@@ -2,7 +2,7 @@ import NomiAvatar from "./NomiAvatar";
 
 export default function TypingIndicator() {
   return (
-    <div className="flex w-full items-end justify-start gap-2">
+    <div className="flex w-full items-end justify-start gap-2 animate-fade-in-up">
       <NomiAvatar size={26} />
       <div className="flex items-center gap-1 rounded-xl2 rounded-tl-sm bg-white px-4 py-3 shadow-chat">
         {[0, 1, 2].map((i) => (
