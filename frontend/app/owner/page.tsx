@@ -52,7 +52,7 @@ export default async function OwnerDashboardPage() {
 
   // Per ogni stanza, contiamo quanti studenti "compatibili" (score >= 70)
   // sono stati trovati dal motore di matching. Numero aggregato soltanto:
-  // niente dati personali degli studenti, che restano gestiti da Bindo.
+  // niente dati personali degli studenti, che restano gestiti da Coabito.
   const roomIds = (properties ?? []).flatMap((p) => (p.rooms ?? []).map((r) => r.id));
   let matchCountByRoom = new Map<string, number>();
 
@@ -95,8 +95,8 @@ export default async function OwnerDashboardPage() {
             <p className="mt-2 text-sm text-ink-muted">
               Se ci hai già parlato del tuo immobile, ti colleghiamo a breve
               l&apos;account. Altrimenti scrivici a{" "}
-              <a href="mailto:info@bindo.it" className="text-sea-700 underline">
-                info@bindo.it
+              <a href="mailto:info@coabito.it" className="text-sea-700 underline">
+                info@coabito.it
               </a>
               .
             </p>

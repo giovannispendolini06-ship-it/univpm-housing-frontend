@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import BindoLogo from "@/components/BindoLogo";
+import CoabitoLogo from "@/components/CoabitoLogo";
 
 export default function LandingNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,8 +11,8 @@ export default function LandingNavbar() {
     <header className="sticky top-0 z-50 border-b border-sea-100 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <BindoLogo size={32} />
-          <span className="font-display text-base font-bold text-ink">Bindo</span>
+          <CoabitoLogo size={32} />
+          <span className="font-display text-base font-bold text-ink">Coabito</span>
         </Link>
 
         {/* Nav desktop */}

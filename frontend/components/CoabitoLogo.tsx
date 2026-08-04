@@ -1,10 +1,10 @@
-interface BindoLogoProps {
+interface CoabitoLogoProps {
   size?: number;
   className?: string;
 }
 
 /**
- * Il logomark di Bindo: non un cerchio con una lettera dentro (il
+ * Il logomark di Coabito: non un cerchio con una lettera dentro (il
  * pattern più generico e riconoscibile di un logo fatto "in fretta"),
  * ma un piccolo pittogramma che racconta la doppia anima del prodotto —
  * una casa, e un arco che richiama lo stesso "anello di compatibilità"
@@ -15,7 +15,7 @@ interface BindoLogoProps {
  * Il badge è un quadrato arrotondato, non un cerchio: apposta per non
  * ripetere la stessa identica forma usata ovunque per bottoni e badge.
  */
-export default function BindoLogo({ size = 32, className = "" }: BindoLogoProps) {
+export default function CoabitoLogo({ size = 32, className = "" }: CoabitoLogoProps) {
   return (
     <svg
       width={size}

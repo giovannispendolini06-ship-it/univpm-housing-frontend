@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const display = Space_Grotesk({
@@ -14,10 +15,34 @@ const body = Inter({
   variable: "--font-body",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://univpm-housing-frontend.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Bindo | Trova casa vicino alla tua università",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Coabito | Trova casa vicino alla tua università",
+    template: "%s | Coabito",
+  },
   description:
     "Chatta con Nomi e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+  openGraph: {
+    type: "website",
+    locale: "it_IT",
+    siteName: "Coabito",
+    title: "Coabito | Trova casa vicino alla tua università",
+    description:
+      "Chatta con Nomi e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Coabito | Trova casa vicino alla tua università",
+    description:
+      "Chatta con Nomi e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -27,7 +52,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="it" className={`${display.variable} ${body.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }

@@ -4,7 +4,7 @@ interface NomiAvatarProps {
 }
 
 /**
- * Il segno visivo di Nomi: stesso linguaggio del logo Bindo (cerchio +
+ * Il segno visivo di Nomi: stesso linguaggio del logo Coabito (cerchio +
  * lettera), ma in corallo invece che in teal. La scelta è intenzionale:
  * il teal resta l'identità dell'azienda/della struttura, il corallo
  * diventa "la voce calda che ti parla" — Nomi è ovunque nella chat,

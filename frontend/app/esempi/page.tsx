@@ -7,7 +7,7 @@ import RoomCard from "@/components/RoomCard";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 
 export const metadata = {
-  title: "Come funziona, con esempi | Bindo",
+  title: "Come funziona, con esempi | Coabito",
   description: "Un esempio vero di conversazione con Nomi e di come leggere il punteggio di compatibilità di una stanza.",
 };
 

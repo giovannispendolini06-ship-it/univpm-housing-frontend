@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Termini di Servizio | Bindo",
+  title: "Termini di Servizio | Coabito",
 };
 
 export default function TermsPage() {
@@ -23,10 +23,10 @@ export default function TermsPage() {
               1. Chi siamo e cosa facciamo
             </h2>
             <p>
-              Bindo (&quot;noi&quot;, &quot;la piattaforma&quot;) è un servizio che mette in contatto
+              Coabito (&quot;noi&quot;, &quot;la piattaforma&quot;) è un servizio che mette in contatto
               studenti universitari in cerca di alloggio con proprietari di immobili, tramite un
               assistente virtuale che raccoglie le preferenze dello studente e propone stanze
-              compatibili. <strong>Bindo non è un&apos;agenzia immobiliare tradizionale</strong> né una
+              compatibili. <strong>Coabito non è un&apos;agenzia immobiliare tradizionale</strong> né una
               parte del contratto di locazione: agiamo come intermediari tecnologici che facilitano
               il contatto tra le parti.
             </p>
@@ -49,7 +49,7 @@ export default function TermsPage() {
               3. Il ruolo della piattaforma
             </h2>
             <p className="mb-2">
-              Bindo facilita il contatto tra studenti e proprietari, ma:
+              Coabito facilita il contatto tra studenti e proprietari, ma:
             </p>
             <ul className="list-disc space-y-1 pl-5">
               <li>
@@ -71,7 +71,7 @@ export default function TermsPage() {
             <h2 className="mb-2 font-display text-base font-bold text-ink">
               4. Obblighi degli utenti
             </h2>
-            <p className="mb-2">Utilizzando Bindo ti impegni a:</p>
+            <p className="mb-2">Utilizzando Coabito ti impegni a:</p>
             <ul className="list-disc space-y-1 pl-5">
               <li>Fornire informazioni veritiere su di te e (se proprietario) sui tuoi immobili</li>
               <li>Non utilizzare la piattaforma per finalità illecite o fraudolente</li>
@@ -85,7 +85,7 @@ export default function TermsPage() {
               5. Limitazione di responsabilità
             </h2>
             <p>
-              Nei limiti consentiti dalla legge, Bindo non è responsabile per danni diretti o
+              Nei limiti consentiti dalla legge, Coabito non è responsabile per danni diretti o
               indiretti derivanti dall&apos;uso della piattaforma, da accordi presi tra studenti e
               proprietari, o da informazioni inesatte fornite dagli utenti. Il servizio è fornito
               &quot;così com&apos;è&quot;, senza garanzie di continuità assoluta o assenza di errori.
@@ -97,7 +97,7 @@ export default function TermsPage() {
               6. Proprietà intellettuale
             </h2>
             <p>
-              Il nome, il logo, il design e il codice della piattaforma sono di proprietà di Bindo.
+              Il nome, il logo, il design e il codice della piattaforma sono di proprietà di Coabito.
               I contenuti che carichi (foto, testi degli annunci) restano di tua proprietà, ma ci
               concedi il diritto di mostrarli sulla piattaforma per il funzionamento del servizio.
             </p>
@@ -131,8 +131,8 @@ export default function TermsPage() {
             </h2>
             <p>
               Per qualsiasi domanda su questi termini, scrivici a{" "}
-              <a href="mailto:info@bindo.it" className="text-sea-700 underline">
-                info@bindo.it
+              <a href="mailto:info@coabito.it" className="text-sea-700 underline">
+                info@coabito.it
               </a>
               .
             </p>

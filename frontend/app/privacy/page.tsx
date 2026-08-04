@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Informativa Privacy | Bindo",
+  title: "Informativa Privacy | Coabito",
 };
 
 export default function PrivacyPage() {
@@ -25,8 +25,8 @@ export default function PrivacyPage() {
             <p>
               Il Titolare del trattamento dei dati è <strong>[RAGIONE SOCIALE DA COMPILARE]</strong>,
               con sede in [INDIRIZZO DA COMPILARE], contattabile all&apos;indirizzo email{" "}
-              <a href="mailto:privacy@bindo.it" className="text-sea-700 underline">
-                privacy@bindo.it
+              <a href="mailto:privacy@coabito.it" className="text-sea-700 underline">
+                privacy@coabito.it
               </a>
               .
             </p>
@@ -148,8 +148,8 @@ export default function PrivacyPage() {
             </ul>
             <p className="mt-2">
               Per esercitare questi diritti, scrivici a{" "}
-              <a href="mailto:privacy@bindo.it" className="text-sea-700 underline">
-                privacy@bindo.it
+              <a href="mailto:privacy@coabito.it" className="text-sea-700 underline">
+                privacy@coabito.it
               </a>
               .
             </p>

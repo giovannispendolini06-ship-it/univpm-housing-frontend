@@ -33,7 +33,7 @@ export async function submitOwnerInquiry(formData: FormData): Promise<InquiryRes
   if (error) {
     return {
       error:
-        "Qualcosa è andato storto nell'invio. Riprova, o scrivici direttamente a info@bindo.it.",
+        "Qualcosa è andato storto nell'invio. Riprova, o scrivici direttamente a info@coabito.it.",
     };
   }
 
@@ -46,7 +46,7 @@ export async function submitOwnerInquiry(formData: FormData): Promise<InquiryRes
     message,
   });
   await sendEmail({
-    to: process.env.ADMIN_NOTIFICATION_EMAIL || "info@bindo.it",
+    to: process.env.ADMIN_NOTIFICATION_EMAIL || "info@coabito.it",
     ...adminEmail,
   });
 
