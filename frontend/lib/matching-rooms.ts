@@ -3,7 +3,9 @@
 // Estratto da app/api/chat/route.ts perché ora serve in due punti:
 // 1. Dentro la chat, dopo ogni messaggio (come prima).
 // 2. In /api/matches, per ricaricare le stanze già calcolate quando lo
-//    studente riapre il sito, senza dover riscrivere a Nomi.
+//    studente riapre il sito, senza dover riscrivere a Vesta.
+//    Dopo aver chattato — non serve più aspettare un nuovo messaggio a Vesta
+//    solo per rivedere l'elenco aggiornato.
 
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { calculateMatchScore, type StudentProfileRow } from "@/lib/matching";

@@ -42,7 +42,7 @@ export default function PrivacyPage() {
               <li>Nome e cognome, indirizzo email, numero di telefono</li>
               <li>Codice fiscale o partita IVA</li>
               <li>Foto profilo</li>
-              <li>Contenuto delle conversazioni con l&apos;assistente Nomi (per gli studenti)</li>
+              <li>Contenuto delle conversazioni con l&apos;assistente Vesta (per gli studenti)</li>
             </ul>
             <p className="mb-1 font-semibold">Solo per gli studenti, in aggiunta:</p>
             <ul className="mb-2 list-disc space-y-1 pl-5">
@@ -84,7 +84,7 @@ export default function PrivacyPage() {
               4. Come trattiamo i tuoi dati con l&apos;intelligenza artificiale
             </h2>
             <p>
-              Quando chatti con il nostro assistente Nomi, i tuoi messaggi vengono inviati a{" "}
+              Quando chatti con il nostro assistente Vesta, i tuoi messaggi vengono inviati a{" "}
               <strong>OpenAI</strong> (fornitore del modello linguistico) per generare le risposte.
               OpenAI ha sede negli Stati Uniti: il trasferimento dei dati verso un paese extra-UE
               avviene sulla base delle Clausole Contrattuali Standard approvate dalla Commissione

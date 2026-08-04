@@ -8,14 +8,14 @@ import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 
 export const metadata = {
   title: "Come funziona, con esempi | Coabito",
-  description: "Un esempio vero di conversazione con Nomi e di come leggere il punteggio di compatibilità di una stanza.",
+  description: "Un esempio vero di conversazione con Vesta e di come leggere il punteggio di compatibilità di una stanza.",
 };
 
 const exampleMessages: ChatMessage[] = [
   {
     id: "1",
     role: "assistant",
-    content: "Ehi! 👋 Sono Nomi, ti aiuto a trovare casa. Che facoltà fai?",
+    content: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa. Che facoltà fai?",
     createdAt: "",
   },
   {
@@ -88,7 +88,7 @@ export default function ExamplesPage() {
         <section className="mb-14">
           <Reveal>
             <h2 className="mb-1 font-display text-xl font-bold text-ink">
-              Una conversazione con Nomi
+              Una conversazione con Vesta
             </h2>
             <p className="mb-5 text-sm text-ink-muted">
               Bastano due minuti di chat, in un tono normale — come scriveresti a un amico, non

@@ -6,6 +6,9 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
+import { getOpenAIClient, OPENAI_MODEL } from "@/lib/openai";
+import { computeRoomMatches } from "@/lib/matching-rooms";
+import type { StudentProfileRow } from "@/lib/matching";
 
 // ---------------------------------------------------------------------------
 // Stessa guardia di sicurezza usata in app/admin/leads/actions.ts
@@ -482,4 +485,89 @@ export async function addRoom(formData: FormData) {
   if (error) throw new Error(`Errore nella creazione della stanza: ${error.message}`);
 
   revalidatePath(`/admin/properties/${propertyId}`);
+}
+
+// ---------------------------------------------------------------------------
+// Ricalcola i match_scores per tutti gli studenti con profilo sufficiente
+// dopo aver creato o modificato una stanza, così la dashboard si aggiorna
+// subito quando riaprono il sito — senza dover riscrivere a Vesta.
+// ---------------------------------------------------------------------------
+export async function recalculateMatchesForRoom(roomId: string) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const { data: room } = await db
+    .from("rooms")
+    .select("id, property_id, is_available")
+    .eq("id", roomId)
+    .maybeSingle();
+
+  if (!room?.is_available) return;
+
+  const { data: students } = await db
+    .from("student_profiles")
+    .select("*")
+    .not("polo_univpm", "is", null)
+    .not("budget_max", "is", null);
+
+  for (const student of students ?? []) {
+    try {
+      await computeRoomMatches(db, student as StudentProfileRow);
+    } catch (err) {
+      console.error(
+        `[recalculateMatchesForRoom] Errore per studente ${student.user_id}:`,
+        err,
+      );
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Legge un annuncio incollato dall'admin e restituisce i campi del form
+// in JSON, da usare in AIFillAssistant.tsx.
+// ---------------------------------------------------------------------------
+export async function parsePropertyFromInput(
+  rawText: string,
+): Promise<Record<string, unknown>> {
+  await assertAdmin();
+
+  const trimmed = rawText.trim();
+  if (!trimmed) {
+    throw new Error("Incolla prima il testo dell'annuncio.");
+  }
+
+  const openai = getOpenAIClient();
+  const completion = await openai.chat.completions.create({
+    model: OPENAI_MODEL,
+    max_completion_tokens: 1024,
+    response_format: { type: "json_object" },
+    messages: [
+      {
+        role: "system",
+        content:
+          "Sei un assistente che estrae dati immobiliari da annunci in italiano. " +
+          "Rispondi SOLO con un JSON valido. Usa null per i campi non trovati. " +
+          "Chiavi ammesse: address, city, zone, distance_monte_dago_km, distance_torrette_km, " +
+          "distance_centro_km, contract_type (stanza_singola|stanza_doppia|intero_appartamento|transitorio), " +
+          "monthly_rent_to_owner, guarantee_status (nessuna|deposito_cauzionale|fideiussione|garante_terzo), " +
+          "deposit_amount, total_rooms, bathrooms, size_sqm, floor, has_elevator, is_furnished, status (attivo|bozza), " +
+          "owner_contact_name, owner_contact_phone, owner_contact_email, room_label, price_monthly, " +
+          "estimated_utilities, room_size_sqm, max_occupants, available_from (YYYY-MM-DD), " +
+          "has_private_bathroom, has_balcony, services_included (array di stringhe tra Wifi, Lavatrice, " +
+          "Riscaldamento centralizzato, Posto auto, Aria condizionata, Terrazzo condiviso).",
+      },
+      { role: "user", content: trimmed },
+    ],
+  });
+
+  const content = completion.choices[0]?.message?.content?.trim();
+  if (!content) {
+    throw new Error("Non sono riuscita a estrarre dati dal testo.");
+  }
+
+  try {
+    return JSON.parse(content) as Record<string, unknown>;
+  } catch {
+    throw new Error("Risposta del modello non valida. Riprova.");
+  }
 }

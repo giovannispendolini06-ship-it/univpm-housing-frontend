@@ -3,7 +3,7 @@
 // Flusso:
 // 1. Riceve { studentId, message, history } dal ChatPanel React.
 // 2. Verifica che lo studente sia autenticato e coincida con studentId.
-// 3. Chiama OpenAI con il system prompt di Nomi + storico conversazione.
+// 3. Chiama OpenAI con il system prompt di Vesta + storico conversazione.
 // 4. Se il modello ha prodotto il blocco <STUDENT_DATA_JSON>, aggiorna
 //    student_profiles su Supabase.
 // 5. Recupera le stanze disponibili ad Ancona e i relativi coinquilini
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
 
   // --- 5. Salva il turno di conversazione nello storico ---------------------
   // Non blocca mai la risposta: se il salvataggio fallisce, lo studente
-  // vede comunque la risposta di Nomi, semplicemente non resterà salvata.
+  // vede comunque la risposta di Vesta, semplicemente non resterà salvata.
   try {
     await db.from("chat_messages").insert([
       { student_id: userId, role: "user", content: message },
