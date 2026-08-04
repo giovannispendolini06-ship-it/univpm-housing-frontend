@@ -43,3 +43,51 @@ export async function updateInquiryStatus(formData: FormData) {
 
   revalidatePath("/admin/inquiries");
 }
+
+// ---------------------------------------------------------------------------
+// Modifica i dati di una richiesta (correggere un refuso, un numero
+// sbagliato, ecc.)
+// ---------------------------------------------------------------------------
+export async function updateInquiry(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const inquiryId = String(formData.get("inquiry_id") ?? "");
+  if (!inquiryId) throw new Error("ID richiesta mancante.");
+
+  const fullName = String(formData.get("full_name") ?? "").trim();
+  const phone = String(formData.get("phone") ?? "").trim();
+  if (!fullName) throw new Error("Il nome è obbligatorio.");
+  if (!phone) throw new Error("Il telefono è obbligatorio.");
+
+  const { error } = await db
+    .from("owner_inquiries")
+    .update({
+      full_name: fullName,
+      phone,
+      email: String(formData.get("email") ?? "").trim() || null,
+      property_address: String(formData.get("property_address") ?? "").trim() || null,
+      message: String(formData.get("message") ?? "").trim() || null,
+    })
+    .eq("id", inquiryId);
+
+  if (error) throw new Error(`Errore nell'aggiornamento: ${error.message}`);
+
+  revalidatePath("/admin/inquiries");
+}
+
+// ---------------------------------------------------------------------------
+// Elimina una richiesta (es. spam passato dai filtri, o duplicato)
+// ---------------------------------------------------------------------------
+export async function deleteInquiry(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const inquiryId = String(formData.get("inquiry_id") ?? "");
+  if (!inquiryId) throw new Error("ID richiesta mancante.");
+
+  const { error } = await db.from("owner_inquiries").delete().eq("id", inquiryId);
+  if (error) throw new Error(`Errore nell'eliminazione: ${error.message}`);
+
+  revalidatePath("/admin/inquiries");
+}
