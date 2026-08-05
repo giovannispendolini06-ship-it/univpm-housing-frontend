@@ -42,7 +42,7 @@ export default function LoginPage() {
 
       if (mode === "signup") {
         if (!consentGiven) {
-          setError(t.login.consentRequired);
+          setError(t.login.consentMissing);
           setLoading(false);
           return;
         }
@@ -61,7 +61,7 @@ export default function LoginPage() {
       router.refresh();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t.common.genericError,
+        err instanceof Error ? err.message : t.login.genericError,
       );
     } finally {
       setLoading(false);
@@ -90,13 +90,13 @@ export default function LoginPage() {
 
           {forgotSent ? (
             <div className="rounded-xl bg-sea-50 p-4 text-sm text-sea-700">
-              {t.login.forgotSent}
+              {t.login.forgotSuccess}
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="email"
-                placeholder={t.login.forgotEmailPlaceholder}
+                placeholder={t.login.emailPlaceholderReset}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -110,7 +110,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
               >
-                {loading ? t.common.loading : t.login.forgotSubmit}
+                {loading ? t.common.oneMoment : t.login.sendResetLink}
               </button>
             </form>
           )}
@@ -138,10 +138,10 @@ export default function LoginPage() {
       >
         <div>
           <h1 className="font-display text-xl font-bold text-ink">
-            {mode === "signup" ? t.login.signUpTitle : t.login.signInTitle}
+            {mode === "signup" ? t.login.createAccountTitle : t.login.welcomeBackTitle}
           </h1>
           <p className="text-sm text-ink-muted">
-            {mode === "signup" ? t.login.signUpSubtitle : t.login.signInSubtitle}
+            {mode === "signup" ? t.login.signupSubtitle : t.login.signinSubtitle}
           </p>
         </div>
 
@@ -157,7 +157,7 @@ export default function LoginPage() {
                     : "border-sea-100 text-ink-muted"
                 }`}
               >
-                {t.login.roleStudent}
+                {t.login.iAmStudent}
               </button>
               <button
                 type="button"
@@ -168,7 +168,7 @@ export default function LoginPage() {
                     : "border-sea-100 text-ink-muted"
                 }`}
               >
-                {t.login.roleOwner}
+                {t.login.iAmOwner}
               </button>
             </div>
 
@@ -225,13 +225,13 @@ export default function LoginPage() {
             <span>
               {t.login.consentPrefix}{" "}
               <a href="/privacy" target="_blank" className="text-sea-700 underline">
-                {t.footer.privacy}
+                {t.login.privacyPolicy}
               </a>{" "}
-              {t.login.consentAnd}{" "}
+              {t.login.and}{" "}
               <a href="/termini" target="_blank" className="text-sea-700 underline">
-                {t.footer.terms}
+                {t.login.termsOfService}
               </a>
-              {t.login.consentSuffix}
+              .
             </span>
           </label>
         )}
@@ -242,7 +242,7 @@ export default function LoginPage() {
           className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
         >
           {loading
-            ? t.common.loading
+            ? t.common.oneMoment
             : mode === "signup"
               ? t.login.signUpButton
               : t.login.signInButton}
@@ -253,7 +253,7 @@ export default function LoginPage() {
           onClick={() => switchMode(mode === "signup" ? "signin" : "signup")}
           className="w-full text-center text-xs text-ink-muted underline underline-offset-2"
         >
-          {mode === "signup" ? t.login.switchToSignIn : t.login.switchToSignUp}
+          {mode === "signup" ? t.login.alreadyHaveAccount : t.login.noAccount}
         </button>
       </form>
     </main>

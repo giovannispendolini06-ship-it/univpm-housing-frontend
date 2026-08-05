@@ -29,11 +29,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sea-50">
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={preview}
-              alt={t.onboarding.avatarPreviewAlt}
-              className="h-full w-full object-cover"
-            />
+            <img src={preview} alt="" className="h-full w-full object-cover" />
           ) : (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-sea-300">
               <circle cx="12" cy="8" r="4" />
@@ -43,7 +39,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-ink-muted">
-            {t.onboarding.avatarLabel}
+            {t.onboarding.profilePhoto}
           </label>
           <input
             type="file"
@@ -58,7 +54,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
 
       <div>
         <label className="mb-1 block text-xs font-medium text-ink-muted">
-          {t.onboarding.phoneLabel}
+          {t.onboarding.phoneNumber}
         </label>
         <input
           type="tel"
@@ -84,7 +80,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
       {role === "student" && (
         <div>
           <label className="mb-1 block text-xs font-medium text-ink-muted">
-            {t.onboarding.dateOfBirthLabel}
+            {t.onboarding.dateOfBirth}
           </label>
           <input
             type="date"
@@ -102,7 +98,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
         disabled={isPending}
         className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
       >
-        {isPending ? t.common.loading : t.onboarding.continueButton}
+        {isPending ? t.common.oneMoment : t.onboarding.continueButton}
       </button>
     </form>
   );

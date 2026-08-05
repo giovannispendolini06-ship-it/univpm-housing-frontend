@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import ChatPanel from "@/components/ChatPanel";
 import RoomList from "@/components/RoomList";
@@ -10,10 +10,16 @@ import LoadingRing from "@/components/LoadingRing";
 import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import MyHomeCard, { type MyTenancy } from "@/components/MyHomeCard";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import type { Locale } from "@/lib/i18n/translations";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 
 type MobileTab = "chat" | "rooms";
+
+const WELCOME_MESSAGES: Record<Locale, string> = {
+  it: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
+  en: "Hey! 👋 I'm Vesta, I'll help you find a place here in Ancona. What degree are you studying?",
+};
 
 export default function StudentDashboardPage() {
   const { locale, t } = useLocale();
@@ -24,25 +30,21 @@ export default function StudentDashboardPage() {
   const [myTenancy, setMyTenancy] = useState<MyTenancy | null>(null);
   const [initialMessages, setInitialMessages] = useState<ChatMessage[] | null>(null);
 
-  const welcomeMessage = useMemo<ChatMessage>(
-    () => ({
-      id: "welcome",
-      role: "assistant",
-      content: t.dashboard.welcomeMessage,
-      createdAt: new Date().toISOString(),
-    }),
-    [t.dashboard.welcomeMessage],
-  );
-
   useEffect(() => {
     const supabase = createClientSupabaseClient();
+    const welcome: ChatMessage = {
+      id: "welcome",
+      role: "assistant",
+      content: WELCOME_MESSAGES[locale],
+      createdAt: new Date().toISOString(),
+    };
 
     supabase.auth.getUser().then(({ data }) => {
       const userId = data.user?.id ?? null;
       setStudentId(userId);
 
       if (!userId) {
-        setInitialMessages([welcomeMessage]);
+        setInitialMessages([welcome]);
         return;
       }
 
@@ -63,7 +65,7 @@ export default function StudentDashboardPage() {
         .then(({ data: history, error }) => {
           if (error) {
             console.error("Errore nel caricamento della cronologia chat:", error);
-            setInitialMessages([welcomeMessage]);
+            setInitialMessages([welcome]);
             return;
           }
           if (history && history.length > 0) {
@@ -76,28 +78,36 @@ export default function StudentDashboardPage() {
               })),
             );
           } else {
-            setInitialMessages([welcomeMessage]);
+            setInitialMessages([welcome]);
           }
         });
-
-      fetch(`/api/matches?studentId=${userId}&locale=${locale}`)
-        .then((res) => (res.ok ? res.json() : { rooms: [] }))
-        .then((data) => setRooms(data.rooms ?? []))
-        .catch(() => setRooms([]));
 
       fetch(`/api/my-tenancy?studentId=${userId}`)
         .then((res) => (res.ok ? res.json() : { tenancy: null }))
         .then((data) => setMyTenancy(data.tenancy ?? null))
         .catch(() => setMyTenancy(null));
     });
-  }, [locale, welcomeMessage]);
+  }, [locale]);
+
+  useEffect(() => {
+    if (!studentId) return;
+
+    fetch(`/api/matches?studentId=${studentId}&locale=${locale}`)
+      .then((res) => (res.ok ? res.json() : { rooms: [] }))
+      .then((data) => setRooms(data.rooms ?? []))
+      .catch(() => setRooms([]));
+  }, [studentId, locale]);
 
   async function handleSendMessage(
     text: string,
     history: { role: ChatMessage["role"]; content: string }[],
   ): Promise<{ reply: string; rooms?: RecommendedRoom[] }> {
     if (!studentId) {
-      return { reply: t.dashboard.notLoggedIn };
+      return {
+        reply: locale === "en"
+          ? "You need to log in to talk to me — please reload the page."
+          : "Devi effettuare il login per parlare con me — ricarica la pagina.",
+      };
     }
 
     const res = await fetch("/api/chat", {
@@ -109,7 +119,11 @@ export default function StudentDashboardPage() {
     if (!res.ok) {
       const data = await res.json().catch(() => null);
       return {
-        reply: data?.error ?? t.dashboard.chatError,
+        reply:
+          data?.error ??
+          (locale === "en"
+            ? "Something went wrong on my end, please try again in a moment."
+            : "Qualcosa è andato storto dal mio lato, riprova tra poco."),
       };
     }
 
@@ -127,7 +141,7 @@ export default function StudentDashboardPage() {
               href="/admin"
               className="rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white shadow-card"
             >
-              {t.common.admin}
+              Admin
             </Link>
           )}
           <SignOutButton
@@ -136,7 +150,13 @@ export default function StudentDashboardPage() {
           />
         </div>
         <DeleteAccountButton
-          labels={t.common.deleteAccount}
+          labels={{
+            deleteAccount: t.common.deleteAccount,
+            deletingAccount: t.common.deletingAccount,
+            deleteAccountWarningStudent: t.common.deleteAccountWarningStudent,
+            deleteAccountWarningOwner: t.common.deleteAccountWarningOwner,
+            deleteAccountConfirm: t.common.deleteAccountConfirm,
+          }}
           className="rounded-full bg-white/70 px-2 py-1 text-[10px] text-ink-muted underline underline-offset-2 transition hover:text-sunset-600"
         />
       </div>
@@ -145,12 +165,12 @@ export default function StudentDashboardPage() {
 
       <div className="flex shrink-0 border-b border-sea-100 bg-white md:hidden">
         <TabButton
-          label={t.dashboard.tabChat}
+          label={t.dashboard.chatTab}
           isActive={activeTab === "chat"}
           onClick={() => setActiveTab("chat")}
         />
         <TabButton
-          label={`${t.dashboard.tabRooms} (${rooms.length})`}
+          label={`${t.dashboard.roomsTab} (${rooms.length})`}
           isActive={activeTab === "rooms"}
           onClick={() => setActiveTab("rooms")}
         />

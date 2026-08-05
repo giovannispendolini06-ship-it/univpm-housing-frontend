@@ -26,6 +26,12 @@ export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
   const total = tenancy.priceMonthly + tenancy.estimatedUtilities;
   const dateLocale = locale === "en" ? "en-GB" : "it-IT";
 
+  const STATUS_LABELS: Record<MyTenancy["paymentStatus"], string> = {
+    da_registrare: t.myHomeCard.statusPending,
+    pagato: t.myHomeCard.statusPaid,
+    in_ritardo: t.myHomeCard.statusLate,
+  };
+
   return (
     <div className="animate-fade-in-up mx-3 mt-3 rounded-xl2 bg-gradient-to-br from-sea-600 to-sea-700 p-4 text-white shadow-card sm:mx-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -33,7 +39,7 @@ export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
         <span
           className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${STATUS_STYLES[tenancy.paymentStatus]}`}
         >
-          {t.myHomeCard.paymentStatus[tenancy.paymentStatus]}
+          {STATUS_LABELS[tenancy.paymentStatus]}
         </span>
       </div>
 
@@ -44,15 +50,15 @@ export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
 
       <div className="mt-3 grid grid-cols-3 gap-2 text-center">
         <div>
-          <p className="text-[10px] text-sea-100">{t.myHomeCard.rentLabel}</p>
+          <p className="text-[10px] text-sea-100">{t.myHomeCard.rent}</p>
           <p className="font-display text-base font-bold">{tenancy.priceMonthly}€</p>
         </div>
         <div>
-          <p className="text-[10px] text-sea-100">{t.myHomeCard.utilitiesLabel}</p>
+          <p className="text-[10px] text-sea-100">{t.myHomeCard.utilities}</p>
           <p className="font-display text-base font-bold">{tenancy.estimatedUtilities}€</p>
         </div>
         <div className="rounded-lg bg-white/10 py-1">
-          <p className="text-[10px] text-sea-100">{t.myHomeCard.totalLabel}</p>
+          <p className="text-[10px] text-sea-100">{t.myHomeCard.totalPerMonth}</p>
           <p className="font-display text-base font-bold">{total}€</p>
         </div>
       </div>
@@ -70,7 +76,7 @@ export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
             onClick={() => setShowChecklist((v) => !v)}
             className="flex w-full items-center justify-between text-xs font-semibold text-white"
           >
-            <span>{t.myHomeCard.checklistToggle}</span>
+            <span>{t.myHomeCard.checklistTitle}</span>
             <span className={`transition-transform ${showChecklist ? "rotate-180" : ""}`}>▾</span>
           </button>
           {showChecklist && (

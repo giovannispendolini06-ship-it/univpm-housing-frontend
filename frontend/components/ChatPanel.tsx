@@ -70,7 +70,8 @@ export default function ChatPanel({
       const errorMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: t.chat.errorMessage,
+        content:
+          "Uhm, qualcosa è andato storto dal mio lato. Puoi riprovare tra un attimo?",
         createdAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -91,7 +92,7 @@ export default function ChatPanel({
       <header className="flex items-center gap-3 border-b border-sea-100 bg-white/80 px-4 py-3 backdrop-blur">
         <VestaAvatar size={36} />
         <div>
-          <h1 className="font-display text-sm font-bold text-ink">{t.chat.title}</h1>
+          <h1 className="font-display text-sm font-bold text-ink">Vesta</h1>
           <p className="text-xs text-ink-muted">{t.chat.subtitle}</p>
         </div>
       </header>
@@ -113,13 +114,13 @@ export default function ChatPanel({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={t.chat.placeholder}
+            placeholder={t.chat.inputPlaceholder}
             className="max-h-28 flex-1 resize-none bg-transparent text-[15px] text-ink placeholder:text-ink-muted focus:outline-none"
           />
           <button
             onClick={handleSend}
             disabled={!draft.trim()}
-            aria-label={t.chat.sendAriaLabel}
+            aria-label={t.chat.sendLabel}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sea-600 text-white transition enabled:hover:bg-sea-700 disabled:cursor-not-allowed disabled:bg-sea-100 disabled:text-ink-muted"
           >
             <svg

@@ -39,11 +39,11 @@ export default function ResetPasswordPage() {
     setError(null);
 
     if (password.length < 6) {
-      setError(t.resetPassword.passwordTooShort);
+      setError(t.resetPassword.tooShort);
       return;
     }
     if (password !== confirmPassword) {
-      setError(t.resetPassword.passwordMismatch);
+      setError(t.resetPassword.mismatch);
       return;
     }
 
@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
       }, 1500);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t.common.genericError,
+        err instanceof Error ? err.message : t.login.genericError,
       );
     } finally {
       setLoading(false);
@@ -88,13 +88,13 @@ export default function ResetPasswordPage() {
             <a href="/login" className="text-sea-700 underline">
               {t.resetPassword.loginLink}
             </a>{" "}
-            {t.resetPassword.verifyingSuffix}
+            {t.resetPassword.andRequestNew}
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="password"
-              placeholder={t.resetPassword.passwordPlaceholder}
+              placeholder={t.resetPassword.newPasswordPlaceholder}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -103,7 +103,7 @@ export default function ResetPasswordPage() {
             />
             <input
               type="password"
-              placeholder={t.resetPassword.confirmPlaceholder}
+              placeholder={t.resetPassword.repeatPasswordPlaceholder}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -118,7 +118,7 @@ export default function ResetPasswordPage() {
               disabled={loading}
               className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
             >
-              {loading ? t.common.loading : t.resetPassword.submit}
+              {loading ? t.common.oneMoment : t.resetPassword.saveButton}
             </button>
           </form>
         )}

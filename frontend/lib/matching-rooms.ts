@@ -6,16 +6,12 @@
 //    studente riapre il sito, senza dover riscrivere a Vesta.
 
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
-import {
-  calculateMatchScore,
-  type MatchLocale,
-  type StudentProfileRow,
-} from "@/lib/matching";
+import { calculateMatchScore, type StudentProfileRow } from "@/lib/matching";
 
 export async function computeRoomMatches(
   db: ReturnType<typeof createServiceSupabaseClient>,
   student: StudentProfileRow,
-  locale: MatchLocale = "it",
+  locale: "it" | "en" = "it",
 ) {
   const { data: roomsData, error: roomsError } = await db
     .from("rooms")

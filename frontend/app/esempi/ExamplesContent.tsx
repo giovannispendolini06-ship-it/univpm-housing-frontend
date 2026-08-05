@@ -7,35 +7,119 @@ import Reveal from "@/components/landing/Reveal";
 import ChatBubble from "@/components/ChatBubble";
 import RoomCard from "@/components/RoomCard";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import type { Locale } from "@/lib/i18n/translations";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 
-export default function ExamplesContent() {
-  const { t } = useLocale();
+const EXAMPLE_MESSAGES: Record<
+  Locale,
+  { role: ChatMessage["role"]; content: string }[]
+> = {
+  it: [
+    {
+      role: "assistant",
+      content: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa. Che facoltà fai?",
+    },
+    {
+      role: "user",
+      content: "Ciao! Ingegneria Informatica, secondo anno",
+    },
+    {
+      role: "assistant",
+      content:
+        "Top, quindi Monte Dago. Con la linea 65 (University Link) o la 46/ ci arrivi comodo. Budget mensile realistico?",
+    },
+    {
+      role: "user",
+      content: "Diciamo max 420, spese escluse",
+    },
+    {
+      role: "assistant",
+      content:
+        "Perfetto, ho già trovato qualcosa di interessante qui a destra 👉 Dai un'occhiata alle stanze che ho selezionato per te.",
+    },
+  ],
+  en: [
+    {
+      role: "assistant",
+      content: "Hey! 👋 I'm Vesta, I'll help you find a place. What degree are you studying?",
+    },
+    {
+      role: "user",
+      content: "Hi! Computer Engineering, second year",
+    },
+    {
+      role: "assistant",
+      content:
+        "Great, so Monte Dago. Line 65 (University Link) or the 46/ bus gets you there easily. What's a realistic monthly budget?",
+    },
+    {
+      role: "user",
+      content: "Let's say max 420, utilities excluded",
+    },
+    {
+      role: "assistant",
+      content:
+        "Perfect, I've already found something interesting on the right 👉 Take a look at the rooms I've picked for you.",
+    },
+  ],
+};
 
-  const exampleMessages: ChatMessage[] = t.esempi.exampleMessages.map((m, i) => ({
+const EXAMPLE_ROOM: Record<Locale, RecommendedRoom> = {
+  it: {
+    id: "esempio",
+    propertyId: "esempio",
+    title: "Singola luminosa con balcone",
+    zone: "Baraccola",
+    polo: "monte_dago",
+    distanceMinutes: 9,
+    distanceLabel: "9 min · Linea 46/",
+    priceMonthly: 380,
+    estimatedUtilities: 45,
+    imageUrl:
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop",
+    matchScore: 92,
+    matchReasons: [
+      { label: "Budget compatibile", detail: "380€ rientra nei tuoi 420€ massimi", weight: "alto" },
+      { label: "Orari di studio", detail: "Coinquilino attuale studia in silenzio la sera, come te", weight: "alto" },
+      { label: "Vicinanza al polo", detail: "9 minuti da Monte Dago con la 46/", weight: "medio" },
+    ],
+    servicesIncluded: ["Wifi", "Lavatrice", "Riscaldamento centralizzato"],
+    availableFrom: "1 ottobre",
+  },
+  en: {
+    id: "esempio",
+    propertyId: "esempio",
+    title: "Bright single room with balcony",
+    zone: "Baraccola",
+    polo: "monte_dago",
+    distanceMinutes: 9,
+    distanceLabel: "9 min · Line 46/",
+    priceMonthly: 380,
+    estimatedUtilities: 45,
+    imageUrl:
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop",
+    matchScore: 92,
+    matchReasons: [
+      { label: "Budget match", detail: "€380 fits within your €420 max", weight: "alto" },
+      { label: "Study hours", detail: "Current roommate studies in silence in the evening, like you", weight: "alto" },
+      { label: "Distance from campus", detail: "9 minutes from Monte Dago on the 46/ bus", weight: "medio" },
+    ],
+    servicesIncluded: ["Wifi", "Washing machine", "Central heating"],
+    availableFrom: "1 October",
+  },
+};
+
+export default function ExamplesContent() {
+  const { locale, t } = useLocale();
+
+  const exampleMessages: ChatMessage[] = EXAMPLE_MESSAGES[locale].map((m, i) => ({
     id: String(i + 1),
     role: m.role,
     content: m.content,
     createdAt: "",
   }));
 
-  const exampleRoom: RecommendedRoom = {
-    id: "esempio",
-    propertyId: "esempio",
-    title: t.esempi.exampleRoom.title,
-    zone: t.esempi.exampleRoom.zone,
-    polo: "monte_dago",
-    distanceMinutes: 9,
-    distanceLabel: t.esempi.exampleRoom.distanceLabel,
-    priceMonthly: 380,
-    estimatedUtilities: 45,
-    imageUrl:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop",
-    matchScore: 92,
-    matchReasons: [...t.esempi.exampleRoom.matchReasons],
-    servicesIncluded: [...t.esempi.exampleRoom.servicesIncluded],
-    availableFrom: t.esempi.exampleRoom.availableFrom,
-  };
+  const exampleRoom = EXAMPLE_ROOM[locale];
 
   return (
     <main className="bg-bg">
@@ -46,7 +130,7 @@ export default function ExamplesContent() {
           href="/"
           className="mb-6 inline-block text-sm text-ink-muted underline underline-offset-2"
         >
-          {t.common.backToHome}
+          {t.esempi.backToHome}
         </Link>
 
         <h1 className="mb-2 font-display text-3xl font-bold text-ink">
@@ -57,10 +141,10 @@ export default function ExamplesContent() {
         <section className="mb-14">
           <Reveal>
             <h2 className="mb-1 font-display text-xl font-bold text-ink">
-              {t.esempi.chatSectionTitle}
+              {t.esempi.conversationTitle}
             </h2>
             <p className="mb-5 text-sm text-ink-muted">
-              {t.esempi.chatSectionSubtitle}
+              {t.esempi.conversationSubtitle}
             </p>
           </Reveal>
 
@@ -76,10 +160,10 @@ export default function ExamplesContent() {
         <section>
           <Reveal>
             <h2 className="mb-1 font-display text-xl font-bold text-ink">
-              {t.esempi.matchSectionTitle}
+              {t.esempi.scoreTitle}
             </h2>
             <p className="mb-5 text-sm text-ink-muted">
-              {t.esempi.matchSectionSubtitle}
+              {t.esempi.scoreSubtitle}
             </p>
           </Reveal>
 
@@ -92,28 +176,28 @@ export default function ExamplesContent() {
           <Reveal delay={200}>
             <div className="mt-6 space-y-3 rounded-xl2 bg-white p-5 shadow-card">
               <h3 className="font-display text-sm font-bold text-ink">
-                {t.esempi.scoreGuideTitle}
+                {t.esempi.howToReadTitle}
               </h3>
               <ul className="space-y-2.5 text-sm text-ink-muted">
                 <li className="flex items-start gap-2.5">
                   <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-sea-600" />
                   <span>
-                    <strong className="text-ink">{t.esempi.scoreRangeHigh}</strong>{" "}
-                    {t.esempi.scoreHigh}
+                    <strong className="text-ink">{t.esempi.scoreHigh}</strong>{" "}
+                    {t.esempi.scoreHighDetail}
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-sand-400" />
                   <span>
-                    <strong className="text-ink">{t.esempi.scoreRangeMedium}</strong>{" "}
-                    {t.esempi.scoreMedium}
+                    <strong className="text-ink">{t.esempi.scoreMed}</strong>{" "}
+                    {t.esempi.scoreMedDetail}
                   </span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-ink-muted/40" />
                   <span>
-                    <strong className="text-ink">{t.esempi.scoreRangeLow}</strong>{" "}
-                    {t.esempi.scoreLow}
+                    <strong className="text-ink">{t.esempi.scoreLow}</strong>{" "}
+                    {t.esempi.scoreLowDetail}
                   </span>
                 </li>
               </ul>
@@ -127,7 +211,7 @@ export default function ExamplesContent() {
               href="/login"
               className="inline-flex rounded-full bg-sea-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-sea-700 hover:shadow-lg"
             >
-              {t.esempi.cta}
+              {t.esempi.tryItYourself}
             </Link>
           </div>
         </Reveal>

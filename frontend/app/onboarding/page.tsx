@@ -39,7 +39,7 @@ export default function OnboardingPage() {
   if (!role) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-bg">
-        <p className="text-sm text-ink-muted">{t.common.loading}</p>
+        <p className="text-sm text-ink-muted">{t.common.oneMoment}</p>
       </main>
     );
   }

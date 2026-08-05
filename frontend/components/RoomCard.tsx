@@ -17,6 +17,13 @@ export default function RoomCard({ room }: { room: RecommendedRoom }) {
   const { t } = useLocale();
   const total = room.priceMonthly + room.estimatedUtilities;
 
+  const POLO_LABELS: Record<RecommendedRoom["polo"], string> = {
+    monte_dago: "Monte Dago",
+    torrette: "Torrette",
+    centro_economia_giurisprudenza: "Economia · Villarey",
+    altro: t.roomCard.otherCampus,
+  };
+
   return (
     <article className="flex gap-3 rounded-xl2 bg-surface p-3 shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:gap-4 sm:p-4">
       <img
@@ -32,7 +39,7 @@ export default function RoomCard({ room }: { room: RecommendedRoom }) {
               {room.title}
             </h3>
             <p className="text-xs text-ink-muted">
-              {room.zone} · {t.roomCard.poloLabels[room.polo]}
+              {room.zone} · {POLO_LABELS[room.polo]}
             </p>
           </div>
           <MatchScoreRing score={room.matchScore} size={48} />
@@ -42,14 +49,15 @@ export default function RoomCard({ room }: { room: RecommendedRoom }) {
           <span className="font-display font-bold text-ink">
             {room.priceMonthly}€
             <span className="ml-0.5 font-body text-xs font-normal text-ink-muted">
-              {t.roomCard.perMonthUtilities.replace(
+              {t.roomCard.perMonth}{" "}
+              {t.roomCard.plusUtilities.replace(
                 "{utilities}",
                 String(room.estimatedUtilities),
               )}
             </span>
           </span>
           <span className="rounded-full bg-sand-400/15 px-2 py-0.5 text-xs font-semibold text-ink">
-            {t.roomCard.totalPerMonth.replace("{total}", String(total))}
+            {t.roomCard.total.replace("{total}", String(total))}
           </span>
           <span className="inline-flex items-center gap-1 rounded-full bg-sea-50 px-2 py-0.5 text-xs font-medium text-sea-700">
             <svg

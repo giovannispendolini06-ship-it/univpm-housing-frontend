@@ -46,7 +46,7 @@ export default function InstallaPage() {
           href="/"
           className="mb-6 inline-block text-sm text-ink-muted underline underline-offset-2"
         >
-          {t.common.backToHome}
+          {t.installa.backToHome}
         </Link>
 
         <h1 className="mb-2 font-display text-3xl font-bold text-ink sm:text-4xl">
@@ -61,7 +61,7 @@ export default function InstallaPage() {
               platform === "ios" ? "bg-sea-600 text-white" : "text-ink-muted"
             }`}
           >
-            {t.installa.platformIos}
+            {t.installa.iphoneTab}
           </button>
           <button
             onClick={() => setPlatform("android")}
@@ -69,7 +69,7 @@ export default function InstallaPage() {
               platform === "android" ? "bg-sea-600 text-white" : "text-ink-muted"
             }`}
           >
-            {t.installa.platformAndroid}
+            {t.installa.androidTab}
           </button>
         </div>
 
@@ -87,7 +87,7 @@ export default function InstallaPage() {
         </div>
 
         <div className="mt-14 rounded-xl2 bg-surface p-5 text-sm text-ink-muted shadow-card">
-          <strong className="text-ink">{t.installa.notePrefix}</strong> {t.installa.noteBody}
+          {t.installa.note}
         </div>
       </div>
 

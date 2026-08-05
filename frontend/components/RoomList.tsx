@@ -31,7 +31,7 @@ export default function RoomList({ rooms }: { rooms: RecommendedRoom[] }) {
           {t.roomList.emptyTitle}
         </p>
         <p className="max-w-xs text-sm text-ink-muted">
-          {t.roomList.emptyDescription}
+          {t.roomList.emptySubtitle}
         </p>
       </div>
     );
@@ -44,7 +44,7 @@ export default function RoomList({ rooms }: { rooms: RecommendedRoom[] }) {
           {t.roomList.title}
         </h2>
         <p className="text-xs text-ink-muted">
-          {t.roomList.resultsCount.replace("{count}", String(sorted.length))}
+          {sorted.length} {t.roomList.resultsSuffix}
         </p>
       </header>
 

@@ -3,10 +3,27 @@
 // Calcolo del compatibility score tra uno studente e una stanza.
 // Pesi (totale 100): budget 30, distanza dal polo 20, affinità di studio
 // con i coinquilini 20, pulizia 15, socievolezza/ospiti 15.
+//
+// NB: per confrontare con "i coinquilini già presenti" serve sapere chi
+// occupa già le altre stanze della stessa property. Lo schema originale
+// non aveva questa relazione: aggiungi una tabella di appoggio, es.
+//
+//   create table public.room_tenancies (
+//     id uuid primary key default gen_random_uuid(),
+//     room_id uuid not null references public.rooms(id) on delete cascade,
+//     student_id uuid not null references public.users(id) on delete cascade,
+//     started_at date not null default current_date,
+//     ended_at date
+//   );
+//
+// e considera "coinquilino attuale" chi ha ended_at is null.
+//
+// NOTA SUL BILINGUISMO: i punteggi (i numeri) sono identici in ogni lingua
+// — cambia solo il testo di label/detail mostrato allo studente. Il
+// parametro "locale" qui sotto sceglie solo quale testo generare, non
+// influisce mai sul calcolo del punteggio stesso.
 
-import type { Locale } from "@/lib/i18n/translations";
-
-export type MatchLocale = Locale;
+export type MatchLocale = "it" | "en";
 
 export interface StudentProfileRow {
   user_id: string;
@@ -53,65 +70,14 @@ const GUEST_FREQUENCY_RANK: Record<StudentProfileRow["guests_frequency"], number
   spesso: 3,
 };
 
-const LABELS = {
-  it: {
-    budgetCompatible: "Budget compatibile",
-    distanceFromCampus: "Distanza dal polo",
-    distanceUnavailable: "Distanza dal tuo polo non ancora disponibile per questa zona",
-    campusProximity: "Vicinanza al polo",
-    kmFromCampus: (km: string) => `${km} km dal tuo polo di riferimento`,
-    studyHours: "Orari di studio",
-    noRoommates: "Nessun coinquilino attuale: nessun potenziale conflitto di abitudini",
-    smokingConflict: "Attenzione: tra i coinquilini attuali c'è chi fuma in casa",
-    studyHabitsMatch: "Le tue abitudini di studio combaciano con quelle di chi vive già lì",
-    studyHabitsDiffer: "Abitudini di studio diverse rispetto ai coinquilini attuali",
-    cleanliness: "Pulizia",
-    noRoommatesCleanliness: "Nessun coinquilino attuale con cui confrontare le abitudini",
-    cleanlinessMatch: "Livello di ordine in linea con chi vive già in casa",
-    cleanlinessDiffer: "Livello di ordine piuttosto diverso da quello dei coinquilini attuali",
-    socialLife: "Vita sociale",
-    noRoommatesSocial: "Ancora nessun coinquilino: la vita di casa la definirete insieme",
-    guestsMatch: "Frequenza di ospiti/feste in linea con la casa",
-    guestsDiffer: "Frequenza di ospiti/feste diversa da quella dei coinquilini attuali",
-    budgetWithin: (total: number, max: number) =>
-      `${total}€ tutto incluso rientra nei tuoi ${max}€ massimi`,
-    budgetOver: (total: number, diff: string) =>
-      `${total}€ tutto incluso supera di ${diff}€ il tuo budget`,
-  },
-  en: {
-    budgetCompatible: "Budget compatible",
-    distanceFromCampus: "Distance from campus",
-    distanceUnavailable: "Distance from your campus not yet available for this area",
-    campusProximity: "Campus proximity",
-    kmFromCampus: (km: string) => `${km} km from your reference campus`,
-    studyHours: "Study hours",
-    noRoommates: "No current roommates: no known habit conflicts",
-    smokingConflict: "Note: one of the current roommates smokes at home",
-    studyHabitsMatch: "Your study habits match those of who already lives there",
-    studyHabitsDiffer: "Study habits differ from current roommates",
-    cleanliness: "Cleanliness",
-    noRoommatesCleanliness: "No current roommates to compare habits with",
-    cleanlinessMatch: "Cleanliness level in line with who already lives there",
-    cleanlinessDiffer: "Cleanliness level quite different from current roommates",
-    socialLife: "Social life",
-    noRoommatesSocial: "No roommates yet: you'll define house life together",
-    guestsMatch: "Guest/party frequency in line with the house",
-    guestsDiffer: "Guest/party frequency different from current roommates",
-    budgetWithin: (total: number, max: number) =>
-      `€${total} all-in fits within your €${max} maximum`,
-    budgetOver: (total: number, diff: string) =>
-      `€${total} all-in exceeds your budget by €${diff}`,
-  },
-} as const;
-
 function scoreBudget(
   student: StudentProfileRow,
   room: RoomForMatching,
   locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
-  const l = LABELS[locale];
   const totalCost = room.price_monthly + room.estimated_utilities;
   const diff = student.budget_max - totalCost;
+  const isIt = locale === "it";
 
   let ratio: number;
   if (diff >= 0) {
@@ -124,11 +90,15 @@ function scoreBudget(
   return {
     points,
     reason: {
-      label: l.budgetCompatible,
+      label: isIt ? "Budget compatibile" : "Budget match",
       detail:
         diff >= 0
-          ? l.budgetWithin(totalCost, student.budget_max)
-          : l.budgetOver(totalCost, Math.abs(diff).toFixed(0)),
+          ? isIt
+            ? `${totalCost}€ tutto incluso rientra nei tuoi ${student.budget_max}€ massimi`
+            : `€${totalCost} all-in fits within your €${student.budget_max} max`
+          : isIt
+            ? `${totalCost}€ tutto incluso supera di ${Math.abs(diff).toFixed(0)}€ il tuo budget`
+            : `€${totalCost} all-in is €${Math.abs(diff).toFixed(0)} over your budget`,
       weight: ratio >= 0.8 ? "alto" : ratio >= 0.5 ? "medio" : "basso",
     },
   };
@@ -155,15 +125,17 @@ function scoreDistance(
   property: PropertyForMatching,
   locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
-  const l = LABELS[locale];
   const km = getDistanceKm(student.polo_univpm, property);
+  const isIt = locale === "it";
 
   if (km === null) {
     return {
       points: 10,
       reason: {
-        label: l.distanceFromCampus,
-        detail: l.distanceUnavailable,
+        label: isIt ? "Distanza dal polo" : "Distance from campus",
+        detail: isIt
+          ? "Distanza dal tuo polo non ancora disponibile per questa zona"
+          : "Distance from your campus not yet available for this area",
         weight: "basso",
       },
     };
@@ -175,8 +147,10 @@ function scoreDistance(
   return {
     points,
     reason: {
-      label: l.campusProximity,
-      detail: l.kmFromCampus(km.toFixed(1)),
+      label: isIt ? "Vicinanza al polo" : "Distance from campus",
+      detail: isIt
+        ? `${km.toFixed(1)} km dal tuo polo di riferimento`
+        : `${km.toFixed(1)} km from your reference campus`,
       weight: ratio >= 0.7 ? "alto" : ratio >= 0.4 ? "medio" : "basso",
     },
   };
@@ -187,14 +161,16 @@ function scoreRoommateAffinity(
   roommates: StudentProfileRow[],
   locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
-  const l = LABELS[locale];
+  const isIt = locale === "it";
 
   if (roommates.length === 0) {
     return {
       points: 15,
       reason: {
-        label: l.studyHours,
-        detail: l.noRoommates,
+        label: isIt ? "Orari di studio" : "Study hours",
+        detail: isIt
+          ? "Nessun coinquilino attuale: nessun potenziale conflitto di abitudini"
+          : "No current roommates: no known habit conflicts",
         weight: "medio",
       },
     };
@@ -211,12 +187,18 @@ function scoreRoommateAffinity(
   return {
     points: Math.max(0, points),
     reason: {
-      label: l.studyHours,
+      label: isIt ? "Orari di studio" : "Study hours",
       detail: smokingConflict
-        ? l.smokingConflict
+        ? isIt
+          ? "Attenzione: tra i coinquilini attuali c'è chi fuma in casa"
+          : "Note: one of the current roommates smokes at home"
         : habitRatio >= 0.5
-          ? l.studyHabitsMatch
-          : l.studyHabitsDiffer,
+          ? isIt
+            ? "Le tue abitudini di studio combaciano con quelle di chi vive già lì"
+            : "Your study habits match those of who already lives there"
+          : isIt
+            ? "Abitudini di studio diverse rispetto ai coinquilini attuali"
+            : "Study habits differ from current roommates",
       weight: habitRatio >= 0.5 && !smokingConflict ? "alto" : "medio",
     },
   };
@@ -227,14 +209,16 @@ function scoreCleanliness(
   roommates: StudentProfileRow[],
   locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
-  const l = LABELS[locale];
+  const isIt = locale === "it";
 
   if (roommates.length === 0) {
     return {
       points: 12,
       reason: {
-        label: l.cleanliness,
-        detail: l.noRoommatesCleanliness,
+        label: isIt ? "Pulizia" : "Cleanliness",
+        detail: isIt
+          ? "Nessun coinquilino attuale con cui confrontare le abitudini"
+          : "No current roommates to compare habits with",
         weight: "basso",
       },
     };
@@ -249,8 +233,15 @@ function scoreCleanliness(
   return {
     points,
     reason: {
-      label: l.cleanliness,
-      detail: diff <= 1 ? l.cleanlinessMatch : l.cleanlinessDiffer,
+      label: isIt ? "Pulizia" : "Cleanliness",
+      detail:
+        diff <= 1
+          ? isIt
+            ? "Livello di ordine in linea con chi vive già in casa"
+            : "Cleanliness level in line with who already lives there"
+          : isIt
+            ? "Livello di ordine piuttosto diverso da quello dei coinquilini attuali"
+            : "Cleanliness level quite different from current roommates",
       weight: diff <= 1 ? "alto" : diff <= 2 ? "medio" : "basso",
     },
   };
@@ -261,14 +252,16 @@ function scoreSociability(
   roommates: StudentProfileRow[],
   locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
-  const l = LABELS[locale];
+  const isIt = locale === "it";
 
   if (roommates.length === 0) {
     return {
       points: 12,
       reason: {
-        label: l.socialLife,
-        detail: l.noRoommatesSocial,
+        label: isIt ? "Vita sociale" : "Social life",
+        detail: isIt
+          ? "Ancora nessun coinquilino: la vita di casa la definirete insieme"
+          : "No roommates yet: you'll define house life together",
         weight: "medio",
       },
     };
@@ -285,8 +278,15 @@ function scoreSociability(
   return {
     points,
     reason: {
-      label: l.socialLife,
-      detail: diff <= 1 ? l.guestsMatch : l.guestsDiffer,
+      label: isIt ? "Vita sociale" : "Social life",
+      detail:
+        diff <= 1
+          ? isIt
+            ? "Frequenza di ospiti/feste in linea con la casa"
+            : "Guest/party frequency in line with the house"
+          : isIt
+            ? "Frequenza di ospiti/feste diversa da quella dei coinquilini attuali"
+            : "Guest/party frequency different from current roommates",
       weight: diff <= 1 ? "alto" : "medio",
     },
   };
