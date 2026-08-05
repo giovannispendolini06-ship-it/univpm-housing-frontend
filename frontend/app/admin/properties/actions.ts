@@ -304,7 +304,7 @@ export async function createTenancy(formData: FormData) {
 
   const { data: student } = await db
     .from("users")
-    .select("id, role")
+    .select("id, role, preferred_locale")
     .eq("email", studentEmail)
     .maybeSingle();
 
@@ -343,7 +343,12 @@ export async function createTenancy(formData: FormData) {
   // fallisce — lo studente vedrà semplicemente "La mia casa" senza
   // checklist, niente di grave.
   try {
-    await generateMoveChecklist(db, newTenancy.id, roomId);
+    await generateMoveChecklist(
+      db,
+      newTenancy.id,
+      roomId,
+      student.preferred_locale === "en" ? "en" : "it",
+    );
   } catch (err) {
     console.error("[createTenancy] Errore generazione checklist:", err);
   }
@@ -362,6 +367,7 @@ async function generateMoveChecklist(
   db: ReturnType<typeof createServiceSupabaseClient>,
   tenancyId: string,
   roomId: string,
+  locale: "it" | "en" = "it",
 ) {
   const { data: room } = await db
     .from("rooms")
@@ -378,13 +384,18 @@ async function generateMoveChecklist(
   if (!room || !property) return;
 
   const openai = getOpenAIClient();
+  const languageInstruction =
+    locale === "en"
+      ? "Respond ONLY in English, with a JSON array of 5-6 short strings (max 15 words each), friendly tone."
+      : "Rispondi SOLO in italiano, con un array JSON di 5-6 stringhe brevi (max 15 parole ciascuna), tono amichevole.";
+
   const completion = await openai.chat.completions.create({
     model: OPENAI_MODEL,
     max_completion_tokens: 500,
     messages: [
       {
         role: "system",
-        content: `Genera una checklist di trasloco per uno studente universitario che si trasferisce in una stanza ad Ancona. Rispondi SOLO con un array JSON di 5-6 stringhe brevi (max 15 parole ciascuna), in italiano, tono amichevole. Includi: 1-2 pratiche da attivare/portare (documenti, SIM, ecc.), un consiglio sui trasporti per raggiungere il polo universitario più vicino dalla zona indicata, e 1-2 consigli di buon vicinato/convivenza. Nessun testo fuori dall'array JSON.`,
+        content: `Genera una checklist di trasloco per uno studente universitario che si trasferisce in una stanza ad Ancona. ${languageInstruction} Includi: 1-2 pratiche da attivare/portare (documenti, SIM, ecc.), un consiglio sui trasporti per raggiungere il polo universitario più vicino dalla zona indicata, e 1-2 consigli di buon vicinato/convivenza. Nessun testo fuori dall'array JSON.`,
       },
       {
         role: "user",

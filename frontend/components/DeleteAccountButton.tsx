@@ -3,22 +3,22 @@
 import { useTransition } from "react";
 import { deleteOwnAccount } from "@/lib/account";
 
-export interface DeleteAccountLabels {
-  deleteAccount: string;
-  deletingAccount: string;
-  deleteAccountWarningStudent: string;
-  deleteAccountWarningOwner: string;
-  deleteAccountConfirm: string;
+interface DeleteAccountLabels {
+  buttonLabel: string;
+  deletingLabel: string;
+  warningStudent: string;
+  warningOwner: string;
+  confirmAgain: string;
 }
 
 const DEFAULT_LABELS_IT: DeleteAccountLabels = {
-  deleteAccount: "Elimina il mio account",
-  deletingAccount: "Eliminazione...",
-  deleteAccountWarningStudent:
+  buttonLabel: "Elimina il mio account",
+  deletingLabel: "Eliminazione...",
+  warningStudent:
     "Eliminare definitivamente il tuo account? Tutti i tuoi dati (chat con Vesta, profilo) verranno cancellati. L'azione non si può annullare.",
-  deleteAccountWarningOwner:
+  warningOwner:
     "Eliminare definitivamente il tuo account? Verranno eliminati anche TUTTI i tuoi immobili e i relativi dati. L'azione non si può annullare.",
-  deleteAccountConfirm: "Sei sicuro? Non potrai recuperare l'account dopo.",
+  confirmAgain: "Sei sicuro? Non potrai recuperare l'account dopo.",
 };
 
 export default function DeleteAccountButton({
@@ -34,10 +34,10 @@ export default function DeleteAccountButton({
   const l = labels ?? DEFAULT_LABELS_IT;
 
   function handleClick() {
-    const warning = isOwner ? l.deleteAccountWarningOwner : l.deleteAccountWarningStudent;
+    const warning = isOwner ? l.warningOwner : l.warningStudent;
 
     if (!window.confirm(warning)) return;
-    if (!window.confirm(l.deleteAccountConfirm)) return;
+    if (!window.confirm(l.confirmAgain)) return;
 
     startTransition(async () => {
       const result = await deleteOwnAccount();
@@ -54,7 +54,7 @@ export default function DeleteAccountButton({
         "text-[11px] text-ink-muted underline underline-offset-2 transition hover:text-sunset-600"
       }
     >
-      {isPending ? l.deletingAccount : l.deleteAccount}
+      {isPending ? l.deletingLabel : l.buttonLabel}
     </button>
   );
 }

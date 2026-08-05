@@ -216,11 +216,33 @@ export async function recalculateMatchesForRoom(
     if (notifyRows.length > 0) {
       const zoneLabel = property.zone ? ` a ${property.zone}` : "";
 
-      const chatMessages = notifyRows.map((m) => ({
-        student_id: m.student_id,
-        role: "assistant" as const,
-        content: `Ho trovato una stanza nuova che potrebbe interessarti! 🏠 ${room.room_label}${zoneLabel}, ${room.price_monthly}€/mese, compatibilità ${m.compatibility_score}% — dai un'occhiata tra le stanze proposte qui a destra.`,
-      }));
+      // Ogni studente potrebbe avere una lingua preferita diversa: la
+      // leggiamo dal profilo (sincronizzata dal client mentre naviga il
+      // sito), non dal cookie — qui siamo lato server, il cookie del
+      // browser di quello specifico studente non è raggiungibile.
+      const notifyStudentIds = notifyRows.map((m) => m.student_id);
+      const { data: notifyUsers } = await db
+        .from("users")
+        .select("id, preferred_locale")
+        .in("id", notifyStudentIds);
+
+      const localeByStudent = new Map(
+        (notifyUsers ?? []).map((u: any) => [u.id, u.preferred_locale === "en" ? "en" : "it"]),
+      );
+
+      const chatMessages = notifyRows.map((m) => {
+        const studentLocale = localeByStudent.get(m.student_id) ?? "it";
+        const content =
+          studentLocale === "en"
+            ? `I found a new room that might interest you! 🏠 ${room.room_label}${zoneLabel ? ` in ${property.zone}` : ""}, €${room.price_monthly}/month, compatibility ${m.compatibility_score}% — check out the rooms suggested on the right.`
+            : `Ho trovato una stanza nuova che potrebbe interessarti! 🏠 ${room.room_label}${zoneLabel}, ${room.price_monthly}€/mese, compatibilità ${m.compatibility_score}% — dai un'occhiata tra le stanze proposte qui a destra.`;
+
+        return {
+          student_id: m.student_id,
+          role: "assistant" as const,
+          content,
+        };
+      });
 
       const { error: chatError } = await db.from("chat_messages").insert(chatMessages);
       if (chatError) {
