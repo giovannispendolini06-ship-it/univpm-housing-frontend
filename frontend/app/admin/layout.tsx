@@ -1,11 +1,33 @@
 import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
+import AdminNav from "./AdminNav";
+import { createServiceSupabaseClient } from "@/lib/supabase/server";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Conteggi per il pannello a scomparsa: quante cose aspettano attenzione,
+  // visibili da qualsiasi pagina del pannello admin senza doverci navigare.
+  const db = createServiceSupabaseClient();
+
+  const [{ count: newInquiriesCount }, { count: newLeadsCount }, { count: latePaymentsCount }] =
+    await Promise.all([
+      db
+        .from("owner_inquiries")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "nuovo"),
+      db
+        .from("leads_external")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "nuovo"),
+      db
+        .from("rent_payments")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "in_ritardo"),
+    ]);
+
   return (
     <div className="min-h-dvh bg-bg">
       <header className="sticky top-0 z-40 border-b border-sea-100 bg-white/90 backdrop-blur">
@@ -14,38 +36,11 @@ export default function AdminLayout({
             <span className="font-display text-sm font-bold text-ink">
               Pannello admin
             </span>
-            <nav className="flex items-center gap-1">
-              <Link
-                href="/admin"
-                className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:bg-sea-50 hover:text-ink"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/admin/users"
-                className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:bg-sea-50 hover:text-ink"
-              >
-                Persone
-              </Link>
-              <Link
-                href="/admin/inquiries"
-                className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:bg-sea-50 hover:text-ink"
-              >
-                Richieste
-              </Link>
-              <Link
-                href="/admin/leads"
-                className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:bg-sea-50 hover:text-ink"
-              >
-                Annunci esterni
-              </Link>
-              <Link
-                href="/admin/properties"
-                className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-muted transition hover:bg-sea-50 hover:text-ink"
-              >
-                Immobili
-              </Link>
-            </nav>
+            <AdminNav
+              newInquiriesCount={newInquiriesCount ?? 0}
+              newLeadsCount={newLeadsCount ?? 0}
+              latePaymentsCount={latePaymentsCount ?? 0}
+            />
           </div>
           <div className="flex items-center gap-3">
             <Link

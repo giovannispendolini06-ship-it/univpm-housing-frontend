@@ -4,6 +4,7 @@ import {
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
 import SignOutButton from "@/components/SignOutButton";
+import DeleteAccountButton from "@/components/DeleteAccountButton";
 
 export const dynamic = "force-dynamic";
 
@@ -45,13 +46,13 @@ export default async function OwnerDashboardPage() {
 
   const { data: properties } = await db
     .from("properties")
-    .select("id, address, zone, status, monthly_rent_to_owner, rooms(id, room_label, price_monthly, is_available)")
+    .select("id, address, zone, status, monthly_rent_to_owner, rooms(id, room_label, is_available)")
     .eq("owner_id", user.id)
     .order("created_at", { ascending: false });
 
   // Per ogni stanza, contiamo quanti studenti "compatibili" (score >= 70)
   // sono stati trovati dal motore di matching. Numero aggregato soltanto:
-  // niente dati personali degli studenti, che restano gestiti da Bindo.
+  // niente dati personali degli studenti, che restano gestiti da Coabito.
   const roomIds = (properties ?? []).flatMap((p) => (p.rooms ?? []).map((r) => r.id));
   let matchCountByRoom = new Map<string, number>();
 
@@ -80,7 +81,10 @@ export default async function OwnerDashboardPage() {
               I tuoi immobili e il loro stato in questo momento.
             </p>
           </div>
-          <SignOutButton className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card" />
+          <div className="flex flex-col items-end gap-1.5">
+            <SignOutButton className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card" />
+            <DeleteAccountButton isOwner />
+          </div>
         </header>
 
         {!properties || properties.length === 0 ? (
@@ -91,8 +95,8 @@ export default async function OwnerDashboardPage() {
             <p className="mt-2 text-sm text-ink-muted">
               Se ci hai già parlato del tuo immobile, ti colleghiamo a breve
               l&apos;account. Altrimenti scrivici a{" "}
-              <a href="mailto:info@bindo.it" className="text-sea-700 underline">
-                info@bindo.it
+              <a href="mailto:info@coabito.it" className="text-sea-700 underline">
+                info@coabito.it
               </a>
               .
             </p>
@@ -129,8 +133,7 @@ export default async function OwnerDashboardPage() {
                       <div>
                         <p className="text-sm text-ink">{room.room_label}</p>
                         <p className="text-[11px] text-ink-muted">
-                          {room.price_monthly}€/mese ·{" "}
-                          {room.is_available ? "libera" : "occupata"}
+                          {room.is_available ? "Libera" : "Occupata"}
                         </p>
                       </div>
                       {room.is_available && (matchCountByRoom.get(room.id) ?? 0) > 0 && (

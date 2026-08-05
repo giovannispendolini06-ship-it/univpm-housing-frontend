@@ -36,6 +36,34 @@ export default async function EditUserPage({
 
   if (!person) notFound();
 
+  // --- Solo per i proprietari: margine aggregato sui loro immobili,
+  // visibile solo qui, mai nel loro account personale. ---------------------
+  let ownerSummary: { totalPaidToOwner: number; totalFromStudents: number; margin: number } | null = null;
+
+  if (person.role === "owner") {
+    const { data: ownerProperties } = await db
+      .from("properties")
+      .select("monthly_rent_to_owner, rooms(price_monthly, is_available)")
+      .eq("owner_id", id);
+
+    const totalPaidToOwner = (ownerProperties ?? []).reduce(
+      (sum, p) => sum + Number(p.monthly_rent_to_owner),
+      0,
+    );
+    const totalFromStudents = (ownerProperties ?? []).reduce((sum, p) => {
+      const occupiedRevenue = (p.rooms ?? [])
+        .filter((r: { is_available: boolean }) => !r.is_available)
+        .reduce((s: number, r: { price_monthly: number }) => s + Number(r.price_monthly), 0);
+      return sum + occupiedRevenue;
+    }, 0);
+
+    ownerSummary = {
+      totalPaidToOwner,
+      totalFromStudents,
+      margin: totalFromStudents - totalPaidToOwner,
+    };
+  }
+
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-lg">
@@ -52,6 +80,39 @@ export default async function EditUserPage({
           </h1>
           <DeleteUserButton userId={person.id} fullName={person.full_name} role={person.role} />
         </div>
+
+        {ownerSummary && (
+          <div className="mb-6 rounded-xl2 bg-surface p-5 shadow-card">
+            <h2 className="mb-3 font-display text-sm font-bold text-ink">
+              Margine su tutti i suoi immobili
+            </h2>
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div>
+                <p className="text-[11px] text-ink-muted">Incasso da studenti</p>
+                <p className="mt-0.5 font-display text-base font-bold text-ink">
+                  {ownerSummary.totalFromStudents}€
+                </p>
+              </div>
+              <div>
+                <p className="text-[11px] text-ink-muted">Pagato a lui/lei</p>
+                <p className="mt-0.5 font-display text-base font-bold text-ink">
+                  {ownerSummary.totalPaidToOwner}€
+                </p>
+              </div>
+              <div>
+                <p className="text-[11px] text-ink-muted">Margine</p>
+                <p
+                  className={`mt-0.5 font-display text-base font-bold ${ownerSummary.margin >= 0 ? "text-sea-700" : "text-sunset-600"}`}
+                >
+                  {ownerSummary.margin}€
+                </p>
+              </div>
+            </div>
+            <p className="mt-3 text-[11px] text-ink-muted">
+              Visibile solo qui — non compare mai nel suo account personale.
+            </p>
+          </div>
+        )}
 
         <form action={updateUserProfile} className="space-y-4 rounded-xl2 bg-surface p-5 shadow-card">
           <input type="hidden" name="user_id" value={person.id} />

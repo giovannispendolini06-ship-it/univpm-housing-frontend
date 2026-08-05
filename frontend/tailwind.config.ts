@@ -42,6 +42,15 @@ const config: Config = {
         card: "0 2px 10px -2px rgba(15, 42, 46, 0.08), 0 1px 2px rgba(15, 42, 46, 0.06)",
         chat: "0 1px 2px rgba(15, 42, 46, 0.06)",
       },
+      keyframes: {
+        "fade-in-up": {
+          from: { opacity: "0", transform: "translateY(8px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "fade-in-up": "fade-in-up 0.2s ease-out",
+      },
     },
   },
   plugins: [],

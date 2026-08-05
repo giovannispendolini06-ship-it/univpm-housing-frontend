@@ -47,6 +47,13 @@ export default async function PropertyDetailPage({
 
   if (!property) notFound();
 
+  // --- Margine: incasso dalle stanze occupate vs quanto versato al
+  // proprietario. Calcolato qui, mostrato solo in questa pagina admin.
+  const studentRevenue = (property.rooms ?? [])
+    .filter((r: { is_available: boolean }) => !r.is_available)
+    .reduce((sum: number, r: { price_monthly: number }) => sum + Number(r.price_monthly), 0);
+  const propertyMargin = studentRevenue - Number(property.monthly_rent_to_owner);
+
   const { data: currentOwnerAccount } = await db
     .from("users")
     .select("email, role, full_name")
@@ -187,6 +194,39 @@ export default async function PropertyDetailPage({
           </form>
           <p className="mt-2 text-[11px] text-ink-muted">
             Puoi selezionare più foto insieme. Formati supportati: JPG, PNG, WEBP.
+          </p>
+        </section>
+
+        {/* --- Margine (visibile solo a te, mai al proprietario) --------- */}
+        <section className="rounded-xl2 bg-surface p-5 shadow-card">
+          <h2 className="mb-3 font-display text-base font-bold text-ink">
+            Margine su questo immobile
+          </h2>
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div>
+              <p className="text-[11px] text-ink-muted">Incasso da studenti</p>
+              <p className="mt-0.5 font-display text-lg font-bold text-ink">
+                {studentRevenue}€
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] text-ink-muted">Pagato al proprietario</p>
+              <p className="mt-0.5 font-display text-lg font-bold text-ink">
+                {property.monthly_rent_to_owner}€
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] text-ink-muted">Margine</p>
+              <p
+                className={`mt-0.5 font-display text-lg font-bold ${propertyMargin >= 0 ? "text-sea-700" : "text-sunset-600"}`}
+              >
+                {propertyMargin}€
+              </p>
+            </div>
+          </div>
+          <p className="mt-3 text-[11px] text-ink-muted">
+            Calcolato sulle sole stanze occupate. Questo riepilogo non è mai visibile al
+            proprietario nel suo account.
           </p>
         </section>
 

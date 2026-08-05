@@ -5,22 +5,30 @@ import {
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
 import AdminInsight from "./AdminInsight";
+import AnimatedNumber from "@/components/AnimatedNumber";
+import OccupancyChart from "./OccupancyChart";
+import RevenueBarChart from "./RevenueBarChart";
+import PipelineChart from "./PipelineChart";
 
 export const dynamic = "force-dynamic";
 
 function StatCard({
   label,
   value,
+  suffix,
   hint,
 }: {
   label: string;
-  value: string | number;
+  value: number;
+  suffix?: string;
   hint?: string;
 }) {
   return (
     <div className="rounded-xl2 bg-surface p-4 shadow-card">
       <p className="text-xs font-medium text-ink-muted">{label}</p>
-      <p className="mt-1 font-display text-2xl font-bold text-ink">{value}</p>
+      <p className="mt-1 font-display text-2xl font-bold text-ink">
+        <AnimatedNumber value={value} suffix={suffix} />
+      </p>
       {hint && <p className="mt-0.5 text-[11px] text-ink-muted">{hint}</p>}
     </div>
   );
@@ -46,18 +54,27 @@ export default async function AdminDashboardPage() {
   // --- Statistiche -----------------------------------------------------------
   const db = createServiceSupabaseClient();
 
-  const [{ data: properties }, { data: rooms }, { data: leads }, { data: users }] =
-    await Promise.all([
-      db.from("properties").select("id, status, monthly_rent_to_owner"),
-      db.from("rooms").select("id, property_id, price_monthly, is_available"),
-      db.from("leads_external").select("status"),
-      db.from("users").select("role"),
-    ]);
+  const [
+    { data: properties },
+    { data: rooms },
+    { data: leads },
+    { data: users },
+    { data: inquiries },
+    { count: latePaymentsCount },
+  ] = await Promise.all([
+    db.from("properties").select("id, status, monthly_rent_to_owner"),
+    db.from("rooms").select("id, property_id, price_monthly, is_available"),
+    db.from("leads_external").select("status"),
+    db.from("users").select("role"),
+    db.from("owner_inquiries").select("status"),
+    db.from("rent_payments").select("*", { count: "exact", head: true }).eq("status", "in_ritardo"),
+  ]);
 
   const propertiesList = properties ?? [];
   const roomsList = rooms ?? [];
   const leadsList = leads ?? [];
   const usersList = users ?? [];
+  const inquiriesList = inquiries ?? [];
 
   const occupiedRooms = roomsList.filter((r) => !r.is_available);
   const monthlyRevenue = occupiedRooms.reduce((sum, r) => sum + Number(r.price_monthly), 0);
@@ -73,7 +90,30 @@ export default async function AdminDashboardPage() {
   const countLeadsByStatus = (status: string) =>
     leadsList.filter((l) => l.status === status).length;
 
+  const countInquiriesByStatus = (status: string) =>
+    inquiriesList.filter((i) => i.status === status).length;
+
   const studentsCount = usersList.filter((u) => u.role === "student").length;
+
+  // Dati per il grafico "pipeline": dove sono ferme le trattative, per
+  // entrambe le fonti (annunci esterni tracciati + richieste proprietari).
+  const pipelineData = [
+    {
+      stage: "Nuovi",
+      annunci: countLeadsByStatus("nuovo"),
+      richieste: countInquiriesByStatus("nuovo"),
+    },
+    {
+      stage: "Contattati",
+      annunci: countLeadsByStatus("in_revisione") + countLeadsByStatus("contattato"),
+      richieste: countInquiriesByStatus("contattato"),
+    },
+    {
+      stage: "Convertiti",
+      annunci: countLeadsByStatus("convertito"),
+      richieste: countInquiriesByStatus("convertito"),
+    },
+  ];
 
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
@@ -87,27 +127,59 @@ export default async function AdminDashboardPage() {
           </p>
         </header>
 
+        {/* --- Analisi AI: la prima cosa che vedi, sempre già pronta --------- */}
+        <div className="mb-6">
+          <AdminInsight />
+        </div>
+
         {/* --- Finanze --- */}
         <section className="mb-6">
           <h2 className="mb-3 font-display text-sm font-bold uppercase tracking-wide text-ink-muted">
             Finanze (stima mensile)
           </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatCard
               label="Ricavo dagli studenti"
-              value={`${monthlyRevenue.toLocaleString("it-IT")}€`}
+              value={monthlyRevenue}
+              suffix="€"
               hint="Somma prezzi stanze occupate"
             />
             <StatCard
               label="Costo verso proprietari"
-              value={`${monthlyCost.toLocaleString("it-IT")}€`}
+              value={monthlyCost}
+              suffix="€"
               hint="Canoni degli immobili occupati"
             />
             <StatCard
               label="Margine stimato"
-              value={`${monthlyMargin.toLocaleString("it-IT")}€`}
+              value={monthlyMargin}
+              suffix="€"
               hint={monthlyMargin >= 0 ? "In positivo" : "In negativo"}
             />
+            <StatCard
+              label="Pagamenti in ritardo"
+              value={latePaymentsCount ?? 0}
+              hint="Margine teorico, non incassato"
+            />
+          </div>
+        </section>
+
+        {/* --- Grafici: occupazione e finanze a colpo d'occhio --------------- */}
+        <section className="mb-6 grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl2 bg-surface p-4 shadow-card sm:p-5">
+            <h3 className="mb-2 font-display text-sm font-bold text-ink">
+              Occupazione stanze
+            </h3>
+            <OccupancyChart
+              occupied={occupiedRooms.length}
+              free={roomsList.length - occupiedRooms.length}
+            />
+          </div>
+          <div className="rounded-xl2 bg-surface p-4 shadow-card sm:p-5">
+            <h3 className="mb-2 font-display text-sm font-bold text-ink">
+              Ricavo vs costo vs margine
+            </h3>
+            <RevenueBarChart revenue={monthlyRevenue} cost={monthlyCost} margin={monthlyMargin} />
           </div>
         </section>
 
@@ -136,6 +208,16 @@ export default async function AdminDashboardPage() {
           </div>
         </section>
 
+        {/* --- Pipeline: dove sono ferme le trattative ----------------------- */}
+        <section className="mb-6">
+          <h2 className="mb-3 font-display text-sm font-bold uppercase tracking-wide text-ink-muted">
+            Pipeline — annunci esterni vs richieste proprietari
+          </h2>
+          <div className="rounded-xl2 bg-surface p-4 shadow-card sm:p-5">
+            <PipelineChart data={pipelineData} />
+          </div>
+        </section>
+
         {/* --- Studenti e lead --- */}
         <section className="mb-6">
           <h2 className="mb-3 font-display text-sm font-bold uppercase tracking-wide text-ink-muted">
@@ -148,9 +230,6 @@ export default async function AdminDashboardPage() {
             <StatCard label="Convertiti" value={countLeadsByStatus("convertito")} />
           </div>
         </section>
-
-        {/* --- Analisi AI --- */}
-        <AdminInsight />
       </div>
     </main>
   );
