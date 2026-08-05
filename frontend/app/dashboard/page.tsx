@@ -47,6 +47,7 @@ export default function StudentDashboardPage() {
   const [studentId, setStudentId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
+  const [waitlisted, setWaitlisted] = useState(false);
   const [myTenancy, setMyTenancy] = useState<MyTenancy | null>(null);
   // null = ancora in caricamento: evita di mostrare per un istante il
   // messaggio di benvenuto e poi "saltare" alla cronologia vera.
@@ -120,8 +121,14 @@ export default function StudentDashboardPage() {
 
     fetch(`/api/matches?studentId=${studentId}&locale=${locale}`)
       .then((res) => (res.ok ? res.json() : { rooms: [] }))
-      .then((data) => setRooms(data.rooms ?? []))
-      .catch(() => setRooms([]));
+      .then((data) => {
+        setRooms(data.rooms ?? []);
+        setWaitlisted(Boolean(data.waitlisted));
+      })
+      .catch(() => {
+        setRooms([]);
+        setWaitlisted(false);
+      });
 
     // Salva la lingua sul profilo: serve alle azioni lato server (nuova
     // stanza, nuovo affitto) che non possono leggere il cookie del
@@ -136,7 +143,7 @@ export default function StudentDashboardPage() {
   async function handleSendMessage(
     text: string,
     history: { role: ChatMessage["role"]; content: string }[],
-  ): Promise<{ reply: string; rooms?: RecommendedRoom[] }> {
+  ): Promise<{ reply: string; rooms?: RecommendedRoom[]; waitlisted?: boolean }> {
     if (!studentId) {
       return {
         reply:
@@ -164,7 +171,13 @@ export default function StudentDashboardPage() {
     }
 
     const data = await res.json();
-    return { reply: data.reply, rooms: data.rooms };
+    if (data.waitlisted) setWaitlisted(true);
+    return { reply: data.reply, rooms: data.rooms, waitlisted: data.waitlisted };
+  }
+
+  function handleRoomsUpdate(updatedRooms: RecommendedRoom[], isWaitlisted?: boolean) {
+    setRooms(updatedRooms);
+    if (isWaitlisted !== undefined) setWaitlisted(isWaitlisted);
   }
 
   return (
@@ -221,7 +234,7 @@ export default function StudentDashboardPage() {
             <ChatPanel
               initialMessages={initialMessages}
               onSendMessage={handleSendMessage}
-              onRoomsUpdate={setRooms}
+              onRoomsUpdate={handleRoomsUpdate}
             />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3">
@@ -232,7 +245,7 @@ export default function StudentDashboardPage() {
         </div>
 
         <div className={`${activeTab === "rooms" ? "block" : "hidden"} h-full min-h-0 md:block`}>
-          <RoomList rooms={rooms} />
+          <RoomList rooms={rooms} waitlisted={waitlisted} />
         </div>
       </div>
     </main>

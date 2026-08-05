@@ -8,6 +8,8 @@ import { Menu, X } from "lucide-react";
 const NAV_LINKS = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/users", label: "Persone" },
+  { href: "/admin/conversations", label: "Conversazioni" },
+  { href: "/admin/waitlist", label: "Lista d'attesa" },
   { href: "/admin/inquiries", label: "Richieste" },
   { href: "/admin/leads", label: "Annunci esterni" },
   { href: "/admin/properties", label: "Immobili" },
@@ -18,10 +20,12 @@ export default function AdminNav({
   newInquiriesCount,
   newLeadsCount,
   latePaymentsCount = 0,
+  pendingWaitlistCount = 0,
 }: {
   newInquiriesCount: number;
   newLeadsCount: number;
   latePaymentsCount?: number;
+  pendingWaitlistCount?: number;
 }) {
   const pathname = usePathname();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -29,6 +33,13 @@ export default function AdminNav({
   function isActive(href: string) {
     if (href === "/admin") return pathname === "/admin";
     return pathname.startsWith(href);
+  }
+
+  function linkLabel(href: string, label: string) {
+    if (href === "/admin/waitlist" && pendingWaitlistCount > 0) {
+      return `${label} (${pendingWaitlistCount})`;
+    }
+    return label;
   }
 
   return (
@@ -48,7 +59,7 @@ export default function AdminNav({
                 : "text-ink-muted hover:bg-sea-50 hover:text-ink"
             }`}
           >
-            {link.label}
+            {linkLabel(link.href, link.label)}
           </Link>
         ))}
       </nav>
@@ -96,7 +107,7 @@ export default function AdminNav({
                       : "text-ink hover:bg-sea-50"
                   }`}
                 >
-                  {link.label}
+                  {linkLabel(link.href, link.label)}
                 </Link>
               ))}
             </nav>
@@ -123,6 +134,16 @@ export default function AdminNav({
                 <span>Annunci da lavorare</span>
                 <span className="rounded-full bg-sea-600 px-2 py-0.5 text-xs font-bold text-white">
                   {newLeadsCount}
+                </span>
+              </Link>
+              <Link
+                href="/admin/waitlist"
+                onClick={() => setIsDrawerOpen(false)}
+                className="flex items-center justify-between rounded-xl2 bg-sea-50 px-4 py-3 text-sm font-medium text-ink transition hover:bg-sea-100"
+              >
+                <span>Lista d&apos;attesa</span>
+                <span className="rounded-full bg-sea-600 px-2 py-0.5 text-xs font-bold text-white">
+                  {pendingWaitlistCount}
                 </span>
               </Link>
               <Link

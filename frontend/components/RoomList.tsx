@@ -1,14 +1,48 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { RecommendedRoom } from "@/lib/types";
 import RoomCard from "./RoomCard";
 
-export default function RoomList({ rooms }: { rooms: RecommendedRoom[] }) {
+export default function RoomList({
+  rooms,
+  waitlisted = false,
+}: {
+  rooms: RecommendedRoom[];
+  waitlisted?: boolean;
+}) {
   const { t } = useLocale();
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
   const sorted = [...rooms].sort((a, b) => b.matchScore - a.matchScore);
 
+  async function handleShare() {
+    const url = `${window.location.origin}/lista-attesa`;
+    const text = `${t.roomList.shareText} ${url}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Coabito", text: t.roomList.shareText, url });
+      } else {
+        await navigator.clipboard.writeText(text);
+        setShareFeedback(t.roomList.shareCta + " ✓");
+        setTimeout(() => setShareFeedback(null), 2000);
+      }
+    } catch {
+      try {
+        await navigator.clipboard.writeText(text);
+        setShareFeedback(t.roomList.shareCta + " ✓");
+        setTimeout(() => setShareFeedback(null), 2000);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
   if (sorted.length === 0) {
+    const title = waitlisted ? t.roomList.noMatchTitle : t.roomList.emptyTitle;
+    const subtitle = waitlisted ? t.roomList.noMatchSubtitle : t.roomList.emptySubtitle;
+
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sea-50">
@@ -27,12 +61,17 @@ export default function RoomList({ rooms }: { rooms: RecommendedRoom[] }) {
             <path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" />
           </svg>
         </div>
-        <p className="font-display text-sm font-bold text-ink">
-          {t.roomList.emptyTitle}
-        </p>
-        <p className="max-w-xs text-sm text-ink-muted">
-          {t.roomList.emptySubtitle}
-        </p>
+        <p className="font-display text-sm font-bold text-ink">{title}</p>
+        <p className="max-w-xs text-sm text-ink-muted">{subtitle}</p>
+        {waitlisted && (
+          <button
+            type="button"
+            onClick={handleShare}
+            className="mt-2 rounded-full border border-sea-200 bg-white px-4 py-2 text-xs font-semibold text-sea-700 transition hover:bg-sea-50"
+          >
+            {shareFeedback ?? t.roomList.shareCta}
+          </button>
+        )}
       </div>
     );
   }

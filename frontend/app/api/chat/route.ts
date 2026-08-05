@@ -22,6 +22,11 @@ import {
 } from "@/lib/supabase/server";
 import type { StudentProfileRow } from "@/lib/matching";
 import { computeRoomMatches } from "@/lib/matching-rooms";
+import {
+  buildWaitlistChatFallback,
+  replyContainsWaitlistNotice,
+  upsertWaitlistFromStudentProfile,
+} from "@/lib/waitlist";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -179,20 +184,14 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // --- 5. Salva il turno di conversazione nello storico ---------------------
-  // Non blocca mai la risposta: se il salvataggio fallisce, lo studente
-  // vede comunque la risposta di Vesta, semplicemente non resterà salvata.
-  try {
-    await db.from("chat_messages").insert([
-      { student_id: userId, role: "user", content: message },
-      { student_id: userId, role: "assistant", content: replyForUser },
-    ]);
-  } catch (err) {
-    console.error("[api/chat] Errore salvataggio chat_messages:", err);
-  }
-
-  // --- 6. Recupero profilo aggiornato, stanze e calcolo match -------------
+  // --- 5. Recupero profilo aggiornato, stanze e calcolo match -------------
+  // Prima del salvataggio storico: se non ci sono stanze, appendiamo il
+  // messaggio di lista d'attesa alla risposta di Vesta e lo persistiamo
+  // insieme al resto del turno.
   let rooms: unknown[] = [];
+  let waitlisted = false;
+  let finalReply = replyForUser;
+
   try {
     const { data: studentProfile, error: profileError } = await db
       .from("student_profiles")
@@ -208,13 +207,51 @@ export async function POST(request: NextRequest) {
         studentProfile as StudentProfileRow,
         locale,
       );
+
+      if (rooms.length === 0) {
+        waitlisted = true;
+        await upsertWaitlistFromStudentProfile(
+          db,
+          userId,
+          studentProfile,
+          "vesta_chat",
+        );
+
+        const { data: userRow } = await db
+          .from("users")
+          .select("phone")
+          .eq("id", userId)
+          .maybeSingle();
+
+        const hasPhone = Boolean(userRow?.phone?.trim());
+        if (!replyContainsWaitlistNotice(finalReply)) {
+          const fallback = buildWaitlistChatFallback(locale, hasPhone);
+          finalReply = finalReply ? `${finalReply}\n\n${fallback}` : fallback;
+        }
+      }
     }
   } catch (err) {
     console.error("[api/chat] Errore nel calcolo dei match:", err);
     rooms = [];
   }
 
-  return NextResponse.json({ reply: replyForUser, rooms });
+  // --- 6. Salva il turno di conversazione nello storico ---------------------
+  // Non blocca mai la risposta: se il salvataggio fallisce, lo studente
+  // vede comunque la risposta di Vesta, semplicemente non resterà salvata.
+  try {
+    await db.from("chat_messages").insert([
+      { student_id: userId, role: "user", content: message },
+      { student_id: userId, role: "assistant", content: finalReply },
+    ]);
+  } catch (err) {
+    console.error("[api/chat] Errore salvataggio chat_messages:", err);
+  }
+
+  return NextResponse.json({
+    reply: finalReply,
+    rooms,
+    ...(waitlisted ? { waitlisted: true } : {}),
+  });
 }
 
 // ---------------------------------------------------------------------------
