@@ -1,6 +1,7 @@
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import Hero from "@/components/landing/Hero";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
+import FounderNote from "@/components/landing/FounderNote";
 import FaqSection from "@/components/landing/FaqSection";
 import LandingFooter from "@/components/landing/LandingFooter";
 
@@ -38,6 +39,8 @@ export default function HomePage() {
           },
         ]}
       />
+
+      <FounderNote />
 
       <HowItWorksSection
         id="proprietari"
