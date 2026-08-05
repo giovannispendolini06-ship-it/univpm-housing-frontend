@@ -3,9 +3,12 @@
 import { useState } from "react";
 import Link from "next/link";
 import CoabitoLogo from "@/components/CoabitoLogo";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 
 export default function LandingNavbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useLocale();
 
   return (
     <header className="sticky top-0 z-50 border-b border-sea-100 bg-white/90 backdrop-blur">
@@ -18,21 +21,22 @@ export default function LandingNavbar() {
         {/* Nav desktop */}
         <nav className="hidden items-center gap-8 md:flex">
           <a href="#studenti" className="text-sm text-ink-muted transition hover:text-ink">
-            Per gli studenti
+            {t.nav.forStudents}
           </a>
           <a href="#proprietari" className="text-sm text-ink-muted transition hover:text-ink">
-            Per i proprietari
+            {t.nav.forOwners}
           </a>
           <Link href="/esempi" className="text-sm text-ink-muted transition hover:text-ink">
-            Come funziona
+            {t.nav.howItWorks}
           </Link>
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <LanguageSwitcher />
           <Link
             href="/installa"
-            aria-label="Installa l'app"
-            title="Installa l'app"
+            aria-label={t.nav.installApp}
+            title={t.nav.installApp}
             className="flex h-9 w-9 items-center justify-center rounded-full border border-sea-100 text-ink-muted transition hover:border-sea-400 hover:text-sea-700"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,20 +50,23 @@ export default function LandingNavbar() {
             href="/login"
             className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sea-700"
           >
-            Accedi
+            {t.nav.login}
           </Link>
         </div>
 
         {/* Toggle mobile */}
-        <button
-          onClick={() => setIsOpen((v) => !v)}
-          aria-label="Apri menu"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-sea-100 md:hidden"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            {isOpen ? <path d="M6 6 18 18M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
-          </svg>
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <LanguageSwitcher />
+          <button
+            onClick={() => setIsOpen((v) => !v)}
+            aria-label="Apri menu"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-sea-100"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+              {isOpen ? <path d="M6 6 18 18M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Menu mobile */}
@@ -70,34 +77,34 @@ export default function LandingNavbar() {
             onClick={() => setIsOpen(false)}
             className="rounded-lg px-3 py-2.5 text-sm text-ink-muted"
           >
-            Per gli studenti
+            {t.nav.forStudents}
           </a>
           <a
             href="#proprietari"
             onClick={() => setIsOpen(false)}
             className="rounded-lg px-3 py-2.5 text-sm text-ink-muted"
           >
-            Per i proprietari
+            {t.nav.forOwners}
           </a>
           <Link
             href="/esempi"
             onClick={() => setIsOpen(false)}
             className="rounded-lg px-3 py-2.5 text-sm text-ink-muted"
           >
-            Come funziona
+            {t.nav.howItWorks}
           </Link>
           <Link
             href="/installa"
             onClick={() => setIsOpen(false)}
             className="rounded-lg border-t border-sea-100 px-3 py-2.5 pt-3 text-sm text-ink-muted"
           >
-            📲 Installa l&apos;app
+            📲 {t.nav.installApp}
           </Link>
           <Link
             href="/login"
             className="mt-2 rounded-full bg-sea-600 px-4 py-2.5 text-center text-sm font-semibold text-white"
           >
-            Accedi
+            {t.nav.login}
           </Link>
         </nav>
       )}

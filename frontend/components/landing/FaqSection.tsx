@@ -1,51 +1,10 @@
 "use client";
 
 import { useState } from "react";
-
-interface FaqItem {
-  question: string;
-  answer: string;
-}
-
-const FAQS: FaqItem[] = [
-  {
-    question: "È davvero gratis per gli studenti?",
-    answer:
-      "Sì. Chattare con Vesta e vedere le stanze proposte è sempre gratuito, nessuna carta di credito richiesta. Paghi solo il canone della stanza che scegli, come faresti comunque affittando da chiunque altro.",
-  },
-  {
-    question: "Come guadagna Coabito?",
-    answer:
-      "Applichiamo un piccolo margine tra quello che paga lo studente e quello che versiamo al proprietario — lo stesso modello di chi gestisce affitti per conto terzi, reso più semplice e veloce grazie alla chat.",
-  },
-  {
-    question: "Devo pagare qualcosa prima di trovare la stanza giusta?",
-    answer:
-      "No, mai. Non c'è nessun costo di iscrizione o di ricerca: paghi solo quando decidi davvero di prendere una stanza specifica.",
-  },
-  {
-    question: "Chi si occupa del contratto?",
-    answer:
-      "Ce ne occupiamo noi: gestiamo il rapporto con il proprietario, tu firmi solo il contratto per la tua stanza, senza dover trattare direttamente ogni dettaglio.",
-  },
-  {
-    question: "Come funziona il punteggio di compatibilità?",
-    answer:
-      "Vesta confronta budget, orari di studio, abitudini di convivenza e vicinanza al tuo polo universitario — non solo prezzo e metri quadri. Puoi vedere un esempio vero nella pagina \"Come funziona\".",
-  },
-  {
-    question: "I miei dati sono al sicuro?",
-    answer:
-      "Sì, trattiamo i tuoi dati secondo il GDPR. Puoi leggere tutti i dettagli nella nostra Privacy Policy, e puoi eliminare il tuo account in qualsiasi momento, direttamente dalla tua area personale.",
-  },
-  {
-    question: "Sono un proprietario: devo pagare per proporre il mio immobile?",
-    answer:
-      "No, proporre il tuo immobile è gratuito. Ci pensiamo noi a trovare studenti compatibili e verificati: tu decidi solo con chi firmare, quando sei pronto.",
-  },
-];
+import { useLocale } from "@/lib/i18n/LocaleContext";
 
 export default function FaqSection() {
+  const { t } = useLocale();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   function toggle(index: number) {
@@ -56,14 +15,14 @@ export default function FaqSection() {
     <section className="bg-white">
       <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
         <span className="text-xs font-semibold uppercase tracking-wide text-sea-600">
-          Domande frequenti
+          {t.faq.eyebrow}
         </span>
         <h2 className="mt-2 font-display text-2xl font-bold text-ink sm:text-3xl">
-          I dubbi più comuni, risolti subito
+          {t.faq.title}
         </h2>
 
         <div className="mt-8 divide-y divide-sea-100 rounded-xl2 bg-surface shadow-card">
-          {FAQS.map((faq, index) => {
+          {t.faq.items.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
               <div key={faq.question}>

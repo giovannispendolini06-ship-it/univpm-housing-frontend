@@ -10,7 +10,7 @@ interface HowItWorksSectionProps {
   id: string;
   eyebrow: string;
   title: string;
-  steps: Step[];
+  steps: readonly Step[];
   ctaLabel: string;
   ctaHref: string;
   variant?: "default" | "muted";
