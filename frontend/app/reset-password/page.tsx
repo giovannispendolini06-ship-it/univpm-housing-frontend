@@ -2,16 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/lib/i18n/LocaleContext";
+import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const { t } = useLocale();
   const supabase = createClientSupabaseClient();
 
-  // Il link che arriva via email contiene un "token di recupero" che il
-  // client Supabase legge da solo dall'URL. Finché non lo trova, non
-  // mostriamo il form (evita di far scrivere una password che poi non
-  // sappiamo a chi assegnare).
   const [isReady, setIsReady] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,8 +27,6 @@ export default function ResetPasswordPage() {
       }
     });
 
-    // Se la sessione di recupero è già presente al caricamento (capita
-    // spesso), controlliamo anche subito, senza aspettare l'evento.
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) setIsReady(true);
     });
@@ -42,11 +39,11 @@ export default function ResetPasswordPage() {
     setError(null);
 
     if (password.length < 6) {
-      setError("La password deve avere almeno 6 caratteri.");
+      setError(t.resetPassword.tooShort);
       return;
     }
     if (password !== confirmPassword) {
-      setError("Le due password non coincidono.");
+      setError(t.resetPassword.mismatch);
       return;
     }
 
@@ -61,7 +58,7 @@ export default function ResetPasswordPage() {
       }, 1500);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Qualcosa è andato storto, riprova.",
+        err instanceof Error ? err.message : t.login.genericError,
       );
     } finally {
       setLoading(false);
@@ -70,32 +67,34 @@ export default function ResetPasswordPage() {
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-bg px-4">
+      <div className="absolute right-4 top-4">
+        <LanguageSwitcher />
+      </div>
       <div className="w-full max-w-sm space-y-4 rounded-xl2 bg-surface p-6 shadow-card">
         <div>
           <h1 className="font-display text-xl font-bold text-ink">
-            Nuova password
+            {t.resetPassword.title}
           </h1>
-          <p className="text-sm text-ink-muted">Scegline una nuova per il tuo account.</p>
+          <p className="text-sm text-ink-muted">{t.resetPassword.subtitle}</p>
         </div>
 
         {success ? (
           <div className="rounded-xl bg-sea-50 p-4 text-sm text-sea-700">
-            ✓ Password aggiornata! Ti stiamo portando dentro...
+            {t.resetPassword.success}
           </div>
         ) : !isReady ? (
           <p className="text-sm text-ink-muted">
-            Verifica del link in corso... Se questa schermata resta ferma,
-            il link potrebbe essere scaduto: torna al{" "}
+            {t.resetPassword.verifying}{" "}
             <a href="/login" className="text-sea-700 underline">
-              login
+              {t.resetPassword.loginLink}
             </a>{" "}
-            e richiedine uno nuovo.
+            {t.resetPassword.andRequestNew}
           </p>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="password"
-              placeholder="Nuova password (minimo 6 caratteri)"
+              placeholder={t.resetPassword.newPasswordPlaceholder}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -104,7 +103,7 @@ export default function ResetPasswordPage() {
             />
             <input
               type="password"
-              placeholder="Ripeti la nuova password"
+              placeholder={t.resetPassword.repeatPasswordPlaceholder}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -119,7 +118,7 @@ export default function ResetPasswordPage() {
               disabled={loading}
               className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
             >
-              {loading ? "Un attimo..." : "Salva nuova password"}
+              {loading ? t.common.oneMoment : t.resetPassword.saveButton}
             </button>
           </form>
         )}

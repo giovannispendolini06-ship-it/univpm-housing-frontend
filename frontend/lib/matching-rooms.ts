@@ -11,6 +11,7 @@ import { calculateMatchScore, type StudentProfileRow } from "@/lib/matching";
 export async function computeRoomMatches(
   db: ReturnType<typeof createServiceSupabaseClient>,
   student: StudentProfileRow,
+  locale: "it" | "en" = "it",
 ) {
   const { data: roomsData, error: roomsError } = await db
     .from("rooms")
@@ -83,6 +84,7 @@ export async function computeRoomMatches(
       room,
       property,
       roommates,
+      locale,
     );
 
     matchRows.push({

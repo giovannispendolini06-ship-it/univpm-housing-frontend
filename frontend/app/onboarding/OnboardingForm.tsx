@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import { completeOnboarding } from "./actions";
 
 export default function OnboardingForm({ role }: { role: "student" | "owner" }) {
+  const { t } = useLocale();
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -17,19 +19,17 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
     setError(null);
     startTransition(async () => {
       const result = await completeOnboarding(formData);
-      // Se non c'è errore, l'azione ha già fatto il redirect da sola.
       if (result?.error) setError(result.error);
     });
   }
 
   return (
     <form action={handleSubmit} className="space-y-5">
-      {/* Foto profilo */}
       <div className="flex items-center gap-4">
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sea-50">
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="Anteprima foto profilo" className="h-full w-full object-cover" />
+            <img src={preview} alt="" className="h-full w-full object-cover" />
           ) : (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-sea-300">
               <circle cx="12" cy="8" r="4" />
@@ -39,7 +39,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-ink-muted">
-            Foto profilo *
+            {t.onboarding.profilePhoto}
           </label>
           <input
             type="file"
@@ -54,20 +54,20 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
 
       <div>
         <label className="mb-1 block text-xs font-medium text-ink-muted">
-          Numero di telefono *
+          {t.onboarding.phoneNumber}
         </label>
         <input
           type="tel"
           name="phone"
           required
-          placeholder="Es. +39 333 1234567"
+          placeholder={t.onboarding.phonePlaceholder}
           className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
         />
       </div>
 
       <div>
         <label className="mb-1 block text-xs font-medium text-ink-muted">
-          {role === "owner" ? "Codice fiscale o P.IVA *" : "Codice fiscale *"}
+          {role === "owner" ? t.onboarding.fiscalCodeOwner : t.onboarding.fiscalCodeStudent}
         </label>
         <input
           type="text"
@@ -80,7 +80,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
       {role === "student" && (
         <div>
           <label className="mb-1 block text-xs font-medium text-ink-muted">
-            Data di nascita *
+            {t.onboarding.dateOfBirth}
           </label>
           <input
             type="date"
@@ -98,7 +98,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
         disabled={isPending}
         className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
       >
-        {isPending ? "Un attimo..." : "Continua"}
+        {isPending ? t.common.oneMoment : t.onboarding.continueButton}
       </button>
     </form>
   );

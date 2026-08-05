@@ -17,6 +17,13 @@
 //   );
 //
 // e considera "coinquilino attuale" chi ha ended_at is null.
+//
+// NOTA SUL BILINGUISMO: i punteggi (i numeri) sono identici in ogni lingua
+// — cambia solo il testo di label/detail mostrato allo studente. Il
+// parametro "locale" qui sotto sceglie solo quale testo generare, non
+// influisce mai sul calcolo del punteggio stesso.
+
+export type MatchLocale = "it" | "en";
 
 export interface StudentProfileRow {
   user_id: string;
@@ -66,16 +73,16 @@ const GUEST_FREQUENCY_RANK: Record<StudentProfileRow["guests_frequency"], number
 function scoreBudget(
   student: StudentProfileRow,
   room: RoomForMatching,
+  locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
   const totalCost = room.price_monthly + room.estimated_utilities;
   const diff = student.budget_max - totalCost;
+  const isIt = locale === "it";
 
   let ratio: number;
   if (diff >= 0) {
-    // Sotto budget: punteggio pieno, con un piccolo bonus se lascia margine
     ratio = 1;
   } else {
-    // Sopra budget: penalizza proporzionalmente allo sforamento
     ratio = Math.max(0, 1 + diff / student.budget_max);
   }
 
@@ -83,11 +90,15 @@ function scoreBudget(
   return {
     points,
     reason: {
-      label: "Budget compatibile",
+      label: isIt ? "Budget compatibile" : "Budget match",
       detail:
         diff >= 0
-          ? `${totalCost}€ tutto incluso rientra nei tuoi ${student.budget_max}€ massimi`
-          : `${totalCost}€ tutto incluso supera di ${Math.abs(diff).toFixed(0)}€ il tuo budget`,
+          ? isIt
+            ? `${totalCost}€ tutto incluso rientra nei tuoi ${student.budget_max}€ massimi`
+            : `€${totalCost} all-in fits within your €${student.budget_max} max`
+          : isIt
+            ? `${totalCost}€ tutto incluso supera di ${Math.abs(diff).toFixed(0)}€ il tuo budget`
+            : `€${totalCost} all-in is €${Math.abs(diff).toFixed(0)} over your budget`,
       weight: ratio >= 0.8 ? "alto" : ratio >= 0.5 ? "medio" : "basso",
     },
   };
@@ -112,29 +123,34 @@ function getDistanceKm(
 function scoreDistance(
   student: StudentProfileRow,
   property: PropertyForMatching,
+  locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
   const km = getDistanceKm(student.polo_univpm, property);
+  const isIt = locale === "it";
 
   if (km === null) {
     return {
-      points: 10, // dato mancante: punteggio neutro, non azzeriamo
+      points: 10,
       reason: {
-        label: "Distanza dal polo",
-        detail: "Distanza dal tuo polo non ancora disponibile per questa zona",
+        label: isIt ? "Distanza dal polo" : "Distance from campus",
+        detail: isIt
+          ? "Distanza dal tuo polo non ancora disponibile per questa zona"
+          : "Distance from your campus not yet available for this area",
         weight: "basso",
       },
     };
   }
 
-  // Sotto i 2km punteggio pieno, oltre i 10km punteggio quasi nullo
   const ratio = Math.max(0, Math.min(1, 1 - (km - 2) / 8));
   const points = ratio * 20;
 
   return {
     points,
     reason: {
-      label: "Vicinanza al polo",
-      detail: `${km.toFixed(1)} km dal tuo polo di riferimento`,
+      label: isIt ? "Vicinanza al polo" : "Distance from campus",
+      detail: isIt
+        ? `${km.toFixed(1)} km dal tuo polo di riferimento`
+        : `${km.toFixed(1)} km from your reference campus`,
       weight: ratio >= 0.7 ? "alto" : ratio >= 0.4 ? "medio" : "basso",
     },
   };
@@ -143,13 +159,18 @@ function scoreDistance(
 function scoreRoommateAffinity(
   student: StudentProfileRow,
   roommates: StudentProfileRow[],
+  locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
+  const isIt = locale === "it";
+
   if (roommates.length === 0) {
     return {
-      points: 15, // stanza libera/appartamento nuovo: nessun conflitto noto
+      points: 15,
       reason: {
-        label: "Orari di studio",
-        detail: "Nessun coinquilino attuale: nessun potenziale conflitto di abitudini",
+        label: isIt ? "Orari di studio" : "Study hours",
+        detail: isIt
+          ? "Nessun coinquilino attuale: nessun potenziale conflitto di abitudini"
+          : "No current roommates: no known habit conflicts",
         weight: "medio",
       },
     };
@@ -166,12 +187,18 @@ function scoreRoommateAffinity(
   return {
     points: Math.max(0, points),
     reason: {
-      label: "Orari di studio",
+      label: isIt ? "Orari di studio" : "Study hours",
       detail: smokingConflict
-        ? "Attenzione: tra i coinquilini attuali c'è chi fuma in casa"
+        ? isIt
+          ? "Attenzione: tra i coinquilini attuali c'è chi fuma in casa"
+          : "Note: one of the current roommates smokes at home"
         : habitRatio >= 0.5
-          ? "Le tue abitudini di studio combaciano con quelle di chi vive già lì"
-          : "Abitudini di studio diverse rispetto ai coinquilini attuali",
+          ? isIt
+            ? "Le tue abitudini di studio combaciano con quelle di chi vive già lì"
+            : "Your study habits match those of who already lives there"
+          : isIt
+            ? "Abitudini di studio diverse rispetto ai coinquilini attuali"
+            : "Study habits differ from current roommates",
       weight: habitRatio >= 0.5 && !smokingConflict ? "alto" : "medio",
     },
   };
@@ -180,13 +207,18 @@ function scoreRoommateAffinity(
 function scoreCleanliness(
   student: StudentProfileRow,
   roommates: StudentProfileRow[],
+  locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
+  const isIt = locale === "it";
+
   if (roommates.length === 0) {
     return {
       points: 12,
       reason: {
-        label: "Pulizia",
-        detail: "Nessun coinquilino attuale con cui confrontare le abitudini",
+        label: isIt ? "Pulizia" : "Cleanliness",
+        detail: isIt
+          ? "Nessun coinquilino attuale con cui confrontare le abitudini"
+          : "No current roommates to compare habits with",
         weight: "basso",
       },
     };
@@ -195,17 +227,21 @@ function scoreCleanliness(
   const avgCleanliness =
     roommates.reduce((sum, r) => sum + r.cleanliness_level, 0) / roommates.length;
   const diff = Math.abs(student.cleanliness_level - avgCleanliness);
-  const ratio = Math.max(0, 1 - diff / 4); // diff massima possibile = 4
+  const ratio = Math.max(0, 1 - diff / 4);
   const points = ratio * 15;
 
   return {
     points,
     reason: {
-      label: "Pulizia",
+      label: isIt ? "Pulizia" : "Cleanliness",
       detail:
         diff <= 1
-          ? "Livello di ordine in linea con chi vive già in casa"
-          : "Livello di ordine piuttosto diverso da quello dei coinquilini attuali",
+          ? isIt
+            ? "Livello di ordine in linea con chi vive già in casa"
+            : "Cleanliness level in line with who already lives there"
+          : isIt
+            ? "Livello di ordine piuttosto diverso da quello dei coinquilini attuali"
+            : "Cleanliness level quite different from current roommates",
       weight: diff <= 1 ? "alto" : diff <= 2 ? "medio" : "basso",
     },
   };
@@ -214,13 +250,18 @@ function scoreCleanliness(
 function scoreSociability(
   student: StudentProfileRow,
   roommates: StudentProfileRow[],
+  locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
+  const isIt = locale === "it";
+
   if (roommates.length === 0) {
     return {
       points: 12,
       reason: {
-        label: "Vita sociale",
-        detail: "Ancora nessun coinquilino: la vita di casa la definirete insieme",
+        label: isIt ? "Vita sociale" : "Social life",
+        detail: isIt
+          ? "Ancora nessun coinquilino: la vita di casa la definirete insieme"
+          : "No roommates yet: you'll define house life together",
         weight: "medio",
       },
     };
@@ -237,11 +278,15 @@ function scoreSociability(
   return {
     points,
     reason: {
-      label: "Vita sociale",
+      label: isIt ? "Vita sociale" : "Social life",
       detail:
         diff <= 1
-          ? "Frequenza di ospiti/feste in linea con la casa"
-          : "Frequenza di ospiti/feste diversa da quella dei coinquilini attuali",
+          ? isIt
+            ? "Frequenza di ospiti/feste in linea con la casa"
+            : "Guest/party frequency in line with the house"
+          : isIt
+            ? "Frequenza di ospiti/feste diversa da quella dei coinquilini attuali"
+            : "Guest/party frequency different from current roommates",
       weight: diff <= 1 ? "alto" : "medio",
     },
   };
@@ -252,12 +297,13 @@ export function calculateMatchScore(
   room: RoomForMatching,
   property: PropertyForMatching,
   currentRoommates: StudentProfileRow[],
+  locale: MatchLocale = "it",
 ): MatchResult {
-  const budget = scoreBudget(student, room);
-  const distance = scoreDistance(student, property);
-  const roommateAffinity = scoreRoommateAffinity(student, currentRoommates);
-  const cleanliness = scoreCleanliness(student, currentRoommates);
-  const sociability = scoreSociability(student, currentRoommates);
+  const budget = scoreBudget(student, room, locale);
+  const distance = scoreDistance(student, property, locale);
+  const roommateAffinity = scoreRoommateAffinity(student, currentRoommates, locale);
+  const cleanliness = scoreCleanliness(student, currentRoommates, locale);
+  const sociability = scoreSociability(student, currentRoommates, locale);
 
   const rawScore =
     budget.points +

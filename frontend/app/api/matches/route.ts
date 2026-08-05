@@ -19,6 +19,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   const studentId = request.nextUrl.searchParams.get("studentId");
+  const localeParam = request.nextUrl.searchParams.get("locale");
+  const locale: "it" | "en" = localeParam === "en" ? "en" : "it";
 
   if (!studentId) {
     return NextResponse.json({ error: "studentId mancante." }, { status: 400 });
@@ -56,7 +58,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ rooms: [] });
     }
 
-    const rooms = await computeRoomMatches(db, studentProfile as StudentProfileRow);
+    const rooms = await computeRoomMatches(
+      db,
+      studentProfile as StudentProfileRow,
+      locale,
+    );
     return NextResponse.json({ rooms });
   } catch (err) {
     console.error("[api/matches] Errore nel calcolo dei match:", err);

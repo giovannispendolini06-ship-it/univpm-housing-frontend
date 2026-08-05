@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 import ChatBubble from "./ChatBubble";
 import TypingIndicator from "./TypingIndicator";
@@ -8,16 +9,10 @@ import VestaAvatar from "./VestaAvatar";
 
 interface ChatPanelProps {
   initialMessages: ChatMessage[];
-  /**
-   * Collegata a /api/chat: riceve il testo scritto dallo studente e
-   * restituisce la risposta di Vesta più (eventualmente) le stanze
-   * ricalcolate dal motore di matching.
-   */
   onSendMessage: (
     text: string,
     history: { role: ChatMessage["role"]; content: string }[],
   ) => Promise<{ reply: string; rooms?: RecommendedRoom[] }>;
-  /** Chiamata ogni volta che l'API restituisce una lista stanze aggiornata. */
   onRoomsUpdate?: (rooms: RecommendedRoom[]) => void;
 }
 
@@ -26,6 +21,7 @@ export default function ChatPanel({
   onSendMessage,
   onRoomsUpdate,
 }: ChatPanelProps) {
+  const { t } = useLocale();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -93,18 +89,14 @@ export default function ChatPanel({
 
   return (
     <section className="flex h-full flex-col bg-bg">
-      {/* Header */}
       <header className="flex items-center gap-3 border-b border-sea-100 bg-white/80 px-4 py-3 backdrop-blur">
         <VestaAvatar size={36} />
         <div>
           <h1 className="font-display text-sm font-bold text-ink">Vesta</h1>
-          <p className="text-xs text-ink-muted">
-            Il tuo assistente casa · UNIVPM Ancona
-          </p>
+          <p className="text-xs text-ink-muted">{t.chat.subtitle}</p>
         </div>
       </header>
 
-      {/* Messaggi */}
       <div
         ref={scrollRef}
         className="scrollbar-thin flex-1 space-y-3 overflow-y-auto px-4 py-4"
@@ -115,7 +107,6 @@ export default function ChatPanel({
         {isTyping && <TypingIndicator />}
       </div>
 
-      {/* Input */}
       <div className="border-t border-sea-100 bg-white p-3">
         <div className="flex items-end gap-2 rounded-xl2 border border-sea-100 bg-bg px-3 py-2 focus-within:border-sea-400">
           <textarea
@@ -123,13 +114,13 @@ export default function ChatPanel({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Scrivi un messaggio..."
+            placeholder={t.chat.inputPlaceholder}
             className="max-h-28 flex-1 resize-none bg-transparent text-[15px] text-ink placeholder:text-ink-muted focus:outline-none"
           />
           <button
             onClick={handleSend}
             disabled={!draft.trim()}
-            aria-label="Invia messaggio"
+            aria-label={t.chat.sendLabel}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sea-600 text-white transition enabled:hover:bg-sea-700 disabled:cursor-not-allowed disabled:bg-sea-100 disabled:text-ink-muted"
           >
             <svg
