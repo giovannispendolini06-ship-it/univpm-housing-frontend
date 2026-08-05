@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 export interface MyTenancy {
   startedAt: string;
   roomLabel: string;
@@ -6,6 +10,7 @@ export interface MyTenancy {
   address: string;
   zone: string | null;
   paymentStatus: "da_registrare" | "pagato" | "in_ritardo";
+  moveChecklist: string[] | null;
 }
 
 const STATUS_LABELS: Record<MyTenancy["paymentStatus"], string> = {
@@ -21,6 +26,7 @@ const STATUS_STYLES: Record<MyTenancy["paymentStatus"], string> = {
 };
 
 export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
+  const [showChecklist, setShowChecklist] = useState(false);
   const total = tenancy.priceMonthly + tenancy.estimatedUtilities;
 
   return (
@@ -57,6 +63,28 @@ export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
       <p className="mt-3 text-[11px] text-sea-100">
         Inquilino dal {new Date(tenancy.startedAt).toLocaleDateString("it-IT")}
       </p>
+
+      {tenancy.moveChecklist && tenancy.moveChecklist.length > 0 && (
+        <div className="mt-3 border-t border-white/15 pt-3">
+          <button
+            onClick={() => setShowChecklist((v) => !v)}
+            className="flex w-full items-center justify-between text-xs font-semibold text-white"
+          >
+            <span>📋 La tua checklist di trasloco</span>
+            <span className={`transition-transform ${showChecklist ? "rotate-180" : ""}`}>▾</span>
+          </button>
+          {showChecklist && (
+            <ul className="mt-2 space-y-1.5">
+              {tenancy.moveChecklist.map((item, i) => (
+                <li key={i} className="flex items-start gap-1.5 text-xs text-sea-50">
+                  <span className="mt-0.5 shrink-0">•</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }

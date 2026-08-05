@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       .from("room_tenancies")
       .select(
         `
-        id, started_at,
+        id, started_at, move_checklist,
         rooms:room_id (
           room_label, price_monthly, estimated_utilities,
           properties:property_id ( address, zone )
@@ -82,6 +82,7 @@ export async function GET(request: NextRequest) {
         address: property?.address ?? "",
         zone: property?.zone ?? null,
         paymentStatus: payment?.status ?? "da_registrare",
+        moveChecklist: (tenancy as any).move_checklist ?? null,
       },
     });
   } catch (err) {

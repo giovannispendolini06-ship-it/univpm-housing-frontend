@@ -132,14 +132,15 @@ export async function computeRoomMatches(
 export async function recalculateMatchesForRoom(
   db: ReturnType<typeof createServiceSupabaseClient>,
   roomId: string,
+  notifyStudents: boolean = false,
 ): Promise<void> {
   const { data: room, error: roomError } = await db
     .from("rooms")
     .select(
       `
-      id, price_monthly, estimated_utilities, is_available,
+      id, room_label, price_monthly, estimated_utilities, is_available,
       properties:property_id (
-        id, distance_monte_dago_km, distance_torrette_km, distance_centro_km
+        id, zone, distance_monte_dago_km, distance_torrette_km, distance_centro_km
       )
     `,
     )
@@ -201,5 +202,28 @@ export async function recalculateMatchesForRoom(
 
   if (error) {
     console.error("[matching-rooms] Errore ricalcolo match per la stanza:", error);
+  }
+
+  // --- Vesta proattiva: se è una stanza VERAMENTE nuova (non una
+  // modifica), avvisa in chat gli studenti per cui il match è alto,
+  // invece di lasciare che lo scoprano solo tornando sul sito da soli.
+  if (notifyStudents) {
+    const HIGH_MATCH_THRESHOLD = 75;
+    const notifyRows = matchRows.filter((m) => m.compatibility_score >= HIGH_MATCH_THRESHOLD);
+
+    if (notifyRows.length > 0) {
+      const zoneLabel = property.zone ? ` a ${property.zone}` : "";
+
+      const chatMessages = notifyRows.map((m) => ({
+        student_id: m.student_id,
+        role: "assistant" as const,
+        content: `Ho trovato una stanza nuova che potrebbe interessarti! 🏠 ${room.room_label}${zoneLabel}, ${room.price_monthly}€/mese, compatibilità ${m.compatibility_score}% — dai un'occhiata tra le stanze proposte qui a destra.`,
+      }));
+
+      const { error: chatError } = await db.from("chat_messages").insert(chatMessages);
+      if (chatError) {
+        console.error("[matching-rooms] Errore invio notifiche proattive:", chatError);
+      }
+    }
   }
 }
