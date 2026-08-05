@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 
 export interface MyTenancy {
   startedAt: string;
@@ -13,12 +14,6 @@ export interface MyTenancy {
   moveChecklist: string[] | null;
 }
 
-const STATUS_LABELS: Record<MyTenancy["paymentStatus"], string> = {
-  da_registrare: "In attesa di conferma",
-  pagato: "Pagato questo mese ✓",
-  in_ritardo: "In ritardo",
-};
-
 const STATUS_STYLES: Record<MyTenancy["paymentStatus"], string> = {
   da_registrare: "bg-white/20 text-white",
   pagato: "bg-white text-sea-700",
@@ -26,17 +21,19 @@ const STATUS_STYLES: Record<MyTenancy["paymentStatus"], string> = {
 };
 
 export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
+  const { locale, t } = useLocale();
   const [showChecklist, setShowChecklist] = useState(false);
   const total = tenancy.priceMonthly + tenancy.estimatedUtilities;
+  const dateLocale = locale === "en" ? "en-GB" : "it-IT";
 
   return (
     <div className="animate-fade-in-up mx-3 mt-3 rounded-xl2 bg-gradient-to-br from-sea-600 to-sea-700 p-4 text-white shadow-card sm:mx-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-display text-sm font-bold">🏠 La mia casa</h2>
+        <h2 className="font-display text-sm font-bold">{t.myHomeCard.title}</h2>
         <span
           className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${STATUS_STYLES[tenancy.paymentStatus]}`}
         >
-          {STATUS_LABELS[tenancy.paymentStatus]}
+          {t.myHomeCard.paymentStatus[tenancy.paymentStatus]}
         </span>
       </div>
 
@@ -47,21 +44,24 @@ export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
 
       <div className="mt-3 grid grid-cols-3 gap-2 text-center">
         <div>
-          <p className="text-[10px] text-sea-100">Affitto</p>
+          <p className="text-[10px] text-sea-100">{t.myHomeCard.rentLabel}</p>
           <p className="font-display text-base font-bold">{tenancy.priceMonthly}€</p>
         </div>
         <div>
-          <p className="text-[10px] text-sea-100">Utenze stimate</p>
+          <p className="text-[10px] text-sea-100">{t.myHomeCard.utilitiesLabel}</p>
           <p className="font-display text-base font-bold">{tenancy.estimatedUtilities}€</p>
         </div>
         <div className="rounded-lg bg-white/10 py-1">
-          <p className="text-[10px] text-sea-100">Totale/mese</p>
+          <p className="text-[10px] text-sea-100">{t.myHomeCard.totalLabel}</p>
           <p className="font-display text-base font-bold">{total}€</p>
         </div>
       </div>
 
       <p className="mt-3 text-[11px] text-sea-100">
-        Inquilino dal {new Date(tenancy.startedAt).toLocaleDateString("it-IT")}
+        {t.myHomeCard.tenantSince.replace(
+          "{date}",
+          new Date(tenancy.startedAt).toLocaleDateString(dateLocale),
+        )}
       </p>
 
       {tenancy.moveChecklist && tenancy.moveChecklist.length > 0 && (
@@ -70,7 +70,7 @@ export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
             onClick={() => setShowChecklist((v) => !v)}
             className="flex w-full items-center justify-between text-xs font-semibold text-white"
           >
-            <span>📋 La tua checklist di trasloco</span>
+            <span>{t.myHomeCard.checklistToggle}</span>
             <span className={`transition-transform ${showChecklist ? "rotate-180" : ""}`}>▾</span>
           </button>
           {showChecklist && (

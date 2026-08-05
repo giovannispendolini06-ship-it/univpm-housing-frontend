@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale } from "@/lib/i18n/LocaleContext";
+import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 
 type Mode = "signin" | "signup" | "forgot";
@@ -9,6 +11,7 @@ type SignupRole = "student" | "owner";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLocale();
   const supabase = createClientSupabaseClient();
 
   const [mode, setMode] = useState<Mode>("signin");
@@ -39,7 +42,7 @@ export default function LoginPage() {
 
       if (mode === "signup") {
         if (!consentGiven) {
-          setError("Devi accettare Privacy e Termini di servizio per registrarti.");
+          setError(t.login.consentRequired);
           setLoading(false);
           return;
         }
@@ -54,16 +57,11 @@ export default function LoginPage() {
         if (error) throw error;
       }
 
-      // Il middleware si occupa di mandare ognuno alla schermata giusta
-      // in base al ruolo (studente -> /dashboard, proprietario -> /owner,
-      // admin -> /admin), quindi qui basta un punto di partenza generico.
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
       setError(
-        err instanceof Error
-          ? err.message
-          : "Qualcosa è andato storto, riprova.",
+        err instanceof Error ? err.message : t.common.genericError,
       );
     } finally {
       setLoading(false);
@@ -76,31 +74,29 @@ export default function LoginPage() {
     setMode(newMode);
   }
 
-  // --- Schermata "password dimenticata" -------------------------------------
   if (mode === "forgot") {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-bg px-4">
+        <div className="absolute right-4 top-4">
+          <LanguageSwitcher />
+        </div>
         <div className="w-full max-w-sm space-y-4 rounded-xl2 bg-surface p-6 shadow-card">
           <div>
             <h1 className="font-display text-xl font-bold text-ink">
-              Password dimenticata
+              {t.login.forgotTitle}
             </h1>
-            <p className="text-sm text-ink-muted">
-              Ti mandiamo un link per reimpostarla.
-            </p>
+            <p className="text-sm text-ink-muted">{t.login.forgotSubtitle}</p>
           </div>
 
           {forgotSent ? (
             <div className="rounded-xl bg-sea-50 p-4 text-sm text-sea-700">
-              ✓ Controlla la tua casella email — ti abbiamo mandato un link per
-              scegliere una nuova password. Se non lo vedi, guarda anche nello
-              spam.
+              {t.login.forgotSent}
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="email"
-                placeholder="Email con cui ti sei registrato"
+                placeholder={t.login.forgotEmailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -114,7 +110,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
               >
-                {loading ? "Un attimo..." : "Invia link di reset"}
+                {loading ? t.common.loading : t.login.forgotSubmit}
               </button>
             </form>
           )}
@@ -124,28 +120,28 @@ export default function LoginPage() {
             onClick={() => switchMode("signin")}
             className="w-full text-center text-xs text-ink-muted underline underline-offset-2"
           >
-            ← Torna al login
+            {t.login.backToLogin}
           </button>
         </div>
       </main>
     );
   }
 
-  // --- Schermate normali: accedi / registrati --------------------------------
   return (
     <main className="flex min-h-dvh items-center justify-center bg-bg px-4">
+      <div className="absolute right-4 top-4">
+        <LanguageSwitcher />
+      </div>
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-xl2 bg-surface p-6 shadow-card"
       >
         <div>
           <h1 className="font-display text-xl font-bold text-ink">
-            {mode === "signup" ? "Crea il tuo account" : "Bentornato"}
+            {mode === "signup" ? t.login.signUpTitle : t.login.signInTitle}
           </h1>
           <p className="text-sm text-ink-muted">
-            {mode === "signup"
-              ? "Per parlare con Vesta e vedere le stanze consigliate"
-              : "Accedi per continuare"}
+            {mode === "signup" ? t.login.signUpSubtitle : t.login.signInSubtitle}
           </p>
         </div>
 
@@ -161,7 +157,7 @@ export default function LoginPage() {
                     : "border-sea-100 text-ink-muted"
                 }`}
               >
-                Sono studente
+                {t.login.roleStudent}
               </button>
               <button
                 type="button"
@@ -172,13 +168,13 @@ export default function LoginPage() {
                     : "border-sea-100 text-ink-muted"
                 }`}
               >
-                Sono proprietario
+                {t.login.roleOwner}
               </button>
             </div>
 
             <input
               type="text"
-              placeholder="Nome e cognome"
+              placeholder={t.login.fullNamePlaceholder}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
@@ -189,7 +185,7 @@ export default function LoginPage() {
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder={t.login.emailPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -198,7 +194,7 @@ export default function LoginPage() {
 
         <input
           type="password"
-          placeholder="Password (minimo 6 caratteri)"
+          placeholder={t.login.passwordPlaceholder}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -212,7 +208,7 @@ export default function LoginPage() {
             onClick={() => switchMode("forgot")}
             className="-mt-2 block text-left text-xs text-sea-700 underline underline-offset-2"
           >
-            Password dimenticata?
+            {t.login.forgotPassword}
           </button>
         )}
 
@@ -227,15 +223,15 @@ export default function LoginPage() {
               className="mt-0.5 h-4 w-4 shrink-0"
             />
             <span>
-              Ho letto e accetto la{" "}
+              {t.login.consentPrefix}{" "}
               <a href="/privacy" target="_blank" className="text-sea-700 underline">
-                Privacy Policy
+                {t.footer.privacy}
               </a>{" "}
-              e i{" "}
+              {t.login.consentAnd}{" "}
               <a href="/termini" target="_blank" className="text-sea-700 underline">
-                Termini di Servizio
+                {t.footer.terms}
               </a>
-              .
+              {t.login.consentSuffix}
             </span>
           </label>
         )}
@@ -245,7 +241,11 @@ export default function LoginPage() {
           disabled={loading}
           className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
         >
-          {loading ? "Un attimo..." : mode === "signup" ? "Registrati" : "Accedi"}
+          {loading
+            ? t.common.loading
+            : mode === "signup"
+              ? t.login.signUpButton
+              : t.login.signInButton}
         </button>
 
         <button
@@ -253,9 +253,7 @@ export default function LoginPage() {
           onClick={() => switchMode(mode === "signup" ? "signin" : "signup")}
           className="w-full text-center text-xs text-ink-muted underline underline-offset-2"
         >
-          {mode === "signup"
-            ? "Hai già un account? Accedi"
-            : "Non hai un account? Registrati"}
+          {mode === "signup" ? t.login.switchToSignIn : t.login.switchToSignUp}
         </button>
       </form>
     </main>

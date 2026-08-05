@@ -39,6 +39,7 @@ interface ChatRequestBody {
   studentId: string;
   message: string;
   history?: ChatHistoryItem[];
+  locale?: "it" | "en";
 }
 
 const MAX_MESSAGE_LENGTH = 2000;
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { studentId, message, history = [] } = body;
+  const { studentId, message, history = [], locale = "it" } = body;
 
   if (!studentId || typeof studentId !== "string") {
     return NextResponse.json(
@@ -202,7 +203,11 @@ export async function POST(request: NextRequest) {
     if (profileError) throw profileError;
 
     if (studentProfile?.polo_univpm && studentProfile?.budget_max) {
-      rooms = await computeRoomMatches(db, studentProfile as StudentProfileRow);
+      rooms = await computeRoomMatches(
+        db,
+        studentProfile as StudentProfileRow,
+        locale,
+      );
     }
   } catch (err) {
     console.error("[api/chat] Errore nel calcolo dei match:", err);

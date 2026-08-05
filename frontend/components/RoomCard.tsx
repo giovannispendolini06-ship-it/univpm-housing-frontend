@@ -1,12 +1,8 @@
+"use client";
+
+import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { RecommendedRoom } from "@/lib/types";
 import MatchScoreRing from "./MatchScoreRing";
-
-const POLO_LABELS: Record<RecommendedRoom["polo"], string> = {
-  monte_dago: "Monte Dago",
-  torrette: "Torrette",
-  centro_economia_giurisprudenza: "Economia · Villarey",
-  altro: "Altro polo",
-};
 
 const WEIGHT_STYLES: Record<
   RecommendedRoom["matchReasons"][number]["weight"],
@@ -18,6 +14,9 @@ const WEIGHT_STYLES: Record<
 };
 
 export default function RoomCard({ room }: { room: RecommendedRoom }) {
+  const { t } = useLocale();
+  const total = room.priceMonthly + room.estimatedUtilities;
+
   return (
     <article className="flex gap-3 rounded-xl2 bg-surface p-3 shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:gap-4 sm:p-4">
       <img
@@ -27,29 +26,30 @@ export default function RoomCard({ room }: { room: RecommendedRoom }) {
       />
 
       <div className="flex min-w-0 flex-1 flex-col gap-2">
-        {/* Titolo + badge match */}
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <h3 className="truncate font-display text-[15px] font-bold text-ink">
               {room.title}
             </h3>
             <p className="text-xs text-ink-muted">
-              {room.zone} · {POLO_LABELS[room.polo]}
+              {room.zone} · {t.roomCard.poloLabels[room.polo]}
             </p>
           </div>
           <MatchScoreRing score={room.matchScore} size={48} />
         </div>
 
-        {/* Prezzo + distanza */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
           <span className="font-display font-bold text-ink">
             {room.priceMonthly}€
             <span className="ml-0.5 font-body text-xs font-normal text-ink-muted">
-              /mese + {room.estimatedUtilities}€ spese
+              {t.roomCard.perMonthUtilities.replace(
+                "{utilities}",
+                String(room.estimatedUtilities),
+              )}
             </span>
           </span>
           <span className="rounded-full bg-sand-400/15 px-2 py-0.5 text-xs font-semibold text-ink">
-            Totale: {room.priceMonthly + room.estimatedUtilities}€/mese
+            {t.roomCard.totalPerMonth.replace("{total}", String(total))}
           </span>
           <span className="inline-flex items-center gap-1 rounded-full bg-sea-50 px-2 py-0.5 text-xs font-medium text-sea-700">
             <svg
@@ -69,7 +69,6 @@ export default function RoomCard({ room }: { room: RecommendedRoom }) {
           </span>
         </div>
 
-        {/* Servizi inclusi */}
         <div className="flex flex-wrap gap-1.5">
           {room.servicesIncluded.map((service) => (
             <span
@@ -81,7 +80,6 @@ export default function RoomCard({ room }: { room: RecommendedRoom }) {
           ))}
         </div>
 
-        {/* Motivazioni AI del match */}
         <ul className="flex flex-col gap-1 border-t border-bg pt-2">
           {room.matchReasons.slice(0, 3).map((reason) => (
             <li key={reason.label} className="flex items-start gap-1.5 text-xs">
@@ -97,10 +95,10 @@ export default function RoomCard({ room }: { room: RecommendedRoom }) {
 
         <div className="mt-auto flex items-center justify-between pt-1">
           <span className="text-[11px] text-ink-muted">
-            Libera dal {room.availableFrom}
+            {t.roomCard.availableFrom.replace("{date}", room.availableFrom)}
           </span>
           <button className="rounded-full bg-sunset-500 px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-sunset-600">
-            Vedi annuncio
+            {t.roomCard.viewListing}
           </button>
         </div>
       </div>
