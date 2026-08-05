@@ -12,8 +12,8 @@ interface ChatPanelProps {
   onSendMessage: (
     text: string,
     history: { role: ChatMessage["role"]; content: string }[],
-  ) => Promise<{ reply: string; rooms?: RecommendedRoom[] }>;
-  onRoomsUpdate?: (rooms: RecommendedRoom[]) => void;
+  ) => Promise<{ reply: string; rooms?: RecommendedRoom[]; waitlisted?: boolean }>;
+  onRoomsUpdate?: (rooms: RecommendedRoom[], waitlisted?: boolean) => void;
 }
 
 export default function ChatPanel({
@@ -55,7 +55,7 @@ export default function ChatPanel({
     setIsTyping(true);
 
     try {
-      const { reply, rooms } = await onSendMessage(text, historyForApi);
+      const { reply, rooms, waitlisted } = await onSendMessage(text, historyForApi);
 
       const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
@@ -65,7 +65,7 @@ export default function ChatPanel({
       };
       setMessages((prev) => [...prev, assistantMessage]);
 
-      if (rooms) onRoomsUpdate?.(rooms);
+      if (rooms) onRoomsUpdate?.(rooms, waitlisted);
     } catch {
       const errorMessage: ChatMessage = {
         id: crypto.randomUUID(),

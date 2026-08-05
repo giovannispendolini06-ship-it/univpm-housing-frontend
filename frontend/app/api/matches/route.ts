@@ -13,6 +13,7 @@ import {
 } from "@/lib/supabase/server";
 import type { StudentProfileRow } from "@/lib/matching";
 import { computeRoomMatches } from "@/lib/matching-rooms";
+import { upsertWaitlistFromStudentProfile } from "@/lib/waitlist";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,6 +64,17 @@ export async function GET(request: NextRequest) {
       studentProfile as StudentProfileRow,
       locale,
     );
+
+    if (rooms.length === 0) {
+      await upsertWaitlistFromStudentProfile(
+        db,
+        studentId,
+        studentProfile,
+        "vesta_chat",
+      );
+      return NextResponse.json({ rooms: [], waitlisted: true });
+    }
+
     return NextResponse.json({ rooms });
   } catch (err) {
     console.error("[api/matches] Errore nel calcolo dei match:", err);
