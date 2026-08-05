@@ -18,6 +18,12 @@
 //
 // e considera "coinquilino attuale" chi ha ended_at is null.
 //
+// NOTA SUI POLI / campus_id: il punteggio distanza usa campus_id (FK a
+// campuses) e property_campus_distances — NON polo_univpm né le colonne
+// legacy distance_* su properties. polo_univpm resta nel profilo per Vesta
+// e i form; campus_id viene risolto in /api/chat dal codice polo che Vesta
+// estrae nel blocco STUDENT_DATA_JSON.
+//
 // NOTA SUL BILINGUISMO: i punteggi (i numeri) sono identici in ogni lingua
 // — cambia solo il testo di label/detail mostrato allo studente. Il
 // parametro "locale" qui sotto sceglie solo quale testo generare, non
@@ -262,7 +268,7 @@ function scoreSociability(
         diff <= 1
           ? isIt
             ? "Frequenza di ospiti/feste in linea con la casa"
-            : "Guest/party frequency in line with the house"
+            : "Frequency of guests/parties in line with the household"
           : isIt
             ? "Frequenza di ospiti/feste diversa da quella dei coinquilini attuali"
             : "Guest/party frequency different from current roommates",

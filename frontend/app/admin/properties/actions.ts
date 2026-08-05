@@ -38,14 +38,16 @@ function numberOrNull(value: FormDataEntryValue | null): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-// Bridge legacy form fields (city text + distance_* columns) into the
-// normalized cities / property_campus_distances tables used by matching v2.
+// Multi-city bridge: il form admin continua a salvare city (testo) e le
+// colonne distance_* su properties; questa sync copia i dati nelle tabelle
+// normalizzate (city_id + property_campus_distances) usate dal matching
+// v2-multicity.
 async function syncPropertyCityAndDistances(
   db: ReturnType<typeof createServiceSupabaseClient>,
   propertyId: string,
   cityName: string,
   distances: {
-    monteDago: number | null;
+    monte_dago: number | null;
     torrette: number | null;
     centro: number | null;
   },
@@ -70,7 +72,7 @@ async function syncPropertyCityAndDistances(
   const campusByName = new Map((campuses ?? []).map((c) => [c.name, c.id]));
 
   const distanceRows = [
-    { campusName: "Monte Dago", km: distances.monteDago },
+    { campusName: "Monte Dago", km: distances.monte_dago },
     { campusName: "Torrette", km: distances.torrette },
     { campusName: "Centro (Economia/Giurisprudenza)", km: distances.centro },
   ]
@@ -153,7 +155,7 @@ export async function createProperty(formData: FormData) {
 
   const cityName = String(formData.get("city") ?? "Ancona").trim() || "Ancona";
   await syncPropertyCityAndDistances(db, property.id, cityName, {
-    monteDago: numberOrNull(formData.get("distance_monte_dago_km")),
+    monte_dago: numberOrNull(formData.get("distance_monte_dago_km")),
     torrette: numberOrNull(formData.get("distance_torrette_km")),
     centro: numberOrNull(formData.get("distance_centro_km")),
   });
@@ -591,7 +593,7 @@ export async function updateProperty(formData: FormData) {
 
   const cityName = String(formData.get("city") ?? "Ancona").trim() || "Ancona";
   await syncPropertyCityAndDistances(db, propertyId, cityName, {
-    monteDago: numberOrNull(formData.get("distance_monte_dago_km")),
+    monte_dago: numberOrNull(formData.get("distance_monte_dago_km")),
     torrette: numberOrNull(formData.get("distance_torrette_km")),
     centro: numberOrNull(formData.get("distance_centro_km")),
   });
