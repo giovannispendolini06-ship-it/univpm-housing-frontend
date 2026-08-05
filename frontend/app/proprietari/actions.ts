@@ -61,7 +61,11 @@ export async function submitOwnerInquiry(formData: FormData): Promise<InquiryRes
   if ((count ?? 0) >= MAX_SUBMISSIONS_PER_HOUR) {
     return {
       error:
+<<<<<<< HEAD
         "Hai inviato troppe richieste in poco tempo. Riprova tra un'ora, o scrivici direttamente a info@coabito.it.",
+=======
+        "Hai inviato troppe richieste in poco tempo. Riprova tra un'ora, o scrivici direttamente a info@bindo.it.",
+>>>>>>> origin/cursor/proprietari-antispam-10ba
     };
   }
 
