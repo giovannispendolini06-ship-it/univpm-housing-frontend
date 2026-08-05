@@ -96,6 +96,14 @@ export default function StudentDashboardPage() {
       .then((res) => (res.ok ? res.json() : { rooms: [] }))
       .then((data) => setRooms(data.rooms ?? []))
       .catch(() => setRooms([]));
+
+    fetch("/api/sync-locale", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ studentId, locale }),
+    }).catch(() => {
+      // Non blocca la dashboard se il salvataggio della lingua fallisce.
+    });
   }, [studentId, locale]);
 
   async function handleSendMessage(
