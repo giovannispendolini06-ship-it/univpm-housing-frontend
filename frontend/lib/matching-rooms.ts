@@ -9,6 +9,22 @@ import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { calculateMatchScore, type StudentProfileRow } from "@/lib/matching";
 import { sendEmail, buildNewRoomMatchEmail } from "@/lib/email";
 
+const ALGORITHM_VERSION = "v2-multicity";
+
+interface PropertyCampusDistanceRow {
+  campus_id: string;
+  distance_km: number | null;
+}
+
+function distanceKmForCampus(
+  distances: PropertyCampusDistanceRow[] | null | undefined,
+  campusId: string | null,
+): number | null {
+  if (!campusId || !distances) return null;
+  const row = distances.find((d) => d.campus_id === campusId);
+  return row?.distance_km ?? null;
+}
+
 export async function computeRoomMatches(
   db: ReturnType<typeof createServiceSupabaseClient>,
   student: StudentProfileRow,
@@ -21,13 +37,15 @@ export async function computeRoomMatches(
       id, price_monthly, estimated_utilities, is_available, room_label,
       services_included, available_from,
       properties:property_id!inner (
-        id, zone, distance_monte_dago_km, distance_torrette_km, distance_centro_km, city, status
+        id, zone, status,
+        cities:city_id!inner ( id, name, is_active ),
+        property_campus_distances ( campus_id, distance_km )
       )
     `,
     )
     .eq("is_available", true)
-    .eq("properties.city", "Ancona")
     .eq("properties.status", "attivo")
+    .eq("properties.cities.is_active", true)
     .limit(50);
 
   if (roomsError) throw roomsError;
@@ -79,12 +97,17 @@ export async function computeRoomMatches(
   const enrichedRooms = roomsData.map((room: any) => {
     const property = room.properties;
     const roommates = roommatesByProperty.get(property?.id) ?? [];
+    const distanceKm = distanceKmForCampus(
+      property?.property_campus_distances,
+      student.campus_id,
+    );
 
     const { score, reasoning } = calculateMatchScore(
       student,
       room,
       property,
       roommates,
+      distanceKm,
       locale,
     );
 
@@ -93,7 +116,7 @@ export async function computeRoomMatches(
       room_id: room.id,
       compatibility_score: score,
       ai_reasoning: { reasons: reasoning },
-      algorithm_version: "v1",
+      algorithm_version: ALGORITHM_VERSION,
     });
 
     return {
@@ -126,11 +149,6 @@ export async function computeRoomMatches(
 // ogni volta che una stanza viene creata o modificata, così i match restano
 // aggiornati anche per chi si era registrato tempo fa e non torna a
 // chattare — non serve più aspettare un nuovo messaggio a Vesta.
-//
-// Nota sulle prestazioni: gira su tutti gli studenti con un profilo
-// abbastanza completo (polo + budget). Con decine o poche centinaia di
-// studenti è istantaneo; se in futuro ne avrai migliaia, vale la pena
-// spostarlo in un job in background invece che dentro la richiesta admin.
 // ---------------------------------------------------------------------------
 export async function recalculateMatchesForRoom(
   db: ReturnType<typeof createServiceSupabaseClient>,
@@ -143,7 +161,8 @@ export async function recalculateMatchesForRoom(
       `
       id, room_label, price_monthly, estimated_utilities, is_available,
       properties:property_id (
-        id, zone, distance_monte_dago_km, distance_torrette_km, distance_centro_km
+        id, zone,
+        property_campus_distances ( campus_id, distance_km )
       )
     `,
     )
@@ -161,7 +180,7 @@ export async function recalculateMatchesForRoom(
   const { data: students } = await db
     .from("student_profiles")
     .select("*")
-    .not("polo_univpm", "is", null)
+    .not("campus_id", "is", null)
     .not("budget_max", "is", null);
 
   if (!students || students.length === 0) return;
@@ -184,18 +203,23 @@ export async function recalculateMatchesForRoom(
     : { data: [] as StudentProfileRow[] };
 
   const matchRows = (students as StudentProfileRow[]).map((student) => {
+    const distanceKm = distanceKmForCampus(
+      property.property_campus_distances,
+      student.campus_id,
+    );
     const { score, reasoning } = calculateMatchScore(
       student,
       room as any,
       property,
       (roommateProfiles ?? []) as StudentProfileRow[],
+      distanceKm,
     );
     return {
       student_id: student.user_id,
       room_id: roomId,
       compatibility_score: score,
       ai_reasoning: { reasons: reasoning },
-      algorithm_version: "v1",
+      algorithm_version: ALGORITHM_VERSION,
     };
   });
 
@@ -207,9 +231,6 @@ export async function recalculateMatchesForRoom(
     console.error("[matching-rooms] Errore ricalcolo match per la stanza:", error);
   }
 
-  // --- Vesta proattiva: se è una stanza VERAMENTE nuova (non una
-  // modifica), avvisa in chat gli studenti per cui il match è alto,
-  // invece di lasciare che lo scoprano solo tornando sul sito da soli.
   if (notifyStudents) {
     const HIGH_MATCH_THRESHOLD = 75;
     const notifyRows = matchRows.filter((m) => m.compatibility_score >= HIGH_MATCH_THRESHOLD);
@@ -217,10 +238,6 @@ export async function recalculateMatchesForRoom(
     if (notifyRows.length > 0) {
       const zoneLabel = property.zone ? ` a ${property.zone}` : "";
 
-      // Ogni studente potrebbe avere una lingua preferita diversa: la
-      // leggiamo dal profilo (sincronizzata dal client mentre naviga il
-      // sito), non dal cookie — qui siamo lato server, il cookie del
-      // browser di quello specifico studente non è raggiungibile.
       const notifyStudentIds = notifyRows.map((m) => m.student_id);
       const { data: notifyUsers } = await db
         .from("users")

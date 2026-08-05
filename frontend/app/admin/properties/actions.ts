@@ -38,6 +38,62 @@ function numberOrNull(value: FormDataEntryValue | null): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+// Bridge legacy form fields (city text + distance_* columns) into the
+// normalized cities / property_campus_distances tables used by matching v2.
+async function syncPropertyCityAndDistances(
+  db: ReturnType<typeof createServiceSupabaseClient>,
+  propertyId: string,
+  cityName: string,
+  distances: {
+    monteDago: number | null;
+    torrette: number | null;
+    centro: number | null;
+  },
+) {
+  const { data: city } = await db
+    .from("cities")
+    .select("id")
+    .eq("name", cityName)
+    .maybeSingle();
+
+  if (city?.id) {
+    await db.from("properties").update({ city_id: city.id }).eq("id", propertyId);
+  }
+
+  if (!city?.id) return;
+
+  const { data: campuses } = await db
+    .from("campuses")
+    .select("id, name")
+    .eq("city_id", city.id);
+
+  const campusByName = new Map((campuses ?? []).map((c) => [c.name, c.id]));
+
+  const distanceRows = [
+    { campusName: "Monte Dago", km: distances.monteDago },
+    { campusName: "Torrette", km: distances.torrette },
+    { campusName: "Centro (Economia/Giurisprudenza)", km: distances.centro },
+  ]
+    .filter((d) => d.km !== null)
+    .map((d) => ({
+      property_id: propertyId,
+      campus_id: campusByName.get(d.campusName),
+      distance_km: d.km,
+    }))
+    .filter((row): row is { property_id: string; campus_id: string; distance_km: number } =>
+      Boolean(row.campus_id),
+    );
+
+  if (distanceRows.length > 0) {
+    const { error } = await db
+      .from("property_campus_distances")
+      .upsert(distanceRows, { onConflict: "property_id,campus_id" });
+    if (error) {
+      console.error("[syncPropertyCityAndDistances] upsert error:", error);
+    }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Crea un immobile (properties) + la sua prima stanza (rooms) in un solo
 // passaggio. Se arriva da un lead esterno (lead_id in formData), collega
@@ -94,6 +150,13 @@ export async function createProperty(formData: FormData) {
   if (propertyError || !property) {
     throw new Error(`Errore nella creazione dell'immobile: ${propertyError?.message}`);
   }
+
+  const cityName = String(formData.get("city") ?? "Ancona").trim() || "Ancona";
+  await syncPropertyCityAndDistances(db, property.id, cityName, {
+    monteDago: numberOrNull(formData.get("distance_monte_dago_km")),
+    torrette: numberOrNull(formData.get("distance_torrette_km")),
+    centro: numberOrNull(formData.get("distance_centro_km")),
+  });
 
   // --- 2. Crea la prima stanza -----------------------------------------------
   const services = formData.getAll("services_included").map(String);
@@ -525,6 +588,13 @@ export async function updateProperty(formData: FormData) {
     .eq("id", propertyId);
 
   if (error) throw new Error(`Errore nell'aggiornamento: ${error.message}`);
+
+  const cityName = String(formData.get("city") ?? "Ancona").trim() || "Ancona";
+  await syncPropertyCityAndDistances(db, propertyId, cityName, {
+    monteDago: numberOrNull(formData.get("distance_monte_dago_km")),
+    torrette: numberOrNull(formData.get("distance_torrette_km")),
+    centro: numberOrNull(formData.get("distance_centro_km")),
+  });
 
   revalidatePath(`/admin/properties/${propertyId}`);
   redirect(`/admin/properties/${propertyId}`);
