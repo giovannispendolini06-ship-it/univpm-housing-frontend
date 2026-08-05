@@ -11,14 +11,17 @@ const NAV_LINKS = [
   { href: "/admin/inquiries", label: "Richieste" },
   { href: "/admin/leads", label: "Annunci esterni" },
   { href: "/admin/properties", label: "Immobili" },
+  { href: "/admin/payments", label: "Pagamenti" },
 ];
 
 export default function AdminNav({
   newInquiriesCount,
   newLeadsCount,
+  latePaymentsCount = 0,
 }: {
   newInquiriesCount: number;
   newLeadsCount: number;
+  latePaymentsCount?: number;
 }) {
   const pathname = usePathname();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -95,6 +98,20 @@ export default function AdminNav({
                 <span>Annunci da lavorare</span>
                 <span className="rounded-full bg-sea-600 px-2 py-0.5 text-xs font-bold text-white">
                   {newLeadsCount}
+                </span>
+              </Link>
+              <Link
+                href="/admin/payments"
+                onClick={() => setIsDrawerOpen(false)}
+                className="flex items-center justify-between rounded-xl2 bg-sea-50 px-4 py-3 text-sm font-medium text-ink transition hover:bg-sea-100"
+              >
+                <span>Pagamenti in ritardo</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-bold text-white ${
+                    latePaymentsCount > 0 ? "bg-sunset-500" : "bg-sea-600"
+                  }`}
+                >
+                  {latePaymentsCount}
                 </span>
               </Link>
             </div>

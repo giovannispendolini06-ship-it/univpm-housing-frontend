@@ -12,16 +12,21 @@ export default async function AdminLayout({
   // visibili da qualsiasi pagina del pannello admin senza doverci navigare.
   const db = createServiceSupabaseClient();
 
-  const [{ count: newInquiriesCount }, { count: newLeadsCount }] = await Promise.all([
-    db
-      .from("owner_inquiries")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "nuovo"),
-    db
-      .from("leads_external")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "nuovo"),
-  ]);
+  const [{ count: newInquiriesCount }, { count: newLeadsCount }, { count: latePaymentsCount }] =
+    await Promise.all([
+      db
+        .from("owner_inquiries")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "nuovo"),
+      db
+        .from("leads_external")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "nuovo"),
+      db
+        .from("rent_payments")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "in_ritardo"),
+    ]);
 
   return (
     <div className="min-h-dvh bg-bg">
@@ -34,6 +39,7 @@ export default async function AdminLayout({
             <AdminNav
               newInquiriesCount={newInquiriesCount ?? 0}
               newLeadsCount={newLeadsCount ?? 0}
+              latePaymentsCount={latePaymentsCount ?? 0}
             />
           </div>
           <div className="flex items-center gap-3">

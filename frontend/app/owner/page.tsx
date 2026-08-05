@@ -46,7 +46,7 @@ export default async function OwnerDashboardPage() {
 
   const { data: properties } = await db
     .from("properties")
-    .select("id, address, zone, status, monthly_rent_to_owner, rooms(id, room_label, price_monthly, is_available)")
+    .select("id, address, zone, status, monthly_rent_to_owner, rooms(id, room_label, is_available)")
     .eq("owner_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -133,8 +133,7 @@ export default async function OwnerDashboardPage() {
                       <div>
                         <p className="text-sm text-ink">{room.room_label}</p>
                         <p className="text-[11px] text-ink-muted">
-                          {room.price_monthly}€/mese ·{" "}
-                          {room.is_available ? "libera" : "occupata"}
+                          {room.is_available ? "Libera" : "Occupata"}
                         </p>
                       </div>
                       {room.is_available && (matchCountByRoom.get(room.id) ?? 0) > 0 && (
