@@ -31,9 +31,9 @@ export default async function AdminLayout({
   return (
     <div className="min-h-dvh bg-bg">
       <header className="sticky top-0 z-40 border-b border-sea-100 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-6">
-          <div className="flex items-center gap-4">
-            <span className="font-display text-sm font-bold text-ink">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-3 py-2.5 sm:px-6 sm:py-3">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="hidden font-display text-sm font-bold text-ink sm:inline">
               Pannello admin
             </span>
             <AdminNav
@@ -42,12 +42,12 @@ export default async function AdminLayout({
               latePaymentsCount={latePaymentsCount ?? 0}
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/dashboard"
               className="text-xs text-ink-muted underline underline-offset-2"
             >
-              ← Torna al sito
+              ← Sito
             </Link>
             <SignOutButton />
           </div>

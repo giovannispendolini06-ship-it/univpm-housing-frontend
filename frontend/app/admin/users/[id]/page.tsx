@@ -86,7 +86,7 @@ export default async function EditUserPage({
             <h2 className="mb-3 font-display text-sm font-bold text-ink">
               Margine su tutti i suoi immobili
             </h2>
-            <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="grid grid-cols-1 gap-3 text-center sm:grid-cols-3">
               <div>
                 <p className="text-[11px] text-ink-muted">Incasso da studenti</p>
                 <p className="mt-0.5 font-display text-base font-bold text-ink">
