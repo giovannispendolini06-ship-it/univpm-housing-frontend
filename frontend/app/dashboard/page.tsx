@@ -5,6 +5,8 @@ import Link from "next/link";
 import ChatPanel from "@/components/ChatPanel";
 import RoomList from "@/components/RoomList";
 import SignOutButton from "@/components/SignOutButton";
+import DeleteAccountButton from "@/components/DeleteAccountButton";
+import LoadingRing from "@/components/LoadingRing";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 
@@ -129,16 +131,19 @@ export default function StudentDashboardPage() {
 
   return (
     <main className="relative h-dvh bg-bg">
-      <div className="fixed right-3 top-3 z-50 flex items-center gap-2">
-        {isAdmin && (
-          <Link
-            href="/admin"
-            className="rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white shadow-card"
-          >
-            Admin
-          </Link>
-        )}
-        <SignOutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card" />
+      <div className="fixed right-3 top-3 z-50 flex flex-col items-end gap-1.5">
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white shadow-card"
+            >
+              Admin
+            </Link>
+          )}
+          <SignOutButton className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card" />
+        </div>
+        <DeleteAccountButton className="rounded-full bg-white/70 px-2 py-1 text-[10px] text-ink-muted underline underline-offset-2 transition hover:text-sunset-600" />
       </div>
 
       {/* Tab bar solo mobile */}
@@ -166,8 +171,9 @@ export default function StudentDashboardPage() {
               onRoomsUpdate={setRooms}
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-ink-muted">
-              Caricamento...
+            <div className="flex h-full flex-col items-center justify-center gap-3">
+              <LoadingRing size={36} />
+              <p className="text-sm text-ink-muted">Sto ritrovando la tua chat...</p>
             </div>
           )}
         </div>

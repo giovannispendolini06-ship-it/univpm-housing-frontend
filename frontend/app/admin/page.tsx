@@ -5,22 +5,27 @@ import {
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
 import AdminInsight from "./AdminInsight";
+import AnimatedNumber from "@/components/AnimatedNumber";
 
 export const dynamic = "force-dynamic";
 
 function StatCard({
   label,
   value,
+  suffix,
   hint,
 }: {
   label: string;
-  value: string | number;
+  value: number;
+  suffix?: string;
   hint?: string;
 }) {
   return (
     <div className="rounded-xl2 bg-surface p-4 shadow-card">
       <p className="text-xs font-medium text-ink-muted">{label}</p>
-      <p className="mt-1 font-display text-2xl font-bold text-ink">{value}</p>
+      <p className="mt-1 font-display text-2xl font-bold text-ink">
+        <AnimatedNumber value={value} suffix={suffix} />
+      </p>
       {hint && <p className="mt-0.5 text-[11px] text-ink-muted">{hint}</p>}
     </div>
   );
@@ -95,17 +100,20 @@ export default async function AdminDashboardPage() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <StatCard
               label="Ricavo dagli studenti"
-              value={`${monthlyRevenue.toLocaleString("it-IT")}€`}
+              value={monthlyRevenue}
+              suffix="€"
               hint="Somma prezzi stanze occupate"
             />
             <StatCard
               label="Costo verso proprietari"
-              value={`${monthlyCost.toLocaleString("it-IT")}€`}
+              value={monthlyCost}
+              suffix="€"
               hint="Canoni degli immobili occupati"
             />
             <StatCard
               label="Margine stimato"
-              value={`${monthlyMargin.toLocaleString("it-IT")}€`}
+              value={monthlyMargin}
+              suffix="€"
               hint={monthlyMargin >= 0 ? "In positivo" : "In negativo"}
             />
           </div>

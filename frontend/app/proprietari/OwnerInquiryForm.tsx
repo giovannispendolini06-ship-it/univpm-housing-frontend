@@ -25,7 +25,7 @@ export default function OwnerInquiryForm() {
 
   if (success) {
     return (
-      <div className="rounded-xl2 bg-sea-50 p-6 text-center shadow-card">
+      <div className="animate-pop-in rounded-xl2 bg-sea-50 p-6 text-center shadow-card">
         <p className="font-display text-base font-bold text-sea-700">
           Richiesta ricevuta! 🎉
         </p>

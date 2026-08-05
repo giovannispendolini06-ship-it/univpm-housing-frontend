@@ -19,7 +19,7 @@ const WEIGHT_STYLES: Record<
 
 export default function RoomCard({ room }: { room: RecommendedRoom }) {
   return (
-    <article className="flex gap-3 rounded-xl2 bg-surface p-3 shadow-card transition hover:shadow-lg sm:gap-4 sm:p-4">
+    <article className="flex gap-3 rounded-xl2 bg-surface p-3 shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:gap-4 sm:p-4">
       <img
         src={room.imageUrl}
         alt={room.title}

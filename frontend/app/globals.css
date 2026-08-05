@@ -5,9 +5,32 @@
 @layer base {
   html {
     @apply bg-bg text-ink;
+    position: relative;
   }
   body {
     @apply font-body antialiased;
+  }
+  /* Grana sottilissima sullo sfondo: rompe l'effetto "troppo piatto e
+     vettoriale" tipico delle interfacce fatte rapidamente, senza
+     appesantire il caricamento (è generata via CSS, zero immagini). */
+  html::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.025;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  /* Feedback tattile su OGNI bottone del sito: un piccolo "schiacciamento"
+     al tocco/click. Si sente più che si vede, ma è la differenza tra
+     un'interfaccia statica e una che risponde davvero alla persona. */
+  button:not(:disabled) {
+    transition: transform 0.1s ease-out;
+  }
+  button:not(:disabled):active {
+    transform: scale(0.96);
   }
   /* Focus visibile per accessibilità da tastiera */
   :focus-visible {
@@ -16,6 +39,37 @@
 }
 
 @layer utilities {
+  /* Ingresso morbido dal basso: usato per messaggi in chat, schede
+     stanza, conferme — qualsiasi cosa compaia dinamicamente. */
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.35s ease-out both;
+  }
+
+  /* Ingresso con un piccolo "pop": usato per conferme di successo. */
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .animate-pop-in {
+    animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: theme("colors.sea.100") transparent;
