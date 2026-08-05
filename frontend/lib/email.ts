@@ -380,50 +380,43 @@ export function buildPaymentLateEmail(input: {
   fullName: string;
   amountDue: number;
   periodLabel: string;
-  locale?: EmailLocale;
+  locale?: "it" | "en";
 }) {
-  const locale = input.locale === "en" ? "en" : "it";
+  const locale = input.locale ?? "it";
   const isEn = locale === "en";
-  const amountFormatted = isEn
-    ? `€${input.amountDue}`
-    : `${input.amountDue.toLocaleString("it-IT")}€`;
 
   const bodyHtml = isEn
     ? `
     <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
-      Hi ${input.fullName}, your rent is overdue
+      Hi ${input.fullName}, a quick reminder
     </h1>
     <p style="margin:0 0 16px; color:${COLORS.ink};">
-      We haven't recorded your rent payment of <strong>${amountFormatted}</strong> for
-      <strong>${input.periodLabel}</strong>.
+      We haven't received your payment of <strong>${input.amountDue}€</strong> for
+      <strong>${input.periodLabel}</strong> yet. If you've already sent it, just ignore this —
+      it can take a couple of days to show up. Otherwise, could you take care of it when you get a chance?
     </p>
-    <p style="margin:0 0 16px; color:${COLORS.inkMuted};">
-      If you've already paid, please get in touch so we can update your record.
-      Otherwise, please arrange payment as soon as possible.
+    <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
+      Questions about the payment? Just reply to this email.
     </p>
-    ${ctaButton("View my home", `${SITE_URL}/dashboard`)}
   `
     : `
     <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
-      Ciao ${input.fullName}, il tuo affitto risulta in ritardo
+      Ciao ${input.fullName}, un promemoria veloce
     </h1>
     <p style="margin:0 0 16px; color:${COLORS.ink};">
-      Non abbiamo ancora registrato il pagamento dell'affitto di <strong>${amountFormatted}</strong>
-      per <strong>${input.periodLabel}</strong>.
+      Non ci risulta ancora arrivato il pagamento di <strong>${input.amountDue}€</strong> per
+      <strong>${input.periodLabel}</strong>. Se l'hai già inviato, ignora pure questo messaggio —
+      a volte ci vuole qualche giorno perché risulti. Altrimenti, puoi occupartene quando hai un attimo?
     </p>
-    <p style="margin:0 0 16px; color:${COLORS.inkMuted};">
-      Se hai già pagato, scrivici così aggiorniamo la situazione.
-      Altrimenti, ti chiediamo di provvedere al pagamento il prima possibile.
+    <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
+      Domande sul pagamento? Rispondi pure a questa email.
     </p>
-    ${ctaButton("Vai alla mia casa", `${SITE_URL}/dashboard`)}
   `;
 
   return {
     subject: isEn ? "Payment reminder" : "Promemoria pagamento",
     html: renderEmailLayout({
-      preheader: isEn
-        ? `Your rent for ${input.periodLabel} has not been recorded yet`
-        : `Il pagamento dell'affitto di ${input.periodLabel} non risulta ancora registrato`,
+      preheader: isEn ? "A quick reminder about your rent" : "Un promemoria veloce sull'affitto",
       bodyHtml,
       locale,
     }),
@@ -431,54 +424,41 @@ export function buildPaymentLateEmail(input: {
 }
 
 // ----------------------------------------------------------------------------
-// Email 7: conferma pagamento ricevuto
+// Email 7: a uno studente, conferma di un pagamento ricevuto
 // ----------------------------------------------------------------------------
 export function buildPaymentConfirmedEmail(input: {
   fullName: string;
   amountDue: number;
   periodLabel: string;
-  locale?: EmailLocale;
+  locale?: "it" | "en";
 }) {
-  const locale = input.locale === "en" ? "en" : "it";
+  const locale = input.locale ?? "it";
   const isEn = locale === "en";
-  const amountFormatted = isEn
-    ? `€${input.amountDue}`
-    : `${input.amountDue.toLocaleString("it-IT")}€`;
 
   const bodyHtml = isEn
     ? `
     <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
-      Payment received — thank you, ${input.fullName}! ✓
+      Thanks, ${input.fullName}! ✓
     </h1>
-    <p style="margin:0 0 16px; color:${COLORS.ink};">
-      We've recorded your rent payment of <strong>${amountFormatted}</strong> for
-      <strong>${input.periodLabel}</strong>.
+    <p style="margin:0; color:${COLORS.ink};">
+      We've marked your payment of <strong>${input.amountDue}€</strong> for
+      <strong>${input.periodLabel}</strong> as received. Nothing else to do — see you next month.
     </p>
-    <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
-      You can check the status anytime in the "My home" section of your dashboard.
-    </p>
-    ${ctaButton("View my home", `${SITE_URL}/dashboard`)}
   `
     : `
     <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
-      Pagamento ricevuto — grazie, ${input.fullName}! ✓
+      Grazie, ${input.fullName}! ✓
     </h1>
-    <p style="margin:0 0 16px; color:${COLORS.ink};">
-      Abbiamo registrato il tuo pagamento di <strong>${amountFormatted}</strong> per
-      <strong>${input.periodLabel}</strong>.
+    <p style="margin:0; color:${COLORS.ink};">
+      Abbiamo segnato come ricevuto il tuo pagamento di <strong>${input.amountDue}€</strong> per
+      <strong>${input.periodLabel}</strong>. Nessun'altra azione da fare — ci vediamo il mese prossimo.
     </p>
-    <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
-      Puoi controllare lo stato in qualsiasi momento nella sezione "La mia casa" della tua area.
-    </p>
-    ${ctaButton("Vai alla mia casa", `${SITE_URL}/dashboard`)}
   `;
 
   return {
     subject: isEn ? "Payment received, thank you" : "Pagamento ricevuto, grazie",
     html: renderEmailLayout({
-      preheader: isEn
-        ? `Your rent for ${input.periodLabel} has been recorded`
-        : `Il tuo affitto di ${input.periodLabel} risulta pagato`,
+      preheader: isEn ? "Your payment has been confirmed" : "Il tuo pagamento è stato confermato",
       bodyHtml,
       locale,
     }),

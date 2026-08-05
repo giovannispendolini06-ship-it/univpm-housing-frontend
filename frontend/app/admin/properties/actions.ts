@@ -362,16 +362,18 @@ export async function createTenancy(formData: FormData) {
     console.error("[createTenancy] Errore generazione checklist:", err);
   }
 
-  if (student.email && checklistResult) {
-    const moveInEmail = buildMoveInEmail({
+  // Email di benvenuto in casa, con la checklist appena generata (se
+  // disponibile). Non blocca mai la registrazione se fallisce.
+  if (student.email) {
+    const { subject, html } = buildMoveInEmail({
       fullName: student.full_name ?? "",
-      roomLabel: checklistResult.roomLabel,
-      address: checklistResult.address,
+      roomLabel: checklistResult?.roomLabel ?? "",
+      address: checklistResult?.address ?? "",
       startedAt,
-      checklist: checklistResult.checklist,
+      checklist: checklistResult?.checklist ?? null,
       locale: studentLocale,
     });
-    sendEmail({ to: student.email, ...moveInEmail });
+    sendEmail({ to: student.email, subject, html });
   }
 
   revalidatePath(`/admin/properties/${propertyId}`);
