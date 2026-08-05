@@ -13,6 +13,8 @@ function getResendClient(): Resend | null {
 // 2) aggiorna questa riga con qualcosa tipo "Coabito <info@tuodominio.it>".
 const FROM_ADDRESS = "Coabito <onboarding@resend.dev>";
 
+type EmailLocale = "it" | "en";
+
 interface SendEmailInput {
   to: string;
   subject: string;
@@ -57,16 +59,38 @@ const COLORS = {
   sunset500: "#FF6B4A",
 };
 
+const LAYOUT_COPY: Record<
+  EmailLocale,
+  { tagline: string; footer: string; questionsLabel: string }
+> = {
+  it: {
+    tagline: "Trova casa chattando, non scorrendo annunci a caso.",
+    footer:
+      "Coabito aiuta chi studia fuori sede a trovare casa vicino al proprio ateneo, e i proprietari ad affittare senza perdite di tempo.",
+    questionsLabel: "Domande? Scrivici a",
+  },
+  en: {
+    tagline: "Find a home by chatting, not by scrolling random listings.",
+    footer:
+      "Coabito helps out-of-town students find housing near their university, and helps landlords rent without wasting time.",
+    questionsLabel: "Questions? Email us at",
+  },
+};
+
 function renderEmailLayout({
   preheader,
   bodyHtml,
+  locale = "it",
 }: {
   preheader: string;
   bodyHtml: string;
+  locale?: EmailLocale;
 }): string {
+  const copy = LAYOUT_COPY[locale];
+
   return `
 <!doctype html>
-<html lang="it">
+<html lang="${locale}">
   <body style="margin:0; padding:0; background-color:${COLORS.bg}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
     <span style="display:none; font-size:1px; color:${COLORS.bg}; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">
       ${preheader}
@@ -90,7 +114,7 @@ function renderEmailLayout({
                   </tr>
                 </table>
                 <p style="margin:14px 0 0; color:${COLORS.sea100}; font-size:13px; line-height:1.5;">
-                  Trova casa chattando, non scorrendo annunci a caso.
+                  ${copy.tagline}
                 </p>
               </td>
             </tr>
@@ -106,10 +130,8 @@ function renderEmailLayout({
             <tr>
               <td style="padding:20px 32px; background-color:${COLORS.bg}; border-top:1px solid ${COLORS.sea100};">
                 <p style="margin:0; font-size:12px; color:${COLORS.inkMuted}; line-height:1.6;">
-                  Coabito aiuta chi studia fuori sede a trovare casa vicino al
-                  proprio ateneo, e i proprietari ad affittare senza perdite
-                  di tempo.<br />
-                  Domande? Scrivici a
+                  ${copy.footer}<br />
+                  ${copy.questionsLabel}
                   <a href="mailto:info@coabito.it" style="color:${COLORS.sea600};">info@coabito.it</a>
                 </p>
               </td>
@@ -128,6 +150,20 @@ function ctaButton(label: string, href: string): string {
     <a href="${href}" style="display:inline-block; background-color:${COLORS.sunset500}; color:#ffffff; text-decoration:none; padding:12px 26px; border-radius:999px; font-size:14px; font-weight:600; margin-top:8px;">
       ${label}
     </a>`;
+}
+
+function checklistHtml(items: string[]): string {
+  if (items.length === 0) return "";
+  const listItems = items.map((item) => `<li style="margin:0 0 8px;">${item}</li>`).join("");
+  return `<ul style="margin:12px 0 0; padding-left:20px; color:${COLORS.ink};">${listItems}</ul>`;
+}
+
+function formatPeriodMonth(periodMonth: string, locale: EmailLocale): string {
+  const date = new Date(periodMonth);
+  return date.toLocaleDateString(locale === "en" ? "en-GB" : "it-IT", {
+    month: "long",
+    year: "numeric",
+  });
 }
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://univpm-housing-frontend.vercel.app";
@@ -225,6 +261,254 @@ export function buildWelcomeEmail(input: { fullName: string; role: "student" | "
     html: renderEmailLayout({
       preheader: "Il tuo profilo è pronto",
       bodyHtml,
+    }),
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Email 4: nuova stanza compatibile (notifica proattiva Vesta)
+// ----------------------------------------------------------------------------
+export function buildNewRoomMatchEmail(input: {
+  fullName: string;
+  roomLabel: string;
+  zone?: string | null;
+  priceMonthly: number;
+  matchScore: number;
+  locale: EmailLocale;
+}) {
+  const locale = input.locale === "en" ? "en" : "it";
+  const zonePart =
+    input.zone && locale === "it"
+      ? ` a ${input.zone}`
+      : input.zone && locale === "en"
+        ? ` in ${input.zone}`
+        : "";
+
+  const bodyHtml =
+    locale === "en"
+      ? `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Hi ${input.fullName}, a new room for you! 🏠
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Vesta found a new room that might interest you:
+      <strong>${input.roomLabel}</strong>${zonePart}, €${input.priceMonthly}/month,
+      <strong>${input.matchScore}%</strong> compatibility.
+    </p>
+    <p style="margin:0 0 16px; color:${COLORS.inkMuted};">
+      Open your dashboard to see the suggested rooms and chat with Vesta for more details.
+    </p>
+    ${ctaButton("View suggested rooms", `${SITE_URL}/dashboard`)}
+  `
+      : `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Ciao ${input.fullName}, una stanza nuova per te! 🏠
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Vesta ha trovato una stanza nuova che potrebbe interessarti:
+      <strong>${input.roomLabel}</strong>${zonePart}, ${input.priceMonthly}€/mese,
+      compatibilità <strong>${input.matchScore}%</strong>.
+    </p>
+    <p style="margin:0 0 16px; color:${COLORS.inkMuted};">
+      Apri la tua area per vedere le stanze proposte e chatta con Vesta per i dettagli.
+    </p>
+    ${ctaButton("Vedi le stanze proposte", `${SITE_URL}/dashboard`)}
+  `;
+
+  return {
+    subject:
+      locale === "en"
+        ? `New compatible room: ${input.roomLabel}`
+        : `Nuova stanza compatibile: ${input.roomLabel}`,
+    html: renderEmailLayout({
+      preheader:
+        locale === "en"
+          ? `A new room with ${input.matchScore}% compatibility is waiting for you`
+          : `Una nuova stanza con compatibilità ${input.matchScore}% ti aspetta`,
+      bodyHtml,
+      locale,
+    }),
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Email 5: trasloco — checklist personalizzata dopo la registrazione affitto
+// ----------------------------------------------------------------------------
+export function buildMoveInEmail(input: {
+  fullName: string;
+  roomLabel: string;
+  address: string;
+  checklist: string[];
+  locale: EmailLocale;
+}) {
+  const locale = input.locale === "en" ? "en" : "it";
+
+  const bodyHtml =
+    locale === "en"
+      ? `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Welcome to your new home, ${input.fullName}! 🎉
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Your tenancy for <strong>${input.roomLabel}</strong> at ${input.address} is confirmed.
+      Here is a personalised move-in checklist to help you get started:
+    </p>
+    ${checklistHtml(input.checklist)}
+    <p style="margin:16px 0 0; color:${COLORS.inkMuted}; font-size:13px;">
+      You can also find this checklist in the "My home" section of your dashboard.
+    </p>
+    ${ctaButton("Go to my dashboard", `${SITE_URL}/dashboard`)}
+  `
+      : `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Benvenuto/a nella tua nuova casa, ${input.fullName}! 🎉
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Il tuo affitto per <strong>${input.roomLabel}</strong> in ${input.address} è confermato.
+      Ecco una checklist di trasloco personalizzata per iniziare al meglio:
+    </p>
+    ${checklistHtml(input.checklist)}
+    <p style="margin:16px 0 0; color:${COLORS.inkMuted}; font-size:13px;">
+      Trovi la stessa checklist anche nella sezione "La mia casa" della tua area personale.
+    </p>
+    ${ctaButton("Vai alla tua area", `${SITE_URL}/dashboard`)}
+  `;
+
+  return {
+    subject: locale === "en" ? "Your move-in checklist is ready" : "La tua checklist di trasloco è pronta",
+    html: renderEmailLayout({
+      preheader:
+        locale === "en"
+          ? `Everything you need before moving into ${input.roomLabel}`
+          : `Tutto quello che ti serve prima di traslocare in ${input.roomLabel}`,
+      bodyHtml,
+      locale,
+    }),
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Email 6: promemoria affitto in ritardo
+// ----------------------------------------------------------------------------
+export function buildPaymentLateEmail(input: {
+  fullName: string;
+  roomLabel: string;
+  amountDue: number;
+  periodMonth: string;
+  locale: EmailLocale;
+}) {
+  const locale = input.locale === "en" ? "en" : "it";
+  const monthLabel = formatPeriodMonth(input.periodMonth, locale);
+  const amountFormatted =
+    locale === "en"
+      ? `€${input.amountDue}`
+      : `${input.amountDue.toLocaleString("it-IT")}€`;
+
+  const bodyHtml =
+    locale === "en"
+      ? `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Hi ${input.fullName}, your rent is overdue
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      We haven't recorded your rent payment for <strong>${monthLabel}</strong>
+      for <strong>${input.roomLabel}</strong> (${amountFormatted}).
+    </p>
+    <p style="margin:0 0 16px; color:${COLORS.inkMuted};">
+      If you've already paid, please get in touch so we can update your record.
+      Otherwise, please arrange payment as soon as possible.
+    </p>
+    ${ctaButton("View my home", `${SITE_URL}/dashboard`)}
+  `
+      : `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Ciao ${input.fullName}, il tuo affitto risulta in ritardo
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Non abbiamo ancora registrato il pagamento dell'affitto di <strong>${monthLabel}</strong>
+      per <strong>${input.roomLabel}</strong> (${amountFormatted}).
+    </p>
+    <p style="margin:0 0 16px; color:${COLORS.inkMuted};">
+      Se hai già pagato, scrivici così aggiorniamo la situazione.
+      Altrimenti, ti chiediamo di provvedere al pagamento il prima possibile.
+    </p>
+    ${ctaButton("Vai alla mia casa", `${SITE_URL}/dashboard`)}
+  `;
+
+  return {
+    subject:
+      locale === "en"
+        ? `Rent overdue — ${monthLabel}`
+        : `Affitto in ritardo — ${monthLabel}`,
+    html: renderEmailLayout({
+      preheader:
+        locale === "en"
+          ? `Your rent for ${monthLabel} has not been recorded yet`
+          : `Il pagamento dell'affitto di ${monthLabel} non risulta ancora registrato`,
+      bodyHtml,
+      locale,
+    }),
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Email 7: conferma pagamento ricevuto
+// ----------------------------------------------------------------------------
+export function buildPaymentConfirmedEmail(input: {
+  fullName: string;
+  roomLabel: string;
+  amountDue: number;
+  periodMonth: string;
+  locale: EmailLocale;
+}) {
+  const locale = input.locale === "en" ? "en" : "it";
+  const monthLabel = formatPeriodMonth(input.periodMonth, locale);
+  const amountFormatted =
+    locale === "en"
+      ? `€${input.amountDue}`
+      : `${input.amountDue.toLocaleString("it-IT")}€`;
+
+  const bodyHtml =
+    locale === "en"
+      ? `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Payment received — thank you, ${input.fullName}! ✓
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      We've recorded your rent payment of <strong>${amountFormatted}</strong> for
+      <strong>${monthLabel}</strong> for <strong>${input.roomLabel}</strong>.
+    </p>
+    <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
+      You can check the status anytime in the "My home" section of your dashboard.
+    </p>
+    ${ctaButton("View my home", `${SITE_URL}/dashboard`)}
+  `
+      : `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Pagamento ricevuto — grazie, ${input.fullName}! ✓
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Abbiamo registrato il tuo pagamento di <strong>${amountFormatted}</strong> per
+      <strong>${monthLabel}</strong> relativo a <strong>${input.roomLabel}</strong>.
+    </p>
+    <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
+      Puoi controllare lo stato in qualsiasi momento nella sezione "La mia casa" della tua area.
+    </p>
+    ${ctaButton("Vai alla mia casa", `${SITE_URL}/dashboard`)}
+  `;
+
+  return {
+    subject:
+      locale === "en"
+        ? `Payment confirmed — ${monthLabel}`
+        : `Pagamento confermato — ${monthLabel}`,
+    html: renderEmailLayout({
+      preheader:
+        locale === "en"
+          ? `Your rent for ${monthLabel} has been recorded`
+          : `Il tuo affitto di ${monthLabel} risulta pagato`,
+      bodyHtml,
+      locale,
     }),
   };
 }

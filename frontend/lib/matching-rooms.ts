@@ -7,6 +7,7 @@
 
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { calculateMatchScore, type StudentProfileRow } from "@/lib/matching";
+import { sendEmail, buildNewRoomMatchEmail } from "@/lib/email";
 
 export async function computeRoomMatches(
   db: ReturnType<typeof createServiceSupabaseClient>,
@@ -223,15 +224,14 @@ export async function recalculateMatchesForRoom(
       const notifyStudentIds = notifyRows.map((m) => m.student_id);
       const { data: notifyUsers } = await db
         .from("users")
-        .select("id, preferred_locale")
+        .select("id, full_name, email, preferred_locale")
         .in("id", notifyStudentIds);
 
-      const localeByStudent = new Map(
-        (notifyUsers ?? []).map((u: any) => [u.id, u.preferred_locale === "en" ? "en" : "it"]),
-      );
+      const userByStudent = new Map((notifyUsers ?? []).map((u: any) => [u.id, u]));
 
       const chatMessages = notifyRows.map((m) => {
-        const studentLocale = localeByStudent.get(m.student_id) ?? "it";
+        const user = userByStudent.get(m.student_id);
+        const studentLocale = user?.preferred_locale === "en" ? "en" : "it";
         const content =
           studentLocale === "en"
             ? `I found a new room that might interest you! 🏠 ${room.room_label}${zoneLabel ? ` in ${property.zone}` : ""}, €${room.price_monthly}/month, compatibility ${m.compatibility_score}% — check out the rooms suggested on the right.`
@@ -247,6 +247,22 @@ export async function recalculateMatchesForRoom(
       const { error: chatError } = await db.from("chat_messages").insert(chatMessages);
       if (chatError) {
         console.error("[matching-rooms] Errore invio notifiche proattive:", chatError);
+      }
+
+      for (const m of notifyRows) {
+        const user = userByStudent.get(m.student_id);
+        if (!user?.email) continue;
+
+        const studentLocale = user.preferred_locale === "en" ? "en" : "it";
+        const matchEmail = buildNewRoomMatchEmail({
+          fullName: user.full_name ?? "",
+          roomLabel: room.room_label,
+          zone: property.zone,
+          priceMonthly: room.price_monthly,
+          matchScore: m.compatibility_score,
+          locale: studentLocale,
+        });
+        await sendEmail({ to: user.email, ...matchEmail });
       }
     }
   }

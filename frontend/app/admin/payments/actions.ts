@@ -6,6 +6,11 @@ import {
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import {
+  sendEmail,
+  buildPaymentLateEmail,
+  buildPaymentConfirmedEmail,
+} from "@/lib/email";
 
 async function assertAdmin() {
   const supabase = await createServerSupabaseClient();
@@ -48,6 +53,39 @@ async function upsertPayment(formData: FormData, status: "pagato" | "in_ritardo"
   );
 
   if (error) throw new Error(`Errore nel salvataggio: ${error.message}`);
+
+  const { data: tenancy } = await db
+    .from("room_tenancies")
+    .select(
+      `
+      id,
+      users:student_id ( full_name, email, preferred_locale ),
+      rooms:room_id ( room_label )
+    `,
+    )
+    .eq("id", tenancyId)
+    .maybeSingle();
+
+  const student = (tenancy as any)?.users;
+  const room = (tenancy as any)?.rooms;
+
+  if (student?.email && room?.room_label) {
+    const locale: "it" | "en" = student.preferred_locale === "en" ? "en" : "it";
+    const emailInput = {
+      fullName: student.full_name ?? "",
+      roomLabel: room.room_label,
+      amountDue,
+      periodMonth,
+      locale,
+    };
+
+    const paymentEmail =
+      status === "pagato"
+        ? buildPaymentConfirmedEmail(emailInput)
+        : buildPaymentLateEmail(emailInput);
+
+    await sendEmail({ to: student.email, ...paymentEmail });
+  }
 
   revalidatePath("/admin/payments");
   revalidatePath("/admin");
