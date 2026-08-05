@@ -454,6 +454,8 @@ export async function updateRoom(formData: FormData) {
 
   if (error) throw new Error(`Errore nell'aggiornamento della stanza: ${error.message}`);
 
+  // Prezzo/servizi potrebbero essere cambiati: aggiorniamo la
+  // compatibilità per tutti, non solo per chi tornerà a chattare.
   await recalculateMatchesForRoom(db, roomId);
 
   revalidatePath(`/admin/properties/${propertyId}`);
