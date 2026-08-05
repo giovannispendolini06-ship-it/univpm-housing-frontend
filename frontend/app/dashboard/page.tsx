@@ -7,6 +7,7 @@ import RoomList from "@/components/RoomList";
 import SignOutButton from "@/components/SignOutButton";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
 import LoadingRing from "@/components/LoadingRing";
+import MyHomeCard, { type MyTenancy } from "@/components/MyHomeCard";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 
@@ -38,6 +39,7 @@ export default function StudentDashboardPage() {
   const [studentId, setStudentId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
+  const [myTenancy, setMyTenancy] = useState<MyTenancy | null>(null);
   // null = ancora in caricamento: evita di mostrare per un istante il
   // messaggio di benvenuto e poi "saltare" alla cronologia vera.
   const [initialMessages, setInitialMessages] = useState<ChatMessage[] | null>(null);
@@ -97,6 +99,14 @@ export default function StudentDashboardPage() {
         .then((res) => (res.ok ? res.json() : { rooms: [] }))
         .then((data) => setRooms(data.rooms ?? []))
         .catch(() => setRooms([]));
+
+      // Se lo studente ha già un affitto attivo, mostra subito affitto +
+      // utenze + stato del pagamento — la prima cosa che deve vedere
+      // aprendo il sito, non qualcosa da andare a cercare.
+      fetch(`/api/my-tenancy?studentId=${userId}`)
+        .then((res) => (res.ok ? res.json() : { tenancy: null }))
+        .then((data) => setMyTenancy(data.tenancy ?? null))
+        .catch(() => setMyTenancy(null));
     });
   }, []);
 
@@ -130,7 +140,7 @@ export default function StudentDashboardPage() {
   }
 
   return (
-    <main className="relative h-dvh bg-bg">
+    <main className="relative flex h-dvh flex-col bg-bg">
       <div className="fixed right-3 top-3 z-50 flex flex-col items-end gap-1.5">
         <div className="flex items-center gap-2">
           {isAdmin && (
@@ -146,8 +156,10 @@ export default function StudentDashboardPage() {
         <DeleteAccountButton className="rounded-full bg-white/70 px-2 py-1 text-[10px] text-ink-muted underline underline-offset-2 transition hover:text-sunset-600" />
       </div>
 
+      {myTenancy && <MyHomeCard tenancy={myTenancy} />}
+
       {/* Tab bar solo mobile */}
-      <div className="flex border-b border-sea-100 bg-white md:hidden">
+      <div className="flex shrink-0 border-b border-sea-100 bg-white md:hidden">
         <TabButton
           label="Chat"
           isActive={activeTab === "chat"}
@@ -160,9 +172,9 @@ export default function StudentDashboardPage() {
         />
       </div>
 
-      <div className="mx-auto grid h-[calc(100dvh-45px)] max-w-7xl grid-cols-1 md:h-dvh md:grid-cols-[minmax(320px,420px)_1fr]">
+      <div className="mx-auto grid w-full min-h-0 max-w-7xl flex-1 grid-cols-1 md:grid-cols-[minmax(320px,420px)_1fr]">
         <div
-          className={`${activeTab === "chat" ? "block" : "hidden"} h-full md:block md:border-r md:border-sea-100`}
+          className={`${activeTab === "chat" ? "block" : "hidden"} h-full min-h-0 md:block md:border-r md:border-sea-100`}
         >
           {initialMessages ? (
             <ChatPanel
@@ -178,7 +190,7 @@ export default function StudentDashboardPage() {
           )}
         </div>
 
-        <div className={`${activeTab === "rooms" ? "block" : "hidden"} h-full md:block`}>
+        <div className={`${activeTab === "rooms" ? "block" : "hidden"} h-full min-h-0 md:block`}>
           <RoomList rooms={rooms} />
         </div>
       </div>
