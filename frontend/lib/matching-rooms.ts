@@ -214,30 +214,29 @@ export async function recalculateMatchesForRoom(
     const notifyRows = matchRows.filter((m) => m.compatibility_score >= HIGH_MATCH_THRESHOLD);
 
     if (notifyRows.length > 0) {
-      const studentIds = notifyRows.map((m) => m.student_id);
-      const { data: userLocales } = await db
+      const zoneLabel = property.zone ? ` a ${property.zone}` : "";
+
+      // Ogni studente potrebbe avere una lingua preferita diversa: la
+      // leggiamo dal profilo (sincronizzata dal client mentre naviga il
+      // sito), non dal cookie — qui siamo lato server, il cookie del
+      // browser di quello specifico studente non è raggiungibile.
+      const notifyStudentIds = notifyRows.map((m) => m.student_id);
+      const { data: notifyUsers } = await db
         .from("users")
         .select("id, preferred_locale")
-        .in("id", studentIds);
+        .in("id", notifyStudentIds);
 
-      const localeByUserId = new Map(
-        (userLocales ?? []).map((u) => [
-          u.id,
-          u.preferred_locale === "en" ? ("en" as const) : ("it" as const),
-        ]),
+      const localeByStudent = new Map(
+        (notifyUsers ?? []).map((u: any) => [u.id, u.preferred_locale === "en" ? "en" : "it"]),
       );
 
       const chatMessages = notifyRows.map((m) => {
-        const loc = localeByUserId.get(m.student_id) ?? "it";
-        const zoneLabel = property.zone
-          ? loc === "en"
-            ? ` in ${property.zone}`
-            : ` a ${property.zone}`
-          : "";
+        const studentLocale = localeByStudent.get(m.student_id) ?? "it";
         const content =
-          loc === "en"
-            ? `I found a new room you might like! 🏠 ${room.room_label}${zoneLabel}, ${room.price_monthly}€/month, ${m.compatibility_score}% compatibility — check out the suggested rooms on the right.`
+          studentLocale === "en"
+            ? `I found a new room that might interest you! 🏠 ${room.room_label}${zoneLabel ? ` in ${property.zone}` : ""}, €${room.price_monthly}/month, compatibility ${m.compatibility_score}% — check out the rooms suggested on the right.`
             : `Ho trovato una stanza nuova che potrebbe interessarti! 🏠 ${room.room_label}${zoneLabel}, ${room.price_monthly}€/mese, compatibilità ${m.compatibility_score}% — dai un'occhiata tra le stanze proposte qui a destra.`;
+
         return {
           student_id: m.student_id,
           role: "assistant" as const,

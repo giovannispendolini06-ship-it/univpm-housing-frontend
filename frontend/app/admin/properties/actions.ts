@@ -342,10 +342,13 @@ export async function createTenancy(formData: FormData) {
   // salvata sulla riga dell'affitto. Non blocca mai la registrazione se
   // fallisce — lo studente vedrà semplicemente "La mia casa" senza
   // checklist, niente di grave.
-  const studentLocale = student.preferred_locale === "en" ? "en" : "it";
-
   try {
-    await generateMoveChecklist(db, newTenancy.id, roomId, studentLocale);
+    await generateMoveChecklist(
+      db,
+      newTenancy.id,
+      roomId,
+      student.preferred_locale === "en" ? "en" : "it",
+    );
   } catch (err) {
     console.error("[createTenancy] Errore generazione checklist:", err);
   }
@@ -380,19 +383,19 @@ async function generateMoveChecklist(
   const property = (room as any)?.properties;
   if (!room || !property) return;
 
-  const systemPrompt =
-    locale === "en"
-      ? `Generate a moving checklist for a university student relocating to a room in Ancona. Reply ONLY with a JSON array of 5-6 short strings (max 15 words each), in English, friendly tone. Include: 1-2 practical items to set up or bring (documents, SIM, etc.), a transport tip to reach the nearest university campus from the indicated area, and 1-2 tips on being a good roommate/neighbor. No text outside the JSON array.`
-      : `Genera una checklist di trasloco per uno studente universitario che si trasferisce in una stanza ad Ancona. Rispondi SOLO con un array JSON di 5-6 stringhe brevi (max 15 parole ciascuna), in italiano, tono amichevole. Includi: 1-2 pratiche da attivare/portare (documenti, SIM, ecc.), un consiglio sui trasporti per raggiungere il polo universitario più vicino dalla zona indicata, e 1-2 consigli di buon vicinato/convivenza. Nessun testo fuori dall'array JSON.`;
-
   const openai = getOpenAIClient();
+  const languageInstruction =
+    locale === "en"
+      ? "Respond ONLY in English, with a JSON array of 5-6 short strings (max 15 words each), friendly tone."
+      : "Rispondi SOLO in italiano, con un array JSON di 5-6 stringhe brevi (max 15 parole ciascuna), tono amichevole.";
+
   const completion = await openai.chat.completions.create({
     model: OPENAI_MODEL,
     max_completion_tokens: 500,
     messages: [
       {
         role: "system",
-        content: systemPrompt,
+        content: `Genera una checklist di trasloco per uno studente universitario che si trasferisce in una stanza ad Ancona. ${languageInstruction} Includi: 1-2 pratiche da attivare/portare (documenti, SIM, ecc.), un consiglio sui trasporti per raggiungere il polo universitario più vicino dalla zona indicata, e 1-2 consigli di buon vicinato/convivenza. Nessun testo fuori dall'array JSON.`,
       },
       {
         role: "user",

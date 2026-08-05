@@ -7,47 +7,64 @@ import RoomList from "@/components/RoomList";
 import SignOutButton from "@/components/SignOutButton";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
 import LoadingRing from "@/components/LoadingRing";
-import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import MyHomeCard, { type MyTenancy } from "@/components/MyHomeCard";
-import { useLocale } from "@/lib/i18n/LocaleContext";
-import type { Locale } from "@/lib/i18n/translations";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
+import { useLocale } from "@/lib/i18n/LocaleContext";
+import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 
 type MobileTab = "chat" | "rooms";
 
-const WELCOME_MESSAGES: Record<Locale, string> = {
+const WELCOME_MESSAGES: Record<"it" | "en", string> = {
   it: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
-  en: "Hey! 👋 I'm Vesta, I'll help you find a place here in Ancona. What degree are you studying?",
+  en: "Hey! 👋 I'm Vesta, I'll help you find a place here in Ancona. What are you studying?",
 };
 
+/**
+ * Layout:
+ * - Mobile (< md): un solo pannello alla volta, switch con tab in alto.
+ * - Desktop (>= md): split screen, chat a sinistra (fissa), stanze a
+ *   destra (scroll indipendente).
+ *
+ * Questa pagina è protetta da middleware.ts: se non sei loggato, Next.js
+ * ti reindirizza automaticamente a /login prima di arrivare qui.
+ *
+ * Al primo caricamento, ricarica dal database la conversazione con Vesta
+ * e le stanze già calcolate (invece di ripartire sempre da zero): due
+ * semplici query indicizzate, nessuna chiamata a OpenAI, quindi resta
+ * leggero e veloce anche per chi torna il giorno dopo.
+ */
 export default function StudentDashboardPage() {
   const { locale, t } = useLocale();
+  const welcomeMessage: ChatMessage = {
+    id: "welcome",
+    role: "assistant",
+    content: WELCOME_MESSAGES[locale],
+    createdAt: new Date().toISOString(),
+  };
+
   const [activeTab, setActiveTab] = useState<MobileTab>("chat");
   const [studentId, setStudentId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
   const [myTenancy, setMyTenancy] = useState<MyTenancy | null>(null);
+  // null = ancora in caricamento: evita di mostrare per un istante il
+  // messaggio di benvenuto e poi "saltare" alla cronologia vera.
   const [initialMessages, setInitialMessages] = useState<ChatMessage[] | null>(null);
 
   useEffect(() => {
     const supabase = createClientSupabaseClient();
-    const welcome: ChatMessage = {
-      id: "welcome",
-      role: "assistant",
-      content: WELCOME_MESSAGES[locale],
-      createdAt: new Date().toISOString(),
-    };
 
     supabase.auth.getUser().then(({ data }) => {
       const userId = data.user?.id ?? null;
       setStudentId(userId);
 
       if (!userId) {
-        setInitialMessages([welcome]);
+        setInitialMessages([welcomeMessage]);
         return;
       }
 
+      // Ruolo (per il badge Admin)
       supabase
         .from("users")
         .select("role")
@@ -57,6 +74,8 @@ export default function StudentDashboardPage() {
           setIsAdmin(profile?.role === "admin");
         });
 
+      // Storico chat: se esiste già una conversazione, la ricarichiamo
+      // invece del messaggio di benvenuto.
       supabase
         .from("chat_messages")
         .select("id, role, content, created_at")
@@ -65,7 +84,7 @@ export default function StudentDashboardPage() {
         .then(({ data: history, error }) => {
           if (error) {
             console.error("Errore nel caricamento della cronologia chat:", error);
-            setInitialMessages([welcome]);
+            setInitialMessages([welcomeMessage]);
             return;
           }
           if (history && history.length > 0) {
@@ -78,17 +97,24 @@ export default function StudentDashboardPage() {
               })),
             );
           } else {
-            setInitialMessages([welcome]);
+            setInitialMessages([welcomeMessage]);
           }
         });
 
+      // Se lo studente ha già un affitto attivo, mostra subito affitto +
+      // utenze + stato del pagamento — la prima cosa che deve vedere
+      // aprendo il sito, non qualcosa da andare a cercare.
       fetch(`/api/my-tenancy?studentId=${userId}`)
         .then((res) => (res.ok ? res.json() : { tenancy: null }))
         .then((data) => setMyTenancy(data.tenancy ?? null))
         .catch(() => setMyTenancy(null));
     });
-  }, [locale]);
+  }, []);
 
+  // Stanze già calcolate in precedenza: così non serve riscrivere a Vesta
+  // solo per rivederle. Effetto separato (non dentro quello sopra) perché
+  // deve rifarsi da solo se la lingua cambia dopo il primo caricamento —
+  // il resto (auth, storico chat) non deve invece ripartire ogni volta.
   useEffect(() => {
     if (!studentId) return;
 
@@ -97,13 +123,14 @@ export default function StudentDashboardPage() {
       .then((data) => setRooms(data.rooms ?? []))
       .catch(() => setRooms([]));
 
+    // Salva la lingua sul profilo: serve alle azioni lato server (nuova
+    // stanza, nuovo affitto) che non possono leggere il cookie del
+    // browser. Fallisce in silenzio: non è mai bloccante per lo studente.
     fetch("/api/sync-locale", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ studentId, locale }),
-    }).catch(() => {
-      // Non blocca la dashboard se il salvataggio della lingua fallisce.
-    });
+    }).catch(() => {});
   }, [studentId, locale]);
 
   async function handleSendMessage(
@@ -112,9 +139,10 @@ export default function StudentDashboardPage() {
   ): Promise<{ reply: string; rooms?: RecommendedRoom[] }> {
     if (!studentId) {
       return {
-        reply: locale === "en"
-          ? "You need to log in to talk to me — please reload the page."
-          : "Devi effettuare il login per parlare con me — ricarica la pagina.",
+        reply:
+          locale === "en"
+            ? "You need to log in to talk to me — reload the page."
+            : "Devi effettuare il login per parlare con me — ricarica la pagina.",
       };
     }
 
@@ -130,7 +158,7 @@ export default function StudentDashboardPage() {
         reply:
           data?.error ??
           (locale === "en"
-            ? "Something went wrong on my end, please try again in a moment."
+            ? "Something went wrong on my end, try again shortly."
             : "Qualcosa è andato storto dal mio lato, riprova tra poco."),
       };
     }
@@ -142,8 +170,8 @@ export default function StudentDashboardPage() {
   return (
     <main className="relative flex h-dvh flex-col bg-bg">
       <div className="fixed right-3 top-3 z-50 flex flex-col items-end gap-1.5">
-        <LanguageSwitcher />
         <div className="flex items-center gap-2">
+          <LanguageSwitcher />
           {isAdmin && (
             <Link
               href="/admin"
@@ -153,24 +181,25 @@ export default function StudentDashboardPage() {
             </Link>
           )}
           <SignOutButton
-            label={t.common.signOut}
             className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card"
+            label={t.common.signOut}
           />
         </div>
         <DeleteAccountButton
-          labels={{
-            deleteAccount: t.common.deleteAccount,
-            deletingAccount: t.common.deletingAccount,
-            deleteAccountWarningStudent: t.common.deleteAccountWarningStudent,
-            deleteAccountWarningOwner: t.common.deleteAccountWarningOwner,
-            deleteAccountConfirm: t.common.deleteAccountConfirm,
-          }}
           className="rounded-full bg-white/70 px-2 py-1 text-[10px] text-ink-muted underline underline-offset-2 transition hover:text-sunset-600"
+          labels={{
+            buttonLabel: t.common.deleteAccount,
+            deletingLabel: t.common.deletingAccount,
+            warningStudent: t.common.deleteAccountWarningStudent,
+            warningOwner: t.common.deleteAccountWarningOwner,
+            confirmAgain: t.common.deleteAccountConfirm,
+          }}
         />
       </div>
 
       {myTenancy && <MyHomeCard tenancy={myTenancy} />}
 
+      {/* Tab bar solo mobile */}
       <div className="flex shrink-0 border-b border-sea-100 bg-white md:hidden">
         <TabButton
           label={t.dashboard.chatTab}
