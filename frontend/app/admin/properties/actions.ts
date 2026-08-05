@@ -6,8 +6,8 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import { getOpenAIClient, OPENAI_MODEL } from "@/lib/openai";
 import { recalculateMatchesForRoom } from "@/lib/matching-rooms";
+import { getOpenAIClient, OPENAI_MODEL } from "@/lib/openai";
 
 // ---------------------------------------------------------------------------
 // Stessa guardia di sicurezza usata in app/admin/leads/actions.ts
@@ -123,8 +123,9 @@ export async function createProperty(formData: FormData) {
   }
 
   // Aggiorna subito la compatibilità per tutti gli studenti già registrati,
-  // così questa stanza compare per loro senza dover riscrivere a Vesta.
-  await recalculateMatchesForRoom(db, newRoom.id);
+  // così questa stanza compare per loro senza dover riscrivere a Vesta —
+  // e per chi ha un match alto, Vesta lo scrive lei stessa in chat.
+  await recalculateMatchesForRoom(db, newRoom.id, true);
 
   // --- 3. Se veniamo da un lead esterno, colleghiamolo -----------------------
   const leadId = String(formData.get("lead_id") ?? "");
@@ -316,13 +317,17 @@ export async function createTenancy(formData: FormData) {
     throw new Error("Questo account non è registrato come studente.");
   }
 
-  const { error: tenancyError } = await db.from("room_tenancies").insert({
-    room_id: roomId,
-    student_id: student.id,
-    started_at: startedAt,
-  });
-  if (tenancyError) {
-    throw new Error(`Errore nella registrazione dell'affitto: ${tenancyError.message}`);
+  const { data: newTenancy, error: tenancyError } = await db
+    .from("room_tenancies")
+    .insert({
+      room_id: roomId,
+      student_id: student.id,
+      started_at: startedAt,
+    })
+    .select("id")
+    .single();
+  if (tenancyError || !newTenancy) {
+    throw new Error(`Errore nella registrazione dell'affitto: ${tenancyError?.message}`);
   }
 
   const { error: roomError } = await db
@@ -333,9 +338,72 @@ export async function createTenancy(formData: FormData) {
     throw new Error(`Affitto registrato ma errore nell'aggiornare la stanza: ${roomError.message}`);
   }
 
+  // Checklist di trasloco personalizzata: generata una sola volta ora,
+  // salvata sulla riga dell'affitto. Non blocca mai la registrazione se
+  // fallisce — lo studente vedrà semplicemente "La mia casa" senza
+  // checklist, niente di grave.
+  try {
+    await generateMoveChecklist(db, newTenancy.id, roomId);
+  } catch (err) {
+    console.error("[createTenancy] Errore generazione checklist:", err);
+  }
+
   revalidatePath(`/admin/properties/${propertyId}`);
   revalidatePath("/admin");
   revalidatePath("/admin/users");
+}
+
+// ---------------------------------------------------------------------------
+// Genera una checklist di trasloco su misura (zona, distanza dal polo,
+// consigli pratici) e la salva sulla riga dell'affitto — chiamata una
+// volta sola da createTenancy, non ricalcolata ad ogni apertura del sito.
+// ---------------------------------------------------------------------------
+async function generateMoveChecklist(
+  db: ReturnType<typeof createServiceSupabaseClient>,
+  tenancyId: string,
+  roomId: string,
+) {
+  const { data: room } = await db
+    .from("rooms")
+    .select(
+      `
+      room_label,
+      properties:property_id ( address, zone, distance_monte_dago_km, distance_torrette_km, distance_centro_km )
+    `,
+    )
+    .eq("id", roomId)
+    .single();
+
+  const property = (room as any)?.properties;
+  if (!room || !property) return;
+
+  const openai = getOpenAIClient();
+  const completion = await openai.chat.completions.create({
+    model: OPENAI_MODEL,
+    max_completion_tokens: 500,
+    messages: [
+      {
+        role: "system",
+        content: `Genera una checklist di trasloco per uno studente universitario che si trasferisce in una stanza ad Ancona. Rispondi SOLO con un array JSON di 5-6 stringhe brevi (max 15 parole ciascuna), in italiano, tono amichevole. Includi: 1-2 pratiche da attivare/portare (documenti, SIM, ecc.), un consiglio sui trasporti per raggiungere il polo universitario più vicino dalla zona indicata, e 1-2 consigli di buon vicinato/convivenza. Nessun testo fuori dall'array JSON.`,
+      },
+      {
+        role: "user",
+        content: `Stanza: ${room.room_label}. Indirizzo: ${property.address}. Zona: ${property.zone ?? "non specificata"}. Distanza da Monte Dago: ${property.distance_monte_dago_km ?? "?"} km, da Torrette: ${property.distance_torrette_km ?? "?"} km, dal centro/Economia: ${property.distance_centro_km ?? "?"} km.`,
+      },
+    ],
+  });
+
+  const raw = completion.choices[0]?.message?.content?.trim() ?? "[]";
+  const cleaned = raw.replace(/^```json\s*|```$/g, "").trim();
+
+  let checklist: string[];
+  try {
+    checklist = JSON.parse(cleaned);
+  } catch {
+    return;
+  }
+
+  await db.from("room_tenancies").update({ move_checklist: checklist }).eq("id", tenancyId);
 }
 
 // ---------------------------------------------------------------------------
@@ -497,11 +565,9 @@ export async function addRoom(formData: FormData) {
     .select("id")
     .single();
 
-  if (error || !newRoom) {
-    throw new Error(`Errore nella creazione della stanza: ${error?.message}`);
-  }
+  if (error || !newRoom) throw new Error(`Errore nella creazione della stanza: ${error?.message}`);
 
-  await recalculateMatchesForRoom(db, newRoom.id);
+  await recalculateMatchesForRoom(db, newRoom.id, true);
 
   revalidatePath(`/admin/properties/${propertyId}`);
 }

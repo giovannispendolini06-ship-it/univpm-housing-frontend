@@ -5,6 +5,7 @@ import {
 } from "@/lib/supabase/server";
 import SignOutButton from "@/components/SignOutButton";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
+import OwnerInsight from "./OwnerInsight";
 
 export const dynamic = "force-dynamic";
 
@@ -86,6 +87,8 @@ export default async function OwnerDashboardPage() {
             <DeleteAccountButton isOwner />
           </div>
         </header>
+
+        {properties && properties.length > 0 && <OwnerInsight />}
 
         {!properties || properties.length === 0 ? (
           <div className="rounded-xl2 bg-surface p-6 text-center shadow-card">
