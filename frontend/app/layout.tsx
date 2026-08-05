@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 import "./globals.css";
 
 const display = Space_Grotesk({
@@ -71,9 +72,11 @@ export default function RootLayout({
   return (
     <html lang="it" className={`${display.variable} ${body.variable}`}>
       <body>
-        {children}
-        <Analytics />
-        <ServiceWorkerRegister />
+        <LocaleProvider>
+          {children}
+          <Analytics />
+          <ServiceWorkerRegister />
+        </LocaleProvider>
       </body>
     </html>
   );

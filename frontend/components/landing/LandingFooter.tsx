@@ -1,6 +1,11 @@
+"use client";
+
 import CoabitoLogo from "@/components/CoabitoLogo";
+import { useLocale } from "@/lib/i18n/LocaleContext";
 
 export default function LandingFooter() {
+  const { t } = useLocale();
+
   return (
     <footer className="border-t border-sea-100 bg-white">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -11,8 +16,7 @@ export default function LandingFooter() {
           </div>
 
           <p className="max-w-sm text-xs leading-relaxed text-ink-muted">
-            Piattaforma indipendente per studenti fuori sede e proprietari di
-            casa. Non affiliata a nessuna università.
+            {t.footer.tagline}
           </p>
 
           <a
@@ -24,12 +28,12 @@ export default function LandingFooter() {
         </div>
 
         <p className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-muted">
-          <span>© {new Date().getFullYear()} Coabito. Tutti i diritti riservati.</span>
+          <span>© {new Date().getFullYear()} Coabito. {t.footer.rights}</span>
           <a href="/privacy" className="underline underline-offset-2">
-            Privacy
+            {t.footer.privacy}
           </a>
           <a href="/termini" className="underline underline-offset-2">
-            Termini di servizio
+            {t.footer.terms}
           </a>
         </p>
       </div>
