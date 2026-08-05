@@ -48,6 +48,9 @@ export default function RoomCard({ room }: { room: RecommendedRoom }) {
               /mese + {room.estimatedUtilities}€ spese
             </span>
           </span>
+          <span className="rounded-full bg-sand-400/15 px-2 py-0.5 text-xs font-semibold text-ink">
+            Totale: {room.priceMonthly + room.estimatedUtilities}€/mese
+          </span>
           <span className="inline-flex items-center gap-1 rounded-full bg-sea-50 px-2 py-0.5 text-xs font-medium text-sea-700">
             <svg
               width="12"
