@@ -18,6 +18,12 @@
 //
 // e considera "coinquilino attuale" chi ha ended_at is null.
 //
+// NOTA SUI POLI / campus_id: il punteggio distanza usa campus_id (FK a
+// campuses) e property_campus_distances — NON polo_univpm né le colonne
+// legacy distance_* su properties. polo_univpm resta nel profilo per Vesta
+// e i form; campus_id viene risolto in /api/chat dal codice polo che Vesta
+// estrae nel blocco STUDENT_DATA_JSON.
+//
 // NOTA SUL BILINGUISMO: i punteggi (i numeri) sono identici in ogni lingua
 // — cambia solo il testo di label/detail mostrato allo studente. Il
 // parametro "locale" qui sotto sceglie solo quale testo generare, non
@@ -27,7 +33,7 @@ export type MatchLocale = "it" | "en";
 
 export interface StudentProfileRow {
   user_id: string;
-  polo_univpm: "monte_dago" | "torrette" | "centro_economia_giurisprudenza" | "altro";
+  campus_id: string | null;
   budget_max: number;
   study_habit: "silenzio_assoluto" | "rumore_di_fondo_ok" | "musica_in_studio" | "flessibile";
   sociability_level: number; // 1-5
@@ -47,9 +53,6 @@ export interface RoomForMatching {
 export interface PropertyForMatching {
   id: string;
   zone: string | null;
-  distance_monte_dago_km: number | null;
-  distance_torrette_km: number | null;
-  distance_centro_km: number | null;
 }
 
 export interface MatchReason {
@@ -104,31 +107,13 @@ function scoreBudget(
   };
 }
 
-function getDistanceKm(
-  polo: StudentProfileRow["polo_univpm"],
-  property: PropertyForMatching,
-): number | null {
-  switch (polo) {
-    case "monte_dago":
-      return property.distance_monte_dago_km;
-    case "torrette":
-      return property.distance_torrette_km;
-    case "centro_economia_giurisprudenza":
-      return property.distance_centro_km;
-    default:
-      return null;
-  }
-}
-
 function scoreDistance(
-  student: StudentProfileRow,
-  property: PropertyForMatching,
+  distanceKm: number | null,
   locale: MatchLocale,
 ): { points: number; reason: MatchReason } {
-  const km = getDistanceKm(student.polo_univpm, property);
   const isIt = locale === "it";
 
-  if (km === null) {
+  if (distanceKm === null) {
     return {
       points: 10,
       reason: {
@@ -141,7 +126,7 @@ function scoreDistance(
     };
   }
 
-  const ratio = Math.max(0, Math.min(1, 1 - (km - 2) / 8));
+  const ratio = Math.max(0, Math.min(1, 1 - (distanceKm - 2) / 8));
   const points = ratio * 20;
 
   return {
@@ -149,8 +134,8 @@ function scoreDistance(
     reason: {
       label: isIt ? "Vicinanza al polo" : "Distance from campus",
       detail: isIt
-        ? `${km.toFixed(1)} km dal tuo polo di riferimento`
-        : `${km.toFixed(1)} km from your reference campus`,
+        ? `${distanceKm.toFixed(1)} km dal tuo polo di riferimento`
+        : `${distanceKm.toFixed(1)} km from your reference campus`,
       weight: ratio >= 0.7 ? "alto" : ratio >= 0.4 ? "medio" : "basso",
     },
   };
@@ -283,7 +268,7 @@ function scoreSociability(
         diff <= 1
           ? isIt
             ? "Frequenza di ospiti/feste in linea con la casa"
-            : "Guest/party frequency in line with the house"
+            : "Frequency of guests/parties in line with the household"
           : isIt
             ? "Frequenza di ospiti/feste diversa da quella dei coinquilini attuali"
             : "Guest/party frequency different from current roommates",
@@ -297,10 +282,11 @@ export function calculateMatchScore(
   room: RoomForMatching,
   property: PropertyForMatching,
   currentRoommates: StudentProfileRow[],
+  distanceKm: number | null,
   locale: MatchLocale = "it",
 ): MatchResult {
   const budget = scoreBudget(student, room, locale);
-  const distance = scoreDistance(student, property, locale);
+  const distance = scoreDistance(distanceKm, locale);
   const roommateAffinity = scoreRoommateAffinity(student, currentRoommates, locale);
   const cleanliness = scoreCleanliness(student, currentRoommates, locale);
   const sociability = scoreSociability(student, currentRoommates, locale);

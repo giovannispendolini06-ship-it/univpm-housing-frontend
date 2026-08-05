@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
   if (jsonMatch) {
     try {
       const extracted = JSON.parse(jsonMatch[1]);
-      const updatePayload = buildProfileUpdatePayload(extracted);
+      const updatePayload = await buildProfileUpdatePayload(extracted, db);
 
       if (Object.keys(updatePayload).length > 0) {
         const { error: upsertError } = await db
@@ -202,7 +202,7 @@ export async function POST(request: NextRequest) {
 
     if (profileError) throw profileError;
 
-    if (studentProfile?.polo_univpm && studentProfile?.budget_max) {
+    if (studentProfile?.campus_id && studentProfile?.budget_max) {
       rooms = await computeRoomMatches(
         db,
         studentProfile as StudentProfileRow,
@@ -221,9 +221,17 @@ export async function POST(request: NextRequest) {
 // Helper: filtra e valida il payload estratto dal JSON del modello prima di
 // scriverlo su Supabase (non fidarsi mai ciecamente dell'output del modello).
 // ---------------------------------------------------------------------------
-function buildProfileUpdatePayload(extracted: Record<string, unknown>) {
+const POLO_CODE_TO_CAMPUS_NAME: Record<string, string> = {
+  monte_dago: "Monte Dago",
+  torrette: "Torrette",
+  centro_economia_giurisprudenza: "Centro (Economia/Giurisprudenza)",
+};
+
+async function buildProfileUpdatePayload(
+  extracted: Record<string, unknown>,
+  db: ReturnType<typeof createServiceSupabaseClient>,
+) {
   const allowedKeys = [
-    "polo_univpm",
     "degree_course",
     "study_year",
     "budget_max",
@@ -244,5 +252,21 @@ function buildProfileUpdatePayload(extracted: Record<string, unknown>) {
       payload[key] = value;
     }
   }
+
+  const polo = extracted.polo_univpm;
+  if (typeof polo === "string" && polo !== "altro") {
+    const campusName = POLO_CODE_TO_CAMPUS_NAME[polo];
+    if (campusName) {
+      const { data: campus } = await db
+        .from("campuses")
+        .select("id")
+        .eq("name", campusName)
+        .maybeSingle();
+      if (campus?.id) {
+        payload.campus_id = campus.id;
+      }
+    }
+  }
+
   return payload;
 }

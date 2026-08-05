@@ -52,9 +52,9 @@ export async function GET(request: NextRequest) {
       .eq("user_id", studentId)
       .maybeSingle();
 
-    if (!studentProfile?.polo_univpm || !studentProfile?.budget_max) {
+    if (!studentProfile?.campus_id || !studentProfile?.budget_max) {
       // Profilo non ancora completo: nessuna stanza da proporre finché
-      // Vesta non ha raccolto almeno polo e budget.
+      // Vesta non ha raccolto almeno campus e budget.
       return NextResponse.json({ rooms: [] });
     }
 
