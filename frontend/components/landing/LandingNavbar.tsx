@@ -28,7 +28,20 @@ export default function LandingNavbar() {
           </Link>
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-3 md:flex">
+          <Link
+            href="/installa"
+            aria-label="Installa l'app"
+            title="Installa l'app"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-sea-100 text-ink-muted transition hover:border-sea-400 hover:text-sea-700"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="7" y="2" width="10" height="20" rx="2" />
+              <path d="M11 18h2" />
+              <path d="M9 8l3 3 3-3" />
+              <path d="M12 5v6" />
+            </svg>
+          </Link>
           <Link
             href="/login"
             className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sea-700"
@@ -72,6 +85,13 @@ export default function LandingNavbar() {
             className="rounded-lg px-3 py-2.5 text-sm text-ink-muted"
           >
             Come funziona
+          </Link>
+          <Link
+            href="/installa"
+            onClick={() => setIsOpen(false)}
+            className="rounded-lg border-t border-sea-100 px-3 py-2.5 pt-3 text-sm text-ink-muted"
+          >
+            📲 Installa l&apos;app
           </Link>
           <Link
             href="/login"
