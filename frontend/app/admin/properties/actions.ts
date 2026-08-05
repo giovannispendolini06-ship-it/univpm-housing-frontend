@@ -8,6 +8,7 @@ import {
 } from "@/lib/supabase/server";
 import { recalculateMatchesForRoom } from "@/lib/matching-rooms";
 import { getOpenAIClient, OPENAI_MODEL } from "@/lib/openai";
+import { sendEmail, buildMoveInEmail } from "@/lib/email";
 
 // ---------------------------------------------------------------------------
 // Stessa guardia di sicurezza usata in app/admin/leads/actions.ts
@@ -304,7 +305,7 @@ export async function createTenancy(formData: FormData) {
 
   const { data: student } = await db
     .from("users")
-    .select("id, role, preferred_locale")
+    .select("id, role, full_name, email, preferred_locale")
     .eq("email", studentEmail)
     .maybeSingle();
 
@@ -342,15 +343,37 @@ export async function createTenancy(formData: FormData) {
   // salvata sulla riga dell'affitto. Non blocca mai la registrazione se
   // fallisce — lo studente vedrà semplicemente "La mia casa" senza
   // checklist, niente di grave.
+  const studentLocale = student.preferred_locale === "en" ? "en" : "it";
+
+  let checklistResult: {
+    checklist: string[] | null;
+    roomLabel: string;
+    address: string;
+  } | null = null;
+
   try {
-    await generateMoveChecklist(
+    checklistResult = await generateMoveChecklist(
       db,
       newTenancy.id,
       roomId,
-      student.preferred_locale === "en" ? "en" : "it",
+      studentLocale,
     );
   } catch (err) {
     console.error("[createTenancy] Errore generazione checklist:", err);
+  }
+
+  // Email di benvenuto in casa, con la checklist appena generata (se
+  // disponibile). Non blocca mai la registrazione se fallisce.
+  if (student.email) {
+    const { subject, html } = buildMoveInEmail({
+      fullName: student.full_name ?? "",
+      roomLabel: checklistResult?.roomLabel ?? "",
+      address: checklistResult?.address ?? "",
+      startedAt,
+      checklist: checklistResult?.checklist ?? null,
+      locale: studentLocale,
+    });
+    sendEmail({ to: student.email, subject, html });
   }
 
   revalidatePath(`/admin/properties/${propertyId}`);
@@ -368,7 +391,7 @@ async function generateMoveChecklist(
   tenancyId: string,
   roomId: string,
   locale: "it" | "en" = "it",
-) {
+): Promise<{ checklist: string[] | null; roomLabel: string; address: string } | null> {
   const { data: room } = await db
     .from("rooms")
     .select(
@@ -381,7 +404,7 @@ async function generateMoveChecklist(
     .single();
 
   const property = (room as any)?.properties;
-  if (!room || !property) return;
+  if (!room || !property) return null;
 
   const openai = getOpenAIClient();
   const languageInstruction =
@@ -411,10 +434,20 @@ async function generateMoveChecklist(
   try {
     checklist = JSON.parse(cleaned);
   } catch {
-    return;
+    return {
+      checklist: null,
+      roomLabel: room.room_label,
+      address: property.address,
+    };
   }
 
   await db.from("room_tenancies").update({ move_checklist: checklist }).eq("id", tenancyId);
+
+  return {
+    checklist,
+    roomLabel: room.room_label,
+    address: property.address,
+  };
 }
 
 // ---------------------------------------------------------------------------
