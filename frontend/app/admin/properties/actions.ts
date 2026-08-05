@@ -345,26 +345,33 @@ export async function createTenancy(formData: FormData) {
   // checklist, niente di grave.
   const studentLocale = student.preferred_locale === "en" ? "en" : "it";
 
+  let checklistResult: {
+    checklist: string[] | null;
+    roomLabel: string;
+    address: string;
+  } | null = null;
+
   try {
-    const moveInDetails = await generateMoveChecklist(
+    checklistResult = await generateMoveChecklist(
       db,
       newTenancy.id,
       roomId,
       studentLocale,
     );
-
-    if (moveInDetails && student.email) {
-      const moveInEmail = buildMoveInEmail({
-        fullName: student.full_name ?? "",
-        roomLabel: moveInDetails.roomLabel,
-        address: moveInDetails.address,
-        checklist: moveInDetails.checklist,
-        locale: studentLocale,
-      });
-      await sendEmail({ to: student.email, ...moveInEmail });
-    }
   } catch (err) {
     console.error("[createTenancy] Errore generazione checklist:", err);
+  }
+
+  if (student.email && checklistResult) {
+    const moveInEmail = buildMoveInEmail({
+      fullName: student.full_name ?? "",
+      roomLabel: checklistResult.roomLabel,
+      address: checklistResult.address,
+      startedAt,
+      checklist: checklistResult.checklist,
+      locale: studentLocale,
+    });
+    sendEmail({ to: student.email, ...moveInEmail });
   }
 
   revalidatePath(`/admin/properties/${propertyId}`);
@@ -382,7 +389,7 @@ async function generateMoveChecklist(
   tenancyId: string,
   roomId: string,
   locale: "it" | "en" = "it",
-): Promise<{ checklist: string[]; roomLabel: string; address: string } | null> {
+): Promise<{ checklist: string[] | null; roomLabel: string; address: string } | null> {
   const { data: room } = await db
     .from("rooms")
     .select(
@@ -425,7 +432,11 @@ async function generateMoveChecklist(
   try {
     checklist = JSON.parse(cleaned);
   } catch {
-    return null;
+    return {
+      checklist: null,
+      roomLabel: room.room_label,
+      address: property.address,
+    };
   }
 
   await db.from("room_tenancies").update({ move_checklist: checklist }).eq("id", tenancyId);

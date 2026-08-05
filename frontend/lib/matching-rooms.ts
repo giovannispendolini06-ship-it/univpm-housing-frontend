@@ -262,7 +262,7 @@ export async function recalculateMatchesForRoom(
           matchScore: m.compatibility_score,
           locale: studentLocale,
         });
-        await sendEmail({ to: user.email, ...matchEmail });
+        sendEmail({ to: user.email, ...matchEmail });
       }
     }
   }

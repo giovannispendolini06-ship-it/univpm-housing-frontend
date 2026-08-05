@@ -59,23 +59,24 @@ async function upsertPayment(formData: FormData, status: "pagato" | "in_ritardo"
     .select(
       `
       id,
-      users:student_id ( full_name, email, preferred_locale ),
-      rooms:room_id ( room_label )
+      users:student_id ( full_name, email, preferred_locale )
     `,
     )
     .eq("id", tenancyId)
     .maybeSingle();
 
   const student = (tenancy as any)?.users;
-  const room = (tenancy as any)?.rooms;
 
-  if (student?.email && room?.room_label) {
+  if (student?.email) {
     const locale: "it" | "en" = student.preferred_locale === "en" ? "en" : "it";
+    const periodLabel = new Date(periodMonth).toLocaleDateString(
+      locale === "en" ? "en-GB" : "it-IT",
+      { month: "long", year: "numeric" },
+    );
     const emailInput = {
       fullName: student.full_name ?? "",
-      roomLabel: room.room_label,
       amountDue,
-      periodMonth,
+      periodLabel,
       locale,
     };
 
@@ -84,7 +85,7 @@ async function upsertPayment(formData: FormData, status: "pagato" | "in_ritardo"
         ? buildPaymentConfirmedEmail(emailInput)
         : buildPaymentLateEmail(emailInput);
 
-    await sendEmail({ to: student.email, ...paymentEmail });
+    sendEmail({ to: student.email, ...paymentEmail });
   }
 
   revalidatePath("/admin/payments");
