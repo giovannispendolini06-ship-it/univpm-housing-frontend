@@ -33,12 +33,16 @@ export default function AdminNav({
 
   return (
     <>
-      <nav className="flex items-center gap-1">
+      {/* Su schermi stretti (telefono) il menu testuale sparisce del
+          tutto: sei sei righe di testo affiancate non ci stanno mai in
+          orizzontale su un iPhone. La navigazione mobile passa tutta dal
+          pannello a scomparsa, aperto dall'unica icona sempre visibile. */}
+      <nav className="hidden items-center gap-1 md:flex">
         {NAV_LINKS.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+            className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition ${
               isActive(link.href)
                 ? "bg-sea-600 text-white"
                 : "text-ink-muted hover:bg-sea-50 hover:text-ink"
@@ -47,16 +51,16 @@ export default function AdminNav({
             {link.label}
           </Link>
         ))}
-
-        {/* Tasto per aprire il pannello a scomparsa */}
-        <button
-          onClick={() => setIsDrawerOpen(true)}
-          aria-label="Apri riepilogo veloce"
-          className="ml-1 flex h-8 w-8 items-center justify-center rounded-full text-ink-muted transition hover:bg-sea-50 hover:text-ink"
-        >
-          <Menu size={16} />
-        </button>
       </nav>
+
+      {/* Icona menu: sempre visibile, mobile e desktop */}
+      <button
+        onClick={() => setIsDrawerOpen(true)}
+        aria-label="Apri menu"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-ink-muted transition hover:bg-sea-50 hover:text-ink md:h-8 md:w-8"
+      >
+        <Menu size={18} />
+      </button>
 
       {/* Overlay + pannello a scomparsa */}
       {isDrawerOpen && (
@@ -65,20 +69,41 @@ export default function AdminNav({
             className="fixed inset-0 z-40 bg-ink/20 backdrop-blur-sm"
             onClick={() => setIsDrawerOpen(false)}
           />
-          <aside className="fixed right-0 top-0 z-50 h-dvh w-full max-w-xs animate-fade-in-up bg-white p-5 shadow-2xl">
+          <aside className="fixed right-0 top-0 z-50 h-dvh w-full max-w-xs animate-fade-in-up overflow-y-auto bg-white p-5 shadow-2xl">
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="font-display text-sm font-bold text-ink">
-                Riepilogo veloce
-              </h2>
+              <h2 className="font-display text-sm font-bold text-ink">Menu</h2>
               <button
                 onClick={() => setIsDrawerOpen(false)}
                 aria-label="Chiudi"
-                className="flex h-7 w-7 items-center justify-center rounded-full text-ink-muted transition hover:bg-sea-50"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-ink-muted transition hover:bg-sea-50"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
+            {/* Navigazione completa: su mobile è l'UNICO modo per
+                spostarsi tra le sezioni, quindi sta qui in cima, ben
+                visibile, non in fondo dopo i riepiloghi. */}
+            <nav className="mb-6 space-y-1 md:hidden">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsDrawerOpen(false)}
+                  className={`block rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                    isActive(link.href)
+                      ? "bg-sea-600 text-white"
+                      : "text-ink hover:bg-sea-50"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">
+              Riepilogo veloce
+            </p>
             <div className="space-y-2">
               <Link
                 href="/admin/inquiries"

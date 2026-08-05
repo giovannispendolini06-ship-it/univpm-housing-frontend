@@ -202,7 +202,7 @@ export default async function PropertyDetailPage({
           <h2 className="mb-3 font-display text-base font-bold text-ink">
             Margine su questo immobile
           </h2>
-          <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="grid grid-cols-1 gap-3 text-center sm:grid-cols-3">
             <div>
               <p className="text-[11px] text-ink-muted">Incasso da studenti</p>
               <p className="mt-0.5 font-display text-lg font-bold text-ink">
