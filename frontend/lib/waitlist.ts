@@ -39,10 +39,10 @@ export function buildWaitlistChatFallback(
   }
 
   let msg =
-    "Al momento non abbiamo stanze compatibili con il tuo profilo. Ho salvato le tue preferenze in lista d'attesa: appena arriva un immobile adatto, sarai tra i primi ad essere avvisato.";
+    "Al momento non ho ancora stanze che corrispondono al tuo profilo, ma ho salvato le tue preferenze. Appena carico un immobile compatibile con te e il tuo budget, sarai tra i primi ad essere avvisato.";
   if (!hasPhone) {
     msg +=
-      " Se vuoi, lasciami il tuo numero WhatsApp o di telefono così possiamo contattarti più velocemente.";
+      " Se vuoi, lasciami il tuo numero WhatsApp così possiamo raggiungerti più velocemente.";
   }
   return msg;
 }
@@ -92,11 +92,19 @@ export async function upsertWaitlistFromStudentProfile(
     source,
   };
 
-  const { error: upsertError } = await db
+  // Indice unique parziale su user_id: ON CONFLICT (user_id) non è
+  // affidabile via PostgREST — select + update/insert è più sicuro.
+  const { data: existing } = await db
     .from("waitlist_signups")
-    .upsert(payload, { onConflict: "user_id" });
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
 
-  if (upsertError) {
-    console.error("[waitlist] Errore upsert waitlist_signups:", upsertError);
+  const { error: writeError } = existing?.id
+    ? await db.from("waitlist_signups").update(payload).eq("id", existing.id)
+    : await db.from("waitlist_signups").insert(payload);
+
+  if (writeError) {
+    console.error("[waitlist] Errore salvataggio waitlist_signups:", writeError);
   }
 }
