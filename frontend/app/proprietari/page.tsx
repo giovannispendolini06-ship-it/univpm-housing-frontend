@@ -2,6 +2,7 @@ import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
 import Reveal from "@/components/landing/Reveal";
 import OwnerInquiryForm from "./OwnerInquiryForm";
+import { buildWhatsAppLink } from "@/lib/whatsapp";
 
 export const metadata = {
   title: "Proponi il tuo immobile | Coabito",
@@ -10,6 +11,13 @@ export const metadata = {
 };
 
 export default function OwnersPage() {
+  const whatsappLink = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+    ? buildWhatsAppLink(
+        process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
+        "Ciao! Ho un immobile ad Ancona e vorrei saperne di più su Coabito.",
+      )
+    : null;
+
   return (
     <main className="bg-bg">
       <LandingNavbar />
@@ -57,6 +65,19 @@ export default function OwnersPage() {
                 <a href="mailto:info@coabito.it" className="text-sea-700 underline">
                   info@coabito.it
                 </a>
+                {whatsappLink && (
+                  <>
+                    {" "}o su{" "}
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-[#25D366] underline"
+                    >
+                      WhatsApp
+                    </a>
+                  </>
+                )}
               </div>
             </div>
           </Reveal>
