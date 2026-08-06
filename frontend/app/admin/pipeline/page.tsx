@@ -27,10 +27,14 @@ export default async function AdminPipelinePage() {
   if (profile?.role !== "admin") redirect("/dashboard");
 
   const db = createServiceSupabaseClient();
-  const { data: leads } = await db
+  const { data: leads, error } = await db
     .from("landlord_leads")
     .select("*")
     .order("updated_at", { ascending: false });
+
+  const tableMissing =
+    error?.code === "PGRST205" ||
+    /landlord_leads|schema cache/i.test(error?.message ?? "");
 
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
@@ -47,7 +51,34 @@ export default async function AdminPipelinePage() {
           </p>
         </header>
 
-        <QuickAddForm />
+        {error && (
+          <div
+            role="alert"
+            className="rounded-xl2 border border-sunset-500/30 bg-sunset-500/10 px-4 py-3 text-sm text-ink"
+          >
+            {tableMissing ? (
+              <>
+                <p className="font-semibold">
+                  Tabella <code className="text-xs">landlord_leads</code> assente
+                  su Supabase.
+                </p>
+                <p className="mt-1 text-ink-muted">
+                  Esegui lo SQL in{" "}
+                  <code className="text-xs">
+                    frontend/supabase/migration_landlord_leads.sql
+                  </code>{" "}
+                  dal SQL Editor di Supabase, poi ricarica questa pagina.
+                </p>
+              </>
+            ) : (
+              <p>
+                Errore nel caricamento dei lead: {error.message}
+              </p>
+            )}
+          </div>
+        )}
+
+        {!tableMissing && <QuickAddForm />}
 
         <Suspense fallback={<p className="text-sm text-ink-muted">Carico…</p>}>
           <PipelineTable leads={(leads ?? []) as LandlordLead[]} />

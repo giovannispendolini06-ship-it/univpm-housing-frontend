@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import {
   LANDLORD_SOURCE_OPTIONS,
   LANDLORD_ZONE_OPTIONS,
@@ -9,10 +9,16 @@ import { quickAddLandlordLead } from "./actions";
 
 export default function QuickAddForm() {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   function handleSubmit(formData: FormData) {
+    setError(null);
     startTransition(async () => {
-      await quickAddLandlordLead(formData);
+      const result = await quickAddLandlordLead(formData);
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
       const form = document.getElementById("pipeline-quick-add") as HTMLFormElement | null;
       form?.reset();
     });
@@ -25,6 +31,11 @@ export default function QuickAddForm() {
       className="rounded-xl2 bg-surface p-4 shadow-card"
     >
       <p className="mb-3 font-display text-sm font-bold text-ink">+ Nuovo lead rapido</p>
+      {error && (
+        <p role="alert" className="mb-3 text-sm text-sunset-600">
+          {error}
+        </p>
+      )}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <input
           name="nome"

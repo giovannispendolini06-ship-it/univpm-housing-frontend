@@ -38,6 +38,18 @@ function intOrNull(value: FormDataEntryValue | null): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+function landlordLeadsDbError(error: { code?: string; message: string }): Error {
+  if (
+    error.code === "PGRST205" ||
+    /landlord_leads|schema cache/i.test(error.message)
+  ) {
+    return new Error(
+      "Tabella landlord_leads assente su Supabase. Esegui frontend/supabase/migration_landlord_leads.sql nel SQL Editor, poi riprova.",
+    );
+  }
+  return new Error(error.message);
+}
+
 export async function createLandlordLead(formData: FormData) {
   await assertAdmin();
   const db = createServiceSupabaseClient();
@@ -72,20 +84,22 @@ export async function createLandlordLead(formData: FormData) {
     .select("id")
     .single();
 
-  if (error) throw new Error(`Errore nel salvataggio: ${error.message}`);
+  if (error) throw landlordLeadsDbError(error);
 
   revalidatePath("/admin/pipeline");
   redirect(`/admin/pipeline/${data.id}`);
 }
 
-export async function quickAddLandlordLead(formData: FormData) {
+export async function quickAddLandlordLead(
+  formData: FormData,
+): Promise<{ ok: true } | { ok: false; error: string }> {
   await assertAdmin();
   const db = createServiceSupabaseClient();
 
   const nome = String(formData.get("nome") ?? "").trim();
   const telefono = String(formData.get("telefono") ?? "").trim();
-  if (!nome) throw new Error("Il nome è obbligatorio.");
-  if (!telefono) throw new Error("Il telefono è obbligatorio.");
+  if (!nome) return { ok: false, error: "Il nome è obbligatorio." };
+  if (!telefono) return { ok: false, error: "Il telefono è obbligatorio." };
 
   const { error } = await db.from("landlord_leads").insert({
     nome,
@@ -96,9 +110,10 @@ export async function quickAddLandlordLead(formData: FormData) {
     stato: "da_contattare",
   });
 
-  if (error) throw new Error(`Errore nel salvataggio: ${error.message}`);
+  if (error) return { ok: false, error: landlordLeadsDbError(error).message };
 
   revalidatePath("/admin/pipeline");
+  return { ok: true };
 }
 
 export async function updateLandlordLead(formData: FormData) {
@@ -136,7 +151,7 @@ export async function updateLandlordLead(formData: FormData) {
     })
     .eq("id", id);
 
-  if (error) throw new Error(`Errore nell'aggiornamento: ${error.message}`);
+  if (error) throw landlordLeadsDbError(error);
 
   revalidatePath("/admin/pipeline");
   revalidatePath(`/admin/pipeline/${id}`);
@@ -160,7 +175,7 @@ export async function updateLandlordLeadStatus(formData: FormData) {
     })
     .eq("id", id);
 
-  if (error) throw new Error(`Errore: ${error.message}`);
+  if (error) throw landlordLeadsDbError(error);
 
   revalidatePath("/admin/pipeline");
   revalidatePath(`/admin/pipeline/${id}`);
@@ -174,7 +189,7 @@ export async function deleteLandlordLead(formData: FormData) {
   if (!id) throw new Error("ID mancante.");
 
   const { error } = await db.from("landlord_leads").delete().eq("id", id);
-  if (error) throw new Error(`Errore: ${error.message}`);
+  if (error) throw landlordLeadsDbError(error);
 
   revalidatePath("/admin/pipeline");
   redirect("/admin/pipeline");
