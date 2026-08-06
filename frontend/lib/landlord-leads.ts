@@ -78,3 +78,54 @@ export function followupUrgency(dateStr: string | null): "overdue" | "soon" | "l
   if (diffDays <= 1) return "soon";
   return "later";
 }
+
+/** Bozza lead estratta da testo annuncio (AI). Non salvata finché non confermi. */
+export interface LandlordLeadDraft {
+  nome: string;
+  telefono: string;
+  indirizzo_immobile: string;
+  zona: string;
+  fonte: string;
+  prezzo_richiesto: string;
+  /** "" | "true" | "false" per i select HTML */
+  arredato: "" | "true" | "false";
+}
+
+export const EMPTY_LANDLORD_LEAD_DRAFT: LandlordLeadDraft = {
+  nome: "",
+  telefono: "",
+  indirizzo_immobile: "",
+  zona: "",
+  fonte: "",
+  prezzo_richiesto: "",
+  arredato: "",
+};
+
+const ZONE_VALUES = new Set(LANDLORD_ZONE_OPTIONS.map((o) => o.value));
+const SOURCE_VALUES = new Set(LANDLORD_SOURCE_OPTIONS.map((o) => o.value));
+
+export function normalizeLandlordZone(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const v = value.trim().toLowerCase();
+  if (ZONE_VALUES.has(v as (typeof LANDLORD_ZONE_OPTIONS)[number]["value"])) return v;
+  // Accetta anche etichette o varianti comuni
+  if (/villarey|centro|economia|piazza\s*roma|corso\s*garibaldi/.test(v)) return "centro";
+  if (/tavernelle|monte\s*dago|ingegneria|agresti/.test(v)) return "tavernelle";
+  if (/torrette|adriatico|ospedale|palombare/.test(v)) return "torrette";
+  if (v === "altro" || v === "other") return "altro";
+  return "";
+}
+
+export function normalizeLandlordSource(value: unknown): string {
+  if (value == null || value === "") return "";
+  if (typeof value !== "string") return "";
+  const v = value.trim().toLowerCase();
+  if (SOURCE_VALUES.has(v as (typeof LANDLORD_SOURCE_OPTIONS)[number]["value"])) return v;
+  if (/idealista/.test(v)) return "idealista";
+  if (/subito/.test(v)) return "subito";
+  if (/passaparola|word.?of.?mouth/.test(v)) return "passaparola";
+  if (/amministratore|condominio/.test(v)) return "amministratore";
+  if (/volantin/.test(v)) return "volantinaggio";
+  if (v === "altro" || v === "other") return "altro";
+  return "";
+}
