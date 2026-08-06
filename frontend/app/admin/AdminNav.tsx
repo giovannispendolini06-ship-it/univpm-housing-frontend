@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { href: "/admin/conversations", label: "Conversazioni" },
   { href: "/admin/waitlist", label: "Lista d'attesa" },
   { href: "/admin/inquiries", label: "Richieste" },
+  { href: "/admin/pipeline", label: "Pipeline proprietari" },
   { href: "/admin/leads", label: "Annunci esterni" },
   { href: "/admin/properties", label: "Immobili" },
   { href: "/admin/payments", label: "Pagamenti" },
