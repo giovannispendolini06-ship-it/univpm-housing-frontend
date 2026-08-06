@@ -1,4 +1,5 @@
 import type { createServiceSupabaseClient } from "@/lib/supabase/server";
+import { sendEmail, buildAdminWaitlistEmail } from "@/lib/email";
 
 export interface StudentProfileForWaitlist {
   degree_course?: string | null;
@@ -106,5 +107,21 @@ export async function upsertWaitlistFromStudentProfile(
 
   if (writeError) {
     console.error("[waitlist] Errore salvataggio waitlist_signups:", writeError);
+    return;
+  }
+
+  // Notifica admin solo alla prima iscrizione (non a ogni aggiornamento profilo).
+  if (!existing?.id) {
+    const adminTo = process.env.ADMIN_NOTIFICATION_EMAIL || "info@coabito.it";
+    const adminEmail = buildAdminWaitlistEmail({
+      nome,
+      email,
+      phone,
+      facolta: payload.facolta,
+      polo: payload.polo,
+      budget: payload.budget,
+      source,
+    });
+    sendEmail({ to: adminTo, ...adminEmail });
   }
 }
