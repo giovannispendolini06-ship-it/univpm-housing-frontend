@@ -183,6 +183,125 @@ export function buildAdminInquiryEmail(input: {
 }
 
 // ----------------------------------------------------------------------------
+// Email: a te, quando qualcuno si iscrive alla lista d'attesa (form o Vesta)
+// ----------------------------------------------------------------------------
+const WAITLIST_SOURCE_BADGE: Record<
+  string,
+  { label: string; bg: string; color: string }
+> = {
+  lista_attesa: { label: "Lista d'attesa", bg: COLORS.sea50, color: COLORS.sea600 },
+  vesta_chat: { label: "Chat Vesta", bg: "#FFE8E2", color: COLORS.sunset500 },
+  instagram: { label: "Instagram", bg: COLORS.sea50, color: COLORS.sea600 },
+  whatsapp: { label: "WhatsApp", bg: COLORS.sea50, color: COLORS.sea600 },
+  telegram: { label: "Telegram", bg: COLORS.sea50, color: COLORS.sea600 },
+};
+
+const WAITLIST_POLO_LABELS: Record<string, string> = {
+  monte_dago: "Monte Dago / Tavernelle",
+  torrette: "Torrette",
+  centro_economia_giurisprudenza: "Centro / Villarey",
+  altro: "Altro",
+};
+
+const WAITLIST_FACOLTA_LABELS: Record<string, string> = {
+  ingegneria_informatica: "Ingegneria informatica",
+  ingegneria_civile: "Ingegneria civile",
+  medicina: "Medicina",
+  economia: "Economia",
+  giurisprudenza: "Giurisprudenza",
+  agraria: "Agraria",
+  scienze: "Scienze",
+  design: "Design",
+  altro: "Altro",
+};
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+export function buildAdminWaitlistEmail(input: {
+  nome: string;
+  email: string | null;
+  phone: string | null;
+  facolta: string | null;
+  polo: string | null;
+  budget: number | null;
+  source: string;
+}) {
+  const badge =
+    WAITLIST_SOURCE_BADGE[input.source] ??
+    ({ label: input.source || "Altro", bg: COLORS.sea50, color: COLORS.sea600 } as const);
+
+  const facoltaLabel = input.facolta
+    ? (WAITLIST_FACOLTA_LABELS[input.facolta] ?? input.facolta)
+    : "—";
+  const poloLabel = input.polo
+    ? (WAITLIST_POLO_LABELS[input.polo] ?? input.polo)
+    : "—";
+  const budgetLabel =
+    input.budget !== null && input.budget !== undefined ? `${input.budget}€/mese` : "—";
+
+  const emailCell = input.email
+    ? `<a href="mailto:${escapeHtml(input.email)}" style="color:${COLORS.sea600};">${escapeHtml(input.email)}</a>`
+    : "—";
+  const phoneCell = input.phone
+    ? `<a href="tel:${escapeHtml(input.phone)}" style="color:${COLORS.sea600};">${escapeHtml(input.phone)}</a>`
+    : "—";
+
+  const row = (label: string, valueHtml: string, isLast = false) => `
+    <tr>
+      <td style="padding:${isLast ? "10px 16px 14px" : "10px 16px 0"}; width:38%; vertical-align:top; font-size:12px; font-weight:600; color:${COLORS.inkMuted}; text-transform:uppercase; letter-spacing:0.03em;">
+        ${label}
+      </td>
+      <td style="padding:${isLast ? "10px 16px 14px" : "10px 16px 0"}; vertical-align:top; font-size:15px; color:${COLORS.ink}; font-weight:500;">
+        ${valueHtml}
+      </td>
+    </tr>`;
+
+  const bodyHtml = `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">
+      <tr>
+        <td>
+          <span style="display:inline-block; background-color:${badge.bg}; color:${badge.color}; font-size:11px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; padding:5px 10px; border-radius:999px;">
+            ${escapeHtml(badge.label)}
+          </span>
+        </td>
+      </tr>
+    </table>
+
+    <h1 style="margin:0 0 8px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Nuova iscrizione 🎯
+    </h1>
+    <p style="margin:0 0 20px; color:${COLORS.inkMuted}; font-size:14px;">
+      <strong style="color:${COLORS.ink};">${escapeHtml(input.nome)}</strong> è entrato/a in lista d'attesa.
+    </p>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.sea50}; border-radius:12px; overflow:hidden;">
+      ${row("Nome", escapeHtml(input.nome))}
+      ${row("Email", emailCell)}
+      ${row("Telefono", phoneCell)}
+      ${row("Facoltà", escapeHtml(facoltaLabel))}
+      ${row("Polo", escapeHtml(poloLabel))}
+      ${row("Budget", escapeHtml(budgetLabel), true)}
+    </table>
+
+    ${ctaButton("Apri la lista d'attesa", `${SITE_URL}/admin/waitlist`)}
+  `;
+
+  return {
+    subject: `[Coabito] Nuova iscrizione lista d'attesa — ${input.nome}`,
+    html: renderEmailLayout({
+      preheader: `${input.nome} · ${badge.label} · ${poloLabel}`,
+      bodyHtml,
+    }),
+  };
+}
+
+// ----------------------------------------------------------------------------
 // Email 2: conferma di ricezione a chi ha compilato il form proprietari
 // ----------------------------------------------------------------------------
 export function buildInquiryConfirmationEmail(input: { fullName: string }) {

@@ -5,7 +5,7 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, buildAdminWaitlistEmail } from "@/lib/email";
 
 interface WaitlistResult {
   error?: string;
@@ -92,19 +92,16 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
   }
 
   const adminTo = process.env.ADMIN_NOTIFICATION_EMAIL || "info@coabito.it";
-  await sendEmail({
-    to: adminTo,
-    subject: `[Coabito] Nuova iscrizione lista d'attesa — ${nome}`,
-    html: `
-      <p><strong>Nome:</strong> ${nome}</p>
-      <p><strong>Email:</strong> ${email || "—"}</p>
-      <p><strong>Telefono:</strong> ${phone || "—"}</p>
-      <p><strong>Facoltà:</strong> ${facolta || "—"}</p>
-      <p><strong>Polo:</strong> ${polo || "—"}</p>
-      <p><strong>Budget:</strong> ${budget ?? "—"}</p>
-      <p><strong>Fonte:</strong> ${source}</p>
-    `,
+  const adminEmail = buildAdminWaitlistEmail({
+    nome,
+    email: email || null,
+    phone: phone || null,
+    facolta,
+    polo,
+    budget: budget && !Number.isNaN(budget) ? budget : null,
+    source,
   });
+  await sendEmail({ to: adminTo, ...adminEmail });
 
   return { success: true };
 }
