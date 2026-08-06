@@ -1,5 +1,6 @@
 // lib/email.ts
 import { Resend } from "resend";
+import { SITE_URL } from "@/lib/site";
 
 function getResendClient(): Resend | null {
   const apiKey = process.env.RESEND_API_KEY;
@@ -143,8 +144,6 @@ function checklistHtml(items: string[]): string {
   const listItems = items.map((item) => `<li style="margin:0 0 8px;">${item}</li>`).join("");
   return `<ul style="margin:12px 0 0; padding-left:20px; color:${COLORS.ink};">${listItems}</ul>`;
 }
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://univpm-housing-frontend.vercel.app";
 
 // ----------------------------------------------------------------------------
 // Email 1: a te, quando arriva una nuova richiesta dal form proprietari
