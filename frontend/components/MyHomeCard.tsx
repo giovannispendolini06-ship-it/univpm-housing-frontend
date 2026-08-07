@@ -10,7 +10,7 @@ export interface MyTenancy {
   estimatedUtilities: number;
   address: string;
   zone: string | null;
-  paymentStatus: "da_registrare" | "pagato" | "in_ritardo";
+  paymentStatus: "da_registrare" | "pagato" | "in_ritardo" | "fallito";
   moveChecklist: string[] | null;
 }
 
@@ -18,6 +18,7 @@ const STATUS_STYLES: Record<MyTenancy["paymentStatus"], string> = {
   da_registrare: "bg-white/20 text-white",
   pagato: "bg-white text-sea-700",
   in_ritardo: "bg-sunset-500 text-white",
+  fallito: "bg-sunset-500 text-white",
 };
 
 export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
@@ -30,6 +31,7 @@ export default function MyHomeCard({ tenancy }: { tenancy: MyTenancy }) {
     da_registrare: t.myHomeCard.statusPending,
     pagato: t.myHomeCard.statusPaid,
     in_ritardo: t.myHomeCard.statusLate,
+    fallito: t.myPayments.statusFailed,
   };
 
   return (

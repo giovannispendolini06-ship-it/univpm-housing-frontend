@@ -260,6 +260,26 @@ export const translations = {
       tenantSince: "Inquilino dal {date}",
       checklistTitle: "📋 La tua checklist di trasloco",
     },
+    myPayments: {
+      title: "I miei pagamenti",
+      nextPayment: "Prossimo pagamento",
+      dueBy: "Scade il {date}",
+      payNow: "Paga ora",
+      paying: "Reindirizzamento…",
+      payError: "Qualcosa è andato storto. Riprova o contattaci.",
+      stripeSoon:
+        "I pagamenti online saranno attivi a breve — nel frattempo contattaci per le modalità di pagamento.",
+      whatsappCta: "Scrivici su WhatsApp",
+      whatsappMessage:
+        "Ciao! Sono uno studente Coabito e vorrei sapere come pagare l'affitto di questo mese.",
+      history: "Storico",
+      historyEmpty: "Nessun pagamento registrato ancora.",
+      receipt: "Ricevuta",
+      statusPaid: "Pagato",
+      statusDue: "In scadenza",
+      statusLate: "In ritardo",
+      statusFailed: "Fallito",
+    },
     esempi: {
       backToHome: "← Torna alla home",
       title: "Come funziona, in pratica",
@@ -598,6 +618,26 @@ export const translations = {
       totalPerMonth: "Total/month",
       tenantSince: "Tenant since {date}",
       checklistTitle: "📋 Your move-in checklist",
+    },
+    myPayments: {
+      title: "My payments",
+      nextPayment: "Next payment",
+      dueBy: "Due {date}",
+      payNow: "Pay now",
+      paying: "Redirecting…",
+      payError: "Something went wrong. Please try again or contact us.",
+      stripeSoon:
+        "Online payments will be available soon — in the meantime contact us for how to pay.",
+      whatsappCta: "Message us on WhatsApp",
+      whatsappMessage:
+        "Hi! I'm a Coabito student and I'd like to know how to pay this month's rent.",
+      history: "History",
+      historyEmpty: "No payments recorded yet.",
+      receipt: "Receipt",
+      statusPaid: "Paid",
+      statusDue: "Due soon",
+      statusLate: "Overdue",
+      statusFailed: "Failed",
     },
     esempi: {
       backToHome: "← Back to home",
