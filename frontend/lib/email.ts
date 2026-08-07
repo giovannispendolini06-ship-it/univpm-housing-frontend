@@ -8,11 +8,9 @@ function getResendClient(): Resend | null {
   return new Resend(apiKey);
 }
 
-// Finché non hai un dominio verificato, le email partono da questo
-// indirizzo di test di Resend — funziona subito, senza configurazione.
-// Quando avrai un dominio tuo: 1) verificalo su resend.com/domains,
-// 2) aggiorna questa riga con qualcosa tipo "Coabito <info@tuodominio.it>".
-const FROM_ADDRESS = "Coabito <onboarding@resend.dev>";
+// Dominio coabito.it verificato su Resend: tutte le email transazionali
+// partono da info@coabito.it (lista d'attesa, benvenuto, pagamenti, ecc.).
+const FROM_ADDRESS = "Coabito <info@coabito.it>";
 
 type EmailLocale = "it" | "en";
 
