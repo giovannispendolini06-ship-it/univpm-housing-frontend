@@ -8,6 +8,7 @@ import SignOutButton from "@/components/SignOutButton";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
 import LoadingRing from "@/components/LoadingRing";
 import MyHomeCard, { type MyTenancy } from "@/components/MyHomeCard";
+import MyPaymentsSection from "@/components/MyPaymentsSection";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
@@ -211,6 +212,7 @@ export default function StudentDashboardPage() {
       </div>
 
       {myTenancy && <MyHomeCard tenancy={myTenancy} />}
+      {studentId && myTenancy && <MyPaymentsSection studentId={studentId} />}
 
       {/* Tab bar solo mobile */}
       <div className="flex shrink-0 border-b border-sea-100 bg-white md:hidden">

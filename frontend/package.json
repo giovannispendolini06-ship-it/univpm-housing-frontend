@@ -16,7 +16,8 @@
     "openai": "^4.70.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "resend": "^6.18.1"
+    "resend": "^6.18.1",
+    "stripe": "^22.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
