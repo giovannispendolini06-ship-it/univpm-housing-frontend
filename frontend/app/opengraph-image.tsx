@@ -26,10 +26,10 @@ export default function OpengraphImage() {
           justifyContent: "center",
           padding: "72px 80px",
           backgroundColor: SEA_600,
-          // Satori (@vercel/og) requires an explicit shape keyword before the
-          // size (circle/ellipse); bare "700px 500px at …" fails the parser.
+          // Satori (@vercel/og): non supporta "ellipse W H at …" (due misure).
+          // Usare "circle at …" (shape esplicita, senza size) — sintassi stabile.
           backgroundImage:
-            "radial-gradient(circle 500px at 85% 20%, rgba(255,107,74,0.35), transparent 60%), radial-gradient(circle 600px at 10% 90%, rgba(8,47,45,0.55), transparent 55%)",
+            "radial-gradient(circle at 85% 20%, rgba(255,107,74,0.35), transparent 60%), radial-gradient(circle at 10% 90%, rgba(8,47,45,0.55), transparent 55%)",
           color: "#ffffff",
           fontFamily: "sans-serif",
         }}
