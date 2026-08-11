@@ -262,9 +262,25 @@ export const translations = {
       privacyRequired: "Devi accettare la Privacy Policy per iscriverti.",
       submit: "Entra in lista d'attesa",
       submitting: "Invio...",
-      successTitle: "Sei in lista! 🎉",
+      successTitle: "Sei in lista!",
       successBody:
         "Ti avviseremo appena arriva un immobile compatibile con le tue preferenze. Nel frattempo, puoi condividere il link con chi cerca casa ad Ancona.",
+      pendingTitle: "Controlla la tua email",
+      pendingBody:
+        "Ti abbiamo inviato un link di conferma. Cliccalo entro 7 giorni per attivare l'iscrizione: solo dopo potremo avvisarti quando arriva una stanza compatibile.",
+      confirm: {
+        successTitle: "Iscrizione confermata",
+        successBody:
+          "Perfetto: sei in lista d'attesa. Ti avviseremo appena arriva qualcosa di compatibile con le tue preferenze.",
+        alreadyTitle: "Già confermata",
+        alreadyBody: "La tua iscrizione era già attiva. Non serve fare altro.",
+        expiredTitle: "Link scaduto",
+        expiredBody:
+          "Questo link di conferma non è più valido. Iscriviti di nuovo dalla lista d'attesa per ricevere un nuovo email.",
+        invalidTitle: "Link non valido",
+        invalidBody:
+          "Non riusciamo a confermare questa iscrizione. Controlla il link nell'email o iscriviti di nuovo.",
+      },
       errorGeneric:
         "Qualcosa è andato storto. Riprova, o scrivici a info@coabito.it.",
       contactRequired: "Inserisci almeno un'email o un numero di telefono.",
@@ -659,9 +675,25 @@ export const translations = {
       privacyRequired: "You must accept the Privacy Policy to sign up.",
       submit: "Join the waitlist",
       submitting: "Submitting...",
-      successTitle: "You're on the list! 🎉",
+      successTitle: "You're on the list!",
       successBody:
         "We'll notify you as soon as a compatible place becomes available. In the meantime, feel free to share the link with friends looking for a room in Ancona.",
+      pendingTitle: "Check your email",
+      pendingBody:
+        "We've sent you a confirmation link. Click it within 7 days to activate your signup — we'll only notify you about compatible rooms after that.",
+      confirm: {
+        successTitle: "Signup confirmed",
+        successBody:
+          "You're on the waitlist. We'll let you know as soon as something compatible becomes available.",
+        alreadyTitle: "Already confirmed",
+        alreadyBody: "Your signup was already active. Nothing else to do.",
+        expiredTitle: "Link expired",
+        expiredBody:
+          "This confirmation link is no longer valid. Join the waitlist again to get a new email.",
+        invalidTitle: "Invalid link",
+        invalidBody:
+          "We couldn't confirm this signup. Check the link in your email or join the waitlist again.",
+      },
       errorGeneric: "Something went wrong. Please try again, or email us at info@coabito.it.",
       contactRequired: "Please enter at least an email or a phone number.",
       facoltaOptions: [

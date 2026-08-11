@@ -18,12 +18,12 @@ function resolveSourceParam(src: string | null): string {
 }
 
 export default function WaitlistForm() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const searchParams = useSearchParams();
   const source = resolveSourceParam(searchParams.get("src"));
 
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [successStatus, setSuccessStatus] = useState<"pending" | "ok" | null>(null);
   const [isPending, startTransition] = useTransition();
   const [renderedAt] = useState(() => Date.now());
 
@@ -41,12 +41,23 @@ export default function WaitlistForm() {
       if (result?.error) {
         setError(resolveError(result.error));
       } else {
-        setSuccess(true);
+        setSuccessStatus(result?.status === "pending" ? "pending" : "ok");
       }
     });
   }
 
-  if (success) {
+  if (successStatus === "pending") {
+    return (
+      <div className="animate-pop-in rounded-xl2 bg-sea-50 p-6 text-center shadow-card">
+        <p className="font-display text-base font-bold text-sea-700">
+          {t.listaAttesa.pendingTitle}
+        </p>
+        <p className="mt-2 text-sm text-ink-muted">{t.listaAttesa.pendingBody}</p>
+      </div>
+    );
+  }
+
+  if (successStatus === "ok") {
     return (
       <div className="animate-pop-in rounded-xl2 bg-sea-50 p-6 text-center shadow-card">
         <p className="font-display text-base font-bold text-sea-700">
@@ -65,6 +76,7 @@ export default function WaitlistForm() {
       </div>
       <input type="hidden" name="rendered_at" value={renderedAt} />
       <input type="hidden" name="source" value={source} />
+      <input type="hidden" name="locale" value={locale} />
 
       <div>
         <label className="mb-1 block text-xs font-medium text-ink-muted">

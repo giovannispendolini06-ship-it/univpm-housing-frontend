@@ -1,5 +1,6 @@
 import type { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { sendEmail, buildAdminWaitlistEmail } from "@/lib/email";
+import { SITE_URL } from "@/lib/site";
 
 export interface StudentProfileForWaitlist {
   degree_course?: string | null;
@@ -19,6 +20,9 @@ const WAITLIST_KEYWORDS = [
   "waitlist",
   "lista attesa",
 ];
+
+/** Token validità conferma email (7 giorni). Scadenza = token non più valido, riga non cancellata. */
+export const WAITLIST_CONFIRM_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 export function replyContainsWaitlistNotice(text: string): boolean {
   const lower = text.toLowerCase();
@@ -48,9 +52,76 @@ export function buildWaitlistChatFallback(
   return msg;
 }
 
+/** Marketing / avvisi stanza: solo iscritti con confirmed_at valorizzato. */
+export function isWaitlistConfirmed(row: { confirmed_at: string | null }): boolean {
+  return row.confirmed_at != null;
+}
+
+export function createWaitlistConfirmationToken(): string {
+  return crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+}
+
+export function waitlistConfirmUrl(token: string): string {
+  return `${SITE_URL}/lista-attesa/conferma?token=${encodeURIComponent(token)}`;
+}
+
+export type ConfirmWaitlistResult =
+  | { status: "confirmed" }
+  | { status: "already" }
+  | { status: "expired" }
+  | { status: "invalid" };
+
+/**
+ * Conferma un'iscrizione waitlist tramite token email (service role).
+ * Idempotente se già confermata.
+ */
+export async function confirmWaitlistByToken(
+  db: ServiceClient,
+  token: string,
+): Promise<ConfirmWaitlistResult> {
+  const cleaned = token.trim();
+  if (!cleaned || cleaned.length < 16) return { status: "invalid" };
+
+  const { data: row, error } = await db
+    .from("waitlist_signups")
+    .select("id, confirmed_at, confirmation_expires_at")
+    .eq("confirmation_token", cleaned)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[waitlist] confirm lookup error:", error);
+    return { status: "invalid" };
+  }
+  if (!row) return { status: "invalid" };
+  if (row.confirmed_at) return { status: "already" };
+
+  const expiresAt = row.confirmation_expires_at
+    ? new Date(row.confirmation_expires_at).getTime()
+    : 0;
+  if (!expiresAt || Date.now() > expiresAt) {
+    return { status: "expired" };
+  }
+
+  const { error: updateError } = await db
+    .from("waitlist_signups")
+    .update({
+      confirmed_at: new Date().toISOString(),
+      confirmation_token: null,
+    })
+    .eq("id", row.id);
+
+  if (updateError) {
+    console.error("[waitlist] confirm update error:", updateError);
+    return { status: "invalid" };
+  }
+
+  return { status: "confirmed" };
+}
+
 /**
  * Upsert waitlist_signups from a logged-in student's profile (Vesta fallback).
  * Uses user_id unique index — updates existing row if present.
+ * Account già autenticato → confirmed_at immediato (niente DOI email).
  */
 export async function upsertWaitlistFromStudentProfile(
   db: ServiceClient,
@@ -78,6 +149,7 @@ export async function upsertWaitlistFromStudentProfile(
     return;
   }
 
+  const nowIso = new Date().toISOString();
   const payload = {
     user_id: userId,
     nome,
@@ -91,6 +163,10 @@ export async function upsertWaitlistFromStudentProfile(
     guests_frequency: profile.guests_frequency ?? null,
     cleanliness_level: profile.cleanliness_level ?? null,
     source,
+    confirmed_at: nowIso,
+    confirmation_token: null,
+    confirmation_sent_at: null,
+    confirmation_expires_at: null,
   };
 
   // Indice unique parziale su user_id: ON CONFLICT (user_id) non è
@@ -121,6 +197,7 @@ export async function upsertWaitlistFromStudentProfile(
       polo: payload.polo,
       budget: payload.budget,
       source,
+      pendingConfirmation: false,
     });
     sendEmail({ to: adminTo, ...adminEmail });
   }
