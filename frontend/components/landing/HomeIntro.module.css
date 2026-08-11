@@ -1,0 +1,271 @@
+/* Intro "abito che si posa sulla casa".
+   Animiamo solo i contenitori (posizione / scala), mai i figli SVG —
+   evita i bug di rendering con transform annidate. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 900px 700px at 50% 42%, rgba(20, 60, 56, 0.85), transparent 65%),
+    linear-gradient(180deg, #061412 0%, #0a1f1d 48%, #061412 100%);
+  animation: introOut 0.7s ease-in 5.2s forwards;
+}
+
+.overlayExiting {
+  animation: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  pointer-events: none;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 850px 700px at 50% 48%,
+    transparent 42%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
+}
+
+.scene {
+  position: relative;
+  width: min(420px, 86vw);
+  height: min(400px, 72vw);
+}
+
+.houseGlow {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  width: 70%;
+  height: 70%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 150, 110, 0.28), transparent 70%);
+  filter: blur(28px);
+  opacity: 0;
+  animation:
+    glowIn 0.9s ease-out 3.35s forwards,
+    glowBreathe 3s ease-in-out 4.2s infinite;
+}
+
+.house {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: houseIn 0.55s ease-out 0.3s forwards;
+}
+
+.house svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.houseStroke {
+  fill: none;
+  stroke: #e8c28a;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.groundStroke {
+  fill: none;
+  stroke: rgba(232, 194, 138, 0.45);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+/* Contiene posizione + squash/stretch: SVG interno statico. */
+.garment {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 72px;
+  height: 72px;
+  margin-left: -36px;
+  transform-origin: 50% 85%;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: garmentFall 2.9s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
+}
+
+.garmentInner {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.word {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 14px);
+  text-align: center;
+  opacity: 0;
+  animation: wordIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) 3.55s forwards;
+}
+
+.brand {
+  color: #fff;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(18px, 5vw, 23px);
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.tagline {
+  color: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-body), sans-serif;
+  font-size: clamp(13px, 3.4vw, 15px);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.skip {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 210;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: var(--font-body), sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 8px 4px;
+  animation: skipIn 0.55s ease-out 0.8s both;
+}
+
+.skip:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.skip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+  border-radius: 4px;
+}
+
+@keyframes houseIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes glowIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes glowBreathe {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Caduta + oscillazione + squash/stretch all'impatto (~2.05s totale da 0.55s).
+   Keyframe % relativi a 2.9s di durata animazione. */
+@keyframes garmentFall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -42%, 0) scale(0.72, 0.88) rotate(-8deg);
+  }
+  8% {
+    opacity: 1;
+  }
+  28% {
+    transform: translate3d(10px, -8%, 0) scale(0.78, 0.92) rotate(6deg);
+  }
+  45% {
+    transform: translate3d(-7px, 18%, 0) scale(0.84, 0.96) rotate(-4deg);
+  }
+  /* Impatto sul tetto ~52% di 2.9s ≈ 1.5s dopo start = ~2.05s assoluti */
+  52% {
+    transform: translate3d(0, 34%, 0) scale(1.12, 0.78) rotate(0deg);
+  }
+  62% {
+    transform: translate3d(0, 30%, 0) scale(0.9, 1.08) rotate(1deg);
+  }
+  74% {
+    transform: translate3d(0, 33%, 0) scale(1.06, 0.94) rotate(-0.5deg);
+  }
+  86% {
+    transform: translate3d(0, 31.5%, 0) scale(0.97, 1.03) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 32%, 0) scale(1, 1) rotate(0deg);
+  }
+}
+
+@keyframes wordIn {
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes skipIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes introOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 640px) {
+  .overlay {
+    animation-delay: 4.2s;
+  }
+
+  .garment {
+    width: 56px;
+    height: 56px;
+    margin-left: -28px;
+    animation-duration: 2.4s;
+  }
+
+  .houseGlow {
+    animation-delay: 2.85s, 3.6s;
+  }
+
+  .word {
+    animation-delay: 3s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    display: none;
+  }
+}
