@@ -14,7 +14,7 @@ export default function TermsPage() {
           Termini di Servizio
         </h1>
         <p className="mb-8 text-sm text-ink-muted">
-          Ultimo aggiornamento: [DA COMPILARE — data di pubblicazione]
+          Ultimo aggiornamento: 11 agosto 2026
         </p>
 
         <div className="space-y-6 text-sm leading-relaxed text-ink">
@@ -94,7 +94,25 @@ export default function TermsPage() {
 
           <section>
             <h2 className="mb-2 font-display text-base font-bold text-ink">
-              6. Proprietà intellettuale
+              6. Lista d&apos;attesa
+            </h2>
+            <p>
+              Puoi iscriverti alla lista d&apos;attesa anche senza account, per ricevere avvisi quando
+              è disponibile una stanza compatibile con le preferenze indicate. Se lasci un&apos;email,
+              l&apos;iscrizione si attiva solo dopo la conferma del link che ti inviamo (double
+              opt-in). Non garantiamo tempi di disponibilità né che arriverà un&apos;offerta adatta:
+              la lista è uno strumento di contatto, non una prenotazione. Puoi chiedere in qualsiasi
+              momento di essere rimosso scrivendo a{" "}
+              <a href="mailto:info@coabito.it" className="text-sea-700 underline">
+                info@coabito.it
+              </a>
+              .
+            </p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-display text-base font-bold text-ink">
+              7. Proprietà intellettuale
             </h2>
             <p>
               Il nome, il logo, il design e il codice della piattaforma sono di proprietà di Coabito.
@@ -105,7 +123,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="mb-2 font-display text-base font-bold text-ink">
-              7. Modifiche al servizio e ai termini
+              8. Modifiche al servizio e ai termini
             </h2>
             <p>
               Potremmo modificare, sospendere o interrompere il servizio, in tutto o in parte, in
@@ -116,7 +134,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="mb-2 font-display text-base font-bold text-ink">
-              8. Legge applicabile
+              9. Legge applicabile
             </h2>
             <p>
               Questi termini sono regolati dalla legge italiana. Per qualsiasi controversia sarà
@@ -127,7 +145,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="mb-2 font-display text-base font-bold text-ink">
-              9. Contatti
+              10. Contatti
             </h2>
             <p>
               Per qualsiasi domanda su questi termini, scrivici a{" "}

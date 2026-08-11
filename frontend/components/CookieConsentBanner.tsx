@@ -12,7 +12,7 @@ function buildLanguageBlock(locale: Locale) {
   return {
     consentModal: {
       title: c.title,
-      description: `${c.description} <a href="/privacy">${c.privacyLink}</a>.`,
+      description: `${c.description} <a href="/privacy#cookie">${c.privacyLink}</a>.`,
       acceptAllBtn: c.acceptAll,
       acceptNecessaryBtn: c.rejectNonEssential,
       showPreferencesBtn: c.customize,
@@ -40,7 +40,7 @@ function buildLanguageBlock(locale: Locale) {
         },
         {
           title: c.sectionMoreTitle,
-          description: `${c.sectionMoreBody} <a href="/privacy">${c.privacyLink}</a>.`,
+          description: `${c.sectionMoreBody} <a href="/privacy#cookie">${c.privacyLink}</a>.`,
         },
       ],
     },
