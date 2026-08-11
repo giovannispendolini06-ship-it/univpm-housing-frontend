@@ -138,6 +138,30 @@ export const translations = {
       rights: "Tutti i diritti riservati.",
       privacy: "Privacy",
       terms: "Termini di servizio",
+      cookies: "Cookie",
+    },
+    cookieBanner: {
+      title: "Usiamo i cookie",
+      description:
+        "Usiamo cookie essenziali per far funzionare il sito e, solo con il tuo consenso, cookie di misurazione (Vercel Analytics) per capire come migliorare Coabito.",
+      acceptAll: "Accetta tutti",
+      rejectNonEssential: "Rifiuta non essenziali",
+      customize: "Personalizza",
+      preferencesTitle: "Preferenze cookie",
+      savePreferences: "Salva preferenze",
+      close: "Chiudi",
+      privacyLink: "Privacy Policy",
+      sectionIntroTitle: "Utilizzo dei cookie",
+      sectionIntroBody:
+        "Puoi scegliere quali cookie accettare. I cookie essenziali sono sempre attivi perché servono al funzionamento del sito (sessione, lingua, sicurezza).",
+      sectionNecessaryTitle: "Essenziali",
+      sectionNecessaryBody:
+        "Necessari per autenticazione, preferenza lingua e sicurezza. Non possono essere disattivati.",
+      sectionAnalyticsTitle: "Analitici",
+      sectionAnalyticsBody:
+        "Vercel Analytics: ci aiuta a capire quali pagine vengono visitate, in forma aggregata e anonima. Non usiamo Google Analytics né pubblicità.",
+      sectionMoreTitle: "Maggiori informazioni",
+      sectionMoreBody: "Per dettagli su come trattiamo i dati, leggi la nostra",
     },
     common: {
       signOut: "Esci",
@@ -511,6 +535,30 @@ export const translations = {
       rights: "All rights reserved.",
       privacy: "Privacy",
       terms: "Terms of service",
+      cookies: "Cookies",
+    },
+    cookieBanner: {
+      title: "We use cookies",
+      description:
+        "We use essential cookies to make the site work and, only with your consent, measurement cookies (Vercel Analytics) to understand how to improve Coabito.",
+      acceptAll: "Accept all",
+      rejectNonEssential: "Reject non-essential",
+      customize: "Customize",
+      preferencesTitle: "Cookie preferences",
+      savePreferences: "Save preferences",
+      close: "Close",
+      privacyLink: "Privacy Policy",
+      sectionIntroTitle: "How we use cookies",
+      sectionIntroBody:
+        "You can choose which cookies to accept. Essential cookies are always on because they are required for the site to work (session, language, security).",
+      sectionNecessaryTitle: "Essential",
+      sectionNecessaryBody:
+        "Required for authentication, language preference and security. These cannot be turned off.",
+      sectionAnalyticsTitle: "Analytics",
+      sectionAnalyticsBody:
+        "Vercel Analytics: helps us understand which pages are visited, in aggregate and anonymous form. We do not use Google Analytics or ads.",
+      sectionMoreTitle: "More information",
+      sectionMoreBody: "For details on how we process data, read our",
     },
     common: {
       signOut: "Sign out",
