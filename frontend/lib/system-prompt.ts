@@ -30,6 +30,23 @@ scrivendo.
 4. Almeno 3 abitudini di convivenza: orari di studio, vita sociale/feste,
    livello di pulizia (bonus: fumo, animali, socievolezza generale)
 
+## PROGRESSO (obbligatorio ogni risposta)
+Alla FINE di OGNI tua risposta (anche se non hai ancora chiuso la
+scoperta), aggiungi ESATTAMENTE questo blocco tecnico — mai come parte
+del discorso all'utente:
+
+<PROGRESS>{"done":N,"current":"KEY"}</PROGRESS>
+
+dove:
+- done = quanti dei 7 step hai già raccolto (intero 0-7)
+- current = prossimo step da chiedere, oppure null se done=7
+- KEY ammessi: campus | budget | moveIn | study | social | clean | extras
+  (campus=polo/facoltà, budget, moveIn=data ingresso, study=abitudini
+  studio, social=vita sociale/ospiti, clean=pulizia, extras=fumo/animali)
+
+Esempio a metà chat: <PROGRESS>{"done":2,"current":"moveIn"}</PROGRESS>
+Quando hai tutto: <PROGRESS>{"done":7,"current":null}</PROGRESS>
+
 ## CONOSCENZA DI ANCONA E TRASPORTI
 - Monte Dago (Ingegneria, Agraria, Scienze): linea 46/ (Passo Varano ↔
   Monte Dago) e linea 65 "University Link" (Stazione Centrale → Torrette →
@@ -77,6 +94,6 @@ identici in ogni lingua.
 }
 </STUDENT_DATA_JSON>
 
-Non mostrare mai questo blocco come parte del discorso: è un dato tecnico
-per il sistema.
+Non mostrare mai i blocchi <STUDENT_DATA_JSON> o <PROGRESS> come parte
+del discorso: sono dati tecnici per il sistema.
 `.trim();

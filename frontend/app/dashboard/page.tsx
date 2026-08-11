@@ -11,6 +11,10 @@ import MyHomeCard, { type MyTenancy } from "@/components/MyHomeCard";
 import MyPaymentsSection from "@/components/MyPaymentsSection";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
+import {
+  computeChatProgressFromProfile,
+  type ChatProgress,
+} from "@/lib/chat-progress";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 
@@ -53,6 +57,7 @@ export default function StudentDashboardPage() {
   // null = ancora in caricamento: evita di mostrare per un istante il
   // messaggio di benvenuto e poi "saltare" alla cronologia vera.
   const [initialMessages, setInitialMessages] = useState<ChatMessage[] | null>(null);
+  const [chatProgress, setChatProgress] = useState<ChatProgress | null>(null);
 
   useEffect(() => {
     const supabase = createClientSupabaseClient();
@@ -103,6 +108,18 @@ export default function StudentDashboardPage() {
           }
         });
 
+      // Progresso iniziale dal profilo già salvato (se la chat era stata chiusa).
+      supabase
+        .from("student_profiles")
+        .select(
+          "campus_id, degree_course, budget_max, preferred_move_in_date, study_habit, sociability_level, guests_frequency, cleanliness_level, is_smoker, has_pets",
+        )
+        .eq("user_id", userId)
+        .maybeSingle()
+        .then(({ data: profile }) => {
+          setChatProgress(computeChatProgressFromProfile(profile));
+        });
+
       // Se lo studente ha già un affitto attivo, mostra subito affitto +
       // utenze + stato del pagamento — la prima cosa che deve vedere
       // aprendo il sito, non qualcosa da andare a cercare.
@@ -144,7 +161,12 @@ export default function StudentDashboardPage() {
   async function handleSendMessage(
     text: string,
     history: { role: ChatMessage["role"]; content: string }[],
-  ): Promise<{ reply: string; rooms?: RecommendedRoom[]; waitlisted?: boolean }> {
+  ): Promise<{
+    reply: string;
+    rooms?: RecommendedRoom[];
+    waitlisted?: boolean;
+    progress?: ChatProgress;
+  }> {
     if (!studentId) {
       return {
         reply:
@@ -173,7 +195,13 @@ export default function StudentDashboardPage() {
 
     const data = await res.json();
     if (data.waitlisted) setWaitlisted(true);
-    return { reply: data.reply, rooms: data.rooms, waitlisted: data.waitlisted };
+    if (data.progress) setChatProgress(data.progress);
+    return {
+      reply: data.reply,
+      rooms: data.rooms,
+      waitlisted: data.waitlisted,
+      progress: data.progress,
+    };
   }
 
   function handleRoomsUpdate(updatedRooms: RecommendedRoom[], isWaitlisted?: boolean) {
@@ -235,6 +263,7 @@ export default function StudentDashboardPage() {
           {initialMessages ? (
             <ChatPanel
               initialMessages={initialMessages}
+              initialProgress={chatProgress}
               onSendMessage={handleSendMessage}
               onRoomsUpdate={handleRoomsUpdate}
             />
