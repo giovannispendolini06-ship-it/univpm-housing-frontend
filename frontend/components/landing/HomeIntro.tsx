@@ -5,13 +5,13 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 import styles from "./HomeIntro.module.css";
 
 const INTRO_KEY = "coabito_intro_seen";
-const INTRO_MS = 5900;
-const INTRO_MS_MOBILE = 4900;
+const INTRO_MS = 5200;
+const INTRO_MS_MOBILE = 4600;
 
 /**
- * Overlay di apertura: l'abito Coabito cade sul profilo di una casa.
- * Solo prima visita di sessione; rispetta prefers-reduced-motion.
- * La homepage resta montata dietro — questo è un velo, non un gate.
+ * Overlay di apertura: la casa si disegna, poi l'icona Coabito appare
+ * al suo interno. Solo prima visita di sessione; rispetta
+ * prefers-reduced-motion. La homepage resta montata dietro.
  */
 export default function HomeIntro() {
   const { t } = useLocale();
@@ -91,9 +91,8 @@ export default function HomeIntro() {
             </svg>
           </div>
 
-          {/* Solo il contenitore è animato: la forma SVG resta statica. */}
-          <div className={styles.garment}>
-            <svg className={styles.garmentInner} viewBox="0 0 32 32" aria-hidden="true">
+          <div className={styles.mark}>
+            <svg className={styles.markInner} viewBox="0 0 32 32" aria-hidden="true">
               <rect width="32" height="32" rx="9" fill="#0F6E6A" />
               <path
                 d="M16 6.5 Q16 3.5 19 4.5"

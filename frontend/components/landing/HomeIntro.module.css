@@ -1,6 +1,5 @@
-/* Intro "abito che si posa sulla casa".
-   Animiamo solo i contenitori (posizione / scala), mai i figli SVG —
-   evita i bug di rendering con transform annidate. */
+/* Intro: la casa si disegna, poi l'icona Coabito appare al suo interno.
+   Niente caduta sul tetto — solo stroke-draw + fade/scale del mark. */
 
 .overlay {
   position: fixed;
@@ -12,7 +11,7 @@
   background:
     radial-gradient(ellipse 900px 700px at 50% 42%, rgba(20, 60, 56, 0.85), transparent 65%),
     linear-gradient(180deg, #061412 0%, #0a1f1d 48%, #061412 100%);
-  animation: introOut 0.7s ease-in 5.2s forwards;
+  animation: introOut 0.8s ease-in 4.4s forwards;
 }
 
 .overlayExiting {
@@ -48,19 +47,17 @@
   height: 70%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 150, 110, 0.28), transparent 70%);
+  background: radial-gradient(circle, rgba(255, 150, 110, 0.22), transparent 70%);
   filter: blur(28px);
   opacity: 0;
   animation:
-    glowIn 0.9s ease-out 3.35s forwards,
-    glowBreathe 3s ease-in-out 4.2s infinite;
+    glowIn 1.1s ease-out 1.9s forwards,
+    glowBreathe 3s ease-in-out 3s infinite;
 }
 
 .house {
   position: absolute;
   inset: 0;
-  opacity: 0;
-  animation: houseIn 0.55s ease-out 0.3s forwards;
 }
 
 .house svg {
@@ -69,12 +66,16 @@
   overflow: visible;
 }
 
+/* Self-drawing stroke: la casa compare progressivamente. */
 .houseStroke {
   fill: none;
   stroke: #e8c28a;
   stroke-width: 2.5;
   stroke-linecap: round;
   stroke-linejoin: round;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawLine 1.7s cubic-bezier(0.65, 0, 0.35, 1) 0.35s forwards;
 }
 
 .groundStroke {
@@ -82,23 +83,24 @@
   stroke: rgba(232, 194, 138, 0.45);
   stroke-width: 1.5;
   stroke-linecap: round;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: drawLine 1s ease-out 1.5s forwards;
 }
 
-/* Contiene posizione + squash/stretch: SVG interno statico. */
-.garment {
+/* Icona al centro della casa, dopo che il disegno è completo. */
+.mark {
   position: absolute;
-  top: 0;
+  top: 57%;
   left: 50%;
-  width: 72px;
-  height: 72px;
-  margin-left: -36px;
-  transform-origin: 50% 85%;
+  width: 62px;
+  height: 62px;
+  transform: translate(-50%, -50%) scale(0.82);
   opacity: 0;
-  will-change: transform, opacity;
-  animation: garmentFall 2.9s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
+  animation: markIn 1s cubic-bezier(0.16, 1, 0.3, 1) 2.05s forwards;
 }
 
-.garmentInner {
+.markInner {
   width: 100%;
   height: 100%;
   display: block;
@@ -111,7 +113,7 @@
   transform: translate(-50%, 14px);
   text-align: center;
   opacity: 0;
-  animation: wordIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) 3.55s forwards;
+  animation: wordIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 2.5s forwards;
 }
 
 .brand {
@@ -125,10 +127,10 @@
 }
 
 .tagline {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.45);
   font-family: var(--font-body), sans-serif;
   font-size: clamp(13px, 3.4vw, 15px);
-  font-weight: 400;
+  font-weight: 300;
   font-style: italic;
   letter-spacing: 0.02em;
 }
@@ -147,7 +149,7 @@
   background: none;
   border: none;
   padding: 8px 4px;
-  animation: skipIn 0.55s ease-out 0.8s both;
+  animation: skipIn 0.6s ease-out 1s both;
 }
 
 .skip:hover {
@@ -160,12 +162,9 @@
   border-radius: 4px;
 }
 
-@keyframes houseIn {
-  from {
-    opacity: 0;
-  }
+@keyframes drawLine {
   to {
-    opacity: 1;
+    stroke-dashoffset: 0;
   }
 }
 
@@ -185,38 +184,10 @@
   }
 }
 
-/* Caduta + oscillazione + squash/stretch all'impatto (~2.05s totale da 0.55s).
-   Keyframe % relativi a 2.9s di durata animazione. */
-@keyframes garmentFall {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, -42%, 0) scale(0.72, 0.88) rotate(-8deg);
-  }
-  8% {
+@keyframes markIn {
+  to {
     opacity: 1;
-  }
-  28% {
-    transform: translate3d(10px, -8%, 0) scale(0.78, 0.92) rotate(6deg);
-  }
-  45% {
-    transform: translate3d(-7px, 18%, 0) scale(0.84, 0.96) rotate(-4deg);
-  }
-  /* Impatto sul tetto ~52% di 2.9s ≈ 1.5s dopo start = ~2.05s assoluti */
-  52% {
-    transform: translate3d(0, 34%, 0) scale(1.12, 0.78) rotate(0deg);
-  }
-  62% {
-    transform: translate3d(0, 30%, 0) scale(0.9, 1.08) rotate(1deg);
-  }
-  74% {
-    transform: translate3d(0, 33%, 0) scale(1.06, 0.94) rotate(-0.5deg);
-  }
-  86% {
-    transform: translate3d(0, 31.5%, 0) scale(0.97, 1.03) rotate(0deg);
-  }
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 32%, 0) scale(1, 1) rotate(0deg);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -245,22 +216,24 @@
 
 @media (max-width: 640px) {
   .overlay {
-    animation-delay: 4.2s;
+    animation-delay: 3.8s;
   }
 
-  .garment {
-    width: 56px;
-    height: 56px;
-    margin-left: -28px;
-    animation-duration: 2.4s;
+  .mark {
+    width: 52px;
+    height: 52px;
   }
 
   .houseGlow {
-    animation-delay: 2.85s, 3.6s;
+    animation-delay: 1.7s, 2.7s;
+  }
+
+  .mark {
+    animation-delay: 1.85s;
   }
 
   .word {
-    animation-delay: 3s;
+    animation-delay: 2.2s;
   }
 }
 
