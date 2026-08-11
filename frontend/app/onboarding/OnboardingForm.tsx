@@ -29,7 +29,11 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
         <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sea-50">
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="" className="h-full w-full object-cover" />
+            <img
+              src={preview}
+              alt={t.onboarding.profilePhoto}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-sea-300">
               <circle cx="12" cy="8" r="4" />

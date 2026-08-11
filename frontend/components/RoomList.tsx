@@ -4,17 +4,28 @@ import { useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { RecommendedRoom } from "@/lib/types";
 import RoomCard from "./RoomCard";
+import RoomListSkeleton from "./RoomListSkeleton";
 
 export default function RoomList({
   rooms,
   waitlisted = false,
+  loading = false,
 }: {
   rooms: RecommendedRoom[];
   waitlisted?: boolean;
+  loading?: boolean;
 }) {
   const { t } = useLocale();
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
   const sorted = [...rooms].sort((a, b) => b.matchScore - a.matchScore);
+
+  if (loading) {
+    return (
+      <div className="h-full" aria-label={t.roomList.loadingLabel}>
+        <RoomListSkeleton />
+      </div>
+    );
+  }
 
   async function handleShare() {
     const url = `${window.location.origin}/lista-attesa`;

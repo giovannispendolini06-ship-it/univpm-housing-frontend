@@ -140,6 +140,41 @@ export const translations = {
       privacy: "Privacy",
       terms: "Termini di servizio",
       cookies: "Cookie",
+      guide: "Guida affitto Ancona",
+    },
+    guidaAffittoAncona: {
+      title: "Come affittare casa per studenti ad Ancona",
+      subtitle:
+        "Una guida pratica per fuori sede UNIVPM: tempi, zone vicine ai poli, budget realistici e come evitare i classici errori sugli annunci.",
+      intro:
+        "Trovare una stanza ad Ancona sembra semplice finché non inizi a rispondere a decine di annunci, a fare giri inutili e a scoprire che la “singola luminosa” è a 40 minuti dal tuo polo. Questa guida riassume cosa conta davvero se studi all’Università Politecnica delle Marche.",
+      sections: [
+        {
+          title: "Quando iniziare a cercare",
+          body: "Per l’inizio dell’anno accademico i posti migliori si muovono da giugno a settembre. Se arrivi a ottobre sei ancora in tempo, ma conviene entrare in lista d’attesa o chattare subito con Vesta: più chiaro è il tuo profilo (polo, budget, data di ingresso), più è facile proporti qualcosa di sensato appena si libera.",
+        },
+        {
+          title: "Zone e poli universitari",
+          body: "Monte Dago (Ingegneria, Agraria, Scienze) si raggiunge bene con la linea 65 University Link e la 46/. Torrette (Medicina) è lungo lo stesso corridoio della 65. Economia e Giurisprudenza gravitano sul centro / Villarey: lì contano soprattutto piedi e linee verso stazione e Piazza Roma. Una stanza “conveniente” lontano dal tuo polo spesso costa di più in tempo e stress quotidiano.",
+        },
+        {
+          title: "Budget realistico",
+          body: "Oltre al canone mensile metti in conto utenze, deposito e eventuali spese condominiali. Su Coabito indichi un budget massimo e Vesta lo usa per filtrare: meglio essere onesti sul tetto reale che accettare proposte che non reggi dopo due mesi.",
+        },
+        {
+          title: "Cosa chiedere (e cosa evitare)",
+          body: "Chiedi sempre data di disponibilità, cosa è incluso nelle spese, se la stanza è singola o doppia, e regole su ospiti/fumo. Diffida di richieste di caparra via bonifico prima di aver visto la casa o firmato qualcosa di chiaro. Coabito gestisce il rapporto con il proprietario proprio per ridurre questi passaggi opachi.",
+        },
+        {
+          title: "Come ti aiuta Coabito",
+          body: "Invece di scorrere annunci a caso, racconti a Vesta facoltà, budget e abitudini di convivenza. Ti proponiamo stanze compatibili vicino al tuo ateneo e un punteggio che pesa anche stile di vita, non solo metri quadri. Per gli studenti è gratuito parlare con Vesta e vedere le proposte.",
+        },
+      ],
+      ctaTitle: "Pronto a cercare senza perdere settimane?",
+      ctaBody: "Inizia la chat con Vesta oppure entra in lista d’attesa: ti avvisiamo quando arriva qualcosa di compatibile.",
+      ctaChat: "Parla con Vesta",
+      ctaWaitlist: "Lista d’attesa",
+      backHome: "← Torna alla home",
     },
     cookieBanner: {
       title: "Usiamo i cookie",
@@ -256,6 +291,13 @@ export const translations = {
         "Ho salvato le tue preferenze. Appena arriva un immobile compatibile con te, sarai tra i primi ad essere avvisato.",
       shareCta: "Condividi con un amico",
       shareText: "Sto cercando casa ad Ancona con Coabito — entra in lista d'attesa:",
+      loadingLabel: "Caricamento stanze compatibili…",
+    },
+    notFound: {
+      title: "Pagina non trovata",
+      body: "Questo indirizzo non esiste o è stato spostato. Torna alla home oppure entra in lista d'attesa.",
+      home: "Torna alla home",
+      waitlist: "Lista d'attesa",
     },
     listaAttesa: {
       backToHome: "← Torna alla home",
@@ -565,6 +607,41 @@ export const translations = {
       privacy: "Privacy",
       terms: "Terms of service",
       cookies: "Cookies",
+      guide: "Ancona student housing guide",
+    },
+    guidaAffittoAncona: {
+      title: "How to rent student housing in Ancona",
+      subtitle:
+        "A practical guide for UNIVPM students: timing, areas near campus, realistic budgets, and how to avoid the usual listing traps.",
+      intro:
+        "Finding a room in Ancona looks easy until you answer dozens of ads, take pointless viewings, and discover that “bright single” is 40 minutes from your campus. This guide covers what actually matters if you study at Università Politecnica delle Marche.",
+      sections: [
+        {
+          title: "When to start looking",
+          body: "For the start of the academic year, the best places move between June and September. Arriving in October can still work, but join the waitlist or chat with Vesta early: the clearer your profile (campus, budget, move-in date), the easier it is to match you when something opens up.",
+        },
+        {
+          title: "Areas and university campuses",
+          body: "Monte Dago (Engineering, Agriculture, Sciences) is well served by bus 65 University Link and 46/. Torrette (Medicine) sits on the same 65 corridor. Economics and Law gravitate toward the centre / Villarey, where walking and lines to the station and Piazza Roma matter most. A “cheap” room far from your campus often costs more in daily time and stress.",
+        },
+        {
+          title: "A realistic budget",
+          body: "Beyond monthly rent, plan for utilities, deposit and any condo fees. On Coabito you set a maximum budget and Vesta uses it to filter — better to be honest about your real ceiling than accept a place you can’t sustain after two months.",
+        },
+        {
+          title: "What to ask (and what to avoid)",
+          body: "Always ask about availability date, what’s included in bills, whether the room is single or shared, and rules on guests/smoking. Be wary of deposit transfers before you’ve seen the place or signed something clear. Coabito manages the landlord relationship to reduce those opaque steps.",
+        },
+        {
+          title: "How Coabito helps",
+          body: "Instead of scrolling random listings, you tell Vesta your course, budget and living habits. We suggest compatible rooms near your campus, with a score that weighs lifestyle — not just square metres. For students, chatting with Vesta and seeing suggestions is free.",
+        },
+      ],
+      ctaTitle: "Ready to search without wasting weeks?",
+      ctaBody: "Start chatting with Vesta or join the waitlist — we’ll notify you when something compatible appears.",
+      ctaChat: "Chat with Vesta",
+      ctaWaitlist: "Join the waitlist",
+      backHome: "← Back to home",
     },
     cookieBanner: {
       title: "We use cookies",
@@ -681,6 +758,13 @@ export const translations = {
         "I've saved your preferences. As soon as a compatible place becomes available, you'll be among the first to know.",
       shareCta: "Share with a friend",
       shareText: "I'm looking for a room in Ancona with Coabito — join the waitlist:",
+      loadingLabel: "Loading compatible rooms…",
+    },
+    notFound: {
+      title: "Page not found",
+      body: "This address doesn't exist or has moved. Go back home or join the waitlist.",
+      home: "Back to home",
+      waitlist: "Waitlist",
     },
     listaAttesa: {
       backToHome: "← Back to home",

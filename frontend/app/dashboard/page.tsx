@@ -52,6 +52,7 @@ export default function StudentDashboardPage() {
   const [studentId, setStudentId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
+  const [roomsLoading, setRoomsLoading] = useState(true);
   const [waitlisted, setWaitlisted] = useState(false);
   const [myTenancy, setMyTenancy] = useState<MyTenancy | null>(null);
   // null = ancora in caricamento: evita di mostrare per un istante il
@@ -137,6 +138,7 @@ export default function StudentDashboardPage() {
   useEffect(() => {
     if (!studentId) return;
 
+    setRoomsLoading(true);
     fetch(`/api/matches?studentId=${studentId}&locale=${locale}`)
       .then((res) => (res.ok ? res.json() : { rooms: [] }))
       .then((data) => {
@@ -146,7 +148,8 @@ export default function StudentDashboardPage() {
       .catch(() => {
         setRooms([]);
         setWaitlisted(false);
-      });
+      })
+      .finally(() => setRoomsLoading(false));
 
     // Salva la lingua sul profilo: serve alle azioni lato server (nuova
     // stanza, nuovo affitto) che non possono leggere il cookie del
@@ -276,7 +279,7 @@ export default function StudentDashboardPage() {
         </div>
 
         <div className={`${activeTab === "rooms" ? "block" : "hidden"} h-full min-h-0 md:block`}>
-          <RoomList rooms={rooms} waitlisted={waitlisted} />
+          <RoomList rooms={rooms} waitlisted={waitlisted} loading={roomsLoading} />
         </div>
       </div>
     </main>

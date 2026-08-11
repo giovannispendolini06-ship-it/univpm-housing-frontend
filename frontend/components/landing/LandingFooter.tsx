@@ -36,6 +36,12 @@ export default function LandingFooter() {
           <a href="/termini" className="underline underline-offset-2">
             {t.footer.terms}
           </a>
+          <a
+            href="/guida/affittare-casa-studenti-ancona"
+            className="underline underline-offset-2"
+          >
+            {t.footer.guide}
+          </a>
           <button
             type="button"
             onClick={() => openCookiePreferences()}

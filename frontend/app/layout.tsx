@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import JsonLd from "@/components/JsonLd";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
+import { organizationJsonLd } from "@/lib/seo/structured-data";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -81,6 +83,7 @@ export default function RootLayout({
   return (
     <html lang="it" className={`${display.variable} ${body.variable}`}>
       <body>
+        <JsonLd data={organizationJsonLd()} />
         <LocaleProvider>
           {children}
           <CookieConsentBanner />
