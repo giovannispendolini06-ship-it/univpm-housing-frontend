@@ -2,6 +2,7 @@
 
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import Hero from "@/components/landing/Hero";
+import HomeIntro from "@/components/landing/HomeIntro";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import FounderNote from "@/components/landing/FounderNote";
 import FaqSection from "@/components/landing/FaqSection";
@@ -13,6 +14,7 @@ export default function HomePage() {
 
   return (
     <main className="bg-bg">
+      <HomeIntro />
       <LandingNavbar />
       <Hero />
 
