@@ -269,7 +269,7 @@ export default function WaitlistTable({ signups }: { signups: WaitlistSignup[] }
                           ? "bg-sea-600 text-white"
                           : status === "pending"
                             ? "bg-sand-400/30 text-ink"
-                            : "bg-sunset-500/15 text-sunset-700"
+                            : "bg-sunset-500/15 text-sunset-600"
                       }`}
                     >
                       {status === "confirmed"

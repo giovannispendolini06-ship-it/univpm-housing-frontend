@@ -3,10 +3,16 @@
 import Link from "next/link";
 import HeroMockup from "./HeroMockup";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { WAITLIST_SOCIAL_PROOF_MIN } from "@/lib/waitlist-constants";
 import styles from "./Hero.module.css";
 
-export default function Hero() {
+export default function Hero({ waitlistCount = 0 }: { waitlistCount?: number }) {
   const { t } = useLocale();
+  const showSocialProof = waitlistCount >= WAITLIST_SOCIAL_PROOF_MIN;
+  const socialProofLabel = t.hero.socialProof.replace(
+    "{count}",
+    String(waitlistCount),
+  );
 
   return (
     <section className={styles.hero}>
@@ -33,6 +39,10 @@ export default function Hero() {
               {t.hero.ctaOwner}
             </a>
           </div>
+
+          {showSocialProof && (
+            <p className={styles.socialProof}>{socialProofLabel}</p>
+          )}
 
           <p className={styles.microcopy}>
             {t.hero.freeNote}

@@ -129,6 +129,15 @@
   transform: translateY(-3px);
 }
 
+.socialProof {
+  margin: -8px 0 18px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+}
+
 .microcopy {
   color: rgba(255, 255, 255, 0.4);
   font-size: 14px;
@@ -496,6 +505,7 @@
   .headline,
   .subtext,
   .ctaRow,
+  .socialProof,
   .microcopy,
   .stage,
   .msgBot,
