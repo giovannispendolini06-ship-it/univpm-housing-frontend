@@ -209,6 +209,25 @@ export const translations = {
       forOwners: "Per i proprietari",
       whatsapp: "WhatsApp",
     },
+    ownerInquiry: {
+      nameLabel: "Nome e cognome *",
+      phoneLabel: "Telefono *",
+      emailLabel: "Email",
+      addressLabel: "Indirizzo dell'immobile",
+      addressPlaceholder: "Anche solo la zona, se preferisci",
+      messageLabel: "Messaggio (facoltativo)",
+      submit: "Invia richiesta",
+      submitting: "Invio...",
+      successTitle: "Richiesta ricevuta!",
+      successBody: "Ti contattiamo entro 24-48 ore per parlare del tuo immobile.",
+      nameRequired: "Inserisci il tuo nome.",
+      phoneRequired: "Inserisci un numero di telefono.",
+      emailInvalid: "Inserisci un indirizzo email valido.",
+      errorGeneric:
+        "Qualcosa è andato storto nell'invio. Riprova, o scrivici a info@coabito.it.",
+      rateLimited:
+        "Hai inviato troppe richieste in poco tempo. Riprova tra un'ora, o scrivici a info@coabito.it.",
+    },
     whatsappFloat: {
       ariaLabel: "Scrivici su WhatsApp",
       generic: "Ciao! Ho visto Coabito e vorrei saperne di più",
@@ -335,6 +354,9 @@ export const translations = {
       subtitle: "Il tuo assistente casa · UNIVPM Ancona",
       inputPlaceholder: "Scrivi un messaggio...",
       sendLabel: "Invia messaggio",
+      typing: "Vesta sta scrivendo…",
+      errorRetry:
+        "Uhm, qualcosa è andato storto dal mio lato. Puoi riprovare tra un attimo?",
       progressLabel: "{done}/{total} · {step}",
       progressComplete: "Profilo completo",
       progressSteps: {
@@ -416,6 +438,8 @@ export const translations = {
       errorGeneric:
         "Qualcosa è andato storto. Riprova, o scrivici a info@coabito.it.",
       contactRequired: "Inserisci almeno un'email o un numero di telefono.",
+      nameRequired: "Inserisci il tuo nome.",
+      emailInvalid: "Inserisci un indirizzo email valido.",
       referral: {
         title: "Invita un amico",
         body: "Condividi il tuo link: sarai avvisato prima quando arrivano le prime stanze.",
@@ -765,6 +789,25 @@ export const translations = {
       forOwners: "For property owners",
       whatsapp: "WhatsApp",
     },
+    ownerInquiry: {
+      nameLabel: "Full name *",
+      phoneLabel: "Phone *",
+      emailLabel: "Email",
+      addressLabel: "Property address",
+      addressPlaceholder: "Even just the area is fine",
+      messageLabel: "Message (optional)",
+      submit: "Send request",
+      submitting: "Sending...",
+      successTitle: "Request received!",
+      successBody: "We'll get back to you within 24–48 hours about your property.",
+      nameRequired: "Please enter your name.",
+      phoneRequired: "Please enter a phone number.",
+      emailInvalid: "Please enter a valid email address.",
+      errorGeneric:
+        "Something went wrong. Please try again, or email us at info@coabito.it.",
+      rateLimited:
+        "You've sent too many requests. Try again in an hour, or email info@coabito.it.",
+    },
     whatsappFloat: {
       ariaLabel: "Message us on WhatsApp",
       generic: "Hi! I found Coabito and I'd like to know more",
@@ -891,6 +934,9 @@ export const translations = {
       subtitle: "Your housing assistant · UNIVPM Ancona",
       inputPlaceholder: "Write a message...",
       sendLabel: "Send message",
+      typing: "Vesta is typing…",
+      errorRetry:
+        "Hmm, something went wrong on my side. Could you try again in a moment?",
       progressLabel: "{done}/{total} · {step}",
       progressComplete: "Profile complete",
       progressSteps: {
@@ -971,6 +1017,8 @@ export const translations = {
       },
       errorGeneric: "Something went wrong. Please try again, or email us at info@coabito.it.",
       contactRequired: "Please enter at least an email or a phone number.",
+      nameRequired: "Please enter your name.",
+      emailInvalid: "Please enter a valid email address.",
       referral: {
         title: "Invite a friend",
         body: "Share your link — you'll be notified earlier when the first rooms arrive.",

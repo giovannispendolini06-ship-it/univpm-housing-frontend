@@ -21,6 +21,8 @@ import {
 
 interface WaitlistResult {
   error?: string;
+  /** Campo a cui associare l'errore (UI) */
+  field?: "nome" | "email" | "phone" | "privacy" | "form";
   success?: boolean;
   /** pending = email DOI inviata; ok = già in lista (solo telefono) */
   status?: "pending" | "ok";
@@ -70,9 +72,12 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
   const locale = resolveLocale(String(formData.get("locale") ?? "it"));
   const refParam = String(formData.get("ref") ?? "").trim();
 
-  if (!nome) return { error: "Il nome è obbligatorio." };
-  if (!email && !phone) return { error: "contactRequired" };
-  if (!privacy) return { error: "privacyRequired" };
+  if (!nome) return { error: "nameRequired", field: "nome" };
+  if (!email && !phone) return { error: "contactRequired", field: "email" };
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return { error: "emailInvalid", field: "email" };
+  }
+  if (!privacy) return { error: "privacyRequired", field: "privacy" };
 
   const headersList = await headers();
   const ip =
@@ -91,7 +96,7 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
     .gte("created_at", oneHourAgo);
 
   if ((count ?? 0) >= MAX_SUBMISSIONS_PER_HOUR) {
-    return { error: "errorGeneric" };
+    return { error: "errorGeneric", field: "form" };
   }
 
   await rateLimitDb
@@ -135,7 +140,7 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
 
   if (error || !inserted) {
     console.error("[lista-attesa] insert error:", error);
-    return { error: "errorGeneric" };
+    return { error: "errorGeneric", field: "form" };
   }
 
   if (needsEmailConfirm && token && email) {

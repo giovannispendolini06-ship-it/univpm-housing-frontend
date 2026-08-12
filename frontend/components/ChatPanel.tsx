@@ -161,8 +161,7 @@ export default function ChatPanel({
       const errorMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content:
-          "Uhm, qualcosa è andato storto dal mio lato. Puoi riprovare tra un attimo?",
+        content: t.chat.errorRetry,
         createdAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -233,7 +232,7 @@ export default function ChatPanel({
         {messages.map((message) => (
           <ChatBubble key={message.id} message={message} />
         ))}
-        {isTyping && <TypingIndicator />}
+        {isTyping && <TypingIndicator label={t.chat.typing} />}
       </div>
 
       <div className="border-t border-sea-100 bg-white p-3">
@@ -244,11 +243,12 @@ export default function ChatPanel({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={t.chat.inputPlaceholder}
-            className="max-h-28 flex-1 resize-none bg-transparent text-[15px] text-ink placeholder:text-ink-muted focus:outline-none"
+            disabled={isTyping}
+            className="max-h-28 flex-1 resize-none bg-transparent text-[15px] text-ink placeholder:text-ink-muted focus:outline-none disabled:opacity-60"
           />
           <button
             onClick={handleSend}
-            disabled={!draft.trim()}
+            disabled={!draft.trim() || isTyping}
             aria-label={t.chat.sendLabel}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sea-600 text-white transition enabled:hover:bg-sea-700 disabled:cursor-not-allowed disabled:bg-sea-100 disabled:text-ink-muted"
           >

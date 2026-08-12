@@ -16,9 +16,19 @@ const SOURCE_MAP: Record<string, string> = {
   telegram: "telegram",
 };
 
+type FieldKey = "nome" | "email" | "phone" | "privacy" | "form";
+
 function resolveSourceParam(src: string | null): string {
   if (!src) return "lista_attesa";
   return SOURCE_MAP[src] ?? "lista_attesa";
+}
+
+function fieldClass(hasError: boolean): string {
+  return `w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea-600 ${
+    hasError
+      ? "border-sunset-500 focus:border-sunset-500"
+      : "border-sea-100 focus:border-sea-400"
+  }`;
 }
 
 export default function WaitlistForm() {
@@ -27,7 +37,7 @@ export default function WaitlistForm() {
   const source = resolveSourceParam(searchParams.get("src"));
   const refCode = searchParams.get("ref")?.trim() || "";
 
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldKey, string>>>({});
   const [successStatus, setSuccessStatus] = useState<"pending" | "ok" | null>(null);
   const [position, setPosition] = useState<number | null>(null);
   const [referralCode, setReferralCode] = useState<string | null>(null);
@@ -42,18 +52,22 @@ export default function WaitlistForm() {
   }
 
   function resolveError(code: string): string {
+    if (code === "nameRequired") return t.listaAttesa.nameRequired;
     if (code === "contactRequired") return t.listaAttesa.contactRequired;
+    if (code === "emailInvalid") return t.listaAttesa.emailInvalid;
     if (code === "privacyRequired") return t.listaAttesa.privacyRequired;
     if (code === "errorGeneric") return t.listaAttesa.errorGeneric;
     return code;
   }
 
   function handleSubmit(formData: FormData) {
-    setError(null);
+    setFieldErrors({});
     startTransition(async () => {
       const result = await submitWaitlistSignup(formData);
       if (result?.error) {
-        setError(resolveError(result.error));
+        const message = resolveError(result.error);
+        const field = (result.field ?? "form") as FieldKey;
+        setFieldErrors({ [field]: message });
       } else {
         markWaitlistJoined();
         setSuccessStatus(result?.status === "pending" ? "pending" : "ok");
@@ -109,6 +123,7 @@ export default function WaitlistForm() {
       action={handleSubmit}
       className="space-y-4 rounded-xl2 bg-surface p-6 shadow-card"
       onFocusCapture={markFormStarted}
+      noValidate
     >
       <div className="absolute -left-[9999px] opacity-0" aria-hidden="true">
         <label htmlFor="website">Non compilare questo campo</label>
@@ -120,39 +135,56 @@ export default function WaitlistForm() {
       {refCode ? <input type="hidden" name="ref" value={refCode} /> : null}
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-ink-muted">
+        <label htmlFor="waitlist-nome" className="mb-1 block text-xs font-medium text-ink-muted">
           {t.listaAttesa.nameLabel}
         </label>
         <input
+          id="waitlist-nome"
           type="text"
           name="nome"
-          required
           autoComplete="name"
-          className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+          aria-invalid={Boolean(fieldErrors.nome)}
+          aria-describedby={fieldErrors.nome ? "waitlist-nome-error" : undefined}
+          className={fieldClass(Boolean(fieldErrors.nome))}
         />
+        {fieldErrors.nome && (
+          <p id="waitlist-nome-error" className="mt-1 text-xs text-sunset-600">
+            {fieldErrors.nome}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs font-medium text-ink-muted">
+          <label htmlFor="waitlist-email" className="mb-1 block text-xs font-medium text-ink-muted">
             {t.listaAttesa.emailLabel}
           </label>
           <input
+            id="waitlist-email"
             type="email"
             name="email"
             autoComplete="email"
-            className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+            aria-invalid={Boolean(fieldErrors.email)}
+            aria-describedby={fieldErrors.email ? "waitlist-email-error" : undefined}
+            className={fieldClass(Boolean(fieldErrors.email))}
           />
+          {fieldErrors.email && (
+            <p id="waitlist-email-error" className="mt-1 text-xs text-sunset-600">
+              {fieldErrors.email}
+            </p>
+          )}
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-ink-muted">
+          <label htmlFor="waitlist-phone" className="mb-1 block text-xs font-medium text-ink-muted">
             {t.listaAttesa.phoneLabel}
           </label>
           <input
+            id="waitlist-phone"
             type="tel"
             name="phone"
             autoComplete="tel"
-            className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+            aria-invalid={Boolean(fieldErrors.phone)}
+            className={fieldClass(Boolean(fieldErrors.phone))}
           />
         </div>
       </div>
@@ -163,10 +195,7 @@ export default function WaitlistForm() {
           <label className="mb-1 block text-xs font-medium text-ink-muted">
             {t.listaAttesa.facoltaLabel}
           </label>
-          <select
-            name="facolta"
-            className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-          >
+          <select name="facolta" className={fieldClass(false)}>
             <option value="">—</option>
             {t.listaAttesa.facoltaOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -179,10 +208,7 @@ export default function WaitlistForm() {
           <label className="mb-1 block text-xs font-medium text-ink-muted">
             {t.listaAttesa.poloLabel}
           </label>
-          <select
-            name="polo"
-            className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
-          >
+          <select name="polo" className={fieldClass(false)}>
             <option value="">—</option>
             {t.listaAttesa.poloOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -203,31 +229,40 @@ export default function WaitlistForm() {
           min={0}
           step={50}
           placeholder="Es. 350"
-          className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+          className={fieldClass(false)}
         />
       </div>
 
-      <label className="flex items-start gap-2 text-xs text-ink-muted">
-        <input
-          type="checkbox"
-          name="privacy"
-          required
-          className="mt-0.5 rounded border-sea-200"
-        />
-        <span>
-          {t.listaAttesa.privacyPrefix}{" "}
-          <Link href="/privacy" className="text-sea-700 underline">
-            {t.listaAttesa.privacyLink}
-          </Link>
-        </span>
-      </label>
+      <div>
+        <label className="flex items-start gap-2 text-xs text-ink-muted">
+          <input
+            type="checkbox"
+            name="privacy"
+            aria-invalid={Boolean(fieldErrors.privacy)}
+            className="mt-0.5 rounded border-sea-200"
+          />
+          <span>
+            {t.listaAttesa.privacyPrefix}{" "}
+            <Link href="/privacy" className="text-sea-700 underline">
+              {t.listaAttesa.privacyLink}
+            </Link>
+          </span>
+        </label>
+        {fieldErrors.privacy && (
+          <p className="mt-1 text-xs text-sunset-600">{fieldErrors.privacy}</p>
+        )}
+      </div>
 
-      {error && <p className="text-sm text-sunset-600">{error}</p>}
+      {fieldErrors.form && (
+        <p className="text-sm text-sunset-600" role="alert">
+          {fieldErrors.form}
+        </p>
+      )}
 
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50"
+        className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition enabled:hover:bg-sea-700 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea-600"
       >
         {isPending ? t.listaAttesa.submitting : t.listaAttesa.submit}
       </button>
