@@ -10,6 +10,12 @@ export const translations = {
       login: "Accedi",
       waitlist: "Lista d'attesa",
     },
+    announceBar: {
+      ariaLabel: "Annuncio lista d'attesa",
+      message: "Le prime stanze arrivano a {month}",
+      cta: "Iscriviti gratis",
+      closeAria: "Chiudi annuncio",
+    },
     hero: {
       badge: "Pensato per chi studia fuori sede",
       titlePart1: "Trova casa ",
@@ -551,6 +557,12 @@ export const translations = {
       installApp: "Install the app",
       login: "Log in",
       waitlist: "Waitlist",
+    },
+    announceBar: {
+      ariaLabel: "Waitlist announcement",
+      message: "The first rooms arrive in {month}",
+      cta: "Join for free",
+      closeAria: "Dismiss announcement",
     },
     hero: {
       badge: "Made for out-of-town students",

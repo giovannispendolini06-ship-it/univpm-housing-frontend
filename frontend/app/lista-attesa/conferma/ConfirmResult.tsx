@@ -5,6 +5,7 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 import { trackFunnel } from "@/lib/analytics";
 import { waitlistReferralUrl } from "@/lib/waitlist-referral";
 import ReferralShare from "@/components/ReferralShare";
+import { markWaitlistJoined } from "@/lib/announce-bar";
 
 type Status = "confirmed" | "already" | "expired" | "invalid";
 
@@ -22,6 +23,9 @@ export default function ConfirmResult({
   const tracked = useRef(false);
 
   useEffect(() => {
+    if (status === "confirmed" || status === "already") {
+      markWaitlistJoined();
+    }
     if (tracked.current) return;
     if (status === "confirmed" || status === "already") {
       tracked.current = true;

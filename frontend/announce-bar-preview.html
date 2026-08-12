@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Coabito — preview announce bar</title>
+    <style>
+      :root {
+        --font-body: system-ui, -apple-system, Segoe UI, sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--font-body);
+        background: #f4f8f7;
+        color: #0f2a2e;
+      }
+      .bar {
+        position: relative;
+        width: 100%;
+        background: linear-gradient(90deg, #0f6e6a 0%, #0a5450 100%);
+        color: #fff;
+      }
+      .inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem 0.75rem;
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 0.55rem 2.5rem 0.55rem 1rem;
+        text-align: center;
+      }
+      .dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 9999px;
+        background: #ff6b4a;
+        flex-shrink: 0;
+      }
+      .message {
+        margin: 0;
+        font-size: 0.8125rem;
+        font-weight: 500;
+      }
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        min-height: 2rem;
+        padding: 0.35rem 0.9rem;
+        border-radius: 9999px;
+        background: #ff6b4a;
+        color: #fff;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .close {
+        position: absolute;
+        top: 50%;
+        right: 0.5rem;
+        transform: translateY(-50%);
+        width: 2rem;
+        height: 2rem;
+        border: 0;
+        border-radius: 9999px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 1.35rem;
+        cursor: pointer;
+      }
+      .nav {
+        background: #fff;
+        border-bottom: 1px solid #cfe6e4;
+        padding: 0.85rem 1rem;
+        font-weight: 700;
+      }
+      .note {
+        max-width: 40rem;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.5;
+        color: #5c7a78;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar" role="region" aria-label="Annuncio lista d'attesa">
+      <div class="inner">
+        <span class="dot" aria-hidden="true"></span>
+        <p class="message">Le prime stanze arrivano a settembre</p>
+        <a class="cta" href="/lista-attesa">Iscriviti gratis</a>
+      </div>
+      <button class="close" type="button" aria-label="Chiudi annuncio">×</button>
+    </div>
+    <div class="nav">Coabito · navbar (sotto la barra)</div>
+    <p class="note">
+      Riferimento stile per la barra di annuncio lista d'attesa. Implementazione
+      React: <code>components/AnnounceBar.tsx</code>.
+    </p>
+  </body>
+</html>
