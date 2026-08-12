@@ -13,6 +13,7 @@ import {
   createWaitlistConfirmationToken,
   waitlistConfirmUrl,
 } from "@/lib/waitlist";
+import { scheduleWaitlistNurture } from "@/lib/waitlist-nurture";
 
 interface WaitlistResult {
   error?: string;
@@ -103,6 +104,7 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
     polo,
     budget: budget && !Number.isNaN(budget) ? budget : null,
     source,
+    preferred_locale: locale,
     confirmed_at: needsEmailConfirm ? null : nowIso,
     confirmation_token: token,
     confirmation_sent_at: needsEmailConfirm ? nowIso : null,
@@ -148,6 +150,15 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
 
   if (needsEmailConfirm) {
     return { success: true, status: "pending" };
+  }
+
+  // Solo telefono (confermato subito): nurture solo se c'è anche email
+  // (caso raro; di solito email → DOI e schedule alla conferma).
+  if (email) {
+    await scheduleWaitlistNurture(supabase, inserted.id, {
+      confirmedAt: nowIso,
+      email,
+    });
   }
 
   const position = await computeWaitlistPosition(supabase, {
