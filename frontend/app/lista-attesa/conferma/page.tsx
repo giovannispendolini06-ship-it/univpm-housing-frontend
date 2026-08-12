@@ -34,6 +34,7 @@ export default async function WaitlistConfirmPage({
         <ConfirmResult
           status={result.status}
           position={"position" in result ? result.position : null}
+          referralCode={"referralCode" in result ? result.referralCode : null}
         />
         <p className="mt-6 text-center text-sm">
           <Link href="/" className="font-medium text-sea-700 underline-offset-2 hover:underline">

@@ -14,6 +14,10 @@ import {
   waitlistConfirmUrl,
 } from "@/lib/waitlist";
 import { scheduleWaitlistNurture } from "@/lib/waitlist-nurture";
+import {
+  createReferralCode,
+  resolveReferrerId,
+} from "@/lib/waitlist-referral";
 
 interface WaitlistResult {
   error?: string;
@@ -22,6 +26,8 @@ interface WaitlistResult {
   status?: "pending" | "ok";
   /** Solo se status=ok (confermato): posizione reale 1-based */
   position?: number | null;
+  /** Codice referral per link invita un amico */
+  referralCode?: string | null;
 }
 
 const MAX_SUBMISSIONS_PER_HOUR = 5;
@@ -62,6 +68,7 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
   const privacy = formData.get("privacy") === "on";
   const source = resolveSource(String(formData.get("source") ?? "lista_attesa"));
   const locale = resolveLocale(String(formData.get("locale") ?? "it"));
+  const refParam = String(formData.get("ref") ?? "").trim();
 
   if (!nome) return { error: "Il nome è obbligatorio." };
   if (!email && !phone) return { error: "contactRequired" };
@@ -95,6 +102,10 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
   const now = new Date();
   const nowIso = now.toISOString();
   const token = needsEmailConfirm ? createWaitlistConfirmationToken() : null;
+  const referralCode = createReferralCode();
+
+  const supabase = createServiceSupabaseClient();
+  const referredBy = await resolveReferrerId(supabase, refParam);
 
   const insertPayload = {
     nome,
@@ -111,14 +122,15 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
     confirmation_expires_at: needsEmailConfirm
       ? new Date(now.getTime() + WAITLIST_CONFIRM_TTL_MS).toISOString()
       : null,
+    referral_code: referralCode,
+    referred_by: referredBy,
   };
 
   // Service role: serve anche se le colonne DOI non fossero ancora nelle policy RLS tipiche.
-  const supabase = createServiceSupabaseClient();
   const { data: inserted, error } = await supabase
     .from("waitlist_signups")
     .insert(insertPayload)
-    .select("id, created_at")
+    .select("id, created_at, referral_code")
     .single();
 
   if (error || !inserted) {
@@ -148,8 +160,10 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
   });
   await sendEmail({ to: adminTo, ...adminEmail });
 
+  const code = inserted.referral_code || referralCode;
+
   if (needsEmailConfirm) {
-    return { success: true, status: "pending" };
+    return { success: true, status: "pending", referralCode: code };
   }
 
   // Solo telefono (confermato subito): nurture solo se c'è anche email
@@ -170,5 +184,6 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
     success: true,
     status: "ok",
     position: position || null,
+    referralCode: code,
   };
 }

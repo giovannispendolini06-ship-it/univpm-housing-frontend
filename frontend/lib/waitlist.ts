@@ -2,6 +2,10 @@ import type { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { sendEmail, buildAdminWaitlistEmail } from "@/lib/email";
 import { SITE_URL } from "@/lib/site";
 import { scheduleWaitlistNurture } from "@/lib/waitlist-nurture";
+import {
+  createReferralCode,
+  ensureReferralCode,
+} from "@/lib/waitlist-referral";
 
 export interface StudentProfileForWaitlist {
   degree_course?: string | null;
@@ -106,8 +110,8 @@ export function waitlistConfirmUrl(token: string): string {
 }
 
 export type ConfirmWaitlistResult =
-  | { status: "confirmed"; position: number | null }
-  | { status: "already"; position: number | null }
+  | { status: "confirmed"; position: number | null; referralCode: string | null }
+  | { status: "already"; position: number | null; referralCode: string | null }
   | { status: "expired" }
   | { status: "invalid" };
 
@@ -124,7 +128,7 @@ export async function confirmWaitlistByToken(
 
   const { data: row, error } = await db
     .from("waitlist_signups")
-    .select("id, created_at, confirmed_at, confirmation_expires_at, email")
+    .select("id, created_at, confirmed_at, confirmation_expires_at, email, referral_code")
     .eq("confirmation_token", cleaned)
     .maybeSingle();
 
@@ -139,7 +143,8 @@ export async function confirmWaitlistByToken(
       id: row.id,
       created_at: row.created_at,
     });
-    return { status: "already", position: position || null };
+    const referralCode = await ensureReferralCode(db, row.id, row.referral_code);
+    return { status: "already", position: position || null, referralCode };
   }
 
   const expiresAt = row.confirmation_expires_at
@@ -168,11 +173,13 @@ export async function confirmWaitlistByToken(
     email: row.email,
   });
 
+  const referralCode = await ensureReferralCode(db, row.id, row.referral_code);
+
   const position = await computeWaitlistPosition(db, {
     id: row.id,
     created_at: row.created_at,
   });
-  return { status: "confirmed", position: position || null };
+  return { status: "confirmed", position: position || null, referralCode };
 }
 
 /**
@@ -233,7 +240,7 @@ export async function upsertWaitlistFromStudentProfile(
   // affidabile via PostgREST — select + update/insert è più sicuro.
   const { data: existing } = await db
     .from("waitlist_signups")
-    .select("id, created_at")
+    .select("id, created_at, referral_code")
     .eq("user_id", userId)
     .maybeSingle();
 
@@ -250,10 +257,11 @@ export async function upsertWaitlistFromStudentProfile(
       console.error("[waitlist] Errore salvataggio waitlist_signups:", writeError);
       return null;
     }
+    await ensureReferralCode(db, existing.id, existing.referral_code);
   } else {
     const { data: inserted, error: writeError } = await db
       .from("waitlist_signups")
-      .insert(payload)
+      .insert({ ...payload, referral_code: createReferralCode() })
       .select("id, created_at")
       .single();
     if (writeError || !inserted) {

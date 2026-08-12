@@ -354,6 +354,17 @@ export const translations = {
       errorGeneric:
         "Qualcosa è andato storto. Riprova, o scrivici a info@coabito.it.",
       contactRequired: "Inserisci almeno un'email o un numero di telefono.",
+      referral: {
+        title: "Invita un amico",
+        body: "Condividi il tuo link: sarai avvisato prima quando arrivano le prime stanze.",
+        copy: "Copia link",
+        copied: "Copiato!",
+        copyFallback: "Copia questo link:",
+        whatsapp: "WhatsApp",
+        whatsappAria: "Condividi il link di invito su WhatsApp",
+        shareText:
+          "Sto cercando una stanza ad Ancona con Coabito — entra in lista d'attesa con il mio link:",
+      },
       facoltaOptions: [
         { value: "ingegneria_informatica", label: "Ingegneria informatica" },
         { value: "ingegneria_civile", label: "Ingegneria civile" },
@@ -836,6 +847,17 @@ export const translations = {
       },
       errorGeneric: "Something went wrong. Please try again, or email us at info@coabito.it.",
       contactRequired: "Please enter at least an email or a phone number.",
+      referral: {
+        title: "Invite a friend",
+        body: "Share your link — you'll be notified earlier when the first rooms arrive.",
+        copy: "Copy link",
+        copied: "Copied!",
+        copyFallback: "Copy this link:",
+        whatsapp: "WhatsApp",
+        whatsappAria: "Share your invite link on WhatsApp",
+        shareText:
+          "I'm looking for a room in Ancona with Coabito — join the waitlist with my link:",
+      },
       facoltaOptions: [
         { value: "ingegneria_informatica", label: "Computer Engineering" },
         { value: "ingegneria_civile", label: "Civil Engineering" },
