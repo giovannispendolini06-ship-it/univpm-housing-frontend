@@ -48,7 +48,7 @@ export default function LandingFooter() {
           <button
             type="button"
             onClick={() => openCookiePreferences()}
-            className="underline underline-offset-2"
+            className="underline underline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea-600"
           >
             {t.footer.cookies}
           </button>

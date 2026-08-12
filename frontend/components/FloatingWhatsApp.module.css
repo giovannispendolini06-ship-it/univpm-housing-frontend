@@ -32,6 +32,11 @@
   transform: scale(0.96);
 }
 
+.fab:focus-visible {
+  outline: 3px solid #0f6e6a;
+  outline-offset: 3px;
+}
+
 .icon {
   width: 1.75rem;
   height: 1.75rem;

@@ -127,6 +127,13 @@
   font-weight: 600;
 }
 
+#cc-main .cm__btn:focus-visible,
+#cc-main .pm__btn:focus-visible,
+#cc-main a:focus-visible {
+  outline: 3px solid #ff6b4a;
+  outline-offset: 2px;
+}
+
 @media (max-width: 640px) {
   #cc-main .cm {
     max-width: calc(100% - 1.25rem) !important;

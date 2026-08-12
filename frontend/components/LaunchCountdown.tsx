@@ -30,7 +30,7 @@ export default function LaunchCountdown({
 
   const base =
     variant === "hero"
-      ? "text-sm font-medium text-white/75"
+      ? "text-sm font-medium text-white"
       : "text-sm font-medium text-sea-700";
 
   return (
@@ -38,6 +38,7 @@ export default function LaunchCountdown({
       className={`${base} ${className}`.trim()}
       role="status"
       aria-live="polite"
+      aria-label={label}
     >
       {label}
     </p>
