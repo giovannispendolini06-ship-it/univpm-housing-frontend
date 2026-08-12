@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { trackFunnel } from "@/lib/analytics";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import styles from "./FloatingWhatsApp.module.css";
 
@@ -49,6 +50,7 @@ export default function FloatingWhatsApp() {
       rel="noopener noreferrer"
       className={styles.fab}
       aria-label={t.whatsappFloat.ariaLabel}
+      onClick={() => trackFunnel("whatsapp_button_clicked", { path: pathname })}
     >
       <svg
         className={styles.icon}

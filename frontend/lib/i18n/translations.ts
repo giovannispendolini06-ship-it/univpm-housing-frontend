@@ -203,7 +203,7 @@ export const translations = {
         "Necessari per autenticazione, preferenza lingua e sicurezza. Non possono essere disattivati.",
       sectionAnalyticsTitle: "Analitici",
       sectionAnalyticsBody:
-        "Vercel Analytics: ci aiuta a capire quali pagine vengono visitate, in forma aggregata e anonima. Non usiamo Google Analytics né pubblicità.",
+        "Vercel Analytics: ci aiuta a capire quali pagine vengono visitate e i passaggi del percorso (es. chat, lista d'attesa), in forma aggregata e anonima. Non usiamo Google Analytics né pubblicità.",
       sectionMoreTitle: "Maggiori informazioni",
       sectionMoreBody: "Per dettagli su come trattiamo i dati, leggi la nostra",
     },
@@ -681,7 +681,7 @@ export const translations = {
         "Required for authentication, language preference and security. These cannot be turned off.",
       sectionAnalyticsTitle: "Analytics",
       sectionAnalyticsBody:
-        "Vercel Analytics: helps us understand which pages are visited, in aggregate and anonymous form. We do not use Google Analytics or ads.",
+        "Vercel Analytics: helps us understand which pages are visited and key funnel steps (e.g. chat, waitlist), in aggregate and anonymous form. We do not use Google Analytics or ads.",
       sectionMoreTitle: "More information",
       sectionMoreBody: "For details on how we process data, read our",
     },

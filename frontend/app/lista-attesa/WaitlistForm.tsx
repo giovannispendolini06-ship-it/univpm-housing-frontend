@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { trackFunnel } from "@/lib/analytics";
 import { submitWaitlistSignup } from "./actions";
 
 const SOURCE_MAP: Record<string, string> = {
@@ -27,6 +28,13 @@ export default function WaitlistForm() {
   const [position, setPosition] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
   const [renderedAt] = useState(() => Date.now());
+  const formStartedRef = useRef(false);
+
+  function markFormStarted() {
+    if (formStartedRef.current) return;
+    formStartedRef.current = true;
+    trackFunnel("waitlist_form_started");
+  }
 
   function resolveError(code: string): string {
     if (code === "contactRequired") return t.listaAttesa.contactRequired;
@@ -44,6 +52,10 @@ export default function WaitlistForm() {
       } else {
         setSuccessStatus(result?.status === "pending" ? "pending" : "ok");
         setPosition(typeof result?.position === "number" ? result.position : null);
+        trackFunnel("waitlist_signup_completed", {
+          source,
+          status: result?.status === "pending" ? "pending" : "confirmed",
+        });
       }
     });
   }
@@ -82,7 +94,11 @@ export default function WaitlistForm() {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4 rounded-xl2 bg-surface p-6 shadow-card">
+    <form
+      action={handleSubmit}
+      className="space-y-4 rounded-xl2 bg-surface p-6 shadow-card"
+      onFocusCapture={markFormStarted}
+    >
       <div className="absolute -left-[9999px] opacity-0" aria-hidden="true">
         <label htmlFor="website">Non compilare questo campo</label>
         <input type="text" id="website" name="website" tabIndex={-1} autoComplete="off" />

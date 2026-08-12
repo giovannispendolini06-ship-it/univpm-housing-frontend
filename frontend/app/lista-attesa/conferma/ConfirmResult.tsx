@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { trackFunnel } from "@/lib/analytics";
 
 type Status = "confirmed" | "already" | "expired" | "invalid";
 
@@ -13,6 +15,16 @@ export default function ConfirmResult({
 }) {
   const { t } = useLocale();
   const copy = t.listaAttesa.confirm;
+  const tracked = useRef(false);
+
+  useEffect(() => {
+    if (tracked.current) return;
+    if (status === "confirmed" || status === "already") {
+      tracked.current = true;
+      trackFunnel("waitlist_email_confirmed", { status });
+    }
+  }, [status]);
+
   const showPosition =
     (status === "confirmed" || status === "already") &&
     typeof position === "number" &&
