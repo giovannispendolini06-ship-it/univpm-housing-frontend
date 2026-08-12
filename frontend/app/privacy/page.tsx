@@ -1,8 +1,12 @@
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata = {
   title: "Informativa Privacy | Coabito",
+  description:
+    "Come Coabito tratta i tuoi dati: iscrizione, chat con Vesta, cookie analytics e diritti GDPR. Contatti privacy@coabito.it.",
+  alternates: { canonical: `${SITE_URL}/privacy` },
 };
 
 export default function PrivacyPage() {

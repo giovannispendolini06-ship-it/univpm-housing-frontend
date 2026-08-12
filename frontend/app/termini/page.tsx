@@ -1,8 +1,12 @@
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata = {
   title: "Termini di Servizio | Coabito",
+  description:
+    "Condizioni d'uso di Coabito: account, lista d'attesa, matching abitativo e responsabilità di piattaforma e utenti.",
+  alternates: { canonical: `${SITE_URL}/termini` },
 };
 
 export default function TermsPage() {

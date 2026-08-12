@@ -16,6 +16,9 @@ export const translations = {
       cta: "Iscriviti gratis",
       closeAria: "Chiudi annuncio",
     },
+    a11y: {
+      skipToContent: "Salta al contenuto",
+    },
     hero: {
       badge: "Pensato per chi studia fuori sede",
       titlePart1: "Trova casa ",
@@ -396,6 +399,13 @@ export const translations = {
       home: "Torna alla home",
       waitlist: "Lista d'attesa",
     },
+    serverError: {
+      title: "Qualcosa non ha funzionato",
+      body: "Si è verificato un problema temporaneo. Riprova tra poco: se persiste, scrivici e ti aiutiamo.",
+      retry: "Riprova",
+      home: "Torna alla home",
+      contact: "Scrivici a info@coabito.it",
+    },
     listaAttesa: {
       backToHome: "← Torna alla home",
       title: "Lista d'attesa",
@@ -595,6 +605,9 @@ export const translations = {
       message: "The first rooms arrive in {month}",
       cta: "Join for free",
       closeAria: "Dismiss announcement",
+    },
+    a11y: {
+      skipToContent: "Skip to content",
     },
     hero: {
       badge: "Made for out-of-town students",
@@ -975,6 +988,13 @@ export const translations = {
       body: "This address doesn't exist or has moved. Go back home or join the waitlist.",
       home: "Back to home",
       waitlist: "Waitlist",
+    },
+    serverError: {
+      title: "Something went wrong",
+      body: "A temporary problem occurred. Please try again shortly — if it persists, email us and we'll help.",
+      retry: "Try again",
+      home: "Back to home",
+      contact: "Email info@coabito.it",
     },
     listaAttesa: {
       backToHome: "← Back to home",

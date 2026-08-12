@@ -80,7 +80,7 @@ export default function InstallaPage() {
               <div className="mt-4 flex h-6 w-6 items-center justify-center rounded-full bg-sea-600 font-display text-xs font-bold text-white">
                 {index + 1}
               </div>
-              <h3 className="mt-2 font-display text-sm font-bold text-ink">{step.title}</h3>
+              <h2 className="mt-2 font-display text-sm font-bold text-ink">{step.title}</h2>
               <p className="mt-1 text-xs text-ink-muted">{step.body}</p>
             </div>
           ))}

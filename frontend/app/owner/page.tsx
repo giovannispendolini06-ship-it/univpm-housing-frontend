@@ -115,9 +115,9 @@ export default async function OwnerDashboardPage() {
                     >
                       {STATUS_LABELS[property.status] ?? property.status}
                     </span>
-                    <h3 className="mt-1.5 font-display text-sm font-bold text-ink">
+                    <h2 className="mt-1.5 font-display text-sm font-bold text-ink">
                       {property.address}
-                    </h3>
+                    </h2>
                     <p className="text-xs text-ink-muted">
                       {property.zone ?? "Zona non specificata"}
                     </p>
