@@ -494,9 +494,10 @@ export function buildInquiryConfirmationEmail(input: { fullName: string }) {
     </p>
     <p style="margin:0 0 16px; color:${COLORS.ink};">
       La nostra promessa: niente perditempo. Ti ricontattiamo entro
-      <strong>24-48 ore</strong> per parlare del tuo immobile e di come
-      affittarlo a studenti già verificati, senza che tu debba gestire
-      trattative infinite.
+      <strong>24-48 ore</strong> per valutare insieme un eventuale
+      <strong>canone garantito</strong>: se procediamo, firmiamo noi la
+      locazione con te e gestiamo selezione studenti e sublocazioni —
+      senza trattative infinite a tuo carico.
     </p>
     <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
       Nel frattempo, se hai domande, rispondi pure a questa email.

@@ -22,7 +22,7 @@ export default function PrivacyPage() {
           Informativa sulla Privacy
         </h1>
         <p className="mb-8 text-sm text-ink-muted">
-          Ultimo aggiornamento: 11 agosto 2026
+          Ultimo aggiornamento: 12 agosto 2026
         </p>
 
         <div className="space-y-6 text-sm leading-relaxed text-ink">
@@ -77,8 +77,9 @@ export default function PrivacyPage() {
             </h2>
             <ul className="list-disc space-y-1 pl-5">
               <li>
-                <strong>Fornire il servizio</strong> di ricerca e abbinamento tra studenti e stanze/immobili —
-                base giuridica: esecuzione di un contratto con te.
+                <strong>Fornire il servizio</strong> di ricerca e abbinamento tra studenti e stanze
+                gestite da Coabito (modello di locazione con il proprietario e sublocazione con lo
+                studente) — base giuridica: esecuzione di un contratto con te.
               </li>
               <li>
                 <strong>Gestire il tuo account</strong> e comunicare con te riguardo al servizio —
@@ -171,9 +172,12 @@ export default function PrivacyPage() {
                 Analytics), in qualità di responsabili del trattamento
               </li>
               <li>
-                Studenti e proprietari, limitatamente alle informazioni necessarie a facilitare un
-                abbinamento (es. un proprietario vede il numero di studenti compatibili, mai i loro
-                dati personali, che restano gestiti da noi)
+                Proprietari e studenti, solo nei limiti del rapporto contrattuale con Coabito: lo
+                studente non riceve i dati personali del proprietario per firmare direttamente; il
+                proprietario può vedere informazioni operative aggregate sull&apos;immobile in
+                locazione presso di noi (es. stato di occupazione o un conteggio anonimo di
+                interesse), mai i dati personali degli studenti, che restano gestiti da Coabito
+                nell&apos;ambito della sublocazione
               </li>
               <li>Autorità competenti, se richiesto dalla legge</li>
             </ul>

@@ -267,7 +267,7 @@ export const translations = {
         },
         {
           title: "Cosa chiedere (e cosa evitare)",
-          body: "Chiedi sempre data di disponibilità, cosa è incluso nelle spese, se la stanza è singola o doppia, e regole su ospiti/fumo. Diffida di richieste di caparra via bonifico prima di aver visto la casa o firmato qualcosa di chiaro. Coabito gestisce il rapporto con il proprietario proprio per ridurre questi passaggi opachi.",
+          body: "Chiedi sempre data di disponibilità, cosa è incluso nelle spese, se la stanza è singola o doppia, e regole su ospiti/fumo. Diffida di richieste di caparra via bonifico prima di aver visto la casa o firmato qualcosa di chiaro. Con Coabito firmi un contratto di sublocazione con noi (non direttamente col proprietario): riduciamo questi passaggi opachi proprio perché gestiamo noi locazione e sublocazione.",
         },
         {
           title: "Come ti aiuta Coabito",
@@ -864,7 +864,7 @@ export const translations = {
         },
         {
           title: "What to ask (and what to avoid)",
-          body: "Always ask about availability date, what’s included in bills, whether the room is single or shared, and rules on guests/smoking. Be wary of deposit transfers before you’ve seen the place or signed something clear. Coabito manages the landlord relationship to reduce those opaque steps.",
+          body: "Always ask about availability date, what’s included in bills, whether the room is single or shared, and rules on guests/smoking. Be wary of deposit transfers before you’ve seen the place or signed something clear. With Coabito you sign a sublease with us (not directly with the landlord): we reduce those opaque steps because we handle both the lease and the sublease.",
         },
         {
           title: "How Coabito helps",
