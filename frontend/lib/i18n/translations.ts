@@ -32,6 +32,11 @@ export const translations = {
       badgeFeesTitle: "Zero commissioni",
       badgeFeesSub: "Per lo studente",
     },
+    launchCountdown: {
+      days: "Le prime stanze arrivano tra {n} giorni",
+      oneDay: "Le prime stanze arrivano domani",
+      arrived: "Le prime stanze stanno arrivando",
+    },
     intro: {
       skip: "Salta",
       tagline: "— su misura, come un abito.",
@@ -509,6 +514,11 @@ export const translations = {
       badgeCompatSub: "Calculated in real time",
       badgeFeesTitle: "Zero fees",
       badgeFeesSub: "For students",
+    },
+    launchCountdown: {
+      days: "The first rooms arrive in {n} days",
+      oneDay: "The first rooms arrive tomorrow",
+      arrived: "The first rooms are on their way",
     },
     intro: {
       skip: "Skip",

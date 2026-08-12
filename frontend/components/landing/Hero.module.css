@@ -129,6 +129,19 @@
   transform: translateY(-3px);
 }
 
+.countdownWrap {
+  margin: 0 0 16px;
+  animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.42s both;
+}
+
+.countdown {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
 .socialProof {
   margin: -8px 0 18px;
   color: rgba(255, 255, 255, 0.72);
@@ -505,6 +518,7 @@
   .headline,
   .subtext,
   .ctaRow,
+  .countdownWrap,
   .socialProof,
   .microcopy,
   .stage,
