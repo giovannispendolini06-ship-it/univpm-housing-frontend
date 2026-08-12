@@ -525,7 +525,7 @@ export function buildWelcomeEmail(input: { fullName: string; role: "student" | "
     <p style="margin:0 0 16px; color:${COLORS.ink};">
       ${
         isOwner
-          ? "Il tuo profilo è pronto. Da qui in poi ci pensiamo noi a trovarti inquilini seri: filtriamo gli studenti compatibili, tu decidi solo con chi firmare."
+          ? "Il tuo profilo è pronto. Se procediamo insieme, firmiamo un contratto di locazione con te e ti corrisponderemo un canone mensile concordato (canone garantito): selezione studenti e sublocazioni le gestiamo noi."
           : "Il tuo profilo è pronto. Vesta, il nostro assistente, ti aspetta per capire facoltà, budget e abitudini — e proporti solo le stanze davvero compatibili con te, non l'ennesimo annuncio a caso."
       }
     </p>

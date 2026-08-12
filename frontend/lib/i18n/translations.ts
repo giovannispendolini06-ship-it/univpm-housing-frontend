@@ -78,26 +78,32 @@ export const translations = {
     },
     howItWorksOwners: {
       eyebrow: "Per i proprietari",
-      title: "Affitta senza gestire tu le trattative",
+      title: "Canone garantito, senza gestire tu le trattative",
       ctaLabel: "Proponi il tuo immobile",
       steps: [
         {
           number: "1",
-          title: "Ci mandi l'immobile",
+          title: "Ci racconti il tuo immobile",
           description:
-            "Indirizzo, prezzo, foto: lo carichiamo noi sul tuo profilo e lo pubblichiamo anche sui portali principali.",
+            "Indirizzo, caratteristiche e disponibilità: ti ricontattiamo entro 24-48 ore.",
         },
         {
           number: "2",
-          title: "Filtriamo noi gli interessati",
+          title: "Definiamo il canone garantito",
           description:
-            "Solo studenti già verificati e compatibili con la tua casa arrivano fino a te: niente perditempo.",
+            "Dopo il sopralluogo concordiamo un canone fisso mensile: è quello che ti corrisponde Coabito.",
         },
         {
           number: "3",
-          title: "Tu decidi, noi gestiamo il resto",
+          title: "Firmiamo la locazione con te",
           description:
-            "Ti aggiorniamo su ogni richiesta seria. Chiudi l'affitto quando sei pronto, ai tuoi tempi.",
+            "Coabito diventa conduttore dell'immobile. Tu ricevi il canone concordato, senza gestire le sublocazioni.",
+        },
+        {
+          number: "4",
+          title: "Gestiamo tutto il resto",
+          description:
+            "Selezione studenti, contratti di sublocazione, incasso e comunicazioni: ci pensiamo noi.",
         },
       ],
     },
@@ -119,7 +125,7 @@ export const translations = {
         {
           question: "Come guadagna Coabito?",
           answer:
-            "Applichiamo un piccolo margine tra quello che paga lo studente e quello che versiamo al proprietario — lo stesso modello di chi gestisce affitti per conto terzi, reso più semplice e veloce grazie alla chat.",
+            "Affittiamo l'immobile dal proprietario con un canone fisso concordato (canone garantito), e lo subaffittiamo agli studenti per singola stanza. Il nostro margine è la differenza tra i due canoni.",
         },
         {
           question: "Devo pagare qualcosa prima di trovare la stanza giusta?",
@@ -129,7 +135,7 @@ export const translations = {
         {
           question: "Chi si occupa del contratto?",
           answer:
-            "Ce ne occupiamo noi: gestiamo il rapporto con il proprietario, tu firmi solo il contratto per la tua stanza, senza dover trattare direttamente ogni dettaglio.",
+            "Lo studente firma un contratto di sublocazione con Coabito per la propria stanza. Il proprietario, a sua volta, firma un contratto di locazione con Coabito: non firmi direttamente con il proprietario.",
         },
         {
           question: "Come funziona il punteggio di compatibilità?",
@@ -144,7 +150,7 @@ export const translations = {
         {
           question: "Sono un proprietario: devo pagare per proporre il mio immobile?",
           answer:
-            "No, proporre il tuo immobile è gratuito. Ci pensiamo noi a trovare studenti compatibili e verificati: tu decidi solo con chi firmare, quando sei pronto.",
+            "No, proporre il tuo immobile è gratuito. Se procediamo, firmiamo un contratto di locazione con te e ti corrispondiamo un canone mensile concordato (canone garantito): selezione studenti e sublocazioni le gestiamo noi.",
         },
       ],
     },
@@ -668,26 +674,32 @@ export const translations = {
     },
     howItWorksOwners: {
       eyebrow: "For property owners",
-      title: "Rent out without handling negotiations yourself",
+      title: "Guaranteed rent, without handling negotiations yourself",
       ctaLabel: "List your property",
       steps: [
         {
           number: "1",
-          title: "Send us your property",
+          title: "Tell us about your property",
           description:
-            "Address, price, photos: we upload it to your profile and publish it on the main listing sites too.",
+            "Address, features and availability: we'll get back to you within 24–48 hours.",
         },
         {
           number: "2",
-          title: "We filter the interested students",
+          title: "We agree a guaranteed rent",
           description:
-            "Only verified students compatible with your home reach you: no time-wasters.",
+            "After a visit we agree a fixed monthly rent — that's what Coabito pays you.",
         },
         {
           number: "3",
-          title: "You decide, we handle the rest",
+          title: "We sign a lease with you",
           description:
-            "We keep you updated on every serious request. Close the deal whenever you're ready, on your own time.",
+            "Coabito becomes the tenant of the property. You receive the agreed rent without managing sublets.",
+        },
+        {
+          number: "4",
+          title: "We handle everything else",
+          description:
+            "Student selection, room subleases, collection and communication: we take care of it.",
         },
       ],
     },
@@ -709,7 +721,7 @@ export const translations = {
         {
           question: "How does Coabito make money?",
           answer:
-            "We apply a small margin between what the student pays and what we pass on to the property owner — the same model used by anyone managing rentals on someone else's behalf, made simpler and faster through chat.",
+            "We lease the property from the owner at an agreed fixed rent (guaranteed rent), and sublet individual rooms to students. Our margin is the difference between those two rents.",
         },
         {
           question: "Do I have to pay anything before finding the right room?",
@@ -719,7 +731,7 @@ export const translations = {
         {
           question: "Who handles the contract?",
           answer:
-            "We do: we manage the relationship with the property owner, you only sign the contract for your room, without having to negotiate every detail yourself.",
+            "Students sign a sublease with Coabito for their room. The property owner signs a lease with Coabito — you don't sign directly with the landlord.",
         },
         {
           question: "How does the compatibility score work?",
@@ -734,7 +746,7 @@ export const translations = {
         {
           question: "I'm a property owner: do I have to pay to list my property?",
           answer:
-            "No, listing your property is free. We take care of finding compatible, verified students: you only decide who to sign with, when you're ready.",
+            "No, listing your property is free. If we proceed, we sign a lease with you and pay an agreed monthly rent (guaranteed rent): we handle student selection and room subleases.",
         },
       ],
     },

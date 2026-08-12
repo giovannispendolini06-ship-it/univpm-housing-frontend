@@ -22,7 +22,7 @@ export default function TermsPage() {
           Termini di Servizio
         </h1>
         <p className="mb-8 text-sm text-ink-muted">
-          Ultimo aggiornamento: 11 agosto 2026
+          Ultimo aggiornamento: 12 agosto 2026
         </p>
 
         <div className="space-y-6 text-sm leading-relaxed text-ink">
@@ -31,12 +31,20 @@ export default function TermsPage() {
               1. Chi siamo e cosa facciamo
             </h2>
             <p>
-              Coabito (&quot;noi&quot;, &quot;la piattaforma&quot;) è un servizio che mette in contatto
-              studenti universitari in cerca di alloggio con proprietari di immobili, tramite un
-              assistente virtuale che raccoglie le preferenze dello studente e propone stanze
-              compatibili. <strong>Coabito non è un&apos;agenzia immobiliare tradizionale</strong> né una
-              parte del contratto di locazione: agiamo come intermediari tecnologici che facilitano
-              il contatto tra le parti.
+              Coabito (&quot;noi&quot;, &quot;la piattaforma&quot;) aiuta studenti universitari a
+              trovare una stanza compatibile vicino al proprio ateneo, e aiuta i proprietari a
+              affittare senza gestire in prima persona selezione, contratti e incassi. Operiamo
+              con un modello di <strong>locazione e sublocazione</strong>: stipuliamo un contratto
+              di locazione con il proprietario (diventando conduttori dell&apos;immobile) e
+              contratti di sublocazione con gli studenti per le singole stanze. Coabito è quindi{" "}
+              <strong>parte contrattuale</strong> in entrambi i rapporti. L&apos;assistente
+              virtuale Vesta raccoglie le preferenze dello studente e propone stanze compatibili
+              gestite da Coabito.
+            </p>
+            <p className="mt-3 rounded-xl bg-sea-50 px-3 py-2 text-xs text-ink-muted">
+              Nota: questa è una bozza di termini aggiornata al modello operativo reale. Prima di
+              considerarla definitiva, andrà rivista da un legale (insieme alle bozze di contratto
+              di locazione/sublocazione).
             </p>
           </section>
 
@@ -57,20 +65,30 @@ export default function TermsPage() {
               3. Il ruolo della piattaforma
             </h2>
             <p className="mb-2">
-              Coabito facilita il contatto tra studenti e proprietari, ma:
+              Nel modello Coabito:
             </p>
             <ul className="list-disc space-y-1 pl-5">
               <li>
-                Non garantiamo che le informazioni fornite da proprietari o studenti siano sempre
-                accurate — verifica sempre di persona prima di impegnarti in un contratto
+                Con il proprietario firmiamo un contratto di locazione: diventiamo conduttori
+                dell&apos;immobile e corrispondiamo un canone concordato (canone garantito), secondo
+                i termini del singolo accordo
               </li>
               <li>
-                Non siamo parte del contratto di locazione tra studente e proprietario, che resta
-                un accordo diretto tra le due parti
+                Con lo studente firmiamo un contratto di sublocazione per la stanza assegnata:
+                lo studente paga il canone della stanza a Coabito, non al proprietario
+              </li>
+              <li>
+                Gestiamo selezione degli studenti, contratti, comunicazioni e (ove previsto)
+                l&apos;incasso dei canoni relativi alle stanze
               </li>
               <li>
                 Il punteggio di compatibilità generato dalla nostra intelligenza artificiale è un
                 suggerimento orientativo, non una garanzia di idoneità
+              </li>
+              <li>
+                Le condizioni economiche e le clausole di ogni contratto sono quelle del singolo
+                accordo firmato; queste Termini regolano l&apos;uso della piattaforma, non
+                sostituiscono i contratti di locazione/sublocazione
               </li>
             </ul>
           </section>
@@ -94,9 +112,11 @@ export default function TermsPage() {
             </h2>
             <p>
               Nei limiti consentiti dalla legge, Coabito non è responsabile per danni diretti o
-              indiretti derivanti dall&apos;uso della piattaforma, da accordi presi tra studenti e
-              proprietari, o da informazioni inesatte fornite dagli utenti. Il servizio è fornito
-              &quot;così com&apos;è&quot;, senza garanzie di continuità assoluta o assenza di errori.
+              indiretti derivanti dall&apos;uso della piattaforma, da informazioni inesatte
+              fornite dagli utenti, o da interruzioni tecniche del servizio, salvo dolo o colpa
+              grave. I rapporti di locazione e sublocazione sono regolati dai rispettivi contratti
+              sottoscritti dalle parti. Il servizio online è fornito &quot;così com&apos;è&quot;,
+              senza garanzie di continuità assoluta o assenza di errori.
             </p>
           </section>
 
@@ -146,8 +166,11 @@ export default function TermsPage() {
             </h2>
             <p>
               Questi termini sono regolati dalla legge italiana. Per qualsiasi controversia sarà
-              competente il foro di [CITTÀ DA COMPILARE], salvo diversa previsione inderogabile di
-              legge a tutela del consumatore.
+              competente il foro di{" "}
+              <strong>
+                [FORO COMPETENTE — DA DEFINIRE CON LA COSTITUZIONE DELLA SOCIETÀ]
+              </strong>
+              , salvo diversa previsione inderogabile di legge a tutela del consumatore.
             </p>
           </section>
 
