@@ -37,7 +37,8 @@ export default async function AdminWaitlistPage() {
           <h1 className="font-display text-2xl font-bold text-ink">Lista d&apos;attesa</h1>
           <p className="mt-1 text-sm text-ink-muted">
             Studenti iscritti dal form pubblico o aggiunti automaticamente da Vesta quando non
-            ci sono stanze compatibili.
+            ci sono stanze compatibili. Con email: in attesa finché non confermano il link
+            (double opt-in). Solo telefono o da Vesta: confermati subito.
           </p>
         </header>
 

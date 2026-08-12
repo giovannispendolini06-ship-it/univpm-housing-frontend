@@ -27,6 +27,12 @@ import {
   replyContainsWaitlistNotice,
   upsertWaitlistFromStudentProfile,
 } from "@/lib/waitlist";
+import {
+  computeChatProgressFromProfile,
+  mergeChatProgress,
+  parseProgressTag,
+  stripProgressTag,
+} from "@/lib/chat-progress";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -159,8 +165,11 @@ export async function POST(request: NextRequest) {
   }
 
   // --- 4. Estrazione del blocco JSON e aggiornamento profilo ---------------
+  const progressFromTag = parseProgressTag(assistantReplyRaw);
   const jsonMatch = assistantReplyRaw.match(STUDENT_DATA_REGEX);
-  const replyForUser = assistantReplyRaw.replace(STUDENT_DATA_REGEX, "").trim();
+  const replyForUser = stripProgressTag(
+    assistantReplyRaw.replace(STUDENT_DATA_REGEX, ""),
+  ).trim();
 
   if (jsonMatch) {
     try {
@@ -191,6 +200,10 @@ export async function POST(request: NextRequest) {
   let rooms: unknown[] = [];
   let waitlisted = false;
   let finalReply = replyForUser;
+  let progress = mergeChatProgress(
+    progressFromTag,
+    computeChatProgressFromProfile(null),
+  );
 
   try {
     const { data: studentProfile, error: profileError } = await db
@@ -200,6 +213,11 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (profileError) throw profileError;
+
+    progress = mergeChatProgress(
+      progressFromTag,
+      computeChatProgressFromProfile(studentProfile),
+    );
 
     if (studentProfile?.campus_id && studentProfile?.budget_max) {
       rooms = await computeRoomMatches(
@@ -250,6 +268,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     reply: finalReply,
     rooms,
+    progress,
     ...(waitlisted ? { waitlisted: true } : {}),
   });
 }

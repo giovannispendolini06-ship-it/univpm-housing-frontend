@@ -3,21 +3,38 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
+import type { ChatProgress, ChatProgressStepKey } from "@/lib/chat-progress";
+import { CHAT_PROGRESS_TOTAL } from "@/lib/chat-progress";
 import ChatBubble from "./ChatBubble";
 import TypingIndicator from "./TypingIndicator";
 import VestaAvatar from "./VestaAvatar";
 
 interface ChatPanelProps {
   initialMessages: ChatMessage[];
+  initialProgress?: ChatProgress | null;
   onSendMessage: (
     text: string,
     history: { role: ChatMessage["role"]; content: string }[],
-  ) => Promise<{ reply: string; rooms?: RecommendedRoom[]; waitlisted?: boolean }>;
+  ) => Promise<{
+    reply: string;
+    rooms?: RecommendedRoom[];
+    waitlisted?: boolean;
+    progress?: ChatProgress;
+  }>;
   onRoomsUpdate?: (rooms: RecommendedRoom[], waitlisted?: boolean) => void;
+}
+
+function stepLabel(
+  key: ChatProgressStepKey | null,
+  labels: Record<ChatProgressStepKey, string>,
+): string | null {
+  if (!key) return null;
+  return labels[key] ?? null;
 }
 
 export default function ChatPanel({
   initialMessages,
+  initialProgress = null,
   onSendMessage,
   onRoomsUpdate,
 }: ChatPanelProps) {
@@ -25,7 +42,16 @@ export default function ChatPanel({
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [progress, setProgress] = useState<ChatProgress | null>(initialProgress);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!initialProgress) return;
+    setProgress((prev) => {
+      if (!prev || initialProgress.done >= prev.done) return initialProgress;
+      return prev;
+    });
+  }, [initialProgress]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -55,7 +81,8 @@ export default function ChatPanel({
     setIsTyping(true);
 
     try {
-      const { reply, rooms, waitlisted } = await onSendMessage(text, historyForApi);
+      const { reply, rooms, waitlisted, progress: nextProgress } =
+        await onSendMessage(text, historyForApi);
 
       const assistantMessage: ChatMessage = {
         id: crypto.randomUUID(),
@@ -65,6 +92,7 @@ export default function ChatPanel({
       };
       setMessages((prev) => [...prev, assistantMessage]);
 
+      if (nextProgress) setProgress(nextProgress);
       if (rooms) onRoomsUpdate?.(rooms, waitlisted);
     } catch {
       const errorMessage: ChatMessage = {
@@ -87,13 +115,51 @@ export default function ChatPanel({
     }
   }
 
+  const done = progress?.done ?? 0;
+  const total = progress?.total ?? CHAT_PROGRESS_TOTAL;
+  const pct = Math.round((done / total) * 100);
+  const currentLabel = stepLabel(progress?.current ?? null, t.chat.progressSteps);
+  const progressText =
+    done >= total
+      ? t.chat.progressComplete
+      : t.chat.progressLabel
+          .replace("{done}", String(done))
+          .replace("{total}", String(total))
+          .replace("{step}", currentLabel ?? "");
+
   return (
     <section className="flex h-full flex-col bg-bg">
-      <header className="flex items-center gap-3 border-b border-sea-100 bg-white/80 px-4 py-3 backdrop-blur">
-        <VestaAvatar size={36} />
-        <div>
-          <h1 className="font-display text-sm font-bold text-ink">Vesta</h1>
-          <p className="text-xs text-ink-muted">{t.chat.subtitle}</p>
+      <header className="border-b border-sea-100 bg-white/80 px-4 py-3 backdrop-blur">
+        <div className="flex items-center gap-3">
+          <VestaAvatar size={36} />
+          <div className="min-w-0 flex-1">
+            <h1 className="font-display text-sm font-bold text-ink">Vesta</h1>
+            <p className="text-xs text-ink-muted">{t.chat.subtitle}</p>
+          </div>
+        </div>
+
+        <div className="mt-2.5" aria-live="polite">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <p className="truncate text-[11px] font-medium text-sea-700">
+              {progressText}
+            </p>
+            <span className="shrink-0 text-[11px] tabular-nums text-ink-muted">
+              {done}/{total}
+            </span>
+          </div>
+          <div
+            className="h-1.5 overflow-hidden rounded-full bg-sea-100"
+            role="progressbar"
+            aria-valuenow={done}
+            aria-valuemin={0}
+            aria-valuemax={total}
+            aria-label={progressText}
+          >
+            <div
+              className="h-full rounded-full bg-sea-600 transition-[width] duration-500 ease-out"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
         </div>
       </header>
 

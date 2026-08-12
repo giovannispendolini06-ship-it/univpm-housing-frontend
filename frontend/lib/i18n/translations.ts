@@ -21,6 +21,7 @@ export const translations = {
       ctaOwner: "Sono un proprietario",
       freeNote: "Gratuito per gli studenti. Nessuna carta di credito richiesta.",
       seeExample: "Vedi un esempio",
+      socialProof: "{count} studenti già in lista d'attesa",
       liveCompatibility: "Compatibilità calcolata in tempo reale",
       mockBot: "Che facoltà fai, e quanto puoi spendere al mese?",
       mockUser: "Ingegneria, secondo anno. Max 420€",
@@ -138,6 +139,65 @@ export const translations = {
       rights: "Tutti i diritti riservati.",
       privacy: "Privacy",
       terms: "Termini di servizio",
+      cookies: "Cookie",
+      guide: "Guida affitto Ancona",
+    },
+    guidaAffittoAncona: {
+      title: "Come affittare casa per studenti ad Ancona",
+      subtitle:
+        "Una guida pratica per fuori sede UNIVPM: tempi, zone vicine ai poli, budget realistici e come evitare i classici errori sugli annunci.",
+      intro:
+        "Trovare una stanza ad Ancona sembra semplice finché non inizi a rispondere a decine di annunci, a fare giri inutili e a scoprire che la “singola luminosa” è a 40 minuti dal tuo polo. Questa guida riassume cosa conta davvero se studi all’Università Politecnica delle Marche.",
+      sections: [
+        {
+          title: "Quando iniziare a cercare",
+          body: "Per l’inizio dell’anno accademico i posti migliori si muovono da giugno a settembre. Se arrivi a ottobre sei ancora in tempo, ma conviene entrare in lista d’attesa o chattare subito con Vesta: più chiaro è il tuo profilo (polo, budget, data di ingresso), più è facile proporti qualcosa di sensato appena si libera.",
+        },
+        {
+          title: "Zone e poli universitari",
+          body: "Monte Dago (Ingegneria, Agraria, Scienze) si raggiunge bene con la linea 65 University Link e la 46/. Torrette (Medicina) è lungo lo stesso corridoio della 65. Economia e Giurisprudenza gravitano sul centro / Villarey: lì contano soprattutto piedi e linee verso stazione e Piazza Roma. Una stanza “conveniente” lontano dal tuo polo spesso costa di più in tempo e stress quotidiano.",
+        },
+        {
+          title: "Budget realistico",
+          body: "Oltre al canone mensile metti in conto utenze, deposito e eventuali spese condominiali. Su Coabito indichi un budget massimo e Vesta lo usa per filtrare: meglio essere onesti sul tetto reale che accettare proposte che non reggi dopo due mesi.",
+        },
+        {
+          title: "Cosa chiedere (e cosa evitare)",
+          body: "Chiedi sempre data di disponibilità, cosa è incluso nelle spese, se la stanza è singola o doppia, e regole su ospiti/fumo. Diffida di richieste di caparra via bonifico prima di aver visto la casa o firmato qualcosa di chiaro. Coabito gestisce il rapporto con il proprietario proprio per ridurre questi passaggi opachi.",
+        },
+        {
+          title: "Come ti aiuta Coabito",
+          body: "Invece di scorrere annunci a caso, racconti a Vesta facoltà, budget e abitudini di convivenza. Ti proponiamo stanze compatibili vicino al tuo ateneo e un punteggio che pesa anche stile di vita, non solo metri quadri. Per gli studenti è gratuito parlare con Vesta e vedere le proposte.",
+        },
+      ],
+      ctaTitle: "Pronto a cercare senza perdere settimane?",
+      ctaBody: "Inizia la chat con Vesta oppure entra in lista d’attesa: ti avvisiamo quando arriva qualcosa di compatibile.",
+      ctaChat: "Parla con Vesta",
+      ctaWaitlist: "Lista d’attesa",
+      backHome: "← Torna alla home",
+    },
+    cookieBanner: {
+      title: "Usiamo i cookie",
+      description:
+        "Usiamo cookie essenziali per far funzionare il sito e, solo con il tuo consenso, cookie di misurazione (Vercel Analytics) per capire come migliorare Coabito.",
+      acceptAll: "Accetta tutti",
+      rejectNonEssential: "Rifiuta non essenziali",
+      customize: "Personalizza",
+      preferencesTitle: "Preferenze cookie",
+      savePreferences: "Salva preferenze",
+      close: "Chiudi",
+      privacyLink: "Privacy Policy",
+      sectionIntroTitle: "Utilizzo dei cookie",
+      sectionIntroBody:
+        "Puoi scegliere quali cookie accettare. I cookie essenziali sono sempre attivi perché servono al funzionamento del sito (sessione, lingua, sicurezza).",
+      sectionNecessaryTitle: "Essenziali",
+      sectionNecessaryBody:
+        "Necessari per autenticazione, preferenza lingua e sicurezza. Non possono essere disattivati.",
+      sectionAnalyticsTitle: "Analitici",
+      sectionAnalyticsBody:
+        "Vercel Analytics: ci aiuta a capire quali pagine vengono visitate, in forma aggregata e anonima. Non usiamo Google Analytics né pubblicità.",
+      sectionMoreTitle: "Maggiori informazioni",
+      sectionMoreBody: "Per dettagli su come trattiamo i dati, leggi la nostra",
     },
     common: {
       signOut: "Esci",
@@ -200,6 +260,17 @@ export const translations = {
       subtitle: "Il tuo assistente casa · UNIVPM Ancona",
       inputPlaceholder: "Scrivi un messaggio...",
       sendLabel: "Invia messaggio",
+      progressLabel: "{done}/{total} · {step}",
+      progressComplete: "Profilo completo",
+      progressSteps: {
+        campus: "Polo / facoltà",
+        budget: "Budget",
+        moveIn: "Data ingresso",
+        study: "Studio",
+        social: "Vita sociale",
+        clean: "Pulizia",
+        extras: "Fumo / animali",
+      },
     },
     roomCard: {
       perMonth: "/mese",
@@ -220,6 +291,13 @@ export const translations = {
         "Ho salvato le tue preferenze. Appena arriva un immobile compatibile con te, sarai tra i primi ad essere avvisato.",
       shareCta: "Condividi con un amico",
       shareText: "Sto cercando casa ad Ancona con Coabito — entra in lista d'attesa:",
+      loadingLabel: "Caricamento stanze compatibili…",
+    },
+    notFound: {
+      title: "Pagina non trovata",
+      body: "Questo indirizzo non esiste o è stato spostato. Torna alla home oppure entra in lista d'attesa.",
+      home: "Torna alla home",
+      waitlist: "Lista d'attesa",
     },
     listaAttesa: {
       backToHome: "← Torna alla home",
@@ -238,9 +316,25 @@ export const translations = {
       privacyRequired: "Devi accettare la Privacy Policy per iscriverti.",
       submit: "Entra in lista d'attesa",
       submitting: "Invio...",
-      successTitle: "Sei in lista! 🎉",
+      successTitle: "Sei in lista!",
       successBody:
         "Ti avviseremo appena arriva un immobile compatibile con le tue preferenze. Nel frattempo, puoi condividere il link con chi cerca casa ad Ancona.",
+      pendingTitle: "Controlla la tua email",
+      pendingBody:
+        "Ti abbiamo inviato un link di conferma. Cliccalo entro 7 giorni per attivare l'iscrizione: solo dopo potremo avvisarti quando arriva una stanza compatibile.",
+      confirm: {
+        successTitle: "Iscrizione confermata",
+        successBody:
+          "Perfetto: sei in lista d'attesa. Ti avviseremo appena arriva qualcosa di compatibile con le tue preferenze.",
+        alreadyTitle: "Già confermata",
+        alreadyBody: "La tua iscrizione era già attiva. Non serve fare altro.",
+        expiredTitle: "Link scaduto",
+        expiredBody:
+          "Questo link di conferma non è più valido. Iscriviti di nuovo dalla lista d'attesa per ricevere un nuovo email.",
+        invalidTitle: "Link non valido",
+        invalidBody:
+          "Non riusciamo a confermare questa iscrizione. Controlla il link nell'email o iscriviti di nuovo.",
+      },
       errorGeneric:
         "Qualcosa è andato storto. Riprova, o scrivici a info@coabito.it.",
       contactRequired: "Inserisci almeno un'email o un numero di telefono.",
@@ -394,6 +488,7 @@ export const translations = {
       ctaOwner: "I'm a property owner",
       freeNote: "Free for students. No credit card required.",
       seeExample: "See an example",
+      socialProof: "{count} students already on the waitlist",
       liveCompatibility: "Compatibility calculated in real time",
       mockBot: "What are you studying, and what's your monthly budget?",
       mockUser: "Engineering, second year. Max €420",
@@ -511,6 +606,65 @@ export const translations = {
       rights: "All rights reserved.",
       privacy: "Privacy",
       terms: "Terms of service",
+      cookies: "Cookies",
+      guide: "Ancona student housing guide",
+    },
+    guidaAffittoAncona: {
+      title: "How to rent student housing in Ancona",
+      subtitle:
+        "A practical guide for UNIVPM students: timing, areas near campus, realistic budgets, and how to avoid the usual listing traps.",
+      intro:
+        "Finding a room in Ancona looks easy until you answer dozens of ads, take pointless viewings, and discover that “bright single” is 40 minutes from your campus. This guide covers what actually matters if you study at Università Politecnica delle Marche.",
+      sections: [
+        {
+          title: "When to start looking",
+          body: "For the start of the academic year, the best places move between June and September. Arriving in October can still work, but join the waitlist or chat with Vesta early: the clearer your profile (campus, budget, move-in date), the easier it is to match you when something opens up.",
+        },
+        {
+          title: "Areas and university campuses",
+          body: "Monte Dago (Engineering, Agriculture, Sciences) is well served by bus 65 University Link and 46/. Torrette (Medicine) sits on the same 65 corridor. Economics and Law gravitate toward the centre / Villarey, where walking and lines to the station and Piazza Roma matter most. A “cheap” room far from your campus often costs more in daily time and stress.",
+        },
+        {
+          title: "A realistic budget",
+          body: "Beyond monthly rent, plan for utilities, deposit and any condo fees. On Coabito you set a maximum budget and Vesta uses it to filter — better to be honest about your real ceiling than accept a place you can’t sustain after two months.",
+        },
+        {
+          title: "What to ask (and what to avoid)",
+          body: "Always ask about availability date, what’s included in bills, whether the room is single or shared, and rules on guests/smoking. Be wary of deposit transfers before you’ve seen the place or signed something clear. Coabito manages the landlord relationship to reduce those opaque steps.",
+        },
+        {
+          title: "How Coabito helps",
+          body: "Instead of scrolling random listings, you tell Vesta your course, budget and living habits. We suggest compatible rooms near your campus, with a score that weighs lifestyle — not just square metres. For students, chatting with Vesta and seeing suggestions is free.",
+        },
+      ],
+      ctaTitle: "Ready to search without wasting weeks?",
+      ctaBody: "Start chatting with Vesta or join the waitlist — we’ll notify you when something compatible appears.",
+      ctaChat: "Chat with Vesta",
+      ctaWaitlist: "Join the waitlist",
+      backHome: "← Back to home",
+    },
+    cookieBanner: {
+      title: "We use cookies",
+      description:
+        "We use essential cookies to make the site work and, only with your consent, measurement cookies (Vercel Analytics) to understand how to improve Coabito.",
+      acceptAll: "Accept all",
+      rejectNonEssential: "Reject non-essential",
+      customize: "Customize",
+      preferencesTitle: "Cookie preferences",
+      savePreferences: "Save preferences",
+      close: "Close",
+      privacyLink: "Privacy Policy",
+      sectionIntroTitle: "How we use cookies",
+      sectionIntroBody:
+        "You can choose which cookies to accept. Essential cookies are always on because they are required for the site to work (session, language, security).",
+      sectionNecessaryTitle: "Essential",
+      sectionNecessaryBody:
+        "Required for authentication, language preference and security. These cannot be turned off.",
+      sectionAnalyticsTitle: "Analytics",
+      sectionAnalyticsBody:
+        "Vercel Analytics: helps us understand which pages are visited, in aggregate and anonymous form. We do not use Google Analytics or ads.",
+      sectionMoreTitle: "More information",
+      sectionMoreBody: "For details on how we process data, read our",
     },
     common: {
       signOut: "Sign out",
@@ -573,6 +727,17 @@ export const translations = {
       subtitle: "Your housing assistant · UNIVPM Ancona",
       inputPlaceholder: "Write a message...",
       sendLabel: "Send message",
+      progressLabel: "{done}/{total} · {step}",
+      progressComplete: "Profile complete",
+      progressSteps: {
+        campus: "Campus / course",
+        budget: "Budget",
+        moveIn: "Move-in date",
+        study: "Study habits",
+        social: "Social life",
+        clean: "Cleanliness",
+        extras: "Smoking / pets",
+      },
     },
     roomCard: {
       perMonth: "/month",
@@ -593,6 +758,13 @@ export const translations = {
         "I've saved your preferences. As soon as a compatible place becomes available, you'll be among the first to know.",
       shareCta: "Share with a friend",
       shareText: "I'm looking for a room in Ancona with Coabito — join the waitlist:",
+      loadingLabel: "Loading compatible rooms…",
+    },
+    notFound: {
+      title: "Page not found",
+      body: "This address doesn't exist or has moved. Go back home or join the waitlist.",
+      home: "Back to home",
+      waitlist: "Waitlist",
     },
     listaAttesa: {
       backToHome: "← Back to home",
@@ -611,9 +783,25 @@ export const translations = {
       privacyRequired: "You must accept the Privacy Policy to sign up.",
       submit: "Join the waitlist",
       submitting: "Submitting...",
-      successTitle: "You're on the list! 🎉",
+      successTitle: "You're on the list!",
       successBody:
         "We'll notify you as soon as a compatible place becomes available. In the meantime, feel free to share the link with friends looking for a room in Ancona.",
+      pendingTitle: "Check your email",
+      pendingBody:
+        "We've sent you a confirmation link. Click it within 7 days to activate your signup — we'll only notify you about compatible rooms after that.",
+      confirm: {
+        successTitle: "Signup confirmed",
+        successBody:
+          "You're on the waitlist. We'll let you know as soon as something compatible becomes available.",
+        alreadyTitle: "Already confirmed",
+        alreadyBody: "Your signup was already active. Nothing else to do.",
+        expiredTitle: "Link expired",
+        expiredBody:
+          "This confirmation link is no longer valid. Join the waitlist again to get a new email.",
+        invalidTitle: "Invalid link",
+        invalidBody:
+          "We couldn't confirm this signup. Check the link in your email or join the waitlist again.",
+      },
       errorGeneric: "Something went wrong. Please try again, or email us at info@coabito.it.",
       contactRequired: "Please enter at least an email or a phone number.",
       facoltaOptions: [

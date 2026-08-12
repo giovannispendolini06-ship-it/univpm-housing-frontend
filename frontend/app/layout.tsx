@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import CookieConsentBanner from "@/components/CookieConsentBanner";
+import JsonLd from "@/components/JsonLd";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
+import { organizationJsonLd } from "@/lib/seo/structured-data";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -46,16 +48,26 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "it_IT",
+    url: SITE_URL,
     siteName: "Coabito",
     title: "Coabito | Trova casa vicino alla tua università",
     description:
       "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Coabito | Trova casa vicino alla tua università",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Coabito | Trova casa vicino alla tua università",
     description:
       "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+    images: ["/twitter-image"],
   },
   robots: {
     index: true,
@@ -71,9 +83,10 @@ export default function RootLayout({
   return (
     <html lang="it" className={`${display.variable} ${body.variable}`}>
       <body>
+        <JsonLd data={organizationJsonLd()} />
         <LocaleProvider>
           {children}
-          <Analytics />
+          <CookieConsentBanner />
           <ServiceWorkerRegister />
         </LocaleProvider>
       </body>

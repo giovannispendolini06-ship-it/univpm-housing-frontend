@@ -14,7 +14,7 @@ export default function PrivacyPage() {
           Informativa sulla Privacy
         </h1>
         <p className="mb-8 text-sm text-ink-muted">
-          Ultimo aggiornamento: [DA COMPILARE — data di pubblicazione]
+          Ultimo aggiornamento: 11 agosto 2026
         </p>
 
         <div className="space-y-6 text-sm leading-relaxed text-ink">
@@ -50,8 +50,16 @@ export default function PrivacyPage() {
               <li>Facoltà, polo universitario, budget, abitudini di convivenza (raccolti tramite la chat)</li>
             </ul>
             <p className="mb-1 font-semibold">Solo per i proprietari, in aggiunta:</p>
-            <ul className="list-disc space-y-1 pl-5">
+            <ul className="mb-2 list-disc space-y-1 pl-5">
               <li>Dati relativi agli immobili inseriti (indirizzo, canone, foto dell&apos;immobile)</li>
+            </ul>
+            <p className="mb-1 font-semibold">Lista d&apos;attesa (anche senza account):</p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>
+                Nome, email e/o telefono, facoltà, polo, budget massimo — se ti iscrivi dal form
+                pubblico o vieni aggiunto automaticamente da Vesta quando non ci sono stanze
+                compatibili
+              </li>
             </ul>
           </section>
 
@@ -71,6 +79,16 @@ export default function PrivacyPage() {
               <li>
                 <strong>Calcolare la compatibilità</strong> tra studenti e stanze tramite intelligenza
                 artificiale — base giuridica: esecuzione di un contratto con te.
+              </li>
+              <li>
+                <strong>Lista d&apos;attesa</strong>: tenerti aggiornato quando arriva una stanza
+                compatibile con le preferenze indicate — base giuridica: tuo consenso (conferma email
+                se hai lasciato un indirizzo; se lasci solo il telefono, il consenso vale per il
+                contatto telefonico/WhatsApp).
+              </li>
+              <li>
+                <strong>Misurazione del traffico</strong> (solo con consenso cookie analitici) —
+                base giuridica: consenso.
               </li>
               <li>
                 <strong>Adempiere a obblighi di legge</strong> (es. fiscali, contrattuali) —
@@ -95,7 +113,22 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="mb-2 font-display text-base font-bold text-ink">
-              5. Dove sono conservati i tuoi dati
+              5. Lista d&apos;attesa e conferma email (double opt-in)
+            </h2>
+            <p className="mb-2">
+              Se ti iscrivi alla lista d&apos;attesa lasciando un&apos;email, ti inviamo un messaggio
+              con un link di conferma. Solo dopo il click consideriamo l&apos;iscrizione attiva per
+              avvisi su stanze compatibili. Il link scade dopo 7 giorni: in quel caso puoi iscriverti
+              di nuovo. Se lasci solo il telefono, non c&apos;è conferma via email; useremo il
+              numero solo per contattarti in merito alla ricerca di alloggio. Se sei già autenticato
+              e Vesta ti aggiunge alla lista, l&apos;iscrizione è considerata confermata perché
+              l&apos;account è già verificato.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="mb-2 font-display text-base font-bold text-ink">
+              6. Dove sono conservati i tuoi dati
             </h2>
             <p>
               I tuoi dati sono conservati su server gestiti da <strong>Supabase</strong> (database e
@@ -107,23 +140,28 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="mb-2 font-display text-base font-bold text-ink">
-              6. Per quanto tempo conserviamo i tuoi dati
+              7. Per quanto tempo conserviamo i tuoi dati
             </h2>
             <p>
               Conserviamo i tuoi dati per tutta la durata del tuo account sulla piattaforma, e
               successivamente per il tempo necessario ad adempiere a obblighi di legge (es. fiscali)
-              o per far valere un diritto in sede giudiziaria. Puoi richiedere la cancellazione del
-              tuo account e dei tuoi dati in qualsiasi momento (vedi sezione 8).
+              o per far valere un diritto in sede giudiziaria. Le iscrizioni alla lista d&apos;attesa
+              restano finché non chiedi la cancellazione o non elimini l&apos;account collegato.
+              Puoi richiedere la cancellazione del tuo account e dei tuoi dati in qualsiasi momento
+              (vedi sezione 9).
             </p>
           </section>
 
           <section>
             <h2 className="mb-2 font-display text-base font-bold text-ink">
-              7. Con chi condividiamo i tuoi dati
+              8. Con chi condividiamo i tuoi dati
             </h2>
             <p className="mb-2">Non vendiamo i tuoi dati a terzi. Li condividiamo solo con:</p>
             <ul className="list-disc space-y-1 pl-5">
-              <li>I nostri fornitori tecnici (Supabase, Vercel, OpenAI), in qualità di responsabili del trattamento</li>
+              <li>
+                I nostri fornitori tecnici (Supabase, Vercel, OpenAI, e — solo con consenso — Vercel
+                Analytics), in qualità di responsabili del trattamento
+              </li>
               <li>
                 Studenti e proprietari, limitatamente alle informazioni necessarie a facilitare un
                 abbinamento (es. un proprietario vede il numero di studenti compatibili, mai i loro
@@ -135,7 +173,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="mb-2 font-display text-base font-bold text-ink">
-              8. I tuoi diritti
+              9. I tuoi diritti
             </h2>
             <p className="mb-2">In qualsiasi momento hai diritto di:</p>
             <ul className="list-disc space-y-1 pl-5">
@@ -144,6 +182,7 @@ export default function PrivacyPage() {
               <li>Chiederne la cancellazione ( &quot;diritto all&apos;oblio&quot;)</li>
               <li>Limitarne o opporti al trattamento</li>
               <li>Richiederne la portabilità</li>
+              <li>Revocare il consenso ai cookie analitici o alla lista d&apos;attesa</li>
               <li>Proporre reclamo al Garante per la Protezione dei Dati Personali</li>
             </ul>
             <p className="mt-2">
@@ -155,9 +194,36 @@ export default function PrivacyPage() {
             </p>
           </section>
 
+          <section id="cookie">
+            <h2 className="mb-2 font-display text-base font-bold text-ink">
+              10. Cookie
+            </h2>
+            <p className="mb-2">
+              Usiamo cookie e tecnologie simili. Puoi gestire le preferenze dal banner o dal link
+              &quot;Cookie&quot; nel footer.
+            </p>
+            <ul className="list-disc space-y-1 pl-5">
+              <li>
+                <strong>Essenziali</strong> (sempre attivi): sessione di autenticazione, preferenza
+                lingua (<code className="rounded bg-sea-50 px-1">coabito_locale</code>), cookie di
+                consenso (<code className="rounded bg-sea-50 px-1">coabito_cc</code>, durata circa 182
+                giorni). Servono al funzionamento del sito e non richiedono consenso.
+              </li>
+              <li>
+                <strong>Analitici</strong> (solo con consenso):{" "}
+                <strong>Vercel Analytics</strong> per misurare visite e uso delle pagine in forma
+                aggregata. Non carichiamo Analytics finché non accetti questa categoria. Puoi
+                revocare il consenso in qualsiasi momento riaprendo le preferenze cookie.
+              </li>
+            </ul>
+            <p className="mt-2">
+              Non usiamo cookie pubblicitari di terze parti né strumenti di retargeting.
+            </p>
+          </section>
+
           <section>
             <h2 className="mb-2 font-display text-base font-bold text-ink">
-              9. Modifiche a questa informativa
+              11. Modifiche a questa informativa
             </h2>
             <p>
               Potremmo aggiornare questa informativa nel tempo. In caso di modifiche sostanziali, te

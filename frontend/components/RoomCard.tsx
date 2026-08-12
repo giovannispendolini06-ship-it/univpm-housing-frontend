@@ -28,7 +28,7 @@ export default function RoomCard({ room }: { room: RecommendedRoom }) {
     <article className="flex gap-3 rounded-xl2 bg-surface p-3 shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-lg sm:gap-4 sm:p-4">
       <img
         src={room.imageUrl}
-        alt={room.title}
+        alt={`${room.title} — ${room.zone}`}
         className="h-24 w-24 shrink-0 rounded-xl object-cover sm:h-28 sm:w-28"
       />
 

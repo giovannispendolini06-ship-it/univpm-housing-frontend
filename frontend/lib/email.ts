@@ -228,6 +228,8 @@ export function buildAdminWaitlistEmail(input: {
   polo: string | null;
   budget: number | null;
   source: string;
+  /** true = in attesa di click sul link di conferma email */
+  pendingConfirmation?: boolean;
 }) {
   const badge =
     WAITLIST_SOURCE_BADGE[input.source] ??
@@ -259,6 +261,12 @@ export function buildAdminWaitlistEmail(input: {
       </td>
     </tr>`;
 
+  const pendingNote = input.pendingConfirmation
+    ? `<p style="margin:0 0 16px; padding:10px 14px; background-color:#FFF6E8; border-radius:10px; color:${COLORS.inkMuted}; font-size:13px;">
+        In attesa di conferma email (double opt-in). Non inviare comunicazioni marketing finché non conferma.
+      </p>`
+    : "";
+
   const bodyHtml = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">
       <tr>
@@ -276,6 +284,7 @@ export function buildAdminWaitlistEmail(input: {
     <p style="margin:0 0 20px; color:${COLORS.inkMuted}; font-size:14px;">
       <strong style="color:${COLORS.ink};">${escapeHtml(input.nome)}</strong> è entrato/a in lista d'attesa.
     </p>
+    ${pendingNote}
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLORS.sea50}; border-radius:12px; overflow:hidden;">
       ${row("Nome", escapeHtml(input.nome))}
@@ -294,6 +303,58 @@ export function buildAdminWaitlistEmail(input: {
     html: renderEmailLayout({
       preheader: `${input.nome} · ${badge.label} · ${poloLabel}`,
       bodyHtml,
+    }),
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Email: double opt-in — conferma iscrizione lista d'attesa
+// ----------------------------------------------------------------------------
+export function buildWaitlistConfirmEmail(input: {
+  nome: string;
+  confirmUrl: string;
+  locale?: EmailLocale;
+}) {
+  const locale = input.locale ?? "it";
+  const isEn = locale === "en";
+  const firstName = escapeHtml(input.nome.split(/\s+/)[0] || input.nome);
+
+  const bodyHtml = isEn
+    ? `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Confirm your waitlist signup, ${firstName}
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Thanks for joining the <strong>Coabito</strong> waitlist. Click the button below to confirm your email — we'll only notify you about compatible rooms after that.
+    </p>
+    ${ctaButton("Confirm my email", input.confirmUrl)}
+    <p style="margin:20px 0 0; color:${COLORS.inkMuted}; font-size:13px;">
+      This link expires in 7 days. If you didn't sign up, you can ignore this email.
+    </p>
+  `
+    : `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Conferma la tua iscrizione, ${firstName}
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Grazie per esserti iscritto/a alla lista d'attesa di <strong>Coabito</strong>. Clicca il pulsante qui sotto per confermare la tua email: ti avviseremo di stanze compatibili solo dopo questa conferma.
+    </p>
+    ${ctaButton("Conferma la mia email", input.confirmUrl)}
+    <p style="margin:20px 0 0; color:${COLORS.inkMuted}; font-size:13px;">
+      Questo link scade tra 7 giorni. Se non ti sei iscritto/a tu, ignora pure questa email.
+    </p>
+  `;
+
+  return {
+    subject: isEn
+      ? "Confirm your Coabito waitlist signup"
+      : "Conferma la tua iscrizione alla lista d'attesa Coabito",
+    html: renderEmailLayout({
+      preheader: isEn
+        ? "One click to confirm your waitlist signup"
+        : "Un click per confermare la tua iscrizione alla lista d'attesa",
+      bodyHtml,
+      locale,
     }),
   };
 }

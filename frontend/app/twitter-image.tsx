@@ -14,7 +14,11 @@ const SEA_600 = "#0F6E6A";
 const SEA_100 = "#CFE6E4";
 const SUNSET = "#FF6B4A";
 
-export default function OpengraphImage() {
+/**
+ * Stesso asset di opengraph-image: file dedicato così Next riconosce
+ * `export const runtime = "edge"` come string literal (il re-export non basta).
+ */
+export default function TwitterImage() {
   return new ImageResponse(
     (
       <div

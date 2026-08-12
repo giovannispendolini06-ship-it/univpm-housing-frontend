@@ -89,3 +89,46 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* CookieConsent — brand Coabito (teal / corallo) */
+:root {
+  --cc-bg: #ffffff;
+  --cc-primary-color: #0f2a2e;
+  --cc-secondary-color: #5c7a78;
+  --cc-btn-primary-bg: #0f6e6a;
+  --cc-btn-primary-color: #ffffff;
+  --cc-btn-primary-border-color: #0f6e6a;
+  --cc-btn-primary-hover-bg: #0b4f4c;
+  --cc-btn-primary-hover-color: #ffffff;
+  --cc-btn-primary-hover-border-color: #0b4f4c;
+  --cc-btn-secondary-bg: #eaf4f3;
+  --cc-btn-secondary-color: #0f2a2e;
+  --cc-btn-secondary-border-color: #eaf4f3;
+  --cc-btn-secondary-hover-bg: #cfe6e4;
+  --cc-btn-secondary-hover-color: #0f2a2e;
+  --cc-btn-secondary-hover-border-color: #cfe6e4;
+  --cc-toggle-on-bg: #0f6e6a;
+  --cc-toggle-off-bg: #cfe6e4;
+  --cc-toggle-on-knob-bg: #ffffff;
+  --cc-toggle-off-knob-bg: #ffffff;
+  --cc-cookie-category-block-bg: #f4f8f7;
+  --cc-cookie-category-block-border: #eaf4f3;
+  --cc-section-border: #eaf4f3;
+  --cc-cookie-category-block-hover-bg: #eaf4f3;
+  --cc-cookie-category-block-hover-border: #cfe6e4;
+  --cc-overlay-bg: rgba(8, 47, 45, 0.55);
+  --cc-link-color: #0f6e6a;
+  --cc-modal-border-radius: 1.25rem;
+  --cc-btn-border-radius: 999px;
+}
+
+#cc-main .cm__btn,
+#cc-main .pm__btn {
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  #cc-main .cm {
+    max-width: calc(100% - 1.25rem) !important;
+  }
+}

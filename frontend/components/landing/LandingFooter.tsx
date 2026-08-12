@@ -1,6 +1,7 @@
 "use client";
 
 import CoabitoLogo from "@/components/CoabitoLogo";
+import { openCookiePreferences } from "@/components/CookieConsentBanner";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 
 export default function LandingFooter() {
@@ -35,6 +36,19 @@ export default function LandingFooter() {
           <a href="/termini" className="underline underline-offset-2">
             {t.footer.terms}
           </a>
+          <a
+            href="/guida/affittare-casa-studenti-ancona"
+            className="underline underline-offset-2"
+          >
+            {t.footer.guide}
+          </a>
+          <button
+            type="button"
+            onClick={() => openCookiePreferences()}
+            className="underline underline-offset-2"
+          >
+            {t.footer.cookies}
+          </button>
         </p>
       </div>
     </footer>

@@ -76,7 +76,7 @@ export default function LeadForm() {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={preview.image}
-              alt=""
+              alt={preview.title || "Anteprima annuncio"}
               className="h-16 w-16 shrink-0 rounded-lg object-cover"
             />
           )}
