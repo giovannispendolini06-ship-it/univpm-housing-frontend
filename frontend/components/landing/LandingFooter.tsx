@@ -42,6 +42,9 @@ export default function LandingFooter() {
           >
             {t.footer.guide}
           </a>
+          <a href="/faq" className="underline underline-offset-2">
+            {t.footer.faq}
+          </a>
           <button
             type="button"
             onClick={() => openCookiePreferences()}

@@ -100,6 +100,7 @@ export const translations = {
     faq: {
       eyebrow: "Domande frequenti",
       title: "I dubbi più comuni, risolti subito",
+      seeAll: "Tutte le FAQ per studenti",
       items: [
         {
           question: "È davvero gratis per gli studenti?",
@@ -138,6 +139,52 @@ export const translations = {
         },
       ],
     },
+    faqStudenti: {
+      eyebrow: "Per gli studenti",
+      title: "Domande frequenti per chi cerca casa",
+      subtitle:
+        "Costi, matching con Vesta, lista d'attesa e come scegliamo le stanze compatibili — risposte chiare prima di iscriverti.",
+      backHome: "← Torna alla home",
+      ctaWaitlist: "Entra in lista d'attesa",
+      ctaChat: "Parla con Vesta",
+      items: [
+        {
+          question: "Quanto costa usare Coabito?",
+          answer:
+            "Per gli studenti è gratuito parlare con Vesta, entrare in lista d'attesa e vedere le stanze proposte. Non chiediamo carte di credito né costi di iscrizione. Paghi solo il canone della stanza che scegli, come in un affitto tradizionale.",
+        },
+        {
+          question: "Come funziona il matching con Vesta?",
+          answer:
+            "Racconti a Vesta facoltà, polo, budget e abitudini di convivenza. Confrontiamo ogni nuova stanza con il tuo profilo (prezzo, distanza dall'ateneo, stile di vita) e ti mostriamo solo le proposte davvero compatibili — con un punteggio chiaro, non un elenco infinito di annunci.",
+        },
+        {
+          question: "Cosa succede dopo che mi iscrivo alla lista d'attesa?",
+          answer:
+            "Se lasci l'email, ti mandiamo un link di conferma (double opt-in). Dopo la conferma sei in lista: quando arriva una stanza compatibile ti avvisiamo. Nel frattempo puoi ricevere qualche aggiornamento sul progetto; se nel frattempo trovi già una stanza con noi, smettiamo di mandarti messaggi di “aspetto”.",
+        },
+        {
+          question: "Posso scegliere zona e budget?",
+          answer:
+            "Sì. In chat o nel form indichi budget massimo e polo/zona di interesse. Vesta li usa come filtri: meglio essere realistici sul tetto di spesa piuttosto che accettare proposte che non reggi dopo pochi mesi.",
+        },
+        {
+          question: "Come vengono selezionati i coinquilini?",
+          answer:
+            "Non mettiamo a caso persone nella stessa casa. Guardiamo preferenze di studio, sociabilità, ospiti e ordine — oltre a budget e polo — così la convivenza ha più probabilità di funzionare. Tu vedi il punteggio e decidi se procedere.",
+        },
+        {
+          question: "Devo creare un account per la lista d'attesa?",
+          answer:
+            "No. Puoi iscriverti con il form leggero (nome + email o telefono). Se preferisci, puoi anche registrarti e chattare con Vesta: in quel caso salviamo le preferenze dal profilo quando non c'è ancora una stanza adatta.",
+        },
+        {
+          question: "Quando arrivano le prime stanze?",
+          answer:
+            "Stiamo preparando le disponibilità per l'anno accademico 2026/2027, con obiettivo intorno a settembre. Entrare in lista ora serve a essere tra i primi avvisati quando qualcosa di compatibile si libera.",
+        },
+      ],
+    },
     footer: {
       tagline:
         "Piattaforma indipendente per studenti fuori sede e proprietari di casa. Non affiliata a nessuna università.",
@@ -146,6 +193,7 @@ export const translations = {
       terms: "Termini di servizio",
       cookies: "Cookie",
       guide: "Guida affitto Ancona",
+      faq: "FAQ studenti",
     },
     whatsappFloat: {
       ariaLabel: "Scrivici su WhatsApp",
@@ -594,6 +642,7 @@ export const translations = {
     faq: {
       eyebrow: "Frequently asked questions",
       title: "The most common doubts, answered right away",
+      seeAll: "All student FAQs",
       items: [
         {
           question: "Is it really free for students?",
@@ -632,6 +681,52 @@ export const translations = {
         },
       ],
     },
+    faqStudenti: {
+      eyebrow: "For students",
+      title: "Frequently asked questions for students",
+      subtitle:
+        "Costs, matching with Vesta, the waitlist, and how we pick compatible rooms — clear answers before you sign up.",
+      backHome: "← Back to home",
+      ctaWaitlist: "Join the waitlist",
+      ctaChat: "Chat with Vesta",
+      items: [
+        {
+          question: "How much does Coabito cost?",
+          answer:
+            "For students, chatting with Vesta, joining the waitlist, and viewing suggested rooms is free. No credit card, no signup fee. You only pay the rent for the room you choose, like a normal tenancy.",
+        },
+        {
+          question: "How does matching with Vesta work?",
+          answer:
+            "You tell Vesta your course, campus, budget and living habits. We compare each new room to your profile (price, distance to campus, lifestyle) and only show truly compatible options — with a clear score, not an endless list of ads.",
+        },
+        {
+          question: "What happens after I join the waitlist?",
+          answer:
+            "If you leave an email, we send a confirmation link (double opt-in). After confirming you're on the list: when a compatible room appears, we notify you. You may get a couple of project updates in the meantime; if you already find a room with us, we stop the “we're still preparing” messages.",
+        },
+        {
+          question: "Can I choose area and budget?",
+          answer:
+            "Yes. In chat or on the form you set a max budget and campus/area of interest. Vesta uses them as filters — better to be honest about your ceiling than accept a place you can't sustain after a few months.",
+        },
+        {
+          question: "How are roommates selected?",
+          answer:
+            "We don't randomly put people in the same flat. We look at study habits, sociability, guests and cleanliness — plus budget and campus — so living together is more likely to work. You see the score and decide whether to go ahead.",
+        },
+        {
+          question: "Do I need an account for the waitlist?",
+          answer:
+            "No. You can join with the light form (name + email or phone). Or register and chat with Vesta: we'll save preferences from your profile when there isn't a suitable room yet.",
+        },
+        {
+          question: "When do the first rooms arrive?",
+          answer:
+            "We're preparing availability for the 2026/2027 academic year, aiming around September. Joining the waitlist now means you'll be among the first notified when something compatible opens up.",
+        },
+      ],
+    },
     footer: {
       tagline:
         "Independent platform for out-of-town students and property owners. Not affiliated with any university.",
@@ -640,6 +735,7 @@ export const translations = {
       terms: "Terms of service",
       cookies: "Cookies",
       guide: "Ancona student housing guide",
+      faq: "Student FAQ",
     },
     whatsappFloat: {
       ariaLabel: "Message us on WhatsApp",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 
 export default function FaqSection() {
@@ -27,8 +28,9 @@ export default function FaqSection() {
             return (
               <div key={faq.question}>
                 <button
+                  type="button"
                   onClick={() => toggle(index)}
-                  className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+                  className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea-600"
                   aria-expanded={isOpen}
                 >
                   <span className="font-display text-sm font-bold text-ink sm:text-base">
@@ -58,6 +60,15 @@ export default function FaqSection() {
             );
           })}
         </div>
+
+        <p className="mt-6 text-center text-sm">
+          <Link
+            href="/faq"
+            className="font-medium text-sea-700 underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea-600"
+          >
+            {t.faq.seeAll}
+          </Link>
+        </p>
       </div>
     </section>
   );
