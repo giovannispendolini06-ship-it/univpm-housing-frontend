@@ -9,6 +9,7 @@ import {
 } from "@/lib/email";
 import {
   WAITLIST_CONFIRM_TTL_MS,
+  computeWaitlistPosition,
   createWaitlistConfirmationToken,
   waitlistConfirmUrl,
 } from "@/lib/waitlist";
@@ -18,6 +19,8 @@ interface WaitlistResult {
   success?: boolean;
   /** pending = email DOI inviata; ok = già in lista (solo telefono) */
   status?: "pending" | "ok";
+  /** Solo se status=ok (confermato): posizione reale 1-based */
+  position?: number | null;
 }
 
 const MAX_SUBMISSIONS_PER_HOUR = 5;
@@ -110,9 +113,13 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
 
   // Service role: serve anche se le colonne DOI non fossero ancora nelle policy RLS tipiche.
   const supabase = createServiceSupabaseClient();
-  const { error } = await supabase.from("waitlist_signups").insert(insertPayload);
+  const { data: inserted, error } = await supabase
+    .from("waitlist_signups")
+    .insert(insertPayload)
+    .select("id, created_at")
+    .single();
 
-  if (error) {
+  if (error || !inserted) {
     console.error("[lista-attesa] insert error:", error);
     return { error: "errorGeneric" };
   }
@@ -139,8 +146,18 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
   });
   await sendEmail({ to: adminTo, ...adminEmail });
 
+  if (needsEmailConfirm) {
+    return { success: true, status: "pending" };
+  }
+
+  const position = await computeWaitlistPosition(supabase, {
+    id: inserted.id,
+    created_at: inserted.created_at,
+  });
+
   return {
     success: true,
-    status: needsEmailConfirm ? "pending" : "ok",
+    status: "ok",
+    position: position || null,
   };
 }

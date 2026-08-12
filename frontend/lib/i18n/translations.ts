@@ -327,9 +327,12 @@ export const translations = {
       successTitle: "Sei in lista!",
       successBody:
         "Ti avviseremo appena arriva un immobile compatibile con le tue preferenze. Nel frattempo, puoi condividere il link con chi cerca casa ad Ancona.",
+      positionHeadline: "Sei il {n}° in lista d'attesa",
+      successBodyWithPosition:
+        "Ti avviseremo appena ci sarà una stanza compatibile con il tuo profilo.",
       pendingTitle: "Controlla la tua email",
       pendingBody:
-        "Ti abbiamo inviato un link di conferma. Cliccalo entro 7 giorni per attivare l'iscrizione: solo dopo potremo avvisarti quando arriva una stanza compatibile.",
+        "Ti abbiamo inviato un link di conferma. Cliccalo entro 7 giorni per attivare l'iscrizione: solo dopo potremo avvisarti quando arriva una stanza compatibile — e ti mostreremo la tua posizione in lista.",
       confirm: {
         successTitle: "Iscrizione confermata",
         successBody:
@@ -802,9 +805,12 @@ export const translations = {
       successTitle: "You're on the list!",
       successBody:
         "We'll notify you as soon as a compatible place becomes available. In the meantime, feel free to share the link with friends looking for a room in Ancona.",
+      positionHeadline: "You're #{n} on the waitlist",
+      successBodyWithPosition:
+        "We'll let you know as soon as a room compatible with your profile becomes available.",
       pendingTitle: "Check your email",
       pendingBody:
-        "We've sent you a confirmation link. Click it within 7 days to activate your signup — we'll only notify you about compatible rooms after that.",
+        "We've sent you a confirmation link. Click it within 7 days to activate your signup — we'll only notify you about compatible rooms after that, and that's when you'll see your waitlist position.",
       confirm: {
         successTitle: "Signup confirmed",
         successBody:
