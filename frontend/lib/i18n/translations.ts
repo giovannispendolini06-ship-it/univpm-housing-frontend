@@ -142,6 +142,14 @@ export const translations = {
       cookies: "Cookie",
       guide: "Guida affitto Ancona",
     },
+    whatsappFloat: {
+      ariaLabel: "Scrivici su WhatsApp",
+      generic: "Ciao! Ho visto Coabito e vorrei saperne di più",
+      owners:
+        "Ciao! Ho un immobile ad Ancona e vorrei saperne di più su Coabito.",
+      waitlist:
+        "Ciao! Sto cercando casa da studente ad Ancona e vorrei info su Coabito / la lista d'attesa.",
+    },
     guidaAffittoAncona: {
       title: "Come affittare casa per studenti ad Ancona",
       subtitle:
@@ -608,6 +616,14 @@ export const translations = {
       terms: "Terms of service",
       cookies: "Cookies",
       guide: "Ancona student housing guide",
+    },
+    whatsappFloat: {
+      ariaLabel: "Message us on WhatsApp",
+      generic: "Hi! I found Coabito and I'd like to know more",
+      owners:
+        "Hi! I have a property in Ancona and I'd like to know more about Coabito.",
+      waitlist:
+        "Hi! I'm a student looking for a place in Ancona and I'd like info about Coabito / the waitlist.",
     },
     guidaAffittoAncona: {
       title: "How to rent student housing in Ancona",
