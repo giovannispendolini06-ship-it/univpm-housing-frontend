@@ -1,4 +1,4 @@
-// middleware.ts (va nella ROOT del progetto, allo stesso livello di package.json)
+// middleware.ts — auth gates for role areas
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
@@ -6,6 +6,22 @@ function homeForRole(role: string | undefined): string {
   if (role === "admin") return "/admin";
   if (role === "owner") return "/owner";
   return "/dashboard";
+}
+
+function isOwnerPath(path: string): boolean {
+  return path.startsWith("/owner") || path.startsWith("/host");
+}
+
+function isStudentPath(path: string): boolean {
+  return path.startsWith("/dashboard") || path.startsWith("/applications");
+}
+
+function isAdminPath(path: string): boolean {
+  return path.startsWith("/admin");
+}
+
+function isSharedAuthPath(path: string): boolean {
+  return path.startsWith("/messages") || path.startsWith("/profilo");
 }
 
 export async function middleware(request: NextRequest) {
@@ -41,16 +57,13 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isProtectedArea =
-    path.startsWith("/dashboard") ||
-    path.startsWith("/admin") ||
-    path.startsWith("/owner") ||
-    path.startsWith("/applications");
   const isOnboarding = path.startsWith("/onboarding");
-  const isStudentExtra =
-    path.startsWith("/applications"); // student-only pages outside /dashboard
+  const isProtectedArea =
+    isOwnerPath(path) ||
+    isStudentPath(path) ||
+    isAdminPath(path) ||
+    isSharedAuthPath(path);
 
-  // Non loggato e prova ad aprire un'area protetta → rimandalo al login
   if (!user && (isProtectedArea || isOnboarding)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -65,42 +78,50 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    const home = homeForRole(profile?.role);
-    // Gli admin non passano mai dall'onboarding.
-    const needsOnboarding = profile?.role !== "admin" && profile?.profile_completed !== true;
+    const role = profile?.role;
+    const home = homeForRole(role);
+    const needsOnboarding = role !== "admin" && profile?.profile_completed !== true;
 
-    // Già loggato e apre /login → mandalo dove deve andare
     if (path === "/login") {
       const url = request.nextUrl.clone();
       url.pathname = needsOnboarding ? "/onboarding" : home;
       return NextResponse.redirect(url);
     }
 
-    // Profilo non completo e prova ad aprire un'altra pagina → onboarding
     if (needsOnboarding && !isOnboarding) {
       const url = request.nextUrl.clone();
       url.pathname = "/onboarding";
       return NextResponse.redirect(url);
     }
 
-    // Profilo già completo ma prova a tornare sull'onboarding → area sua
     if (!needsOnboarding && isOnboarding) {
       const url = request.nextUrl.clone();
       url.pathname = home;
       return NextResponse.redirect(url);
     }
 
-    // Prova ad aprire l'area di un ruolo diverso dal suo → area sua
-    if (isProtectedArea && !isStudentExtra && !path.startsWith(home)) {
+    // Role gates (admins keep admin area; shared paths ok for any role)
+    if (isAdminPath(path) && role !== "admin") {
       const url = request.nextUrl.clone();
       url.pathname = home;
       return NextResponse.redirect(url);
     }
 
-    // Extra student pages: solo studenti (admin può comunque)
-    if (isStudentExtra && profile?.role === "owner") {
+    if (isOwnerPath(path) && role !== "owner" && role !== "admin") {
+      const url = request.nextUrl.clone();
+      url.pathname = home;
+      return NextResponse.redirect(url);
+    }
+
+    if (isStudentPath(path) && role === "owner") {
       const url = request.nextUrl.clone();
       url.pathname = "/owner";
+      return NextResponse.redirect(url);
+    }
+
+    if (isStudentPath(path) && role === "admin") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/admin";
       return NextResponse.redirect(url);
     }
   }
@@ -114,7 +135,10 @@ export const config = {
     "/login",
     "/admin/:path*",
     "/owner/:path*",
+    "/host/:path*",
     "/onboarding/:path*",
     "/applications/:path*",
+    "/messages/:path*",
+    "/profilo/:path*",
   ],
 };

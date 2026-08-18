@@ -15,7 +15,15 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/stanze` },
 };
 
-type SearchParams = Promise<{ max?: string; zona?: string; verificati?: string }>;
+type SearchParams = Promise<{
+  max?: string;
+  min?: string;
+  zona?: string;
+  verificati?: string;
+  bagno?: string;
+  entro?: string;
+  sort?: string;
+}>;
 
 export default async function StanzePage({
   searchParams,
@@ -24,8 +32,16 @@ export default async function StanzePage({
 }) {
   const params = await searchParams;
   const maxPrice = params.max ? Number(params.max) : undefined;
+  const minPrice = params.min ? Number(params.min) : undefined;
   const zone = params.zona?.trim() || undefined;
   const verifiedOnly = params.verificati === "1";
+  const privateBathroom = params.bagno === "1";
+  const availableFromBefore = params.entro?.trim() || undefined;
+  const sortRaw = params.sort?.trim();
+  const sort =
+    sortRaw === "price_desc" || sortRaw === "newest" || sortRaw === "price_asc"
+      ? sortRaw
+      : "price_asc";
 
   let listings: Awaited<ReturnType<typeof listPublicListings>> = [];
   let loadError: string | null = null;
@@ -33,8 +49,12 @@ export default async function StanzePage({
   try {
     listings = await listPublicListings({
       maxPrice: Number.isFinite(maxPrice) ? maxPrice : undefined,
+      minPrice: Number.isFinite(minPrice) ? minPrice : undefined,
       zone,
       verifiedOnly,
+      privateBathroom,
+      availableFromBefore,
+      sort,
     });
   } catch (err) {
     loadError =
@@ -64,8 +84,23 @@ export default async function StanzePage({
           method="get"
         >
           <div>
+            <label htmlFor="min" className="mb-1 block text-xs font-medium text-ink-muted">
+              Min €
+            </label>
+            <input
+              id="min"
+              name="min"
+              type="number"
+              min={50}
+              max={2000}
+              defaultValue={params.min ?? ""}
+              className="w-24 rounded-xl border border-sea-100 px-3 py-2 text-sm"
+              placeholder="200"
+            />
+          </div>
+          <div>
             <label htmlFor="max" className="mb-1 block text-xs font-medium text-ink-muted">
-              Budget max (€)
+              Max €
             </label>
             <input
               id="max"
@@ -74,8 +109,8 @@ export default async function StanzePage({
               min={100}
               max={2000}
               defaultValue={params.max ?? ""}
-              className="w-28 rounded-xl border border-sea-100 px-3 py-2 text-sm"
-              placeholder="es. 420"
+              className="w-24 rounded-xl border border-sea-100 px-3 py-2 text-sm"
+              placeholder="420"
             />
           </div>
           <div>
@@ -87,10 +122,47 @@ export default async function StanzePage({
               name="zona"
               type="text"
               defaultValue={params.zona ?? ""}
-              className="w-40 rounded-xl border border-sea-100 px-3 py-2 text-sm"
+              className="w-36 rounded-xl border border-sea-100 px-3 py-2 text-sm"
               placeholder="es. Torrette"
             />
           </div>
+          <div>
+            <label htmlFor="entro" className="mb-1 block text-xs font-medium text-ink-muted">
+              Libera entro
+            </label>
+            <input
+              id="entro"
+              name="entro"
+              type="date"
+              defaultValue={params.entro ?? ""}
+              className="rounded-xl border border-sea-100 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label htmlFor="sort" className="mb-1 block text-xs font-medium text-ink-muted">
+              Ordina
+            </label>
+            <select
+              id="sort"
+              name="sort"
+              defaultValue={sort}
+              className="rounded-xl border border-sea-100 px-3 py-2 text-sm"
+            >
+              <option value="price_asc">Prezzo ↑</option>
+              <option value="price_desc">Prezzo ↓</option>
+              <option value="newest">Più recenti</option>
+            </select>
+          </div>
+          <label className="flex items-center gap-2 pb-2 text-sm text-ink">
+            <input
+              type="checkbox"
+              name="bagno"
+              value="1"
+              defaultChecked={privateBathroom}
+              className="rounded border-sea-200"
+            />
+            Bagno privato
+          </label>
           <label className="flex items-center gap-2 pb-2 text-sm text-ink">
             <input
               type="checkbox"
@@ -99,7 +171,7 @@ export default async function StanzePage({
               defaultChecked={verifiedOnly}
               className="rounded border-sea-200"
             />
-            Solo proprietari verificati
+            Solo verificati
           </label>
           <button
             type="submit"

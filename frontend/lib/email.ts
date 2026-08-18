@@ -421,6 +421,34 @@ export function buildWelcomeEmail(input: { fullName: string; role: "student" | "
   };
 }
 
+export function buildApplicationStatusEmail(input: {
+  fullName: string;
+  statusLabel: string;
+}) {
+  const bodyHtml = `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Aggiornamento candidatura
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Ciao ${input.fullName || ""}, la tua candidatura è stata segnata come
+      <strong>${input.statusLabel}</strong>.
+    </p>
+    <p style="margin:0 0 16px; color:${COLORS.inkMuted}; font-size:13px;">
+      Il contratto di locazione, se si procede, resta diretto tra te e il proprietario.
+      Coabito resta il marketplace di matching e fiducia.
+    </p>
+    ${ctaButton("Vedi le tue candidature", `${SITE_URL}/applications`)}
+  `;
+
+  return {
+    subject: `Candidatura ${input.statusLabel} — Coabito`,
+    html: renderEmailLayout({
+      preheader: `La tua candidatura è ${input.statusLabel}`,
+      bodyHtml,
+    }),
+  };
+}
+
 // ----------------------------------------------------------------------------
 // Email 4: nuova stanza compatibile (notifica proattiva Vesta)
 // ----------------------------------------------------------------------------

@@ -134,11 +134,13 @@ export interface Match {
   algorithmVersion: string;
 }
 
-/** chat_messages today = student ↔ Vesta only. Peer messaging is TODO. */
+/** Vesta assist uses chat_messages; peer uses conversations + peer_messages. */
 export interface Conversation {
   id: string;
   participantIds: string[];
-  kind: "vesta_assist" | "peer"; // peer not implemented
+  kind: "vesta_assist" | "peer";
+  listingId?: string | null;
+  applicationId?: string | null;
 }
 
 export interface Message {

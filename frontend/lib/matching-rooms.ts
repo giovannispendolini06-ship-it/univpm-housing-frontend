@@ -144,7 +144,7 @@ export async function computeRoomMatches(
       room_id: room.id,
       compatibility_score: score,
       ai_reasoning: { reasons: reasoning },
-      algorithm_version: "v2-multicity",
+      algorithm_version: "v3-marketplace",
     });
 
     return {
@@ -259,7 +259,7 @@ export async function recalculateMatchesForRoom(
       room_id: roomId,
       compatibility_score: score,
       ai_reasoning: { reasons: reasoning },
-      algorithm_version: "v2-multicity",
+      algorithm_version: "v3-marketplace",
     };
   });
 

@@ -1,52 +1,39 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import {
-  createServerSupabaseClient,
-  createServiceSupabaseClient,
-} from "@/lib/supabase/server";
+import { requireRole } from "@/lib/auth/session";
+import { createServiceSupabaseClient } from "@/lib/supabase/server";
+import { listApplicationsForStudent } from "@/lib/data/applications";
 
 export const dynamic = "force-dynamic";
 
 export default async function ApplicationsPage() {
-  const auth = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await auth.auth.getUser();
-  if (!user) redirect("/login?next=/applications");
-
+  const session = await requireRole(["student"]);
   const db = createServiceSupabaseClient();
-  const { data: profile } = await db
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role === "owner") redirect("/owner");
-  if (profile?.role === "admin") redirect("/admin");
-
-  const { data: apps, error } = await db
-    .from("room_applications")
-    .select(
-      `
-      id, status, message, created_at,
-      rooms:room_id ( id, room_label, price_monthly, properties:property_id ( zone, city ) )
-    `,
-    )
-    .eq("student_id", user.id)
-    .order("created_at", { ascending: false });
+  const { data: apps, error } = await listApplicationsForStudent(db, session.id);
 
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-6 flex items-center justify-between gap-3">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <h1 className="font-display text-2xl font-bold text-ink">Le tue candidature</h1>
-          <Link href="/dashboard" className="text-sm text-sea-700 underline">
-            Dashboard
-          </Link>
+          <div className="flex gap-3 text-sm">
+            <Link href="/profilo" className="text-sea-700 underline">
+              Profilo
+            </Link>
+            <Link href="/messages" className="text-sea-700 underline">
+              Messaggi
+            </Link>
+            <Link href="/dashboard" className="text-sea-700 underline">
+              Dashboard
+            </Link>
+          </div>
         </div>
 
         {error && (
-          <p className="rounded-xl2 border border-sunset-500/30 bg-white px-4 py-3 text-sm text-sunset-600" role="alert">
+          <p
+            className="rounded-xl2 border border-sunset-500/30 bg-white px-4 py-3 text-sm text-sunset-600"
+            role="alert"
+          >
             Impossibile caricare le candidature. Se hai appena attivato il prodotto,
             verifica che la migration `room_applications` sia applicata su Supabase.
           </p>
@@ -93,12 +80,19 @@ export default async function ApplicationsPage() {
                 {app.message && (
                   <p className="mt-2 text-xs text-ink-muted">{app.message}</p>
                 )}
-                <Link
-                  href={`/stanza/${(room as { id?: string } | null)?.id ?? ""}`}
-                  className="mt-2 inline-block text-xs font-semibold text-sea-700 underline"
-                >
-                  Vedi annuncio
-                </Link>
+                <div className="mt-2 flex flex-wrap gap-3">
+                  <Link
+                    href={`/stanza/${(room as { id?: string } | null)?.id ?? ""}`}
+                    className="text-xs font-semibold text-sea-700 underline"
+                  >
+                    Vedi annuncio
+                  </Link>
+                  {app.status === "accepted" && (
+                    <Link href="/messages" className="text-xs font-semibold text-sea-700 underline">
+                      Apri messaggi
+                    </Link>
+                  )}
+                </div>
               </li>
             );
           })}

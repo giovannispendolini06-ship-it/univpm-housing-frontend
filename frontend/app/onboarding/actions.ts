@@ -7,18 +7,14 @@ import {
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
 import { sendEmail, buildWelcomeEmail } from "@/lib/email";
+import { upsertLifestyleProfile } from "@/lib/data/profiles";
+import { computeRoomMatches } from "@/lib/matching-rooms";
+import type { StudentProfileRow } from "@/lib/matching";
 
 interface OnboardingResult {
   error?: string;
 }
 
-// ---------------------------------------------------------------------------
-// NB tecnico: questa funzione NON lancia mai un Error per errori di
-// validazione — restituisce { error } e basta. Il redirect finale (successo)
-// resta l'unica cosa che può "lanciare" (è come funziona redirect() in
-// Next.js). Tenerli separati evita che un try/catch sul client intercetti
-// per sbaglio anche il redirect riuscito.
-// ---------------------------------------------------------------------------
 export async function completeOnboarding(formData: FormData): Promise<OnboardingResult> {
   const authClient = await createServerSupabaseClient();
   const {
@@ -48,6 +44,33 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
   const avatarFile = formData.get("avatar");
   if (!(avatarFile instanceof File) || avatarFile.size === 0) {
     return { error: "La foto profilo è obbligatoria." };
+  }
+
+  // Student lifestyle (stage 2) — short prefs before chat value
+  let budgetMax: number | null = null;
+  let moveIn: string | null = null;
+  let polo: string | null = null;
+  let cleanliness: number | null = null;
+  let isSmoker: boolean | null = null;
+  let toleratesSmokers: boolean | null = null;
+  let hasPets: boolean | null = null;
+
+  if (role === "student") {
+    budgetMax = Number(formData.get("budget_max"));
+    if (!Number.isFinite(budgetMax) || budgetMax < 100) {
+      return { error: "Indica un budget mensile realistico (minimo 100€)." };
+    }
+    moveIn = String(formData.get("preferred_move_in_date") ?? "").trim() || null;
+    if (!moveIn) return { error: "Indica una data di ingresso preferita." };
+    polo = String(formData.get("polo_univpm") ?? "").trim() || null;
+    if (!polo) return { error: "Seleziona il tuo polo / campus." };
+    cleanliness = Number(formData.get("cleanliness_level"));
+    if (!Number.isFinite(cleanliness) || cleanliness < 1 || cleanliness > 5) {
+      return { error: "Indica il tuo livello di ordine (1–5)." };
+    }
+    isSmoker = formData.get("is_smoker") === "yes";
+    toleratesSmokers = formData.get("tolerates_smokers") === "yes";
+    hasPets = formData.get("has_pets") === "yes";
   }
 
   const db = createServiceSupabaseClient();
@@ -83,17 +106,60 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
     return { error: `Errore nel salvataggio: ${updateError.message}` };
   }
 
-  revalidatePath("/onboarding");
+  if (role === "student") {
+    // Resolve campus_id from polo code when possible
+    let campusId: string | null = null;
+    const { data: campuses } = await db
+      .from("campuses")
+      .select("id, code")
+      .ilike("code", polo ?? "");
+    campusId = campuses?.[0]?.id ?? null;
 
-  // Email di benvenuto, personalizzata in base al ruolo. Non blocca mai il
-  // flusso: se fallisce, sendEmail() logga soltanto e prosegue.
+    const { error: lifestyleError } = await upsertLifestyleProfile(db, {
+      userId: user.id,
+      budgetMax,
+      preferredMoveInDate: moveIn,
+      poloUnivpm: polo,
+      campusId,
+      cleanlinessLevel: cleanliness,
+      isSmoker,
+      toleratesSmokers,
+      hasPets,
+      sociabilityLevel: 3,
+      guestsFrequency: "a_volte",
+      studyHabit: "flessibile",
+    });
+
+    if (lifestyleError) {
+      console.error("[onboarding] lifestyle", lifestyleError.message);
+      // Non blocchiamo l'account: Vesta può completare dopo
+    } else {
+      try {
+        const { data: sp } = await db
+          .from("student_profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+        if (sp && sp.budget_max) {
+          await computeRoomMatches(db, sp as StudentProfileRow, "it");
+        }
+      } catch (err) {
+        console.error("[onboarding] match seed", err);
+      }
+    }
+  }
+
+  revalidatePath("/onboarding");
+  revalidatePath("/dashboard");
+  revalidatePath("/stanze");
+
   const welcomeEmail = buildWelcomeEmail({
     fullName: profile?.full_name ?? "",
     role: role === "owner" ? "owner" : "student",
   });
   await sendEmail({ to: user.email ?? "", ...welcomeEmail });
 
-  // Solo qui, dopo il successo, chiamiamo redirect (nessun try/catch attorno
-  // a questa funzione sul client, così il redirect funziona regolarmente).
-  redirect(role === "owner" ? "/owner" : role === "admin" ? "/admin" : "/dashboard");
+  redirect(
+    role === "owner" ? "/host/properties" : role === "admin" ? "/admin" : "/dashboard",
+  );
 }

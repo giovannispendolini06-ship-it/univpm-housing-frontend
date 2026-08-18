@@ -6,8 +6,10 @@ import {
 import SignOutButton from "@/components/SignOutButton";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
 import OwnerInsight from "./OwnerInsight";
+import Link from "next/link";
 import VerificationPanel from "@/components/VerificationPanel";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import ApplicationStatusButtons from "@/components/applications/ApplicationStatusButtons";
 import type { VerificationStatus } from "@/lib/verification";
 
 export const dynamic = "force-dynamic";
@@ -150,6 +152,9 @@ export default async function OwnerDashboardPage() {
                     {app.message ? (
                       <p className="mt-1 text-xs text-ink-muted">{String(app.message)}</p>
                     ) : null}
+                    {!["accepted", "rejected"].includes(String(app.status)) && (
+                      <ApplicationStatusButtons applicationId={String(app.id)} />
+                    )}
                   </li>
                 );
               })}
@@ -157,19 +162,45 @@ export default async function OwnerDashboardPage() {
           </section>
         )}
 
+        <div className="mb-6 flex flex-wrap gap-2">
+          <Link
+            href="/host/properties"
+            className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white"
+          >
+            Gestisci immobili
+          </Link>
+          <Link
+            href="/host/properties/new"
+            className="rounded-full border border-sea-200 bg-white px-4 py-2 text-sm font-semibold text-sea-700"
+          >
+            + Nuovo annuncio
+          </Link>
+          <Link href="/profilo" className="rounded-full border border-sea-200 bg-white px-4 py-2 text-sm font-semibold text-ink">
+            Profilo
+          </Link>
+          <Link href="/messages" className="rounded-full border border-sea-200 bg-white px-4 py-2 text-sm font-semibold text-ink">
+            Messaggi
+          </Link>
+        </div>
+
         {!properties || properties.length === 0 ? (
           <div className="rounded-xl2 bg-surface p-6 text-center shadow-card">
             <p className="text-sm text-ink-muted">
               Non hai ancora nessun immobile collegato al tuo account.
             </p>
             <p className="mt-2 text-sm text-ink-muted">
-              Se ci hai già parlato del tuo immobile, ti colleghiamo a breve
-              l&apos;account. Altrimenti scrivici a{" "}
+              Pubblica il primo annuncio dall&apos;area host, oppure scrivici a{" "}
               <a href="mailto:info@coabito.it" className="text-sea-700 underline">
                 info@coabito.it
               </a>
               .
             </p>
+            <Link
+              href="/host/properties/new"
+              className="mt-4 inline-block rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white"
+            >
+              Pubblica un immobile
+            </Link>
           </div>
         ) : (
           <div className="space-y-3">

@@ -237,12 +237,32 @@ export default function StudentDashboardPage() {
             </Link>
           )}
           {!isAdmin && (
-            <Link
-              href="/applications"
-              className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card"
-            >
-              Candidature
-            </Link>
+            <>
+              <Link
+                href="/stanze"
+                className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card"
+              >
+                Stanze
+              </Link>
+              <Link
+                href="/applications"
+                className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card"
+              >
+                Candidature
+              </Link>
+              <Link
+                href="/messages"
+                className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card"
+              >
+                Messaggi
+              </Link>
+              <Link
+                href="/profilo"
+                className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card"
+              >
+                Profilo
+              </Link>
+            </>
           )}
           <SignOutButton
             className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card"
