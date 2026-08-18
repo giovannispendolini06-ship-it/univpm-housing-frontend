@@ -160,6 +160,6 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
   await sendEmail({ to: user.email ?? "", ...welcomeEmail });
 
   redirect(
-    role === "owner" ? "/host/properties" : role === "admin" ? "/admin" : "/dashboard",
+    role === "owner" ? "/owner" : role === "admin" ? "/admin" : "/dashboard",
   );
 }

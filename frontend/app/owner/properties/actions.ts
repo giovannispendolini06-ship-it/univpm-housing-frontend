@@ -13,11 +13,11 @@ function numberOrNull(value: FormDataEntryValue | null): number | null {
 }
 
 /**
- * Host self-serve: create property + first room.
- * Legacy field monthly_rent_to_owner is set equal to room price as a
- * quarantine placeholder (marketplace: student pays owner directly).
+ * Extends the existing /owner surface: self-serve property + first room.
+ * Legacy monthly_rent_to_owner is set equal to room price as a quarantine
+ * placeholder (marketplace: student pays owner directly).
  */
-export async function createHostListing(
+export async function createOwnerListing(
   formData: FormData,
 ): Promise<{ error?: string }> {
   const session = await requireRole(["owner"]);
@@ -109,17 +109,17 @@ export async function createHostListing(
     try {
       await recalculateMatchesForRoom(db, room.id, true);
     } catch (err) {
-      console.error("[host] match recalc", err);
+      console.error("[owner/properties] match recalc", err);
     }
   }
 
-  revalidatePath("/host/properties");
-  revalidatePath("/stanze");
   revalidatePath("/owner");
-  redirect(`/host/properties/${property.id}`);
+  revalidatePath("/owner/properties");
+  revalidatePath("/stanze");
+  redirect(`/owner/properties/${property.id}`);
 }
 
-export async function publishHostProperty(formData: FormData): Promise<void> {
+export async function publishOwnerProperty(formData: FormData): Promise<void> {
   const session = await requireRole(["owner"]);
   const db = createServiceSupabaseClient();
   const propertyId = String(formData.get("property_id") ?? "");
@@ -130,7 +130,7 @@ export async function publishHostProperty(formData: FormData): Promise<void> {
     .select("id, owner_id")
     .eq("id", propertyId)
     .single();
-  if (!property || property.owner_id !== session.id) redirect("/host/properties");
+  if (!property || property.owner_id !== session.id) redirect("/owner");
 
   await db.from("properties").update({ status: "attivo" }).eq("id", propertyId);
   await db
@@ -150,8 +150,8 @@ export async function publishHostProperty(formData: FormData): Promise<void> {
     }
   }
 
-  revalidatePath("/host/properties");
-  revalidatePath(`/host/properties/${propertyId}`);
+  revalidatePath("/owner");
+  revalidatePath(`/owner/properties/${propertyId}`);
   revalidatePath("/stanze");
-  redirect(`/host/properties/${propertyId}`);
+  redirect(`/owner/properties/${propertyId}`);
 }

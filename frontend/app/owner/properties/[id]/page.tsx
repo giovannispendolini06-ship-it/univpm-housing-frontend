@@ -5,7 +5,7 @@ import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { listApplicationsForOwnerRooms } from "@/lib/data/applications";
 import ApplicationStatusButtons from "@/components/applications/ApplicationStatusButtons";
-import { publishHostProperty } from "../actions";
+import { publishOwnerProperty } from "../actions";
 import SubmitButton from "@/components/SubmitButton";
 
 export const dynamic = "force-dynamic";
@@ -13,10 +13,11 @@ export const dynamic = "force-dynamic";
 type Params = Promise<{ id: string }>;
 
 export const metadata: Metadata = {
-  title: "Gestisci immobile | Coabito Host",
+  title: "Gestisci immobile | Coabito",
 };
 
-export default async function HostPropertyDetailPage({ params }: { params: Params }) {
+/** Detail + publish for one property — extends /owner, does not replace the dashboard. */
+export default async function OwnerPropertyDetailPage({ params }: { params: Params }) {
   const session = await requireRole(["owner"]);
   const { id } = await params;
   const db = createServiceSupabaseClient();
@@ -30,7 +31,7 @@ export default async function HostPropertyDetailPage({ params }: { params: Param
     .maybeSingle();
 
   if (!property) notFound();
-  if (property.owner_id !== session.id) redirect("/host/properties");
+  if (property.owner_id !== session.id) redirect("/owner");
 
   const roomIds = (property.rooms ?? []).map((r: { id: string }) => r.id);
   const { data: apps } = await listApplicationsForOwnerRooms(db, roomIds);
@@ -38,8 +39,8 @@ export default async function HostPropertyDetailPage({ params }: { params: Param
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-lg">
-        <Link href="/host/properties" className="text-sm text-ink-muted underline">
-          ← I tuoi immobili
+        <Link href="/owner" className="text-sm text-ink-muted underline">
+          ← Area proprietario
         </Link>
         <h1 className="mt-4 font-display text-2xl font-bold text-ink">
           {property.zone} · {property.city}
@@ -74,7 +75,7 @@ export default async function HostPropertyDetailPage({ params }: { params: Param
         </ul>
 
         {property.status !== "attivo" && (
-          <form action={publishHostProperty} className="mt-6">
+          <form action={publishOwnerProperty} className="mt-6">
             <input type="hidden" name="property_id" value={property.id} />
             <SubmitButton className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white">
               Pubblica su /stanze

@@ -84,7 +84,6 @@ export async function submitRoomApplication(input: {
   revalidatePath(`/stanza/${roomId}`);
   revalidatePath("/applications");
   revalidatePath("/owner");
-  revalidatePath("/host/properties");
 
   return { ok: true, applicationId: data.id };
 }
@@ -161,7 +160,6 @@ export async function setApplicationStatus(input: {
 
   revalidatePath("/applications");
   revalidatePath("/owner");
-  revalidatePath("/host/properties");
   revalidatePath("/messages");
   revalidatePath(`/stanza/${data.room_id}`);
 

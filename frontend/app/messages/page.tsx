@@ -85,7 +85,7 @@ export default async function MessagesPage() {
               </Link>
             ) : (
               <Link
-                href="/host/properties"
+                href="/owner"
                 className="mt-5 inline-block rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white"
               >
                 Gestisci candidature

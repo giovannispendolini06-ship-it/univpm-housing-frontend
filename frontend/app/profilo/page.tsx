@@ -150,8 +150,8 @@ export default async function ProfiloPage() {
             </Link>
           )}
           {session.role === "owner" && (
-            <Link href="/host/properties" className="text-sea-700 underline">
-              Immobili host
+            <Link href="/owner" className="text-sea-700 underline">
+              Area proprietario
             </Link>
           )}
         </div>

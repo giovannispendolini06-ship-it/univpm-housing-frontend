@@ -1,4 +1,4 @@
-// middleware.ts — auth gates for role areas
+// middleware.ts (va nella ROOT del progetto, allo stesso livello di package.json)
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
@@ -6,22 +6,6 @@ function homeForRole(role: string | undefined): string {
   if (role === "admin") return "/admin";
   if (role === "owner") return "/owner";
   return "/dashboard";
-}
-
-function isOwnerPath(path: string): boolean {
-  return path.startsWith("/owner") || path.startsWith("/host");
-}
-
-function isStudentPath(path: string): boolean {
-  return path.startsWith("/dashboard") || path.startsWith("/applications");
-}
-
-function isAdminPath(path: string): boolean {
-  return path.startsWith("/admin");
-}
-
-function isSharedAuthPath(path: string): boolean {
-  return path.startsWith("/messages") || path.startsWith("/profilo");
 }
 
 export async function middleware(request: NextRequest) {
@@ -57,13 +41,20 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isOnboarding = path.startsWith("/onboarding");
+  // Extended protect list — same auth cookie flow as before
   const isProtectedArea =
-    isOwnerPath(path) ||
-    isStudentPath(path) ||
-    isAdminPath(path) ||
-    isSharedAuthPath(path);
+    path.startsWith("/dashboard") ||
+    path.startsWith("/admin") ||
+    path.startsWith("/owner") ||
+    path.startsWith("/applications") ||
+    path.startsWith("/messages") ||
+    path.startsWith("/profilo");
+  const isOnboarding = path.startsWith("/onboarding");
+  const isStudentExtra = path.startsWith("/applications");
+  const isSharedAuth =
+    path.startsWith("/messages") || path.startsWith("/profilo");
 
+  // Non loggato e prova ad aprire un'area protetta → rimandalo al login
   if (!user && (isProtectedArea || isOnboarding)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -78,50 +69,48 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    const role = profile?.role;
-    const home = homeForRole(role);
-    const needsOnboarding = role !== "admin" && profile?.profile_completed !== true;
+    const home = homeForRole(profile?.role);
+    // Gli admin non passano mai dall'onboarding.
+    const needsOnboarding = profile?.role !== "admin" && profile?.profile_completed !== true;
 
+    // Già loggato e apre /login → mandalo dove deve andare
     if (path === "/login") {
       const url = request.nextUrl.clone();
       url.pathname = needsOnboarding ? "/onboarding" : home;
       return NextResponse.redirect(url);
     }
 
+    // Profilo non completo e prova ad aprire un'altra pagina → onboarding
     if (needsOnboarding && !isOnboarding) {
       const url = request.nextUrl.clone();
       url.pathname = "/onboarding";
       return NextResponse.redirect(url);
     }
 
+    // Profilo già completo ma prova a tornare sull'onboarding → area sua
     if (!needsOnboarding && isOnboarding) {
       const url = request.nextUrl.clone();
       url.pathname = home;
       return NextResponse.redirect(url);
     }
 
-    // Role gates (admins keep admin area; shared paths ok for any role)
-    if (isAdminPath(path) && role !== "admin") {
+    // Shared authenticated pages (messages, profilo): any completed role
+    if (isSharedAuth) {
+      return response;
+    }
+
+    // Prova ad aprire l'area di un ruolo diverso dal suo → area sua
+    // /owner/* (including /owner/properties) stays owner home prefix
+    if (isProtectedArea && !isStudentExtra && !path.startsWith(home)) {
       const url = request.nextUrl.clone();
       url.pathname = home;
       return NextResponse.redirect(url);
     }
 
-    if (isOwnerPath(path) && role !== "owner" && role !== "admin") {
-      const url = request.nextUrl.clone();
-      url.pathname = home;
-      return NextResponse.redirect(url);
-    }
-
-    if (isStudentPath(path) && role === "owner") {
+    // Extra student pages: solo studenti (admin può comunque)
+    if (isStudentExtra && profile?.role === "owner") {
       const url = request.nextUrl.clone();
       url.pathname = "/owner";
-      return NextResponse.redirect(url);
-    }
-
-    if (isStudentPath(path) && role === "admin") {
-      const url = request.nextUrl.clone();
-      url.pathname = "/admin";
       return NextResponse.redirect(url);
     }
   }
@@ -135,7 +124,6 @@ export const config = {
     "/login",
     "/admin/:path*",
     "/owner/:path*",
-    "/host/:path*",
     "/onboarding/:path*",
     "/applications/:path*",
     "/messages/:path*",

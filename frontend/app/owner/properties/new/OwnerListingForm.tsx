@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createHostListing } from "../actions";
+import { createOwnerListing } from "../actions";
 
-export default function HostListingForm() {
+export default function OwnerListingForm() {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   function onSubmit(formData: FormData) {
     setError(null);
     startTransition(async () => {
-      const res = await createHostListing(formData);
+      const res = await createOwnerListing(formData);
       if (res?.error) setError(res.error);
     });
   }

@@ -164,14 +164,8 @@ export default async function OwnerDashboardPage() {
 
         <div className="mb-6 flex flex-wrap gap-2">
           <Link
-            href="/host/properties"
+            href="/owner/properties/new"
             className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white"
-          >
-            Gestisci immobili
-          </Link>
-          <Link
-            href="/host/properties/new"
-            className="rounded-full border border-sea-200 bg-white px-4 py-2 text-sm font-semibold text-sea-700"
           >
             + Nuovo annuncio
           </Link>
@@ -189,14 +183,14 @@ export default async function OwnerDashboardPage() {
               Non hai ancora nessun immobile collegato al tuo account.
             </p>
             <p className="mt-2 text-sm text-ink-muted">
-              Pubblica il primo annuncio dall&apos;area host, oppure scrivici a{" "}
+              Pubblica il primo annuncio, oppure scrivici a{" "}
               <a href="mailto:info@coabito.it" className="text-sea-700 underline">
                 info@coabito.it
               </a>
               .
             </p>
             <Link
-              href="/host/properties/new"
+              href="/owner/properties/new"
               className="mt-4 inline-block rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white"
             >
               Pubblica un immobile
@@ -244,6 +238,12 @@ export default async function OwnerDashboardPage() {
                       )}
                     </div>
                   ))}
+                  <Link
+                    href={`/owner/properties/${property.id}`}
+                    className="inline-block pt-1 text-xs font-semibold text-sea-700 underline"
+                  >
+                    Gestisci / pubblica
+                  </Link>
                 </div>
               </article>
             ))}
