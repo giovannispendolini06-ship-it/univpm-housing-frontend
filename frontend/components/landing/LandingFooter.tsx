@@ -36,6 +36,9 @@ export default function LandingFooter() {
           <a href="/termini" className="underline underline-offset-2">
             {t.footer.terms}
           </a>
+          <a href="/servizi" className="underline underline-offset-2">
+            {t.footer.services}
+          </a>
           <a
             href="/guida/affittare-casa-studenti-ancona"
             className="underline underline-offset-2"

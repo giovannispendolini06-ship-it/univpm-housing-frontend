@@ -29,6 +29,9 @@ export default function LandingNavbar() {
           <Link href="/esempi" className="text-sm text-ink-muted transition hover:text-ink">
             {t.nav.howItWorks}
           </Link>
+          <Link href="/servizi" className="text-sm text-ink-muted transition hover:text-ink">
+            {t.nav.services}
+          </Link>
           <Link href="/lista-attesa" className="text-sm text-ink-muted transition hover:text-ink">
             {t.nav.waitlist}
           </Link>
@@ -95,6 +98,13 @@ export default function LandingNavbar() {
             className="rounded-lg px-3 py-2.5 text-sm text-ink-muted"
           >
             {t.nav.howItWorks}
+          </Link>
+          <Link
+            href="/servizi"
+            onClick={() => setIsOpen(false)}
+            className="rounded-lg px-3 py-2.5 text-sm text-ink-muted"
+          >
+            {t.nav.services}
           </Link>
           <Link
             href="/lista-attesa"

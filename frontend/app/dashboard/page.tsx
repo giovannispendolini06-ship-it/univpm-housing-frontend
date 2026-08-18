@@ -17,6 +17,9 @@ import {
 } from "@/lib/chat-progress";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
+import VerificationPanel from "@/components/VerificationPanel";
+import VerifiedBadge from "@/components/VerifiedBadge";
+import type { VerificationStatus } from "@/lib/verification";
 
 type MobileTab = "chat" | "rooms";
 
@@ -51,6 +54,8 @@ export default function StudentDashboardPage() {
   const [activeTab, setActiveTab] = useState<MobileTab>("chat");
   const [studentId, setStudentId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<string>("none");
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
   const [roomsLoading, setRoomsLoading] = useState(true);
   const [waitlisted, setWaitlisted] = useState(false);
@@ -72,14 +77,16 @@ export default function StudentDashboardPage() {
         return;
       }
 
-      // Ruolo (per il badge Admin)
+      // Ruolo + badge verifica marketplace
       supabase
         .from("users")
-        .select("role")
+        .select("role, email, verification_status")
         .eq("id", userId)
         .single()
         .then(({ data: profile }) => {
           setIsAdmin(profile?.role === "admin");
+          setVerificationStatus(profile?.verification_status ?? "none");
+          setUserEmail(profile?.email ?? null);
         });
 
       // Storico chat: se esiste già una conversazione, la ricarichiamo
@@ -216,6 +223,10 @@ export default function StudentDashboardPage() {
     <main className="relative flex h-dvh flex-col bg-bg">
       <div className="fixed right-3 top-3 z-50 flex flex-col items-end gap-1.5">
         <div className="flex items-center gap-2">
+          <VerifiedBadge
+            status={verificationStatus as VerificationStatus}
+            role="student"
+          />
           <LanguageSwitcher />
           {isAdmin && (
             <Link
@@ -241,6 +252,16 @@ export default function StudentDashboardPage() {
           }}
         />
       </div>
+
+      {studentId && !isAdmin && (
+        <div className="mx-auto w-full max-w-7xl shrink-0 px-3 pt-14 md:px-4">
+          <VerificationPanel
+            role="student"
+            status={verificationStatus as VerificationStatus}
+            email={userEmail}
+          />
+        </div>
+      )}
 
       {myTenancy && <MyHomeCard tenancy={myTenancy} />}
       {studentId && myTenancy && <MyPaymentsSection studentId={studentId} />}

@@ -6,6 +6,9 @@ import {
 import SignOutButton from "@/components/SignOutButton";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
 import OwnerInsight from "./OwnerInsight";
+import VerificationPanel from "@/components/VerificationPanel";
+import VerifiedBadge from "@/components/VerifiedBadge";
+import type { VerificationStatus } from "@/lib/verification";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +37,7 @@ export default async function OwnerDashboardPage() {
 
   const { data: profile } = await authClient
     .from("users")
-    .select("role, full_name")
+    .select("role, full_name, email, verification_status")
     .eq("id", user.id)
     .single();
 
@@ -75,9 +78,15 @@ export default async function OwnerDashboardPage() {
       <div className="mx-auto max-w-3xl">
         <header className="mb-6 flex items-start justify-between gap-3">
           <div>
-            <h1 className="font-display text-2xl font-bold text-ink">
-              Ciao{profile?.full_name ? `, ${profile.full_name}` : ""} 👋
-            </h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="font-display text-2xl font-bold text-ink">
+                Ciao{profile?.full_name ? `, ${profile.full_name}` : ""} 👋
+              </h1>
+              <VerifiedBadge
+                status={profile?.verification_status as VerificationStatus}
+                role="owner"
+              />
+            </div>
             <p className="mt-1 text-sm text-ink-muted">
               I tuoi immobili e il loro stato in questo momento.
             </p>
@@ -87,6 +96,14 @@ export default async function OwnerDashboardPage() {
             <DeleteAccountButton isOwner />
           </div>
         </header>
+
+        <div className="mb-6">
+          <VerificationPanel
+            role="owner"
+            status={(profile?.verification_status as VerificationStatus) ?? "none"}
+            email={profile?.email}
+          />
+        </div>
 
         {properties && properties.length > 0 && <OwnerInsight />}
 

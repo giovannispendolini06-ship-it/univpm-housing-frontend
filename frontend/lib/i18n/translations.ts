@@ -6,6 +6,7 @@ export const translations = {
       forStudents: "Per gli studenti",
       forOwners: "Per i proprietari",
       howItWorks: "Come funziona",
+      services: "Servizi",
       installApp: "Installa l'app",
       login: "Accedi",
       waitlist: "Lista d'attesa",
@@ -142,6 +143,7 @@ export const translations = {
       terms: "Termini di servizio",
       cookies: "Cookie",
       guide: "Guida affitto Ancona",
+      services: "Servizi",
     },
     guidaAffittoAncona: {
       title: "Come affittare casa per studenti ad Ancona",
@@ -474,6 +476,7 @@ export const translations = {
       forStudents: "For students",
       forOwners: "For property owners",
       howItWorks: "How it works",
+      services: "Services",
       installApp: "Install the app",
       login: "Log in",
       waitlist: "Waitlist",
@@ -610,6 +613,7 @@ export const translations = {
       terms: "Terms of service",
       cookies: "Cookies",
       guide: "Ancona student housing guide",
+      services: "Services",
     },
     guidaAffittoAncona: {
       title: "How to rent student housing in Ancona",
