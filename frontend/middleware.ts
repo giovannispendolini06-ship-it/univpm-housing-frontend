@@ -42,13 +42,19 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
   const isProtectedArea =
-    path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/owner");
+    path.startsWith("/dashboard") ||
+    path.startsWith("/admin") ||
+    path.startsWith("/owner") ||
+    path.startsWith("/applications");
   const isOnboarding = path.startsWith("/onboarding");
+  const isStudentExtra =
+    path.startsWith("/applications"); // student-only pages outside /dashboard
 
   // Non loggato e prova ad aprire un'area protetta → rimandalo al login
   if (!user && (isProtectedArea || isOnboarding)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    url.searchParams.set("next", path);
     return NextResponse.redirect(url);
   }
 
@@ -85,9 +91,16 @@ export async function middleware(request: NextRequest) {
     }
 
     // Prova ad aprire l'area di un ruolo diverso dal suo → area sua
-    if (isProtectedArea && !path.startsWith(home)) {
+    if (isProtectedArea && !isStudentExtra && !path.startsWith(home)) {
       const url = request.nextUrl.clone();
       url.pathname = home;
+      return NextResponse.redirect(url);
+    }
+
+    // Extra student pages: solo studenti (admin può comunque)
+    if (isStudentExtra && profile?.role === "owner") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/owner";
       return NextResponse.redirect(url);
     }
   }
@@ -102,5 +115,6 @@ export const config = {
     "/admin/:path*",
     "/owner/:path*",
     "/onboarding/:path*",
+    "/applications/:path*",
   ],
 };

@@ -1,8 +1,11 @@
 // lib/matching.ts
 //
-// Calcolo del compatibility score tra uno studente e una stanza.
-// Pesi (totale 100): budget 30, distanza dal polo 20, affinità di studio
-// con i coinquilini 20, pulizia 15, socievolezza/ospiti 15.
+// Compatibilità Coabito — scorer deterministico e spiegabile.
+// Non è un modello ML: pesi fissi, motivi trasparenti. Un motore ML può
+// sostituire calculateMatchScore in futuro senza cambiare il dominio Match.
+//
+// Pesi attuali (totale 100): budget 30, distanza dal polo 20, affinità di
+// studio con i coinquilini 20, pulizia 15, socievolezza/ospiti 15.
 //
 // NB: per confrontare con "i coinquilini già presenti" serve sapere chi
 // occupa già le altre stanze della stessa property. Lo schema originale

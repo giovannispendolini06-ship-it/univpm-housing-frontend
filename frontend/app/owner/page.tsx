@@ -73,6 +73,17 @@ export default async function OwnerDashboardPage() {
     }
   }
 
+  const { data: incomingApps } = roomIds.length
+    ? await db
+        .from("room_applications")
+        .select(
+          "id, status, created_at, message, rooms:room_id ( room_label ), users:student_id ( full_name, verification_status )",
+        )
+        .in("room_id", roomIds)
+        .order("created_at", { ascending: false })
+        .limit(20)
+    : { data: [] as Record<string, unknown>[] };
+
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-3xl">
@@ -106,6 +117,45 @@ export default async function OwnerDashboardPage() {
         </div>
 
         {properties && properties.length > 0 && <OwnerInsight />}
+
+        {(incomingApps?.length ?? 0) > 0 && (
+          <section className="mb-6">
+            <h2 className="mb-3 font-display text-sm font-bold uppercase tracking-wide text-ink-muted">
+              Candidature ricevute
+            </h2>
+            <ul className="space-y-2">
+              {incomingApps!.map((app) => {
+                const room = Array.isArray(app.rooms) ? app.rooms[0] : app.rooms;
+                const student = Array.isArray(app.users) ? app.users[0] : app.users;
+                return (
+                  <li
+                    key={String(app.id)}
+                    className="rounded-xl2 border border-sea-100 bg-white px-4 py-3 text-sm shadow-card"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-display font-bold text-ink">
+                        {(student as { full_name?: string } | null)?.full_name ?? "Studente"}
+                        {(student as { verification_status?: string } | null)
+                          ?.verification_status === "verified"
+                          ? " · verificato"
+                          : ""}
+                      </p>
+                      <span className="text-[11px] font-semibold text-sea-700">
+                        {String(app.status)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-ink-muted">
+                      {(room as { room_label?: string } | null)?.room_label ?? "Stanza"}
+                    </p>
+                    {app.message ? (
+                      <p className="mt-1 text-xs text-ink-muted">{String(app.message)}</p>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
 
         {!properties || properties.length === 0 ? (
           <div className="rounded-xl2 bg-surface p-6 text-center shadow-card">

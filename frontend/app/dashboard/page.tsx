@@ -236,6 +236,14 @@ export default function StudentDashboardPage() {
               Admin
             </Link>
           )}
+          {!isAdmin && (
+            <Link
+              href="/applications"
+              className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card"
+            >
+              Candidature
+            </Link>
+          )}
           <SignOutButton
             className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card"
             label={t.common.signOut}

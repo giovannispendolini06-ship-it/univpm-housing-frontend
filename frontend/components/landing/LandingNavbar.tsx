@@ -26,6 +26,9 @@ export default function LandingNavbar() {
           <a href="#proprietari" className="text-sm text-ink-muted transition hover:text-ink">
             {t.nav.forOwners}
           </a>
+          <Link href="/stanze" className="text-sm text-ink-muted transition hover:text-ink">
+            {t.nav.rooms}
+          </Link>
           <Link href="/esempi" className="text-sm text-ink-muted transition hover:text-ink">
             {t.nav.howItWorks}
           </Link>
@@ -92,6 +95,13 @@ export default function LandingNavbar() {
           >
             {t.nav.forOwners}
           </a>
+          <Link
+            href="/stanze"
+            onClick={() => setIsOpen(false)}
+            className="rounded-lg px-3 py-2.5 text-sm text-ink-muted"
+          >
+            {t.nav.rooms}
+          </Link>
           <Link
             href="/esempi"
             onClick={() => setIsOpen(false)}
