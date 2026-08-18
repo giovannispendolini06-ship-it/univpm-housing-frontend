@@ -373,9 +373,10 @@ export function buildInquiryConfirmationEmail(input: { fullName: string }) {
     </p>
     <p style="margin:0 0 16px; color:${COLORS.ink};">
       La nostra promessa: niente perditempo. Ti ricontattiamo entro
-      <strong>24-48 ore</strong> per parlare del tuo immobile e di come
-      affittarlo a studenti già verificati, senza che tu debba gestire
-      trattative infinite.
+      <strong>24-48 ore</strong> per parlarti del marketplace Coabito:
+      matching con studenti compatibili (e, appena disponibili, verificati),
+      tu firmi direttamente con chi scegli — noi restiamo fuori dal contratto
+      e lavoriamo su fiducia e sicurezza della transazione.
     </p>
     <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
       Nel frattempo, se hai domande, rispondi pure a questa email.
@@ -404,7 +405,7 @@ export function buildWelcomeEmail(input: { fullName: string; role: "student" | "
     <p style="margin:0 0 16px; color:${COLORS.ink};">
       ${
         isOwner
-          ? "Il tuo profilo è pronto. Da qui in poi ci pensiamo noi a trovarti inquilini seri: filtriamo gli studenti compatibili, tu decidi solo con chi firmare."
+          ? "Il tuo profilo è pronto. Da qui in poi filtriamo gli studenti compatibili: tu decidi con chi firmare direttamente. Il contratto resta tra te e lo studente — Coabito è il marketplace di matching e fiducia."
           : "Il tuo profilo è pronto. Vesta, il nostro assistente, ti aspetta per capire facoltà, budget e abitudini — e proporti solo le stanze davvero compatibili con te, non l'ennesimo annuncio a caso."
       }
     </p>

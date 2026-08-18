@@ -32,7 +32,7 @@ export default function Hero({ waitlistCount = 0 }: { waitlistCount?: number }) 
           <p className={styles.subtext}>{t.hero.subtitle}</p>
 
           <div className={styles.ctaRow}>
-            <Link href="/login" className={styles.btnPrimary}>
+            <Link href="/lista-attesa" className={styles.btnPrimary}>
               {t.hero.ctaStudent}
             </Link>
             <a href="/proprietari" className={styles.btnSecondary}>
@@ -46,6 +46,8 @@ export default function Hero({ waitlistCount = 0 }: { waitlistCount?: number }) 
 
           <p className={styles.microcopy}>
             {t.hero.freeNote}
+            {" · "}
+            <Link href="/login">{t.hero.alreadyAccount}</Link>
             {" · "}
             <Link href="/esempi">{t.hero.seeExample}</Link>
           </p>

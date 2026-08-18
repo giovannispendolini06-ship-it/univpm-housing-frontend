@@ -11,15 +11,16 @@ export const translations = {
       waitlist: "Lista d'attesa",
     },
     hero: {
-      badge: "Pensato per chi studia fuori sede",
+      badge: "Pensato per chi studia fuori sede ad Ancona",
       titlePart1: "Trova casa ",
       titleHighlight: "chattando",
       titlePart2: ", non scorrendo annunci a caso.",
       subtitle:
-        "Racconta a Vesta la tua facoltà, il tuo budget e le tue abitudini di convivenza. Ti proponiamo solo le stanze davvero compatibili con te, vicino al tuo ateneo.",
+        "Racconta a Vesta la tua facoltà, il tuo budget e le tue abitudini di convivenza. Ti proponiamo solo le stanze davvero compatibili con te, vicino al tuo ateneo ad Ancona.",
       ctaStudent: "Sono uno studente",
       ctaOwner: "Sono un proprietario",
       freeNote: "Gratuito per gli studenti. Nessuna carta di credito richiesta.",
+      alreadyAccount: "Hai già un account? Accedi",
       seeExample: "Vedi un esempio",
       socialProof: "{count} studenti già in lista d'attesa",
       liveCompatibility: "Compatibilità calcolata in tempo reale",
@@ -64,26 +65,26 @@ export const translations = {
     },
     howItWorksOwners: {
       eyebrow: "Per i proprietari",
-      title: "Affitta senza gestire tu le trattative",
+      title: "Matching e fiducia, contratto diretto",
       ctaLabel: "Proponi il tuo immobile",
       steps: [
         {
           number: "1",
-          title: "Ci mandi l'immobile",
+          title: "Ci racconti il tuo immobile",
           description:
-            "Indirizzo, prezzo, foto: lo carichiamo noi sul tuo profilo e lo pubblichiamo anche sui portali principali.",
+            "Indirizzo, prezzo, foto: pubblichiamo l'annuncio sulla piattaforma e, dove ha senso, sui portali.",
         },
         {
           number: "2",
-          title: "Filtriamo noi gli interessati",
+          title: "Pre-filtro degli interessati",
           description:
-            "Solo studenti già verificati e compatibili con la tua casa arrivano fino a te: niente perditempo.",
+            "Solo studenti compatibili — e, appena disponibili, verificati — arrivano fino a te: niente perditempo.",
         },
         {
           number: "3",
-          title: "Tu decidi, noi gestiamo il resto",
+          title: "Tu scegli e firmi direttamente",
           description:
-            "Ti aggiorniamo su ogni richiesta seria. Chiudi l'affitto quando sei pronto, ai tuoi tempi.",
+            "Il contratto resta tra te e lo studente. Coabito supporta matching, fiducia e sicurezza della transazione.",
         },
       ],
     },
@@ -104,7 +105,7 @@ export const translations = {
         {
           question: "Come guadagna Coabito?",
           answer:
-            "Applichiamo un piccolo margine tra quello che paga lo studente e quello che versiamo al proprietario — lo stesso modello di chi gestisce affitti per conto terzi, reso più semplice e veloce grazie alla chat.",
+            "Siamo un marketplace: il contratto di locazione resta diretto tra studente e proprietario. Guadagniamo da servizi a valore aggiunto (verifica, escrow, garanzie opzionali, supporti al trasloco e partnership), non entrando come parte del contratto.",
         },
         {
           question: "Devo pagare qualcosa prima di trovare la stanza giusta?",
@@ -114,7 +115,7 @@ export const translations = {
         {
           question: "Chi si occupa del contratto?",
           answer:
-            "Ce ne occupiamo noi: gestiamo il rapporto con il proprietario, tu firmi solo il contratto per la tua stanza, senza dover trattare direttamente ogni dettaglio.",
+            "Il contratto di locazione lo firmi direttamente con il proprietario. Coabito facilita matching e contatto, e può offrire strumenti di fiducia (verifica, escrow, mediazione) senza essere parte del contratto.",
         },
         {
           question: "Come funziona il punteggio di compatibilità?",
@@ -129,7 +130,7 @@ export const translations = {
         {
           question: "Sono un proprietario: devo pagare per proporre il mio immobile?",
           answer:
-            "No, proporre il tuo immobile è gratuito. Ci pensiamo noi a trovare studenti compatibili e verificati: tu decidi solo con chi firmare, quando sei pronto.",
+            "No, proporre il tuo immobile è gratuito. Ti mostriamo studenti compatibili (e, appena disponibili, verificati): tu decidi con chi firmare direttamente. Servizi opzionali come garanzia contro inadempimento o escrow arriveranno a pagamento, senza farci entrare nel contratto.",
         },
       ],
     },
@@ -163,7 +164,7 @@ export const translations = {
         },
         {
           title: "Cosa chiedere (e cosa evitare)",
-          body: "Chiedi sempre data di disponibilità, cosa è incluso nelle spese, se la stanza è singola o doppia, e regole su ospiti/fumo. Diffida di richieste di caparra via bonifico prima di aver visto la casa o firmato qualcosa di chiaro. Coabito gestisce il rapporto con il proprietario proprio per ridurre questi passaggi opachi.",
+          body: "Chiedi sempre data di disponibilità, cosa è incluso nelle spese, se la stanza è singola o doppia, e regole su ospiti/fumo. Diffida di richieste di caparra via bonifico prima di aver visto la casa o firmato qualcosa di chiaro. Su Coabito il contratto resta diretto con il proprietario: la piattaforma riduce i passaggi opachi con matching, verifica e — in roadmap — escrow sulla prima mensilità/cauzione.",
         },
         {
           title: "Come ti aiuta Coabito",
@@ -478,15 +479,16 @@ export const translations = {
       waitlist: "Waitlist",
     },
     hero: {
-      badge: "Made for out-of-town students",
+      badge: "Made for out-of-town students in Ancona",
       titlePart1: "Find a home by ",
       titleHighlight: "chatting",
       titlePart2: ", not scrolling endless listings.",
       subtitle:
-        "Tell Vesta your degree course, your budget, and your living habits. We'll only suggest rooms that are truly compatible with you, close to your university.",
+        "Tell Vesta your degree course, your budget, and your living habits. We'll only suggest rooms that are truly compatible with you, close to your university in Ancona.",
       ctaStudent: "I'm a student",
       ctaOwner: "I'm a property owner",
       freeNote: "Free for students. No credit card required.",
+      alreadyAccount: "Already have an account? Sign in",
       seeExample: "See an example",
       socialProof: "{count} students already on the waitlist",
       liveCompatibility: "Compatibility calculated in real time",
@@ -531,26 +533,26 @@ export const translations = {
     },
     howItWorksOwners: {
       eyebrow: "For property owners",
-      title: "Rent out without handling negotiations yourself",
+      title: "Matching and trust, direct contract",
       ctaLabel: "List your property",
       steps: [
         {
           number: "1",
-          title: "Send us your property",
+          title: "Tell us about your property",
           description:
-            "Address, price, photos: we upload it to your profile and publish it on the main listing sites too.",
+            "Address, price, photos: we publish the listing on the platform and, where it makes sense, on major portals.",
         },
         {
           number: "2",
-          title: "We filter the interested students",
+          title: "We pre-filter interested students",
           description:
-            "Only verified students compatible with your home reach you: no time-wasters.",
+            "Only compatible students — and, as soon as available, verified ones — reach you: no time-wasters.",
         },
         {
           number: "3",
-          title: "You decide, we handle the rest",
+          title: "You choose and sign directly",
           description:
-            "We keep you updated on every serious request. Close the deal whenever you're ready, on your own time.",
+            "The lease stays between you and the student. Coabito supports matching, trust and transaction safety.",
         },
       ],
     },
@@ -571,7 +573,7 @@ export const translations = {
         {
           question: "How does Coabito make money?",
           answer:
-            "We apply a small margin between what the student pays and what we pass on to the property owner — the same model used by anyone managing rentals on someone else's behalf, made simpler and faster through chat.",
+            "We're a marketplace: the lease stays direct between student and owner. We earn from value-added services (verification, escrow, optional guarantees, move-in support and partnerships), without becoming a party to the contract.",
         },
         {
           question: "Do I have to pay anything before finding the right room?",
@@ -581,7 +583,7 @@ export const translations = {
         {
           question: "Who handles the contract?",
           answer:
-            "We do: we manage the relationship with the property owner, you only sign the contract for your room, without having to negotiate every detail yourself.",
+            "You sign the lease directly with the property owner. Coabito facilitates matching and contact, and may offer trust tools (verification, escrow, mediation) without being a party to the contract.",
         },
         {
           question: "How does the compatibility score work?",
@@ -596,7 +598,7 @@ export const translations = {
         {
           question: "I'm a property owner: do I have to pay to list my property?",
           answer:
-            "No, listing your property is free. We take care of finding compatible, verified students: you only decide who to sign with, when you're ready.",
+            "No, listing your property is free. We show you compatible students (and, as soon as available, verified ones): you decide who to sign with directly. Optional services like non-payment cover or escrow will be paid add-ons — without us entering the lease.",
         },
       ],
     },
@@ -630,7 +632,7 @@ export const translations = {
         },
         {
           title: "What to ask (and what to avoid)",
-          body: "Always ask about availability date, what’s included in bills, whether the room is single or shared, and rules on guests/smoking. Be wary of deposit transfers before you’ve seen the place or signed something clear. Coabito manages the landlord relationship to reduce those opaque steps.",
+          body: "Always ask about availability date, what’s included in bills, whether the room is single or shared, and rules on guests/smoking. Be wary of deposit transfers before you’ve seen the place or signed something clear. On Coabito the lease stays direct with the landlord: the platform reduces opaque steps with matching, verification and — on the roadmap — escrow on the first month’s rent/deposit.",
         },
         {
           title: "How Coabito helps",
