@@ -238,11 +238,34 @@ export const translations = {
       and: "e i",
       termsOfService: "Termini di Servizio",
       consentMissing: "Devi accettare Privacy e Termini di servizio per registrarti.",
+      rateLimitError:
+        "Troppe email di conferma inviate in poco tempo. Riprova tra qualche minuto — se il problema continua, scrivici a info@coabito.it.",
+      alreadyRegisteredError:
+        "Esiste già un account con questa email. Prova ad accedere, oppure usa «Password dimenticata».",
+      networkSmtpError:
+        "Non siamo riusciti a completare la registrazione (problema di rete o invio email). Riprova tra un minuto; se ripeti, scrivici a info@coabito.it.",
       genericError: "Qualcosa è andato storto, riprova.",
       signUpButton: "Registrati",
       signInButton: "Accedi",
       alreadyHaveAccount: "Hai già un account? Accedi",
       noAccount: "Non hai un account? Registrati",
+      stepIndicator: "{current} di {total}",
+      step1Title: "Come ti chiami?",
+      step1Hint: "Dicci chi sei e se cerchi casa o la proponi.",
+      step2Title: "Come ti contattiamo?",
+      step3Title: "Ultimo passo",
+      stepContinue: "Continua",
+      stepBack: "Indietro",
+      stepNameRequired: "Un nome basta per iniziare — anche solo il tuo.",
+      stepEmailRequired: "Serve un'email valida per scriverti.",
+      stepPasswordRequired: "La password deve avere almeno 6 caratteri.",
+      vestaStep1: "Piacere di conoscerti",
+      vestaStep2: "Perfetto, ci siamo quasi",
+      vestaStep3:
+        "Perfetto, {name} — manca solo il consenso, poi ti mando la conferma via email.",
+      vestaSignupDone:
+        "Perfetto, {name} — controlla la tua email, poi ti aspetto per parlare della tua stanza ideale.",
+      vestaNameFallback: "ciao",
     },
     onboarding: {
       title: "Ultimo passaggio",
@@ -801,11 +824,34 @@ export const translations = {
       and: "and the",
       termsOfService: "Terms of Service",
       consentMissing: "You must accept the Privacy Policy and Terms of Service to sign up.",
+      rateLimitError:
+        "Too many confirmation emails sent in a short time. Try again in a few minutes — if it keeps happening, email info@coabito.it.",
+      alreadyRegisteredError:
+        "An account with this email already exists. Try signing in, or use “Forgot password”.",
+      networkSmtpError:
+        "We couldn't complete sign-up (network or email delivery issue). Try again in a minute; if it persists, email info@coabito.it.",
       genericError: "Something went wrong, please try again.",
       signUpButton: "Sign up",
       signInButton: "Log in",
       alreadyHaveAccount: "Already have an account? Log in",
       noAccount: "Don't have an account? Sign up",
+      stepIndicator: "{current} of {total}",
+      step1Title: "What's your name?",
+      step1Hint: "Tell us who you are and whether you're looking for a room or listing one.",
+      step2Title: "How do we reach you?",
+      step3Title: "One last step",
+      stepContinue: "Continue",
+      stepBack: "Back",
+      stepNameRequired: "A name is enough to start — even just your first name.",
+      stepEmailRequired: "We need a valid email to reach you.",
+      stepPasswordRequired: "Password must be at least 6 characters.",
+      vestaStep1: "Nice to meet you",
+      vestaStep2: "Perfect — almost there",
+      vestaStep3:
+        "Perfect, {name} — just the consent, then I’ll send your confirmation email.",
+      vestaSignupDone:
+        "Perfect, {name} — check your email, then I’ll be here to talk about your ideal room.",
+      vestaNameFallback: "there",
     },
     onboarding: {
       title: "One last step",
