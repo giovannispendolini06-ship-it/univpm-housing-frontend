@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
+import { mapAuthErrorMessage } from "@/lib/auth-errors";
 
 type Mode = "signin" | "signup" | "forgot";
 type SignupRole = "student" | "owner";
@@ -63,17 +64,14 @@ export default function LoginPage() {
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      const raw = err instanceof Error ? err.message : t.login.genericError;
-      const lower = raw.toLowerCase();
-      if (
-        lower.includes("rate limit") ||
-        lower.includes("email rate limit") ||
-        lower.includes("over_email_send_rate_limit")
-      ) {
-        setError(t.login.rateLimitError);
-      } else {
-        setError(raw);
-      }
+      setError(
+        mapAuthErrorMessage(err, {
+          rateLimitError: t.login.rateLimitError,
+          alreadyRegisteredError: t.login.alreadyRegisteredError,
+          networkSmtpError: t.login.networkSmtpError,
+          genericError: t.login.genericError,
+        }),
+      );
     } finally {
       setLoading(false);
     }
