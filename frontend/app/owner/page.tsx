@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
@@ -6,11 +7,18 @@ import {
 import SignOutButton from "@/components/SignOutButton";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
 import OwnerInsight from "./OwnerInsight";
-import Link from "next/link";
 import VerificationPanel from "@/components/VerificationPanel";
 import VerifiedBadge from "@/components/VerifiedBadge";
-import ApplicationStatusButtons from "@/components/applications/ApplicationStatusButtons";
+import GuaranteedRentWidget from "@/components/owner/GuaranteedRentWidget";
+import OwnerPropertyCard, {
+  type OwnerCandidate,
+} from "@/components/owner/OwnerPropertyCard";
 import type { VerificationStatus } from "@/lib/verification";
+import {
+  aggregateGuaranteedPayout,
+  type GuaranteedPropertySummary,
+} from "@/lib/owner/guaranteed-payout";
+import { listApplicationsForOwnerRooms } from "@/lib/data/applications";
 
 export const dynamic = "force-dynamic";
 
@@ -21,15 +29,7 @@ const STATUS_LABELS: Record<string, string> = {
   sospeso: "Sospeso",
 };
 
-const STATUS_STYLES: Record<string, string> = {
-  bozza: "bg-ink-muted/10 text-ink-muted",
-  attivo: "bg-sea-50 text-sea-700",
-  affittato: "bg-sea-600 text-white",
-  sospeso: "bg-sunset-500/15 text-sunset-600",
-};
-
 export default async function OwnerDashboardPage() {
-  // --- Verifica accesso: solo chi ha ruolo 'owner' --------------------------
   const authClient = await createServerSupabaseClient();
   const {
     data: { user },
@@ -47,44 +47,117 @@ export default async function OwnerDashboardPage() {
     redirect(profile?.role === "admin" ? "/admin" : "/dashboard");
   }
 
-  // --- Dati: solo gli immobili di questo proprietario -----------------------
   const db = createServiceSupabaseClient();
 
   const { data: properties } = await db
     .from("properties")
-    .select("id, address, zone, status, monthly_rent_to_owner, rooms(id, room_label, is_available)")
+    .select(
+      "id, address, zone, status, monthly_rent_to_owner, guaranteed_rent, rooms(id, room_label, is_available)",
+    )
     .eq("owner_id", user.id)
     .order("created_at", { ascending: false });
 
-  // Per ogni stanza, contiamo quanti studenti "compatibili" (score >= 70)
-  // sono stati trovati dal motore di matching. Numero aggregato soltanto:
-  // niente dati personali degli studenti, che restano gestiti da Coabito.
-  const roomIds = (properties ?? []).flatMap((p) => (p.rooms ?? []).map((r) => r.id));
-  let matchCountByRoom = new Map<string, number>();
+  const roomIds = (properties ?? []).flatMap((p) =>
+    (p.rooms ?? []).map((r: { id: string }) => r.id),
+  );
 
+  const occupiedRoomIds = new Set<string>();
   if (roomIds.length > 0) {
-    const { data: matches } = await db
-      .from("match_scores")
-      .select("room_id, compatibility_score")
+    const { data: tenancies } = await db
+      .from("room_tenancies")
+      .select("room_id")
       .in("room_id", roomIds)
-      .gte("compatibility_score", 70);
-
-    matchCountByRoom = new Map();
-    for (const m of matches ?? []) {
-      matchCountByRoom.set(m.room_id, (matchCountByRoom.get(m.room_id) ?? 0) + 1);
+      .is("ended_at", null);
+    for (const t of tenancies ?? []) occupiedRoomIds.add(String(t.room_id));
+    // Fallback: room marked unavailable counts as occupied for display
+    for (const p of properties ?? []) {
+      for (const r of p.rooms ?? []) {
+        if (!r.is_available) occupiedRoomIds.add(r.id);
+      }
     }
   }
 
-  const { data: incomingApps } = roomIds.length
-    ? await db
-        .from("room_applications")
-        .select(
-          "id, status, created_at, message, rooms:room_id ( room_label ), users:student_id ( full_name, verification_status )",
-        )
-        .in("room_id", roomIds)
-        .order("created_at", { ascending: false })
-        .limit(20)
-    : { data: [] as Record<string, unknown>[] };
+  const guaranteedSummaries: GuaranteedPropertySummary[] = (properties ?? [])
+    .filter((p) => p.guaranteed_rent === true)
+    .map((p) => {
+      const rooms = p.rooms ?? [];
+      const occupied =
+        rooms.length > 0 && rooms.some((r: { id: string }) => occupiedRoomIds.has(r.id));
+      return {
+        id: p.id,
+        zoneLabel: p.zone?.trim() || p.address,
+        monthlyAmount: Number(p.monthly_rent_to_owner) || 0,
+        occupied,
+      };
+    });
+
+  const { totalMonthly } = aggregateGuaranteedPayout(guaranteedSummaries);
+
+  const marketplaceRoomIds = (properties ?? [])
+    .filter((p) => !p.guaranteed_rent)
+    .flatMap((p) => (p.rooms ?? []).map((r: { id: string }) => r.id));
+
+  const { data: apps } = await listApplicationsForOwnerRooms(db, marketplaceRoomIds);
+
+  const studentRoomPairs: { studentId: string; roomId: string }[] = [];
+  for (const app of apps ?? []) {
+    const student = Array.isArray(app.users) ? app.users[0] : app.users;
+    const sid = (student as { id?: string } | null)?.id;
+    if (sid && app.room_id) {
+      studentRoomPairs.push({ studentId: sid, roomId: String(app.room_id) });
+    }
+  }
+
+  const scoreByKey = new Map<string, number>();
+  if (studentRoomPairs.length > 0) {
+    const studentIds = Array.from(new Set(studentRoomPairs.map((p) => p.studentId)));
+    const scoreRoomIds = Array.from(new Set(studentRoomPairs.map((p) => p.roomId)));
+    const { data: scores } = await db
+      .from("match_scores")
+      .select("student_id, room_id, compatibility_score")
+      .in("student_id", studentIds)
+      .in("room_id", scoreRoomIds);
+    for (const s of scores ?? []) {
+      scoreByKey.set(
+        `${s.student_id}:${s.room_id}`,
+        Number(s.compatibility_score) || 0,
+      );
+    }
+  }
+
+  const candidatesByProperty = new Map<string, OwnerCandidate[]>();
+  const roomToProperty = new Map<string, string>();
+  for (const p of properties ?? []) {
+    for (const r of p.rooms ?? []) {
+      roomToProperty.set(r.id, p.id);
+    }
+  }
+
+  for (const app of apps ?? []) {
+    const propertyId = roomToProperty.get(String(app.room_id));
+    if (!propertyId) continue;
+    const room = Array.isArray(app.rooms) ? app.rooms[0] : app.rooms;
+    const student = Array.isArray(app.users) ? app.users[0] : app.users;
+    const studentId = (student as { id?: string } | null)?.id ?? "";
+    const verification = (student as { verification_status?: string } | null)
+      ?.verification_status;
+    const candidate: OwnerCandidate = {
+      applicationId: String(app.id),
+      roomLabel: (room as { room_label?: string } | null)?.room_label ?? "Stanza",
+      status: String(app.status),
+      message: app.message ? String(app.message) : null,
+      studentName:
+        (student as { full_name?: string } | null)?.full_name?.trim() || "Studente",
+      studentVerified: verification === "verified",
+      studentEmail: (student as { email?: string | null } | null)?.email ?? null,
+      matchScore: studentId
+        ? (scoreByKey.get(`${studentId}:${app.room_id}`) ?? null)
+        : null,
+    };
+    const list = candidatesByProperty.get(propertyId) ?? [];
+    list.push(candidate);
+    candidatesByProperty.set(propertyId, list);
+  }
 
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
@@ -93,7 +166,9 @@ export default async function OwnerDashboardPage() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-display text-2xl font-bold text-ink">
-                Ciao{profile?.full_name ? `, ${profile.full_name}` : ""} 👋
+                {profile?.full_name
+                  ? `Buongiorno, ${profile.full_name}`
+                  : "Area proprietario"}
               </h1>
               <VerifiedBadge
                 status={profile?.verification_status as VerificationStatus}
@@ -101,7 +176,8 @@ export default async function OwnerDashboardPage() {
               />
             </div>
             <p className="mt-1 text-sm text-ink-muted">
-              I tuoi immobili e il loro stato in questo momento.
+              Vestiamo il tuo immobile su misura per l&apos;inquilino giusto —
+              con canone garantito Coabito o sul marketplace indipendente.
             </p>
           </div>
           <div className="flex flex-col items-end gap-1.5">
@@ -118,61 +194,32 @@ export default async function OwnerDashboardPage() {
           />
         </div>
 
-        {properties && properties.length > 0 && <OwnerInsight />}
-
-        {(incomingApps?.length ?? 0) > 0 && (
-          <section className="mb-6">
-            <h2 className="mb-3 font-display text-sm font-bold uppercase tracking-wide text-ink-muted">
-              Candidature ricevute
-            </h2>
-            <ul className="space-y-2">
-              {incomingApps!.map((app) => {
-                const room = Array.isArray(app.rooms) ? app.rooms[0] : app.rooms;
-                const student = Array.isArray(app.users) ? app.users[0] : app.users;
-                return (
-                  <li
-                    key={String(app.id)}
-                    className="rounded-xl2 border border-sea-100 bg-white px-4 py-3 text-sm shadow-card"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-display font-bold text-ink">
-                        {(student as { full_name?: string } | null)?.full_name ?? "Studente"}
-                        {(student as { verification_status?: string } | null)
-                          ?.verification_status === "verified"
-                          ? " · verificato"
-                          : ""}
-                      </p>
-                      <span className="text-[11px] font-semibold text-sea-700">
-                        {String(app.status)}
-                      </span>
-                    </div>
-                    <p className="text-xs text-ink-muted">
-                      {(room as { room_label?: string } | null)?.room_label ?? "Stanza"}
-                    </p>
-                    {app.message ? (
-                      <p className="mt-1 text-xs text-ink-muted">{String(app.message)}</p>
-                    ) : null}
-                    {!["accepted", "rejected"].includes(String(app.status)) && (
-                      <ApplicationStatusButtons applicationId={String(app.id)} />
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
+        {guaranteedSummaries.length > 0 && (
+          <GuaranteedRentWidget
+            properties={guaranteedSummaries}
+            totalMonthly={totalMonthly}
+          />
         )}
+
+        {properties && properties.length > 0 && <OwnerInsight />}
 
         <div className="mb-6 flex flex-wrap gap-2">
           <Link
             href="/owner/properties/new"
             className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white"
           >
-            + Nuovo annuncio
+            + Nuovo annuncio marketplace
           </Link>
-          <Link href="/profilo" className="rounded-full border border-sea-200 bg-white px-4 py-2 text-sm font-semibold text-ink">
+          <Link
+            href="/profilo"
+            className="rounded-full border border-sea-200 bg-white px-4 py-2 text-sm font-semibold text-ink"
+          >
             Profilo
           </Link>
-          <Link href="/messages" className="rounded-full border border-sea-200 bg-white px-4 py-2 text-sm font-semibold text-ink">
+          <Link
+            href="/messages"
+            className="rounded-full border border-sea-200 bg-white px-4 py-2 text-sm font-semibold text-ink"
+          >
             Messaggi
           </Link>
         </div>
@@ -183,11 +230,11 @@ export default async function OwnerDashboardPage() {
               Non hai ancora nessun immobile collegato al tuo account.
             </p>
             <p className="mt-2 text-sm text-ink-muted">
-              Pubblica il primo annuncio, oppure scrivici a{" "}
+              Pubblica sul marketplace, oppure scrivici a{" "}
               <a href="mailto:info@coabito.it" className="text-sea-700 underline">
                 info@coabito.it
-              </a>
-              .
+              </a>{" "}
+              per un accordo di canone garantito.
             </p>
             <Link
               href="/owner/properties/new"
@@ -197,56 +244,30 @@ export default async function OwnerDashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-3">
-            {properties.map((property) => (
-              <article key={property.id} className="rounded-xl2 bg-surface p-4 shadow-card sm:p-5">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <span
-                      className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_STYLES[property.status] ?? ""}`}
-                    >
-                      {STATUS_LABELS[property.status] ?? property.status}
-                    </span>
-                    <h3 className="mt-1.5 font-display text-sm font-bold text-ink">
-                      {property.address}
-                    </h3>
-                    <p className="text-xs text-ink-muted">
-                      {property.zone ?? "Zona non specificata"}
-                    </p>
-                  </div>
-                  <span className="shrink-0 font-display text-sm font-bold text-sea-700">
-                    {property.monthly_rent_to_owner}€/mese
-                  </span>
-                </div>
-
-                <div className="mt-3 space-y-1.5 border-t border-bg pt-3">
-                  {(property.rooms ?? []).map((room) => (
-                    <div
-                      key={room.id}
-                      className="flex items-center justify-between rounded-xl border border-sea-100 px-3 py-2"
-                    >
-                      <div>
-                        <p className="text-sm text-ink">{room.room_label}</p>
-                        <p className="text-[11px] text-ink-muted">
-                          {room.is_available ? "Libera" : "Occupata"}
-                        </p>
-                      </div>
-                      {room.is_available && (matchCountByRoom.get(room.id) ?? 0) > 0 && (
-                        <span className="rounded-full bg-sea-50 px-2.5 py-1 text-[11px] font-medium text-sea-700">
-                          {matchCountByRoom.get(room.id)} studenti compatibili
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                  <Link
-                    href={`/owner/properties/${property.id}`}
-                    className="inline-block pt-1 text-xs font-semibold text-sea-700 underline"
-                  >
-                    Gestisci / pubblica
-                  </Link>
-                </div>
-              </article>
-            ))}
+          <div className="space-y-4">
+            {properties.map((property) => {
+              const rooms = property.rooms ?? [];
+              const occupied =
+                rooms.length > 0 &&
+                rooms.some((r: { id: string }) => occupiedRoomIds.has(r.id));
+              return (
+                <OwnerPropertyCard
+                  key={property.id}
+                  property={{
+                    id: property.id,
+                    address: property.address,
+                    zone: property.zone,
+                    status: property.status,
+                    statusLabel: STATUS_LABELS[property.status] ?? property.status,
+                    monthlyRentToOwner: Number(property.monthly_rent_to_owner) || 0,
+                    guaranteedRent: property.guaranteed_rent === true,
+                  }}
+                  rooms={rooms}
+                  occupied={occupied}
+                  candidates={candidatesByProperty.get(property.id) ?? []}
+                />
+              );
+            })}
           </div>
         )}
       </div>
