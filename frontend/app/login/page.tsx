@@ -49,7 +49,10 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName, role } },
+          options: {
+            data: { full_name: fullName, role },
+            emailRedirectTo: `${window.location.origin}/onboarding`,
+          },
         });
         if (error) throw error;
       } else {
@@ -60,9 +63,17 @@ export default function LoginPage() {
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t.login.genericError,
-      );
+      const raw = err instanceof Error ? err.message : t.login.genericError;
+      const lower = raw.toLowerCase();
+      if (
+        lower.includes("rate limit") ||
+        lower.includes("email rate limit") ||
+        lower.includes("over_email_send_rate_limit")
+      ) {
+        setError(t.login.rateLimitError);
+      } else {
+        setError(raw);
+      }
     } finally {
       setLoading(false);
     }
