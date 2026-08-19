@@ -130,6 +130,7 @@ export async function fetchPublicListings(
   let listings: Listing[] = rows.map((row) => {
     const property = asProperty(row.properties);
     const photos = photosByProperty.get(property.id) ?? [];
+    const hasRealPhoto = photos.length > 0;
     return {
       id: String(row.id),
       propertyId: property.id,
@@ -147,10 +148,12 @@ export async function fetchPublicListings(
       amenities: Array.isArray(row.services_included)
         ? (row.services_included as string[])
         : [],
-      photoUrls: photos.length > 0 ? photos : [PLACEHOLDER_PHOTO],
+      photoUrls: hasRealPhoto ? photos : [PLACEHOLDER_PHOTO],
+      hasRealPhoto,
       landlordVerified: verifiedOwners.has(property.owner_id),
       guaranteedRent: property.guaranteed_rent === true,
       propertyStatus: property.status,
+      atmosphereTags: [],
     };
   });
 

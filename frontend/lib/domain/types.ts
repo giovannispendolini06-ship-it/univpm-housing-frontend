@@ -105,10 +105,17 @@ export interface Listing {
   privateBathroom: boolean | null;
   amenities: string[];
   photoUrls: string[];
+  /** False when only the stock placeholder is available */
+  hasRealPhoto: boolean;
   landlordVerified: boolean;
   /** True = seed supply with Coabito guaranteed rent (trust badge) */
   guaranteedRent: boolean;
   propertyStatus: string;
+  /** Present when the viewer has Compatibilità Coabito scores */
+  matchScore?: number | null;
+  matchReasons?: { label: string; detail: string; weight: "alto" | "medio" | "basso" }[];
+  /** Short atmosphere labels; omit UI row when empty */
+  atmosphereTags?: string[];
 }
 
 export type ApplicationStatus =

@@ -4,6 +4,9 @@ import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
 import PublicRoomCard from "@/components/listings/PublicRoomCard";
 import { listPublicListings } from "@/lib/listings";
+import { getOptionalSession } from "@/lib/auth/session";
+import { createServiceSupabaseClient } from "@/lib/supabase/server";
+import type { Listing } from "@/lib/domain/types";
 import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -20,10 +23,58 @@ type SearchParams = Promise<{
   min?: string;
   zona?: string;
   verificati?: string;
+  garantito?: string;
   bagno?: string;
   entro?: string;
   sort?: string;
 }>;
+
+type StoredReason = {
+  label: string;
+  detail: string;
+  weight: "alto" | "medio" | "basso";
+};
+
+async function attachMatchScores(listings: Listing[]): Promise<Listing[]> {
+  if (listings.length === 0) return listings;
+
+  const session = await getOptionalSession();
+  if (!session || session.role !== "student") return listings;
+
+  const db = createServiceSupabaseClient();
+  const roomIds = listings.map((l) => l.id);
+  const { data: scores } = await db
+    .from("match_scores")
+    .select("room_id, compatibility_score, ai_reasoning")
+    .eq("student_id", session.id)
+    .in("room_id", roomIds);
+
+  if (!scores?.length) return listings;
+
+  const byRoom = new Map(
+    scores.map((s) => {
+      const reasoning = s.ai_reasoning as { reasons?: StoredReason[] } | null;
+      const reasons = Array.isArray(reasoning?.reasons) ? reasoning!.reasons! : [];
+      return [
+        String(s.room_id),
+        {
+          score: Number(s.compatibility_score) || 0,
+          reasons,
+        },
+      ] as const;
+    }),
+  );
+
+  return listings.map((listing) => {
+    const match = byRoom.get(listing.id);
+    if (!match) return listing;
+    return {
+      ...listing,
+      matchScore: match.score,
+      matchReasons: match.reasons,
+    };
+  });
+}
 
 export default async function StanzePage({
   searchParams,
@@ -35,6 +86,7 @@ export default async function StanzePage({
   const minPrice = params.min ? Number(params.min) : undefined;
   const zone = params.zona?.trim() || undefined;
   const verifiedOnly = params.verificati === "1";
+  const guaranteedOnly = params.garantito === "1";
   const privateBathroom = params.bagno === "1";
   const availableFromBefore = params.entro?.trim() || undefined;
   const sortRaw = params.sort?.trim();
@@ -43,7 +95,7 @@ export default async function StanzePage({
       ? sortRaw
       : "price_asc";
 
-  let listings: Awaited<ReturnType<typeof listPublicListings>> = [];
+  let listings: Listing[] = [];
   let loadError: string | null = null;
 
   try {
@@ -52,10 +104,12 @@ export default async function StanzePage({
       minPrice: Number.isFinite(minPrice) ? minPrice : undefined,
       zone,
       verifiedOnly,
+      guaranteedRentOnly: guaranteedOnly,
       privateBathroom,
       availableFromBefore,
       sort,
     });
+    listings = await attachMatchScores(listings);
   } catch (err) {
     loadError =
       err instanceof Error ? err.message : "Errore nel caricamento delle stanze.";
@@ -173,6 +227,16 @@ export default async function StanzePage({
             />
             Solo verificati
           </label>
+          <label className="flex items-center gap-2 pb-2 text-sm text-ink">
+            <input
+              type="checkbox"
+              name="garantito"
+              value="1"
+              defaultChecked={guaranteedOnly}
+              className="rounded border-sea-200"
+            />
+            Solo canone garantito Coabito
+          </label>
           <button
             type="submit"
             className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sea-700"
@@ -182,7 +246,10 @@ export default async function StanzePage({
         </form>
 
         {loadError && (
-          <div className="rounded-xl2 border border-sunset-500/30 bg-white px-4 py-6 text-sm text-sunset-600" role="alert">
+          <div
+            className="rounded-xl2 border border-sunset-500/30 bg-white px-4 py-6 text-sm text-sunset-600"
+            role="alert"
+          >
             {loadError}
           </div>
         )}
@@ -190,7 +257,9 @@ export default async function StanzePage({
         {!loadError && listings.length === 0 && (
           <div className="rounded-xl2 border border-sea-100 bg-white px-4 py-10 text-center shadow-card">
             <p className="font-display text-lg font-bold text-ink">
-              Nessuna stanza pubblica al momento
+              {zone
+                ? "Le prime stanze in questa zona arrivano presto"
+                : "Nessuna stanza pubblica al momento"}
             </p>
             <p className="mx-auto mt-2 max-w-md text-sm text-ink-muted">
               Stiamo onboarding i primi proprietari. Entra in lista d&apos;attesa o
@@ -204,7 +273,7 @@ export default async function StanzePage({
                 Lista d&apos;attesa
               </Link>
               <Link
-                href="/login"
+                href="/login?next=/dashboard"
                 className="rounded-full border border-sea-200 px-4 py-2 text-sm font-semibold text-sea-700"
               >
                 Accedi e chatta con Vesta

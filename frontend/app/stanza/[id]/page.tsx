@@ -21,10 +21,27 @@ export async function generateMetadata({
   try {
     const listing = await getPublicListing(id);
     if (!listing) return { title: "Stanza | Coabito" };
+    const zone = listing.neighbourhood
+      ? `${listing.neighbourhood}, ${listing.cityLabel}`
+      : listing.cityLabel;
+    const description = `Stanza a ${zone}: ${listing.monthlyRent}€/mese. Candidati su Coabito.`;
     return {
       title: `${listing.title} · ${listing.cityLabel} | Coabito`,
-      description: `Stanza a ${listing.neighbourhood ?? listing.cityLabel}: ${listing.monthlyRent}€/mese. Candidati su Coabito.`,
+      description,
       alternates: { canonical: `${SITE_URL}/stanza/${id}` },
+      openGraph: {
+        title: `${listing.title} · ${zone}`,
+        description,
+        url: `${SITE_URL}/stanza/${id}`,
+        siteName: "Coabito",
+        locale: "it_IT",
+        type: "website",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${listing.title} · ${zone}`,
+        description,
+      },
     };
   } catch {
     return { title: "Stanza | Coabito" };
