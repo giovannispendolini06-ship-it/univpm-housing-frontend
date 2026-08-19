@@ -308,6 +308,33 @@ export function buildAdminWaitlistEmail(input: {
 }
 
 // ----------------------------------------------------------------------------
+// Email: reset password (inviata via Resend — bypass SMTP Auth Supabase)
+// ----------------------------------------------------------------------------
+export function buildPasswordResetEmail(input: { resetUrl: string }) {
+  const bodyHtml = `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Reimposta la password
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Hai chiesto di reimpostare la password del tuo account <strong>Coabito</strong>.
+      Clicca il pulsante qui sotto: il link scade tra poco.
+    </p>
+    ${ctaButton("Scegli una nuova password", input.resetUrl)}
+    <p style="margin:20px 0 0; color:${COLORS.inkMuted}; font-size:13px;">
+      Se non hai richiesto tu il reset, ignora questa email: la password resta invariata.
+    </p>
+  `;
+
+  return {
+    subject: "Reimposta la password — Coabito",
+    html: renderEmailLayout({
+      preheader: "Link per scegliere una nuova password",
+      bodyHtml,
+    }),
+  };
+}
+
+// ----------------------------------------------------------------------------
 // Email: double opt-in — conferma iscrizione lista d'attesa
 // ----------------------------------------------------------------------------
 export function buildWaitlistConfirmEmail(input: {

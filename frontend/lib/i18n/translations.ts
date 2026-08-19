@@ -264,7 +264,7 @@ export const translations = {
       vestaStep3:
         "Perfetto, {name} — manca solo il consenso, poi ti mando la conferma via email.",
       vestaSignupDone:
-        "Perfetto, {name} — controlla la tua email, poi ti aspetto per parlare della tua stanza ideale.",
+        "Perfetto, {name} — account creato. Accedi con email e password, poi ti aspetto per parlare della tua stanza ideale.",
       vestaNameFallback: "ciao",
     },
     onboarding: {
@@ -850,7 +850,7 @@ export const translations = {
       vestaStep3:
         "Perfect, {name} — just the consent, then I’ll send your confirmation email.",
       vestaSignupDone:
-        "Perfect, {name} — check your email, then I’ll be here to talk about your ideal room.",
+        "Perfect, {name} — account created. Sign in with email and password, then I’ll be here to talk about your ideal room.",
       vestaNameFallback: "there",
     },
     onboarding: {

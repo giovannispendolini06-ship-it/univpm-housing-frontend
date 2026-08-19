@@ -72,6 +72,16 @@ export function mapAuthErrorMessage(
     return copy.alreadyRegisteredError;
   }
 
+  // Supabase Auth mailer failure (Custom SMTP misconfigured / down)
+  if (
+    lower.includes("error sending confirmation email") ||
+    lower.includes("error sending recovery email") ||
+    lower.includes("error sending magic link") ||
+    code === "unexpected_failure"
+  ) {
+    return copy.networkSmtpError;
+  }
+
   // Network / SMTP timeouts — AuthRetryableFetchError often shows as "{}"
   if (
     name.includes("retryable") ||
