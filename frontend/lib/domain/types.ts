@@ -137,6 +137,29 @@ export interface Application {
   updatedAt: string;
 }
 
+/**
+ * escrow_payments — marketplace hold of first month/deposit until move-in.
+ * Stripe not live until legal OK (`ESCROW_LIVE` in lib/escrow.ts).
+ */
+export type EscrowPaymentStatus =
+  | "pending"
+  | "released"
+  | "disputed"
+  | "refunded";
+
+export interface EscrowPayment {
+  id: string;
+  applicationId: string | null;
+  roomId: string;
+  studentId: string;
+  ownerId: string;
+  amountCents: number;
+  currency: string;
+  status: EscrowPaymentStatus;
+  studentConfirmedAt: string | null;
+  ownerConfirmedAt: string | null;
+}
+
 /** match_scores — Compatibilità Coabito (deterministic scorer today). */
 export interface Match {
   studentId: string;

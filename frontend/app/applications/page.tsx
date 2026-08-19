@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { listApplicationsForStudent } from "@/lib/data/applications";
+import EscrowStatusPanel from "@/components/escrow/EscrowStatusPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -62,13 +62,16 @@ export default async function ApplicationsPage() {
                 ? (room as { properties: { zone?: string; city?: string }[] }).properties[0]
                 : (room as { properties?: { zone?: string; city?: string } }).properties
               : null;
+            const priceMonthly = Number(
+              (room as { price_monthly?: number } | null)?.price_monthly ?? 0,
+            );
+            const roomLabel =
+              (room as { room_label?: string } | null)?.room_label ?? "Stanza";
             return (
               <li key={app.id} className="rounded-xl2 bg-white p-4 shadow-card">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <p className="font-display text-sm font-bold text-ink">
-                      {(room as { room_label?: string } | null)?.room_label ?? "Stanza"}
-                    </p>
+                    <p className="font-display text-sm font-bold text-ink">{roomLabel}</p>
                     <p className="text-xs text-ink-muted">
                       {property?.zone ?? "Zona"} · {property?.city ?? "Ancona"}
                     </p>
@@ -88,11 +91,26 @@ export default async function ApplicationsPage() {
                     Vedi annuncio
                   </Link>
                   {app.status === "accepted" && (
-                    <Link href="/messages" className="text-xs font-semibold text-sea-700 underline">
+                    <Link
+                      href="/messages"
+                      className="text-xs font-semibold text-sea-700 underline"
+                    >
                       Apri messaggi
                     </Link>
                   )}
                 </div>
+                {app.status === "accepted" && (
+                  <div className="mt-4">
+                    <EscrowStatusPanel
+                      role="student"
+                      status="pending"
+                      amountCents={
+                        priceMonthly > 0 ? Math.round(priceMonthly * 100) : null
+                      }
+                      roomLabel={roomLabel}
+                    />
+                  </div>
+                )}
               </li>
             );
           })}

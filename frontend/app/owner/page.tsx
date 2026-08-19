@@ -52,7 +52,7 @@ export default async function OwnerDashboardPage() {
   const { data: properties } = await db
     .from("properties")
     .select(
-      "id, address, zone, status, monthly_rent_to_owner, guaranteed_rent, rooms(id, room_label, is_available)",
+      "id, address, zone, status, monthly_rent_to_owner, guaranteed_rent, rooms(id, room_label, is_available, price_monthly)",
     )
     .eq("owner_id", user.id)
     .order("created_at", { ascending: false });

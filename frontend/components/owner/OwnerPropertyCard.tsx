@@ -3,6 +3,7 @@
 import Link from "next/link";
 import ApplicationStatusButtons from "@/components/applications/ApplicationStatusButtons";
 import MatchScoreRing from "@/components/MatchScoreRing";
+import EscrowStatusPanel from "@/components/escrow/EscrowStatusPanel";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 
 export type OwnerCandidate = {
@@ -25,8 +26,10 @@ export type OwnerPropertyCardProps = {
     statusLabel: string;
     monthlyRentToOwner: number;
     guaranteedRent: boolean;
+    /** Illustrative first-month amount for escrow preview (cents) */
+    illustrativeEscrowCents?: number | null;
   };
-  rooms: { id: string; room_label: string; is_available: boolean }[];
+  rooms: { id: string; room_label: string; is_available: boolean; price_monthly?: number }[];
   occupied: boolean;
   candidates: OwnerCandidate[];
 };
@@ -39,6 +42,11 @@ export default function OwnerPropertyCard({
 }: OwnerPropertyCardProps) {
   const { t } = useLocale();
   const L = t.ownerDashboard;
+  const illustrativeEscrowCents =
+    property.illustrativeEscrowCents ??
+    (rooms[0]?.price_monthly != null
+      ? Math.round(Number(rooms[0].price_monthly) * 100)
+      : null);
 
   if (property.guaranteedRent) {
     return (
@@ -198,6 +206,15 @@ export default function OwnerPropertyCard({
       >
         {L.manage}
       </Link>
+
+      <div className="mt-4">
+        <EscrowStatusPanel
+          role="owner"
+          status="pending"
+          amountCents={illustrativeEscrowCents}
+          roomLabel={rooms[0]?.room_label ?? property.zone}
+        />
+      </div>
     </article>
   );
 }

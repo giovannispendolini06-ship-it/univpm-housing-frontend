@@ -324,6 +324,29 @@ export const translations = {
       candidatesHeading: "Candidati",
       messagesLink: "Messaggi in-app",
     },
+    escrow: {
+      title: "Pagamento in escrow",
+      notLiveBadge: "Non ancora attivo",
+      statusLabel: "Stato",
+      statusPending: "In attesa (pending)",
+      statusReleased: "Sbloccato (released)",
+      statusDisputed: "In contestazione (disputed)",
+      statusRefunded: "Rimborsato (refunded)",
+      amountLabel: "Importo previsto",
+      illustrative: "illustrativo",
+      studentPendingCopy:
+        "Il tuo pagamento resterà al sicuro finché non confermi il trasloco. Il prelievo reale non è ancora attivo: stiamo completando l'inquadramento legale.",
+      ownerPendingCopy:
+        "Riceverai il pagamento non appena lo studente conferma l'arrivo. Il prelievo reale non è ancora attivo: stiamo completando l'inquadramento legale.",
+      confirmMoveInStudent: "Confermo di essere arrivato",
+      confirmMoveInOwner: "Confermo il trasloco",
+      reportIssue: "Segnala un problema",
+      disabledHint: "Disponibile quando l'escrow sarà attivo",
+      legalHoldNote:
+        "Demo / predisposizione: nessun addebito Stripe finché non riceviamo parere legale e non attiviamo ESCROW_LIVE.",
+      marketplaceOnlyNote:
+        "L'escrow riguarda solo gli immobili sul marketplace indipendente, non il canone garantito Coabito.",
+    },
     roomList: {
       title: "Stanze consigliate per te",
       resultsSuffix: "risultati ordinati per compatibilità",
@@ -833,6 +856,29 @@ export const translations = {
       compatibility: "Compatibility",
       candidatesHeading: "Applicants",
       messagesLink: "In-app messages",
+    },
+    escrow: {
+      title: "Escrow payment",
+      notLiveBadge: "Not live yet",
+      statusLabel: "Status",
+      statusPending: "Pending",
+      statusReleased: "Released",
+      statusDisputed: "Disputed",
+      statusRefunded: "Refunded",
+      amountLabel: "Expected amount",
+      illustrative: "illustrative",
+      studentPendingCopy:
+        "Your payment stays safe until you confirm move-in. Real charges are not active yet — we are completing the legal setup.",
+      ownerPendingCopy:
+        "You will receive the payment once the student confirms arrival. Real charges are not active yet — we are completing the legal setup.",
+      confirmMoveInStudent: "I confirm I have moved in",
+      confirmMoveInOwner: "I confirm move-in",
+      reportIssue: "Report an issue",
+      disabledHint: "Available when escrow goes live",
+      legalHoldNote:
+        "Demo / predisposed only: no Stripe charge until legal clearance and ESCROW_LIVE.",
+      marketplaceOnlyNote:
+        "Escrow applies only to independent marketplace listings, not Coabito guaranteed-rent stock.",
     },
     roomList: {
       title: "Recommended rooms for you",
