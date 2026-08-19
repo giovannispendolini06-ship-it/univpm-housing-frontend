@@ -1,7 +1,12 @@
 "use client";
 
 import { useLocale } from "@/lib/i18n/LocaleContext";
-import { formatEscrowAmount, isEscrowLive, type EscrowStatus } from "@/lib/escrow";
+import {
+  formatEscrowAmount,
+  isEscrowLive,
+  type EscrowCoverage,
+  type EscrowStatus,
+} from "@/lib/escrow";
 
 type Role = "student" | "owner";
 
@@ -13,17 +18,24 @@ export default function EscrowStatusPanel({
   role,
   status = "pending",
   amountCents,
+  firstMonthCents,
+  depositCents,
+  coverage,
   roomLabel,
 }: {
   role: Role;
   status?: EscrowStatus;
-  /** Optional illustrative amount (e.g. first month); not charged */
+  /** Total illustrative amount (cents); not charged */
   amountCents?: number | null;
+  firstMonthCents?: number | null;
+  depositCents?: number | null;
+  coverage?: EscrowCoverage | null;
   roomLabel?: string | null;
 }) {
   const { t, locale } = useLocale();
   const live = isEscrowLive();
   const E = t.escrow;
+  const loc = locale === "en" ? "en" : "it";
 
   const statusLabel =
     status === "released"
@@ -34,8 +46,16 @@ export default function EscrowStatusPanel({
           ? E.statusRefunded
           : E.statusPending;
 
-  const body =
-    role === "student" ? E.studentPendingCopy : E.ownerPendingCopy;
+  const coverageLabel =
+    coverage === "first_month"
+      ? E.coverageFirstMonth
+      : coverage === "deposit"
+        ? E.coverageDeposit
+        : coverage === "first_month_and_deposit"
+          ? E.coverageBoth
+          : null;
+
+  const body = role === "student" ? E.studentPendingCopy : E.ownerPendingCopy;
 
   return (
     <section
@@ -56,23 +76,50 @@ export default function EscrowStatusPanel({
       ) : null}
 
       <p className="mt-2 text-sm text-ink-muted">{body}</p>
+      <p className="mt-1 text-[11px] text-ink-muted">{E.marketplaceOnlyNote}</p>
 
       <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
         <div>
           <dt className="text-[11px] text-ink-muted">{E.statusLabel}</dt>
           <dd className="font-semibold text-ink">{statusLabel}</dd>
         </div>
-        {typeof amountCents === "number" && amountCents > 0 && (
+        {coverageLabel && (
           <div>
+            <dt className="text-[11px] text-ink-muted">{E.coverageLabel}</dt>
+            <dd className="font-semibold text-ink">{coverageLabel}</dd>
+          </div>
+        )}
+        {typeof amountCents === "number" && amountCents > 0 && (
+          <div className="sm:col-span-2">
             <dt className="text-[11px] text-ink-muted">{E.amountLabel}</dt>
             <dd className="font-semibold tabular-nums text-ink">
-              {formatEscrowAmount(amountCents, locale === "en" ? "en" : "it")}
+              {formatEscrowAmount(amountCents, loc)}
               {!live && (
                 <span className="ml-1 text-[11px] font-normal text-ink-muted">
                   ({E.illustrative})
                 </span>
               )}
             </dd>
+            {(typeof firstMonthCents === "number" && firstMonthCents > 0) ||
+            (typeof depositCents === "number" && depositCents > 0) ? (
+              <ul className="mt-1 space-y-0.5 text-[11px] font-normal text-ink-muted">
+                {typeof firstMonthCents === "number" &&
+                  firstMonthCents > 0 &&
+                  coverage !== "deposit" && (
+                    <li>
+                      {E.breakdownFirstMonth}:{" "}
+                      {formatEscrowAmount(firstMonthCents, loc)}
+                    </li>
+                  )}
+                {typeof depositCents === "number" &&
+                  depositCents > 0 &&
+                  coverage !== "first_month" && (
+                    <li>
+                      {E.breakdownDeposit}: {formatEscrowAmount(depositCents, loc)}
+                    </li>
+                  )}
+              </ul>
+            ) : null}
           </div>
         )}
       </dl>

@@ -13,6 +13,10 @@ function mapRow(row: Record<string, unknown>): EscrowPayment {
     amountCents: Number(row.amount_cents) || 0,
     currency: String(row.currency ?? "eur"),
     status: row.status as EscrowStatus,
+    coverage: (row.coverage as EscrowPayment["coverage"]) ?? null,
+    firstMonthCents:
+      row.first_month_cents != null ? Number(row.first_month_cents) : null,
+    depositCents: row.deposit_cents != null ? Number(row.deposit_cents) : null,
     studentConfirmedAt: row.student_confirmed_at
       ? String(row.student_confirmed_at)
       : null,

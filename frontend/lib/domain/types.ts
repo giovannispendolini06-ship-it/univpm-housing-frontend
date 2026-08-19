@@ -53,6 +53,12 @@ export interface LifestyleProfile {
   additionalNotes: string | null;
 }
 
+/** What marketplace escrow may hold — configurable until product/legal locks it. */
+export type EscrowCoverage =
+  | "first_month"
+  | "deposit"
+  | "first_month_and_deposit";
+
 /** properties — supply side (never expose exact address publicly). */
 export interface Property {
   id: string;
@@ -65,6 +71,11 @@ export interface Property {
   isFurnished: boolean | null;
   /** Coabito seed listing under guaranteed-rent agreement with the owner */
   guaranteedRent: boolean;
+  /**
+   * Marketplace escrow scope (nullable → platform default).
+   * first_month | deposit | first_month_and_deposit
+   */
+  escrowCoverage?: EscrowCoverage | null;
   /** Internal only — not for public listing cards */
   addressInternal?: string;
 }
@@ -138,8 +149,9 @@ export interface Application {
 }
 
 /**
- * escrow_payments — marketplace hold of first month/deposit until move-in.
+ * escrow_payments — marketplace hold until move-in.
  * Stripe not live until legal OK (`ESCROW_LIVE` in lib/escrow.ts).
+ * `coverage` chooses first_month | deposit | first_month_and_deposit.
  */
 export type EscrowPaymentStatus =
   | "pending"
@@ -156,6 +168,9 @@ export interface EscrowPayment {
   amountCents: number;
   currency: string;
   status: EscrowPaymentStatus;
+  coverage: EscrowCoverage | null;
+  firstMonthCents: number | null;
+  depositCents: number | null;
   studentConfirmedAt: string | null;
   ownerConfirmedAt: string | null;
 }

@@ -9,6 +9,7 @@ import {
 import { recalculateMatchesForRoom } from "@/lib/matching-rooms";
 import { getOpenAIClient, OPENAI_MODEL } from "@/lib/openai";
 import { sendEmail, buildMoveInEmail } from "@/lib/email";
+import { parseEscrowCoverage } from "@/lib/escrow";
 
 // ---------------------------------------------------------------------------
 // Stessa guardia di sicurezza usata in app/admin/leads/actions.ts
@@ -136,6 +137,7 @@ export async function createProperty(formData: FormData) {
       guarantee_status: String(formData.get("guarantee_status") ?? "nessuna"),
       guaranteed_rent: formData.get("guaranteed_rent") === "on",
       deposit_amount: numberOrNull(formData.get("deposit_amount")),
+      escrow_coverage: parseEscrowCoverage(formData.get("escrow_coverage")),
       total_rooms: numberOrNull(formData.get("total_rooms")) ?? 1,
       bathrooms: numberOrNull(formData.get("bathrooms")) ?? 1,
       size_sqm: numberOrNull(formData.get("size_sqm")),
@@ -578,6 +580,7 @@ export async function updateProperty(formData: FormData) {
       guarantee_status: String(formData.get("guarantee_status") ?? "nessuna"),
       guaranteed_rent: formData.get("guaranteed_rent") === "on",
       deposit_amount: numberOrNull(formData.get("deposit_amount")),
+      escrow_coverage: parseEscrowCoverage(formData.get("escrow_coverage")),
       total_rooms: numberOrNull(formData.get("total_rooms")) ?? 1,
       bathrooms: numberOrNull(formData.get("bathrooms")) ?? 1,
       size_sqm: numberOrNull(formData.get("size_sqm")),

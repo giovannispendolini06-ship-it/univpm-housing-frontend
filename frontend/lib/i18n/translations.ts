@@ -346,6 +346,12 @@ export const translations = {
         "Demo / predisposizione: nessun addebito Stripe finché non riceviamo parere legale e non attiviamo ESCROW_LIVE.",
       marketplaceOnlyNote:
         "L'escrow riguarda solo gli immobili sul marketplace indipendente, non il canone garantito Coabito.",
+      coverageLabel: "Cosa può includere",
+      coverageFirstMonth: "Solo prima mensilità",
+      coverageDeposit: "Solo cauzione",
+      coverageBoth: "Prima mensilità + cauzione",
+      breakdownFirstMonth: "Prima mensilità",
+      breakdownDeposit: "Cauzione",
     },
     roomList: {
       title: "Stanze consigliate per te",
@@ -879,6 +885,12 @@ export const translations = {
         "Demo / predisposed only: no Stripe charge until legal clearance and ESCROW_LIVE.",
       marketplaceOnlyNote:
         "Escrow applies only to independent marketplace listings, not Coabito guaranteed-rent stock.",
+      coverageLabel: "What it may include",
+      coverageFirstMonth: "First month only",
+      coverageDeposit: "Deposit only",
+      coverageBoth: "First month + deposit",
+      breakdownFirstMonth: "First month",
+      breakdownDeposit: "Deposit",
     },
     roomList: {
       title: "Recommended rooms for you",

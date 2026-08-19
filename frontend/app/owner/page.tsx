@@ -19,6 +19,10 @@ import {
   type GuaranteedPropertySummary,
 } from "@/lib/owner/guaranteed-payout";
 import { listApplicationsForOwnerRooms } from "@/lib/data/applications";
+import {
+  computeEscrowAmountCents,
+  type EscrowCoverage,
+} from "@/lib/escrow";
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +56,7 @@ export default async function OwnerDashboardPage() {
   const { data: properties } = await db
     .from("properties")
     .select(
-      "id, address, zone, status, monthly_rent_to_owner, guaranteed_rent, rooms(id, room_label, is_available, price_monthly)",
+      "id, address, zone, status, monthly_rent_to_owner, guaranteed_rent, deposit_amount, escrow_coverage, rooms(id, room_label, is_available, price_monthly)",
     )
     .eq("owner_id", user.id)
     .order("created_at", { ascending: false });
@@ -250,6 +254,12 @@ export default async function OwnerDashboardPage() {
               const occupied =
                 rooms.length > 0 &&
                 rooms.some((r: { id: string }) => occupiedRoomIds.has(r.id));
+              const firstRoomPrice = Number(rooms[0]?.price_monthly) || 0;
+              const escrowPreview = computeEscrowAmountCents({
+                coverage: property.escrow_coverage as EscrowCoverage | null,
+                firstMonthEuros: firstRoomPrice,
+                depositEuros: property.deposit_amount,
+              });
               return (
                 <OwnerPropertyCard
                   key={property.id}
@@ -261,6 +271,10 @@ export default async function OwnerDashboardPage() {
                     statusLabel: STATUS_LABELS[property.status] ?? property.status,
                     monthlyRentToOwner: Number(property.monthly_rent_to_owner) || 0,
                     guaranteedRent: property.guaranteed_rent === true,
+                    escrowCoverage: escrowPreview.coverage,
+                    illustrativeEscrowCents: escrowPreview.totalCents || null,
+                    illustrativeFirstMonthCents: escrowPreview.firstMonthCents || null,
+                    illustrativeDepositCents: escrowPreview.depositCents || null,
                   }}
                   rooms={rooms}
                   occupied={occupied}

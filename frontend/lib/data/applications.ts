@@ -29,7 +29,10 @@ export async function listApplicationsForStudent(db: Db, studentId: string) {
     .select(
       `
       id, status, message, created_at, updated_at,
-      rooms:room_id ( id, room_label, price_monthly, properties:property_id ( zone, city ) )
+      rooms:room_id (
+        id, room_label, price_monthly,
+        properties:property_id ( zone, city, deposit_amount, escrow_coverage, guaranteed_rent )
+      )
     `,
     )
     .eq("student_id", studentId)

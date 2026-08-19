@@ -5,6 +5,7 @@ import ApplicationStatusButtons from "@/components/applications/ApplicationStatu
 import MatchScoreRing from "@/components/MatchScoreRing";
 import EscrowStatusPanel from "@/components/escrow/EscrowStatusPanel";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import type { EscrowCoverage } from "@/lib/escrow";
 
 export type OwnerCandidate = {
   applicationId: string;
@@ -26,8 +27,11 @@ export type OwnerPropertyCardProps = {
     statusLabel: string;
     monthlyRentToOwner: number;
     guaranteedRent: boolean;
-    /** Illustrative first-month amount for escrow preview (cents) */
+    escrowCoverage?: EscrowCoverage | null;
+    /** Illustrative total for escrow preview (cents) */
     illustrativeEscrowCents?: number | null;
+    illustrativeFirstMonthCents?: number | null;
+    illustrativeDepositCents?: number | null;
   };
   rooms: { id: string; room_label: string; is_available: boolean; price_monthly?: number }[];
   occupied: boolean;
@@ -42,11 +46,6 @@ export default function OwnerPropertyCard({
 }: OwnerPropertyCardProps) {
   const { t } = useLocale();
   const L = t.ownerDashboard;
-  const illustrativeEscrowCents =
-    property.illustrativeEscrowCents ??
-    (rooms[0]?.price_monthly != null
-      ? Math.round(Number(rooms[0].price_monthly) * 100)
-      : null);
 
   if (property.guaranteedRent) {
     return (
@@ -211,7 +210,10 @@ export default function OwnerPropertyCard({
         <EscrowStatusPanel
           role="owner"
           status="pending"
-          amountCents={illustrativeEscrowCents}
+          amountCents={property.illustrativeEscrowCents}
+          firstMonthCents={property.illustrativeFirstMonthCents}
+          depositCents={property.illustrativeDepositCents}
+          coverage={property.escrowCoverage}
           roomLabel={rooms[0]?.room_label ?? property.zone}
         />
       </div>

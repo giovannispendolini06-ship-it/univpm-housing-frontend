@@ -3,6 +3,10 @@ import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { listApplicationsForStudent } from "@/lib/data/applications";
 import EscrowStatusPanel from "@/components/escrow/EscrowStatusPanel";
+import {
+  computeEscrowAmountCents,
+  type EscrowCoverage,
+} from "@/lib/escrow";
 
 export const dynamic = "force-dynamic";
 
@@ -57,16 +61,30 @@ export default async function ApplicationsPage() {
         <ul className="space-y-3">
           {(apps ?? []).map((app) => {
             const room = Array.isArray(app.rooms) ? app.rooms[0] : app.rooms;
+            type PropShape = {
+              zone?: string;
+              city?: string;
+              deposit_amount?: number | null;
+              escrow_coverage?: string | null;
+              guaranteed_rent?: boolean | null;
+            };
             const property = room
               ? Array.isArray((room as { properties?: unknown }).properties)
-                ? (room as { properties: { zone?: string; city?: string }[] }).properties[0]
-                : (room as { properties?: { zone?: string; city?: string } }).properties
+                ? (room as { properties: PropShape[] }).properties[0]
+                : (room as { properties?: PropShape }).properties
               : null;
             const priceMonthly = Number(
               (room as { price_monthly?: number } | null)?.price_monthly ?? 0,
             );
             const roomLabel =
               (room as { room_label?: string } | null)?.room_label ?? "Stanza";
+            const escrowPreview = computeEscrowAmountCents({
+              coverage: property?.escrow_coverage as EscrowCoverage | null,
+              firstMonthEuros: priceMonthly,
+              depositEuros: property?.deposit_amount,
+            });
+            const showEscrow =
+              app.status === "accepted" && property?.guaranteed_rent !== true;
             return (
               <li key={app.id} className="rounded-xl2 bg-white p-4 shadow-card">
                 <div className="flex flex-wrap items-start justify-between gap-2">
@@ -99,14 +117,15 @@ export default async function ApplicationsPage() {
                     </Link>
                   )}
                 </div>
-                {app.status === "accepted" && (
+                {showEscrow && (
                   <div className="mt-4">
                     <EscrowStatusPanel
                       role="student"
                       status="pending"
-                      amountCents={
-                        priceMonthly > 0 ? Math.round(priceMonthly * 100) : null
-                      }
+                      amountCents={escrowPreview.totalCents || null}
+                      firstMonthCents={escrowPreview.firstMonthCents || null}
+                      depositCents={escrowPreview.depositCents || null}
+                      coverage={escrowPreview.coverage}
                       roomLabel={roomLabel}
                     />
                   </div>

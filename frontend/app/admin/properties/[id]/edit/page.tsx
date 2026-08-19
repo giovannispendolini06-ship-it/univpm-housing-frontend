@@ -207,6 +207,28 @@ export default async function EditPropertyPage({
 
               <div>
                 <label className="mb-1 block text-xs font-medium text-ink-muted">
+                  Copertura escrow marketplace
+                </label>
+                <select
+                  name="escrow_coverage"
+                  defaultValue={property.escrow_coverage ?? ""}
+                  className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+                >
+                  <option value="">Default piattaforma (prima mensilità + cauzione)</option>
+                  <option value="first_month">Solo prima mensilità</option>
+                  <option value="deposit">Solo cauzione</option>
+                  <option value="first_month_and_deposit">
+                    Prima mensilità + cauzione
+                  </option>
+                </select>
+                <p className="mt-1 text-[11px] text-ink-muted">
+                  Solo per annunci marketplace (non canone garantito). Nessun addebito
+                  finché ESCROW_LIVE è off — il campo prepara la policy futura.
+                </p>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-ink-muted">
                   Stanze totali nell&apos;immobile
                 </label>
                 <input
