@@ -3,10 +3,11 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import { updateUserProfile } from "../actions";
+import { updateUserProfile, setUserVerification } from "../actions";
 import SubmitButton from "@/components/SubmitButton";
 import DeleteUserButton from "../DeleteUserButton";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 export const dynamic = "force-dynamic";
 
@@ -83,9 +84,17 @@ export default async function EditUserPage({
         </a>
 
         <div className="mb-6 flex items-start justify-between gap-3">
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Modifica {person.full_name}
-          </h1>
+          <div>
+            <h1 className="font-display text-2xl font-bold text-ink">
+              Modifica {person.full_name}
+            </h1>
+            <div className="mt-2">
+              <VerifiedBadge
+                status={person.verification_status}
+                role={person.role}
+              />
+            </div>
+          </div>
           <div className="flex shrink-0 items-center gap-2">
             {whatsappLink && (
               <a
@@ -103,6 +112,58 @@ export default async function EditUserPage({
             <DeleteUserButton userId={person.id} fullName={person.full_name} role={person.role} />
           </div>
         </div>
+
+        <form
+          action={setUserVerification}
+          className="mb-6 space-y-3 rounded-xl2 bg-surface p-5 shadow-card"
+        >
+          <input type="hidden" name="user_id" value={person.id} />
+          <h2 className="font-display text-sm font-bold text-ink">
+            Badge verifica marketplace
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">Stato</label>
+              <select
+                name="verification_status"
+                defaultValue={person.verification_status ?? "none"}
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              >
+                <option value="none">Nessuna</option>
+                <option value="pending">In revisione</option>
+                <option value="verified">Verificato</option>
+                <option value="rejected">Rifiutato</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">Metodo</label>
+              <select
+                name="verification_method"
+                defaultValue={person.verification_method ?? ""}
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              >
+                <option value="">—</option>
+                <option value="institutional_email">Email istituzionale</option>
+                <option value="document">Documento studente</option>
+                <option value="ownership_document">Documento proprietà</option>
+                <option value="manual_admin">Manuale admin</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs font-medium text-ink-muted">Nota</label>
+            <input
+              type="text"
+              name="verification_note"
+              defaultValue={person.verification_note ?? ""}
+              className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              placeholder="Opzionale"
+            />
+          </div>
+          <SubmitButton className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sea-700">
+            Salva verifica
+          </SubmitButton>
+        </form>
 
         {ownerSummary && (
           <div className="mb-6 rounded-xl2 bg-surface p-5 shadow-card">

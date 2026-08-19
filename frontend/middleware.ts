@@ -41,14 +41,24 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+  // Extended protect list — same auth cookie flow as before
   const isProtectedArea =
-    path.startsWith("/dashboard") || path.startsWith("/admin") || path.startsWith("/owner");
+    path.startsWith("/dashboard") ||
+    path.startsWith("/admin") ||
+    path.startsWith("/owner") ||
+    path.startsWith("/applications") ||
+    path.startsWith("/messages") ||
+    path.startsWith("/profilo");
   const isOnboarding = path.startsWith("/onboarding");
+  const isStudentExtra = path.startsWith("/applications");
+  const isSharedAuth =
+    path.startsWith("/messages") || path.startsWith("/profilo");
 
   // Non loggato e prova ad aprire un'area protetta → rimandalo al login
   if (!user && (isProtectedArea || isOnboarding)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    url.searchParams.set("next", path);
     return NextResponse.redirect(url);
   }
 
@@ -84,10 +94,23 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
+    // Shared authenticated pages (messages, profilo): any completed role
+    if (isSharedAuth) {
+      return response;
+    }
+
     // Prova ad aprire l'area di un ruolo diverso dal suo → area sua
-    if (isProtectedArea && !path.startsWith(home)) {
+    // /owner/* (including /owner/properties) stays owner home prefix
+    if (isProtectedArea && !isStudentExtra && !path.startsWith(home)) {
       const url = request.nextUrl.clone();
       url.pathname = home;
+      return NextResponse.redirect(url);
+    }
+
+    // Extra student pages: solo studenti (admin può comunque)
+    if (isStudentExtra && profile?.role === "owner") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/owner";
       return NextResponse.redirect(url);
     }
   }
@@ -102,5 +125,8 @@ export const config = {
     "/admin/:path*",
     "/owner/:path*",
     "/onboarding/:path*",
+    "/applications/:path*",
+    "/messages/:path*",
+    "/profilo/:path*",
   ],
 };

@@ -4,6 +4,7 @@ import Link from "next/link";
 import HeroMockup from "./HeroMockup";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { WAITLIST_SOCIAL_PROOF_MIN } from "@/lib/waitlist-constants";
+import { trackCta } from "@/lib/analytics";
 import styles from "./Hero.module.css";
 
 export default function Hero({ waitlistCount = 0 }: { waitlistCount?: number }) {
@@ -32,10 +33,18 @@ export default function Hero({ waitlistCount = 0 }: { waitlistCount?: number }) 
           <p className={styles.subtext}>{t.hero.subtitle}</p>
 
           <div className={styles.ctaRow}>
-            <Link href="/login" className={styles.btnPrimary}>
+            <Link
+              href="/stanze"
+              className={styles.btnPrimary}
+              onClick={() => trackCta("trova_match", "hero", "/stanze")}
+            >
               {t.hero.ctaStudent}
             </Link>
-            <a href="/proprietari" className={styles.btnSecondary}>
+            <a
+              href="/proprietari"
+              className={styles.btnSecondary}
+              onClick={() => trackCta("pubblica_immobile", "hero", "/proprietari")}
+            >
               {t.hero.ctaOwner}
             </a>
           </div>
@@ -46,6 +55,10 @@ export default function Hero({ waitlistCount = 0 }: { waitlistCount?: number }) 
 
           <p className={styles.microcopy}>
             {t.hero.freeNote}
+            {" · "}
+            <Link href="/lista-attesa">{t.nav.waitlist}</Link>
+            {" · "}
+            <Link href="/login">{t.hero.alreadyAccount}</Link>
             {" · "}
             <Link href="/esempi">{t.hero.seeExample}</Link>
           </p>
