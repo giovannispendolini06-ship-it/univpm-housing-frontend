@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
-import PublicRoomCard from "@/components/listings/PublicRoomCard";
+import StanzeListWithCompare from "@/components/listings/StanzeListWithCompare";
 import { listPublicListings } from "@/lib/listings";
 import { getOptionalSession } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
@@ -282,13 +282,7 @@ export default async function StanzePage({
           </div>
         )}
 
-        {listings.length > 0 && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((listing) => (
-              <PublicRoomCard key={listing.id} listing={listing} />
-            ))}
-          </div>
-        )}
+        {listings.length > 0 && <StanzeListWithCompare listings={listings} />}
       </div>
       <LandingFooter />
     </main>

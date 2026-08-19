@@ -8,7 +8,17 @@ import VestaAvatar from "@/components/VestaAvatar";
 import ShareListingButton from "@/components/listings/ShareListingButton";
 import { buildMatchFitSentence } from "@/lib/match-explanation";
 
-export default function PublicRoomCard({ listing }: { listing: Listing }) {
+export default function PublicRoomCard({
+  listing,
+  compareSelected = false,
+  compareDisabled = false,
+  onToggleCompare,
+}: {
+  listing: Listing;
+  compareSelected?: boolean;
+  compareDisabled?: boolean;
+  onToggleCompare?: () => void;
+}) {
   const { t, locale } = useLocale();
   const total = listing.monthlyRent + listing.utilitiesEstimate;
   const photo = listing.photoUrls[0];
@@ -26,7 +36,21 @@ export default function PublicRoomCard({ listing }: { listing: Listing }) {
       : null;
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-xl2 border border-sea-100 bg-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg">
+    <article className="relative flex h-full flex-col overflow-hidden rounded-xl2 border border-sea-100 bg-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg">
+      {onToggleCompare && (
+        <label className="absolute left-2 top-2 z-10 flex cursor-pointer items-center gap-1.5 rounded-full bg-white/95 px-2 py-1 text-[11px] font-semibold text-ink shadow-sm">
+          <input
+            type="checkbox"
+            checked={compareSelected}
+            disabled={compareDisabled && !compareSelected}
+            onChange={onToggleCompare}
+            className="rounded border-sea-200 text-sea-600 focus:ring-sea-500"
+            aria-label={t.listingsCompare.selectAria}
+          />
+          <span className="hidden sm:inline">{t.listingsCompare.selectShort}</span>
+        </label>
+      )}
+
       <div className="relative">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -40,7 +64,13 @@ export default function PublicRoomCard({ listing }: { listing: Listing }) {
           </span>
         )}
         {listing.guaranteedRent && (
-          <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-sea-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">
+          <span
+            className={`absolute inline-flex items-center gap-1 rounded-full bg-sea-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm ${
+              onToggleCompare
+                ? "left-2 top-11 sm:left-auto sm:right-14 sm:top-2"
+                : "left-2 top-2"
+            }`}
+          >
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
               <path
                 d="M3.5 8.2l3 3 6-7"
