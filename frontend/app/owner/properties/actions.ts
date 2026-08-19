@@ -48,9 +48,10 @@ export async function createOwnerListing(
       city,
       zone,
       contract_type: String(formData.get("contract_type") ?? "stanza_singola"),
-      // Legacy quarantine field — not shown in marketplace UX
+      // Legacy quarantine field — ops economics for seed supply when applicable
       monthly_rent_to_owner: price,
       guarantee_status: "nessuna",
+      guaranteed_rent: false,
       deposit_amount: deposit,
       total_rooms: 1,
       bathrooms: numberOrNull(formData.get("bathrooms")) ?? 1,

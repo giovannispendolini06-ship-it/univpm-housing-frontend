@@ -9,6 +9,7 @@ export type ListingFilters = {
   minPrice?: number;
   zone?: string;
   verifiedOnly?: boolean;
+  guaranteedRentOnly?: boolean;
   privateBathroom?: boolean;
   availableFromBefore?: string; // ISO date — room available_from <= date or null
   sort?: "price_asc" | "price_desc" | "newest";
@@ -25,6 +26,7 @@ function asProperty(raw: unknown): {
   deposit_amount: number | null;
   is_furnished: boolean | null;
   owner_id: string;
+  guaranteed_rent: boolean | null;
 } {
   const p = Array.isArray(raw) ? raw[0] : raw;
   return p as ReturnType<typeof asProperty>;
@@ -55,7 +57,8 @@ export async function fetchPublicListings(
         contract_type,
         deposit_amount,
         is_furnished,
-        owner_id
+        owner_id,
+        guaranteed_rent
       )
     `,
     )
@@ -79,6 +82,9 @@ export async function fetchPublicListings(
   }
   if (filters.privateBathroom) {
     query = query.eq("has_private_bathroom", true);
+  }
+  if (filters.guaranteedRentOnly) {
+    query = query.eq("properties.guaranteed_rent", true);
   }
 
   const { data, error } = await query;
@@ -143,6 +149,7 @@ export async function fetchPublicListings(
         : [],
       photoUrls: photos.length > 0 ? photos : [PLACEHOLDER_PHOTO],
       landlordVerified: verifiedOwners.has(property.owner_id),
+      guaranteedRent: property.guaranteed_rent === true,
       propertyStatus: property.status,
     };
   });
@@ -155,6 +162,9 @@ export async function fetchPublicListings(
   }
   if (filters.verifiedOnly) {
     listings = listings.filter((l) => l.landlordVerified);
+  }
+  if (filters.guaranteedRentOnly) {
+    listings = listings.filter((l) => l.guaranteedRent);
   }
   if (filters.availableFromBefore) {
     const cutoff = filters.availableFromBefore;

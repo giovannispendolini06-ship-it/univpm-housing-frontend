@@ -3,9 +3,10 @@
  * Maps preferred product concepts onto the EXISTING Supabase schema —
  * do not invent parallel tables when a clear mapping exists.
  *
- * Preferred architecture: marketplace/intermediation (Coabito is not the
- * landlord by default). Subletting economics in DB (`monthly_rent_to_owner`)
- * are legacy and must not drive public UX.
+ * Product model: marketplace from day one. Seed supply may use
+ * Coabito guaranteed-rent agreements (`guaranteed_rent` on properties);
+ * independent owners also publish. `monthly_rent_to_owner` remains the
+ * ops field for seed-supply economics when applicable.
  */
 
 export type UserRole = "student" | "owner" | "admin";
@@ -62,6 +63,8 @@ export interface Property {
   contractType: string | null;
   depositAmount: number | null;
   isFurnished: boolean | null;
+  /** Coabito seed listing under guaranteed-rent agreement with the owner */
+  guaranteedRent: boolean;
   /** Internal only — not for public listing cards */
   addressInternal?: string;
 }
@@ -103,6 +106,8 @@ export interface Listing {
   amenities: string[];
   photoUrls: string[];
   landlordVerified: boolean;
+  /** True = seed supply with Coabito guaranteed rent (trust badge) */
+  guaranteedRent: boolean;
   propertyStatus: string;
 }
 

@@ -1,10 +1,8 @@
 // lib/matching.ts
 //
-// Compatibilità Coabito — scorer deterministico e spiegabile.
-// Pesi MVP (totale 100), allineati al product brief:
-//   budget 20, distanza/polo 20, date ingresso 15, pulizia 10,
-//   orari studio 10, socialità 10, vincoli hard (fumo/animali) 10, ospiti 5.
-// Un motore ML può sostituire calculateMatchScore senza cambiare il dominio Match.
+// Calcolo del compatibility score tra uno studente e una stanza.
+// Pesi (totale 100): budget 30, distanza dal polo 20, affinità di studio
+// con i coinquilini 20, pulizia 15, socievolezza/ospiti 15.
 //
 // NB: per confrontare con "i coinquilini già presenti" serve sapere chi
 // occupa già le altre stanze della stessa property. Lo schema originale
@@ -37,14 +35,12 @@ export interface StudentProfileRow {
   user_id: string;
   campus_id: string | null;
   budget_max: number;
-  preferred_move_in_date?: string | null;
   study_habit: "silenzio_assoluto" | "rumore_di_fondo_ok" | "musica_in_studio" | "flessibile";
   sociability_level: number; // 1-5
   guests_frequency: "mai" | "raramente" | "a_volte" | "spesso";
   cleanliness_level: number; // 1-5
   is_smoker: boolean;
   tolerates_smokers: boolean;
-  has_pets?: boolean | null;
 }
 
 export interface RoomForMatching {
@@ -52,7 +48,6 @@ export interface RoomForMatching {
   price_monthly: number;
   estimated_utilities: number;
   is_available: boolean;
-  available_from?: string | null;
 }
 
 export interface PropertyForMatching {
@@ -94,7 +89,7 @@ function scoreBudget(
     ratio = Math.max(0, 1 + diff / student.budget_max);
   }
 
-  const points = ratio * 20;
+  const points = ratio * 30;
   return {
     points,
     reason: {
@@ -155,7 +150,7 @@ function scoreRoommateAffinity(
 
   if (roommates.length === 0) {
     return {
-      points: 7,
+      points: 15,
       reason: {
         label: isIt ? "Orari di studio" : "Study hours",
         detail: isIt
@@ -172,7 +167,7 @@ function scoreRoommateAffinity(
   const habitRatio = sameHabitCount / roommates.length;
 
   const smokingConflict = !student.tolerates_smokers && roommates.some((r) => r.is_smoker);
-  const points = habitRatio * 10;
+  const points = habitRatio * 20 - (smokingConflict ? 8 : 0);
 
   return {
     points: Math.max(0, points),
@@ -180,8 +175,8 @@ function scoreRoommateAffinity(
       label: isIt ? "Orari di studio" : "Study hours",
       detail: smokingConflict
         ? isIt
-          ? "Abitudini di studio confrontate con i coinquilini (vedi anche vincoli fumo)"
-          : "Study habits compared with roommates (see also smoking constraints)"
+          ? "Attenzione: tra i coinquilini attuali c'è chi fuma in casa"
+          : "Note: one of the current roommates smokes at home"
         : habitRatio >= 0.5
           ? isIt
             ? "Le tue abitudini di studio combaciano con quelle di chi vive già lì"
@@ -189,7 +184,7 @@ function scoreRoommateAffinity(
           : isIt
             ? "Abitudini di studio diverse rispetto ai coinquilini attuali"
             : "Study habits differ from current roommates",
-      weight: habitRatio >= 0.5 ? "alto" : "medio",
+      weight: habitRatio >= 0.5 && !smokingConflict ? "alto" : "medio",
     },
   };
 }
@@ -203,7 +198,7 @@ function scoreCleanliness(
 
   if (roommates.length === 0) {
     return {
-      points: 7,
+      points: 12,
       reason: {
         label: isIt ? "Pulizia" : "Cleanliness",
         detail: isIt
@@ -218,7 +213,7 @@ function scoreCleanliness(
     roommates.reduce((sum, r) => sum + r.cleanliness_level, 0) / roommates.length;
   const diff = Math.abs(student.cleanliness_level - avgCleanliness);
   const ratio = Math.max(0, 1 - diff / 4);
-  const points = ratio * 10;
+  const points = ratio * 15;
 
   return {
     points,
@@ -246,7 +241,7 @@ function scoreSociability(
 
   if (roommates.length === 0) {
     return {
-      points: 7,
+      points: 12,
       reason: {
         label: isIt ? "Vita sociale" : "Social life",
         detail: isIt
@@ -257,11 +252,13 @@ function scoreSociability(
     };
   }
 
-  const avgSocial =
-    roommates.reduce((sum, r) => sum + r.sociability_level, 0) / roommates.length;
-  const diff = Math.abs(student.sociability_level - avgSocial);
-  const ratio = Math.max(0, 1 - diff / 4);
-  const points = ratio * 10;
+  const avgGuestRank =
+    roommates.reduce((sum, r) => sum + GUEST_FREQUENCY_RANK[r.guests_frequency], 0) /
+    roommates.length;
+  const studentGuestRank = GUEST_FREQUENCY_RANK[student.guests_frequency];
+  const diff = Math.abs(studentGuestRank - avgGuestRank);
+  const ratio = Math.max(0, 1 - diff / 3);
+  const points = ratio * 15;
 
   return {
     points,
@@ -270,156 +267,12 @@ function scoreSociability(
       detail:
         diff <= 1
           ? isIt
-            ? "Livello di socialità in linea con la casa"
-            : "Social level in line with the household"
+            ? "Frequenza di ospiti/feste in linea con la casa"
+            : "Frequency of guests/parties in line with the household"
           : isIt
-            ? "Livello di socialità diverso dai coinquilini attuali"
-            : "Social level differs from current roommates",
+            ? "Frequenza di ospiti/feste diversa da quella dei coinquilini attuali"
+            : "Guest/party frequency different from current roommates",
       weight: diff <= 1 ? "alto" : "medio",
-    },
-  };
-}
-
-function scoreGuests(
-  student: StudentProfileRow,
-  roommates: StudentProfileRow[],
-  locale: MatchLocale,
-): { points: number; reason: MatchReason } {
-  const isIt = locale === "it";
-
-  if (roommates.length === 0) {
-    return {
-      points: 3,
-      reason: {
-        label: isIt ? "Ospiti" : "Guests",
-        detail: isIt
-          ? "Nessun confronto ospiti finché la casa è vuota"
-          : "No guest comparison until the house has occupants",
-        weight: "basso",
-      },
-    };
-  }
-
-  const avgGuestRank =
-    roommates.reduce((sum, r) => sum + GUEST_FREQUENCY_RANK[r.guests_frequency], 0) /
-    roommates.length;
-  const studentGuestRank = GUEST_FREQUENCY_RANK[student.guests_frequency];
-  const diff = Math.abs(studentGuestRank - avgGuestRank);
-  const ratio = Math.max(0, 1 - diff / 3);
-  const points = ratio * 5;
-
-  return {
-    points,
-    reason: {
-      label: isIt ? "Ospiti" : "Guests",
-      detail:
-        diff <= 1
-          ? isIt
-            ? "Frequenza di ospiti in linea con la casa"
-            : "Guest frequency in line with the household"
-          : isIt
-            ? "Frequenza di ospiti diversa da quella dei coinquilini"
-            : "Guest frequency different from current roommates",
-      weight: diff <= 1 ? "alto" : "medio",
-    },
-  };
-}
-
-function scoreMoveIn(
-  student: StudentProfileRow,
-  room: RoomForMatching,
-  locale: MatchLocale,
-): { points: number; reason: MatchReason } {
-  const isIt = locale === "it";
-  const preferred = student.preferred_move_in_date;
-  const available = room.available_from;
-
-  if (!preferred || !available) {
-    return {
-      points: 8,
-      reason: {
-        label: isIt ? "Date di ingresso" : "Move-in dates",
-        detail: isIt
-          ? "Date non ancora complete: da confermare in candidatura"
-          : "Dates incomplete: confirm during application",
-        weight: "basso",
-      },
-    };
-  }
-
-  const pref = new Date(preferred).getTime();
-  const avail = new Date(available).getTime();
-  if (Number.isNaN(pref) || Number.isNaN(avail)) {
-    return {
-      points: 8,
-      reason: {
-        label: isIt ? "Date di ingresso" : "Move-in dates",
-        detail: isIt ? "Date non interpreteabili" : "Dates not parseable",
-        weight: "basso",
-      },
-    };
-  }
-
-  // Full points if room is free on/before preferred move-in; decays over ~60 days late
-  const daysLate = Math.max(0, (avail - pref) / (1000 * 60 * 60 * 24));
-  const ratio = Math.max(0, 1 - daysLate / 60);
-  const points = ratio * 15;
-
-  return {
-    points,
-    reason: {
-      label: isIt ? "Date di ingresso" : "Move-in dates",
-      detail:
-        daysLate <= 0
-          ? isIt
-            ? "La stanza risulta disponibile entro la tua data"
-            : "Room appears available by your date"
-          : isIt
-            ? `Disponibilità circa ${Math.round(daysLate)} giorni dopo la tua data`
-            : `Availability about ${Math.round(daysLate)} days after your date`,
-      weight: ratio >= 0.8 ? "alto" : ratio >= 0.4 ? "medio" : "basso",
-    },
-  };
-}
-
-function scoreHardConstraints(
-  student: StudentProfileRow,
-  roommates: StudentProfileRow[],
-  locale: MatchLocale,
-): { points: number; reason: MatchReason } {
-  const isIt = locale === "it";
-  let points = 10;
-  const issues: string[] = [];
-
-  const smokingConflict =
-    student.tolerates_smokers === false && roommates.some((r) => r.is_smoker);
-  if (smokingConflict) {
-    points -= 7;
-    issues.push(isIt ? "fumo in casa" : "smoking at home");
-  }
-
-  // Soft pet flag: if student has pets and we only know roommate pets conflict when roommate has_pets === false isn't modeled; skip if unknown
-  const roommateRejectsPets = roommates.some((r) => r.has_pets === false);
-  if (student.has_pets && roommateRejectsPets) {
-    points -= 3;
-    issues.push(isIt ? "animali" : "pets");
-  }
-
-  points = Math.max(0, points);
-
-  return {
-    points,
-    reason: {
-      label: isIt ? "Vincoli (fumo/animali)" : "Hard constraints",
-      detail:
-        issues.length === 0
-          ? isIt
-            ? "Nessun conflitto duro evidente su fumo/animali"
-            : "No clear hard conflict on smoking/pets"
-          : isIt
-            ? `Possibile tensione su: ${issues.join(", ")}`
-            : `Possible tension on: ${issues.join(", ")}`,
-      weight: points >= 8 ? "alto" : points >= 4 ? "medio" : "basso",
     },
   };
 }
@@ -432,38 +285,22 @@ export function calculateMatchScore(
   distanceKm: number | null,
   locale: MatchLocale = "it",
 ): MatchResult {
-  void property; // reserved for future zone/rules scoring
   const budget = scoreBudget(student, room, locale);
   const distance = scoreDistance(distanceKm, locale);
-  const moveIn = scoreMoveIn(student, room, locale);
+  const roommateAffinity = scoreRoommateAffinity(student, currentRoommates, locale);
   const cleanliness = scoreCleanliness(student, currentRoommates, locale);
-  const schedule = scoreRoommateAffinity(student, currentRoommates, locale);
-  const social = scoreSociability(student, currentRoommates, locale);
-  const hard = scoreHardConstraints(student, currentRoommates, locale);
-  const guests = scoreGuests(student, currentRoommates, locale);
+  const sociability = scoreSociability(student, currentRoommates, locale);
 
   const rawScore =
     budget.points +
     distance.points +
-    moveIn.points +
+    roommateAffinity.points +
     cleanliness.points +
-    schedule.points +
-    social.points +
-    hard.points +
-    guests.points;
+    sociability.points;
 
   const score = Math.round(Math.max(0, Math.min(100, rawScore)));
 
-  const reasoning = [
-    budget.reason,
-    distance.reason,
-    moveIn.reason,
-    cleanliness.reason,
-    schedule.reason,
-    social.reason,
-    hard.reason,
-    guests.reason,
-  ]
+  const reasoning = [budget.reason, distance.reason, roommateAffinity.reason, cleanliness.reason, sociability.reason]
     .sort((a, b) => {
       const rank = { alto: 0, medio: 1, basso: 2 };
       return rank[a.weight] - rank[b.weight];

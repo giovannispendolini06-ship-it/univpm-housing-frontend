@@ -194,6 +194,22 @@ export default async function NewPropertyPage({
                 </select>
               </div>
 
+              <label className="flex items-center gap-2 text-sm text-ink sm:col-span-2">
+                <input
+                  type="checkbox"
+                  name="guaranteed_rent"
+                  defaultChecked
+                  className="rounded border-sea-200"
+                />
+                <span>
+                  <span className="font-semibold">Canone garantito Coabito</span>
+                  <span className="block text-xs text-ink-muted">
+                    Seed supply: annuncio procurato da Coabito con accordo di canone
+                    garantito al proprietario. Badge pubblico sul marketplace.
+                  </span>
+                </span>
+              </label>
+
               <div>
                 <label className="mb-1 block text-xs font-medium text-ink-muted">
                   Deposito (€)
