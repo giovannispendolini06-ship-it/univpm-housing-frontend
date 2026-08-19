@@ -1,16 +1,6 @@
 // lib/email.ts
-import { Resend } from "resend";
 import { SITE_URL } from "@/lib/site";
-
-function getResendClient(): Resend | null {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return null;
-  return new Resend(apiKey);
-}
-
-// Dominio coabito.it verificato su Resend: tutte le email transazionali
-// partono da info@coabito.it (lista d'attesa, benvenuto, pagamenti, ecc.).
-const FROM_ADDRESS = "Coabito <info@coabito.it>";
+import { FROM_ADDRESS, getResendClient } from "@/lib/resend";
 
 type EmailLocale = "it" | "en";
 
@@ -24,6 +14,7 @@ interface SendEmailInput {
  * Invia un'email. Non lancia MAI un errore che possa bloccare il resto
  * del flusso (es. il salvataggio di un form): se manca la chiave API o
  * l'invio fallisce, lo logghiamo soltanto e andiamo avanti.
+ * Per email auth con risultato tipizzato → lib/auth-emails.ts.
  */
 export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<void> {
   if (!to) return;

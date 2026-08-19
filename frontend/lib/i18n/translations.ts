@@ -219,7 +219,7 @@ export const translations = {
       forgotTitle: "Password dimenticata",
       forgotSubtitle: "Ti mandiamo un link per reimpostarla.",
       forgotSuccess:
-        "✓ Controlla la tua casella email — ti abbiamo mandato un link per scegliere una nuova password. Se non lo vedi, guarda anche nello spam.",
+        "Se esiste un account con questa email, riceverai a breve un link per scegliere una nuova password. Controlla anche lo spam.",
       emailPlaceholderReset: "Email con cui ti sei registrato",
       sendResetLink: "Invia link di reset",
       backToLogin: "← Torna al login",
@@ -264,7 +264,7 @@ export const translations = {
       vestaStep3:
         "Perfetto, {name} — manca solo il consenso, poi ti mando la conferma via email.",
       vestaSignupDone:
-        "Perfetto, {name} — controlla la tua email, poi ti aspetto per parlare della tua stanza ideale.",
+        "Perfetto, {name} — account creato. Accedi con email e password, poi ti aspetto per parlare della tua stanza ideale.",
       vestaNameFallback: "ciao",
     },
     onboarding: {
@@ -539,6 +539,7 @@ export const translations = {
       repeatPasswordPlaceholder: "Ripeti la nuova password",
       tooShort: "La password deve avere almeno 6 caratteri.",
       mismatch: "Le due password non coincidono.",
+      invalidToken: "Questo link non è più valido. Richiedine uno nuovo dal login.",
       saveButton: "Salva nuova password",
     },
     installa: {
@@ -805,7 +806,7 @@ export const translations = {
       forgotTitle: "Forgot password",
       forgotSubtitle: "We'll send you a link to reset it.",
       forgotSuccess:
-        "✓ Check your inbox — we've sent you a link to choose a new password. If you don't see it, check your spam folder too.",
+        "If an account exists for this email, you’ll soon receive a link to choose a new password. Check spam too.",
       emailPlaceholderReset: "Email you signed up with",
       sendResetLink: "Send reset link",
       backToLogin: "← Back to login",
@@ -850,7 +851,7 @@ export const translations = {
       vestaStep3:
         "Perfect, {name} — just the consent, then I’ll send your confirmation email.",
       vestaSignupDone:
-        "Perfect, {name} — check your email, then I’ll be here to talk about your ideal room.",
+        "Perfect, {name} — account created. Sign in with email and password, then I’ll be here to talk about your ideal room.",
       vestaNameFallback: "there",
     },
     onboarding: {
@@ -1123,6 +1124,7 @@ export const translations = {
       repeatPasswordPlaceholder: "Repeat the new password",
       tooShort: "Password must be at least 6 characters.",
       mismatch: "The two passwords don't match.",
+      invalidToken: "This link is no longer valid. Request a new one from login.",
       saveButton: "Save new password",
     },
     installa: {

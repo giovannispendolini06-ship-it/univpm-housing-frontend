@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
@@ -15,12 +15,33 @@ type SignupStep = 1 | 2 | 3;
 
 const SIGNUP_TOTAL = 3;
 
+function initialMode(search: URLSearchParams | null): Mode {
+  const raw = search?.get("mode");
+  if (raw === "signup" || raw === "forgot") return raw;
+  return "signin";
+}
+
 export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-dvh items-center justify-center bg-bg px-4">
+          <div className="h-40 w-full max-w-sm animate-pulse rounded-xl2 bg-surface" />
+        </main>
+      }
+    >
+      <LoginPageInner />
+    </Suspense>
+  );
+}
+
+function LoginPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useLocale();
   const supabase = createClientSupabaseClient();
 
-  const [mode, setMode] = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>(() => initialMode(searchParams));
   const [role, setRole] = useState<SignupRole>("student");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -40,10 +61,12 @@ export default function LoginPage() {
 
     try {
       if (mode === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
+        const res = await fetch("/api/auth/reset-password/request", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
         });
-        if (error) throw error;
+        if (!res.ok) throw new Error("forgot_failed");
         setForgotSent(true);
         setLoading(false);
         return;
@@ -55,17 +78,59 @@ export default function LoginPage() {
           setLoading(false);
           return;
         }
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { full_name: fullName, role },
-            emailRedirectTo: `${window.location.origin}/onboarding`,
-          },
+        const res = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            password,
+            fullName,
+            role,
+            consentGiven: true,
+          }),
         });
-        if (error) throw error;
-        setSignupComplete(true);
-        setLoading(false);
+        const payload = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          ok?: boolean;
+          session?: boolean;
+        };
+        if (!res.ok) {
+          if (payload.error === "already_registered") {
+            setMode("signin");
+            setSignupStep(1);
+            setSignupComplete(false);
+            setError(t.login.alreadyRegisteredError);
+            setLoading(false);
+            return;
+          }
+          if (payload.error === "rate_limit") {
+            throw Object.assign(new Error("rate limit"), {
+              code: "over_email_send_rate_limit",
+            });
+          }
+          if (payload.error === "consent_required") {
+            setError(t.login.consentMissing);
+            setLoading(false);
+            return;
+          }
+          throw new Error(payload.error || "signup_failed");
+        }
+
+        if (payload.session === false) {
+          // Account created but cookies missing — fall back to client sign-in
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          if (signInError) {
+            setSignupComplete(true);
+            setLoading(false);
+            return;
+          }
+        }
+
+        router.push("/onboarding");
+        router.refresh();
         return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
