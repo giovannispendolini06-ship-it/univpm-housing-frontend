@@ -6,6 +6,7 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import VestaAvatar from "@/components/VestaAvatar";
+import { IconCasa, IconStudente } from "@/components/icons/CoabitoIcons";
 import styles from "./SignupSteps.module.css";
 
 type Mode = "signin" | "signup" | "forgot";
@@ -311,24 +312,24 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setRole("student")}
-                      className={`flex-1 rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                        role === "student"
-                          ? "border-sea-600 bg-sea-50 text-sea-700"
-                          : "border-sea-100 text-ink-muted"
+                      aria-pressed={role === "student"}
+                      className={`${styles.roleCard} ${
+                        role === "student" ? styles.roleCardSelected : ""
                       }`}
                     >
-                      {t.login.iAmStudent}
+                      <IconStudente size={30} />
+                      <span>{t.login.iAmStudent}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setRole("owner")}
-                      className={`flex-1 rounded-xl border px-3 py-2 text-sm font-medium transition ${
-                        role === "owner"
-                          ? "border-sea-600 bg-sea-50 text-sea-700"
-                          : "border-sea-100 text-ink-muted"
+                      aria-pressed={role === "owner"}
+                      className={`${styles.roleCard} ${
+                        role === "owner" ? styles.roleCardSelected : ""
                       }`}
                     >
-                      {t.login.iAmOwner}
+                      <IconCasa size={30} />
+                      <span>{t.login.iAmOwner}</span>
                     </button>
                   </div>
 
