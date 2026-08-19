@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 
 const MAX_SIGNUPS_PER_HOUR = 8;
@@ -21,9 +22,9 @@ function clientIp(req: NextRequest): string {
 }
 
 /**
- * Registrazione che NON usa lo SMTP di Supabase Auth (spesso in errore:
- * "Error sending confirmation email"). Crea l'utente già confermato via
- * service role; il client fa poi signInWithPassword.
+ * Registrazione senza SMTP Auth Supabase.
+ * createUser (email già confermata) + sessione cookie via signInWithPassword.
+ * Nessuna email bloccante in questo flusso.
  */
 export async function POST(req: NextRequest) {
   let body: SignupBody;
@@ -57,11 +58,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "consent_required" }, { status: 400 });
   }
 
-  const supabase = createServiceSupabaseClient();
+  const service = createServiceSupabaseClient();
   const ip = clientIp(req);
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
-  const { count } = await supabase
+  const { count } = await service
     .from("form_rate_limits")
     .select("*", { count: "exact", head: true })
     .eq("ip_address", ip)
@@ -72,12 +73,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "rate_limit" }, { status: 429 });
   }
 
-  await supabase.from("form_rate_limits").insert({
+  await service.from("form_rate_limits").insert({
     ip_address: ip,
     form_name: "auth_signup",
   });
 
-  const { data, error } = await supabase.auth.admin.createUser({
+  const { data, error } = await service.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
@@ -102,5 +103,42 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "signup_failed" }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true });
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) {
+    return NextResponse.json({ ok: true, session: false });
+  }
+
+  // Auto sign-in: set auth cookies on the response (no client password round-trip required)
+  let response = NextResponse.json({ ok: true, session: true });
+  const cookieClient = createServerClient(supabaseUrl, anonKey, {
+    cookies: {
+      getAll() {
+        return req.cookies.getAll();
+      },
+      setAll(
+        cookiesToSet: {
+          name: string;
+          value: string;
+          options?: Parameters<typeof response.cookies.set>[2];
+        }[],
+      ) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
+        });
+      },
+    },
+  });
+
+  const { error: signInError } = await cookieClient.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (signInError) {
+    console.warn("[auth/signup] session after create failed:", signInError.message);
+    return NextResponse.json({ ok: true, session: false });
+  }
+
+  return response;
 }

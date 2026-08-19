@@ -1,16 +1,6 @@
 // lib/email.ts
-import { Resend } from "resend";
 import { SITE_URL } from "@/lib/site";
-
-function getResendClient(): Resend | null {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return null;
-  return new Resend(apiKey);
-}
-
-// Dominio coabito.it verificato su Resend: tutte le email transazionali
-// partono da info@coabito.it (lista d'attesa, benvenuto, pagamenti, ecc.).
-const FROM_ADDRESS = "Coabito <info@coabito.it>";
+import { FROM_ADDRESS, getResendClient } from "@/lib/resend";
 
 type EmailLocale = "it" | "en";
 
@@ -24,6 +14,7 @@ interface SendEmailInput {
  * Invia un'email. Non lancia MAI un errore che possa bloccare il resto
  * del flusso (es. il salvataggio di un form): se manca la chiave API o
  * l'invio fallisce, lo logghiamo soltanto e andiamo avanti.
+ * Per email auth con risultato tipizzato → lib/auth-emails.ts.
  */
 export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<void> {
   if (!to) return;
@@ -302,33 +293,6 @@ export function buildAdminWaitlistEmail(input: {
     subject: `[Coabito] Nuova iscrizione lista d'attesa — ${input.nome}`,
     html: renderEmailLayout({
       preheader: `${input.nome} · ${badge.label} · ${poloLabel}`,
-      bodyHtml,
-    }),
-  };
-}
-
-// ----------------------------------------------------------------------------
-// Email: reset password (inviata via Resend — bypass SMTP Auth Supabase)
-// ----------------------------------------------------------------------------
-export function buildPasswordResetEmail(input: { resetUrl: string }) {
-  const bodyHtml = `
-    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
-      Reimposta la password
-    </h1>
-    <p style="margin:0 0 16px; color:${COLORS.ink};">
-      Hai chiesto di reimpostare la password del tuo account <strong>Coabito</strong>.
-      Clicca il pulsante qui sotto: il link scade tra poco.
-    </p>
-    ${ctaButton("Scegli una nuova password", input.resetUrl)}
-    <p style="margin:20px 0 0; color:${COLORS.inkMuted}; font-size:13px;">
-      Se non hai richiesto tu il reset, ignora questa email: la password resta invariata.
-    </p>
-  `;
-
-  return {
-    subject: "Reimposta la password — Coabito",
-    html: renderEmailLayout({
-      preheader: "Link per scegliere una nuova password",
       bodyHtml,
     }),
   };

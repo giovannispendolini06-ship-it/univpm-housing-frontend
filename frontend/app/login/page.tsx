@@ -61,8 +61,7 @@ function LoginPageInner() {
 
     try {
       if (mode === "forgot") {
-        // Bypass Supabase Auth SMTP (often broken) — Resend via /api/auth/forgot-password
-        const res = await fetch("/api/auth/forgot-password", {
+        const res = await fetch("/api/auth/reset-password/request", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
@@ -79,7 +78,6 @@ function LoginPageInner() {
           setLoading(false);
           return;
         }
-        // Bypass Auth confirmation email (SMTP failure → 500 "Error sending confirmation email")
         const res = await fetch("/api/auth/signup", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -93,12 +91,17 @@ function LoginPageInner() {
         });
         const payload = (await res.json().catch(() => ({}))) as {
           error?: string;
+          ok?: boolean;
+          session?: boolean;
         };
         if (!res.ok) {
           if (payload.error === "already_registered") {
-            throw Object.assign(new Error("already registered"), {
-              code: "user_already_exists",
-            });
+            setMode("signin");
+            setSignupStep(1);
+            setSignupComplete(false);
+            setError(t.login.alreadyRegisteredError);
+            setLoading(false);
+            return;
           }
           if (payload.error === "rate_limit") {
             throw Object.assign(new Error("rate limit"), {
@@ -113,15 +116,17 @@ function LoginPageInner() {
           throw new Error(payload.error || "signup_failed");
         }
 
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (signInError) {
-          // Account created — ask them to sign in manually
-          setSignupComplete(true);
-          setLoading(false);
-          return;
+        if (payload.session === false) {
+          // Account created but cookies missing — fall back to client sign-in
+          const { error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          if (signInError) {
+            setSignupComplete(true);
+            setLoading(false);
+            return;
+          }
         }
 
         router.push("/onboarding");
