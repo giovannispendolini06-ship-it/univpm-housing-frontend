@@ -1,6 +1,8 @@
 -- ============================================================================
 -- Configurable what marketplace escrow may hold (no live charges yet).
 -- Does NOT choose a production policy — stores the option for later.
+-- Escrow is OPTIONAL: never required to publish a listing; owners may
+-- publish before Stripe Connect onboarding (see ESCROW_REQUIRED_TO_PUBLISH).
 -- Values:
 --   first_month              → only first month rent
 --   deposit                  → only security deposit

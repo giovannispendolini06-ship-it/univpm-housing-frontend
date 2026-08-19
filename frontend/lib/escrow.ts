@@ -1,8 +1,17 @@
 /**
  * Marketplace escrow — schema/UI predisposed, payments NOT live.
  * Flip only after legal OK + Stripe Connect (or third-party) wiring.
+ *
+ * Product rule: escrow is OPTIONAL and never blocks listing publication.
+ * An owner may publish before completing Stripe Connect onboarding.
  */
 export const ESCROW_LIVE: boolean = false;
+
+/**
+ * Hard product invariant — keep false unless product explicitly flips it.
+ * Publish / create listing flows must not gate on Connect, coverage, or escrow rows.
+ */
+export const ESCROW_REQUIRED_TO_PUBLISH: boolean = false;
 
 export type EscrowStatus = "pending" | "released" | "disputed" | "refunded";
 
@@ -56,6 +65,23 @@ export type EscrowPayment = {
 
 export function isEscrowLive(): boolean {
   return ESCROW_LIVE;
+}
+
+/**
+ * Call from owner publish / create-listing paths.
+ * Documents and enforces: Stripe Connect / escrow readiness must not gate publish.
+ */
+export function assertEscrowDoesNotBlockPublish(): void {
+  if (ESCROW_REQUIRED_TO_PUBLISH) {
+    throw new Error(
+      "[escrow] ESCROW_REQUIRED_TO_PUBLISH must remain false — owners publish without Stripe onboarding.",
+    );
+  }
+}
+
+/** Always true under current policy (alias for UI / future Connect gates). */
+export function canPublishWithoutEscrowOrStripe(): boolean {
+  return !ESCROW_REQUIRED_TO_PUBLISH;
 }
 
 export function resolveEscrowCoverage(

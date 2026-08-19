@@ -20,7 +20,9 @@ export default async function NewOwnerPropertyPage() {
           Pubblica un immobile
         </h1>
         <p className="mt-1 mb-6 text-sm text-ink-muted">
-          Marketplace: tu firmi direttamente con lo studente. Coabito fa matching e fiducia.
+          Marketplace: tu firmi direttamente con lo studente. Coabito fa matching e
+          fiducia. Escrow e Stripe sono opzionali: puoi pubblicare anche prima di
+          completare l&apos;onboarding pagamenti.
         </p>
         <OwnerListingForm />
       </div>

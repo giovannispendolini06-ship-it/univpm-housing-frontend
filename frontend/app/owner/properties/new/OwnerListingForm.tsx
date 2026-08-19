@@ -150,6 +150,10 @@ export default function OwnerListingForm() {
         <input type="checkbox" name="publish" defaultChecked />
         Pubblica subito su /stanze
       </label>
+      <p className="text-[11px] text-ink-muted">
+        Nessun Stripe richiesto per pubblicare. L&apos;escrow (quando sarà attivo)
+        resterà opzionale e separato dalla messa online dell&apos;annuncio.
+      </p>
       {error && (
         <p className="text-sm text-sunset-600" role="alert">
           {error}

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { recalculateMatchesForRoom } from "@/lib/matching-rooms";
+import { assertEscrowDoesNotBlockPublish } from "@/lib/escrow";
 
 function numberOrNull(value: FormDataEntryValue | null): number | null {
   if (value === null || value === "") return null;
@@ -16,10 +17,13 @@ function numberOrNull(value: FormDataEntryValue | null): number | null {
  * Extends the existing /owner surface: self-serve property + first room.
  * Legacy monthly_rent_to_owner is set equal to room price as a quarantine
  * placeholder (marketplace: student pays owner directly).
+ *
+ * Escrow / Stripe Connect are optional — never required to create or publish.
  */
 export async function createOwnerListing(
   formData: FormData,
 ): Promise<{ error?: string }> {
+  assertEscrowDoesNotBlockPublish();
   const session = await requireRole(["owner"]);
   const db = createServiceSupabaseClient();
 
@@ -121,6 +125,8 @@ export async function createOwnerListing(
 }
 
 export async function publishOwnerProperty(formData: FormData): Promise<void> {
+  // POLICY: do not check Stripe Connect, escrow rows, or coverage before publish.
+  assertEscrowDoesNotBlockPublish();
   const session = await requireRole(["owner"]);
   const db = createServiceSupabaseClient();
   const propertyId = String(formData.get("property_id") ?? "");

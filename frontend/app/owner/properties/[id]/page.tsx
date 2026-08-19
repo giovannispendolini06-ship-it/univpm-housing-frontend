@@ -75,11 +75,14 @@ export default async function OwnerPropertyDetailPage({ params }: { params: Para
         </ul>
 
         {property.status !== "attivo" && (
-          <form action={publishOwnerProperty} className="mt-6">
+          <form action={publishOwnerProperty} className="mt-6 space-y-2">
             <input type="hidden" name="property_id" value={property.id} />
             <SubmitButton className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white">
               Pubblica su /stanze
             </SubmitButton>
+            <p className="text-center text-[11px] text-ink-muted">
+              Pubblicazione libera: escrow e onboarding Stripe non sono richiesti.
+            </p>
           </form>
         )}
 

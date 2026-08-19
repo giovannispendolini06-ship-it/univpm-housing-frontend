@@ -4,6 +4,7 @@
 -- Stripe charge/transfer NOT wired yet (legal review pending).
 -- UI must label this as inactive / not live until ESCROW goes live.
 -- Scope: independent marketplace listings only (not guaranteed_rent seed).
+-- OPTIONAL: never a gate on property publication / Stripe Connect readiness.
 -- ============================================================================
 
 create table if not exists public.escrow_payments (

@@ -77,6 +77,9 @@ export default function EscrowStatusPanel({
 
       <p className="mt-2 text-sm text-ink-muted">{body}</p>
       <p className="mt-1 text-[11px] text-ink-muted">{E.marketplaceOnlyNote}</p>
+      {role === "owner" && (
+        <p className="mt-1 text-[11px] text-ink-muted">{E.optionalPublishNote}</p>
+      )}
 
       <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
         <div>
