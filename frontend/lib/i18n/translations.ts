@@ -233,6 +233,12 @@ export const translations = {
       and: "e i",
       termsOfService: "Termini di Servizio",
       consentMissing: "Devi accettare Privacy e Termini di servizio per registrarti.",
+      rateLimitError:
+        "Troppe email di conferma inviate in poco tempo. Riprova tra qualche minuto — se il problema continua, scrivici a info@coabito.it.",
+      alreadyRegisteredError:
+        "Esiste già un account con questa email. Prova ad accedere, oppure usa «Password dimenticata».",
+      networkSmtpError:
+        "Non siamo riusciti a completare la registrazione (problema di rete o invio email). Riprova tra un minuto; se ripeti, scrivici a info@coabito.it.",
       genericError: "Qualcosa è andato storto, riprova.",
       signUpButton: "Registrati",
       signInButton: "Accedi",
@@ -717,6 +723,12 @@ export const translations = {
       and: "and the",
       termsOfService: "Terms of Service",
       consentMissing: "You must accept the Privacy Policy and Terms of Service to sign up.",
+      rateLimitError:
+        "Too many confirmation emails sent in a short time. Try again in a few minutes — if it keeps happening, email info@coabito.it.",
+      alreadyRegisteredError:
+        "An account with this email already exists. Try signing in, or use “Forgot password”.",
+      networkSmtpError:
+        "We couldn't complete sign-up (network or email delivery issue). Try again in a minute; if it persists, email info@coabito.it.",
       genericError: "Something went wrong, please try again.",
       signUpButton: "Sign up",
       signInButton: "Log in",

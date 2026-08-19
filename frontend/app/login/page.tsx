@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
+import { mapAuthErrorMessage } from "@/lib/auth-errors";
 import VestaAvatar from "@/components/VestaAvatar";
 import { IconCasa, IconStudente } from "@/components/icons/CoabitoIcons";
 import styles from "./SignupSteps.module.css";
-
 type Mode = "signin" | "signup" | "forgot";
 type SignupRole = "student" | "owner";
 type SignupStep = 1 | 2 | 3;
@@ -58,7 +58,10 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName, role } },
+          options: {
+            data: { full_name: fullName, role },
+            emailRedirectTo: `${window.location.origin}/onboarding`,
+          },
         });
         if (error) throw error;
         setSignupComplete(true);
@@ -73,7 +76,12 @@ export default function LoginPage() {
       router.refresh();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : t.login.genericError,
+        mapAuthErrorMessage(err, {
+          rateLimitError: t.login.rateLimitError,
+          alreadyRegisteredError: t.login.alreadyRegisteredError,
+          networkSmtpError: t.login.networkSmtpError,
+          genericError: t.login.genericError,
+        }),
       );
     } finally {
       setLoading(false);
