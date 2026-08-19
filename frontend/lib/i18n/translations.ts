@@ -245,9 +245,16 @@ export const translations = {
       step3Title: "Ultimo passo",
       stepContinue: "Continua",
       stepBack: "Indietro",
-      stepNameRequired: "Ci serve almeno il tuo nome per proseguire.",
-      stepEmailRequired: "Inserisci un'email valida.",
+      stepNameRequired: "Un nome basta per iniziare — anche solo il tuo.",
+      stepEmailRequired: "Serve un'email valida per scriverti.",
       stepPasswordRequired: "La password deve avere almeno 6 caratteri.",
+      vestaStep1: "Piacere di conoscerti",
+      vestaStep2: "Perfetto, ci siamo quasi",
+      vestaStep3:
+        "Perfetto, {name} — manca solo il consenso, poi ti mando la conferma via email.",
+      vestaSignupDone:
+        "Perfetto, {name} — controlla la tua email, poi ti aspetto per parlare della tua stanza ideale.",
+      vestaNameFallback: "ciao",
     },
     onboarding: {
       title: "Ultimo passaggio",
@@ -722,9 +729,16 @@ export const translations = {
       step3Title: "One last step",
       stepContinue: "Continue",
       stepBack: "Back",
-      stepNameRequired: "We need at least your name to continue.",
-      stepEmailRequired: "Enter a valid email.",
+      stepNameRequired: "A name is enough to start — even just your first name.",
+      stepEmailRequired: "We need a valid email to reach you.",
       stepPasswordRequired: "Password must be at least 6 characters.",
+      vestaStep1: "Nice to meet you",
+      vestaStep2: "Perfect — almost there",
+      vestaStep3:
+        "Perfect, {name} — just the consent, then I’ll send your confirmation email.",
+      vestaSignupDone:
+        "Perfect, {name} — check your email, then I’ll be here to talk about your ideal room.",
+      vestaNameFallback: "there",
     },
     onboarding: {
       title: "One last step",

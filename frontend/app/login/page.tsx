@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
+import VestaAvatar from "@/components/VestaAvatar";
 import styles from "./SignupSteps.module.css";
 
 type Mode = "signin" | "signup" | "forgot";
@@ -29,6 +30,7 @@ export default function LoginPage() {
   const [forgotSent, setForgotSent] = useState(false);
   const [signupStep, setSignupStep] = useState<SignupStep>(1);
   const [stepHint, setStepHint] = useState<string | null>(null);
+  const [signupComplete, setSignupComplete] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -58,6 +60,9 @@ export default function LoginPage() {
           options: { data: { full_name: fullName, role } },
         });
         if (error) throw error;
+        setSignupComplete(true);
+        setLoading(false);
+        return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -78,6 +83,7 @@ export default function LoginPage() {
     setError(null);
     setStepHint(null);
     setForgotSent(false);
+    setSignupComplete(false);
     setMode(newMode);
     if (newMode === "signup") setSignupStep(1);
   }
@@ -112,6 +118,15 @@ export default function LoginPage() {
     if (signupStep === 2) setSignupStep(1);
     if (signupStep === 3) setSignupStep(2);
   }
+
+  const firstName = fullName.trim().split(/\s+/)[0] || "";
+
+  const vestaLine =
+    signupStep === 1
+      ? t.login.vestaStep1
+      : signupStep === 2
+        ? t.login.vestaStep2
+        : t.login.vestaStep3.replace("{name}", firstName || t.login.vestaNameFallback);
 
   const signupStepTitle =
     signupStep === 1
@@ -230,6 +245,28 @@ export default function LoginPage() {
               {loading ? t.common.oneMoment : t.login.signInButton}
             </button>
           </>
+        ) : signupComplete ? (
+          <div className={`space-y-4 ${styles.settle}`}>
+            <div className="flex gap-3 rounded-xl bg-sea-50/90 px-3 py-3">
+              <VestaAvatar size={36} />
+              <div>
+                <p className="text-sm leading-snug text-ink">
+                  {t.login.vestaSignupDone.replace(
+                    "{name}",
+                    firstName || t.login.vestaNameFallback,
+                  )}
+                </p>
+                <p className="mt-1 text-[11px] font-medium text-sea-700">Vesta</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => switchMode("signin")}
+              className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white hover:bg-sea-700"
+            >
+              {t.login.backToLogin}
+            </button>
+          </div>
         ) : (
           <>
             <div className="flex items-center justify-between gap-2">
@@ -248,6 +285,14 @@ export default function LoginPage() {
                   />
                 ))}
               </div>
+            </div>
+
+            <div
+              key={`vesta-${signupStep}`}
+              className={`flex gap-2.5 rounded-xl bg-sea-50/90 px-3 py-2.5 ${styles.settle}`}
+            >
+              <VestaAvatar size={32} />
+              <p className="text-[13px] leading-snug text-ink">{vestaLine}</p>
             </div>
 
             <div key={signupStep} className={`space-y-4 ${styles.settle}`}>
@@ -382,6 +427,7 @@ export default function LoginPage() {
           </>
         )}
 
+        {!signupComplete && (
         <button
           type="button"
           onClick={() => switchMode(mode === "signup" ? "signin" : "signup")}
@@ -389,6 +435,7 @@ export default function LoginPage() {
         >
           {mode === "signup" ? t.login.alreadyHaveAccount : t.login.noAccount}
         </button>
+        )}
       </form>
     </main>
   );
