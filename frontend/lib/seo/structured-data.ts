@@ -59,3 +59,27 @@ export function guideArticleJsonLd() {
     inLanguage: "it-IT",
   };
 }
+
+export function guidePrimaVoltaJsonLd() {
+  const g = translations.it.guidaPrimaVolta;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: g.title,
+    description: g.intro,
+    author: {
+      "@type": "Person",
+      name: "Giovanni",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Coabito",
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/icons/icon-512.png`,
+      },
+    },
+    mainEntityOfPage: `${SITE_URL}/guida/prima-volta-fuori-sede`,
+    inLanguage: "it-IT",
+  };
+}

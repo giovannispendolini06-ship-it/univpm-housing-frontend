@@ -42,6 +42,12 @@ export default function LandingFooter() {
           >
             {t.footer.guide}
           </a>
+          <a
+            href="/guida/prima-volta-fuori-sede"
+            className="underline underline-offset-2"
+          >
+            {t.footer.guideFirstTime}
+          </a>
           <button
             type="button"
             onClick={() => openCookiePreferences()}
