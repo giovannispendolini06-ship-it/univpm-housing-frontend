@@ -1,0 +1,70 @@
+.fab {
+  position: fixed;
+  z-index: 40;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1.25rem, calc(env(safe-area-inset-bottom) + 1rem));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
+  /* Verde WhatsApp standard: riconoscibilità immediata > brand stretto */
+  background: #25d366;
+  color: #fff;
+  box-shadow:
+    0 8px 24px rgba(15, 42, 46, 0.18),
+    0 2px 6px rgba(37, 211, 102, 0.35);
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s ease;
+  animation: waPopIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+.fab:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow:
+    0 12px 28px rgba(15, 42, 46, 0.22),
+    0 3px 8px rgba(37, 211, 102, 0.4);
+}
+
+.fab:active {
+  transform: scale(0.96);
+}
+
+.icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+@keyframes waPopIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .fab {
+    /* Un po' più in alto su mobile: lascia aria sopra gesture bar / cookie */
+    width: 3.25rem;
+    height: 3.25rem;
+    bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 1.25rem));
+    right: max(0.875rem, env(safe-area-inset-right));
+  }
+
+  .icon {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab {
+    animation: none;
+  }
+}

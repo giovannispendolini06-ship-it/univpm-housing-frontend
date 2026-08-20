@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Source_Sans_3 } from "next/font/google";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import JsonLd from "@/components/JsonLd";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 import { organizationJsonLd } from "@/lib/seo/structured-data";
@@ -90,6 +91,7 @@ export default function RootLayout({
         <JsonLd data={organizationJsonLd()} />
         <LocaleProvider>
           {children}
+          <FloatingWhatsApp />
           <CookieConsentBanner />
           <ServiceWorkerRegister />
         </LocaleProvider>
