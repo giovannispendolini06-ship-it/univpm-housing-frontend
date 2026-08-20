@@ -96,6 +96,150 @@ export const translations = {
         },
       ],
     },
+    howItWorksDemo: {
+      eyebrow: "Come funziona",
+      titleLine1: "Non te lo raccontiamo.",
+      titleLine2: "Te lo facciamo vedere.",
+      toggleAria: "Scegli il tuo punto di vista",
+      toggleStudent: "Sono studente",
+      toggleOwner: "Sono proprietario",
+      stepsAria: "Passaggi",
+      exampleBadge: "Esempio",
+      ctaStudent: "Inizia a chattare con Vesta",
+      ctaOwner: "Proponi il tuo immobile",
+      student: {
+        steps: [
+          {
+            title: "Parli con Vesta",
+            subtitle: "Facoltà, budget, orari di studio",
+          },
+          {
+            title: "Vedi il costo reale, non solo l'affitto",
+            subtitle: "Canone + utenze + cauzione, tutto insieme",
+          },
+          {
+            title: "Scopri con chi vivresti",
+            subtitle: "Coinquilini con abitudini simili alle tue",
+          },
+          {
+            title: "Il tuo pagamento resta al sicuro",
+            subtitle: "Sbloccato solo dopo la conferma del trasloco",
+          },
+        ],
+        proofs: [
+          {
+            badge: "Zero commissioni",
+            title: "Gratis per gli studenti",
+            body: "Nessuna commissione di ricerca, mai — a differenza dei portali tradizionali.",
+            accent: "coral" as const,
+          },
+          {
+            badge: "✓ Studente verificato",
+            title: "Sai sempre con chi parli",
+            body: "Badge assegnato solo dopo verifica reale dell'iscrizione universitaria.",
+            accent: "teal" as const,
+          },
+        ],
+        screens: {
+          chat: {
+            bot1: "Che facoltà frequenti, e quanto puoi spendere al mese?",
+            me: "Ingegneria, secondo anno. Max 420€",
+            bot2: "Perfetto, iniziamo a cercare 🔥",
+          },
+          cost: {
+            title: "Singola · Torrette",
+            match: "92%",
+            rent: "Canone: 320€",
+            utilities: "Utenze: 40€",
+            deposit: "Cauzione: 640€ (una tantum)",
+            total: "Totale mensile: 360€",
+            note: "nessun costo nascosto dopo",
+          },
+          roommates: {
+            title: "I tuoi coinquilini",
+            people: [
+              { initials: "GM", tag: "Studia molto" },
+              { initials: "LR", tag: "Casa tranquilla" },
+              { initials: "+1", tag: "Orari simili" },
+            ],
+          },
+          escrow: {
+            rows: [
+              { label: "Pagamento versato — al sicuro con Coabito", done: true },
+              { label: "In attesa di conferma trasloco", done: false },
+              { label: "Rilascio al proprietario dopo tua conferma", done: false },
+            ],
+          },
+        },
+      },
+      owner: {
+        steps: [
+          {
+            title: "Racconti il tuo immobile a Vesta",
+            subtitle: "Niente form lunghi da compilare",
+          },
+          {
+            title: "Ricevi candidati già verificati",
+            subtitle: "Iscrizione universitaria confermata",
+          },
+          {
+            title: "Il canone arriva puntuale",
+            subtitle: "Ogni mese, senza rincorrere nessuno",
+          },
+          {
+            title: "E se qualcosa va storto?",
+            subtitle: "La domanda che nessun altro risponde davvero",
+          },
+        ],
+        proofs: [
+          {
+            badge: "✓ Canone garantito",
+            title: "Zero sorprese, ogni mese",
+            body: "Su alcuni immobili, il canone è garantito direttamente da Coabito — anche a stanza vuota.",
+            accent: "teal" as const,
+          },
+          {
+            badge: "Un solo interlocutore",
+            title: "Non decine di studenti separati",
+            body: "Un unico contratto, una sola persona di riferimento per qualsiasi cosa.",
+            accent: "coral" as const,
+          },
+        ],
+        screens: {
+          chat: {
+            bot1: "Quante stanze ha l'immobile, e in che zona?",
+            me: "3 stanze, Torrette, vicino Medicina",
+            bot2: "Annuncio pronto — lo rivedi tu prima di pubblicarlo",
+          },
+          applicants: {
+            rows: [
+              {
+                initials: "GM",
+                name: "Giulia M.",
+                badge: "✓ Studentessa verificata",
+                score: "91%",
+              },
+              {
+                initials: "LR",
+                name: "Luca R.",
+                badge: "✓ Studente verificato",
+                score: "84%",
+              },
+            ],
+          },
+          payout: {
+            label: "Prossimo pagamento",
+            amount: "637€",
+            sub: "15 settembre · Immobile occupato · Nessuna azione richiesta",
+          },
+          whatIf: {
+            question: "Se lo studente non paga?",
+            answer:
+              "Sulle proprietà a canone garantito, il rischio è nostro: tu ricevi comunque il canone.",
+          },
+        },
+      },
+    },
     founderNote: {
       quote:
         "Anche io ho cercato casa ad Ancona da studente, senza sapere nulla delle persone con cui avrei convissuto. Coabito è il servizio che avrei voluto avere io, il primo anno.",
@@ -866,6 +1010,150 @@ export const translations = {
             "The lease stays between you and the student. Coabito supports matching, trust and transaction safety.",
         },
       ],
+    },
+    howItWorksDemo: {
+      eyebrow: "How it works",
+      titleLine1: "We won't just tell you.",
+      titleLine2: "We'll show you.",
+      toggleAria: "Choose your point of view",
+      toggleStudent: "I'm a student",
+      toggleOwner: "I'm a landlord",
+      stepsAria: "Steps",
+      exampleBadge: "Example",
+      ctaStudent: "Start chatting with Vesta",
+      ctaOwner: "List your property",
+      student: {
+        steps: [
+          {
+            title: "You chat with Vesta",
+            subtitle: "Course, budget, study hours",
+          },
+          {
+            title: "See the real cost, not just rent",
+            subtitle: "Rent + utilities + deposit, together",
+          },
+          {
+            title: "Meet who you'd live with",
+            subtitle: "Roommates with habits like yours",
+          },
+          {
+            title: "Your payment stays safe",
+            subtitle: "Released only after you confirm move-in",
+          },
+        ],
+        proofs: [
+          {
+            badge: "Zero fees",
+            title: "Free for students",
+            body: "No search commission, ever — unlike traditional portals.",
+            accent: "coral" as const,
+          },
+          {
+            badge: "✓ Verified student",
+            title: "You always know who you're talking to",
+            body: "Badge granted only after real university enrolment verification.",
+            accent: "teal" as const,
+          },
+        ],
+        screens: {
+          chat: {
+            bot1: "What are you studying, and what's your monthly budget?",
+            me: "Engineering, second year. Max €420",
+            bot2: "Perfect — let's start looking 🔥",
+          },
+          cost: {
+            title: "Single · Torrette",
+            match: "92%",
+            rent: "Rent: €320",
+            utilities: "Utilities: €40",
+            deposit: "Deposit: €640 (one-off)",
+            total: "Monthly total: €360",
+            note: "no hidden costs later",
+          },
+          roommates: {
+            title: "Your roommates",
+            people: [
+              { initials: "GM", tag: "Studies a lot" },
+              { initials: "LR", tag: "Quiet home" },
+              { initials: "+1", tag: "Similar hours" },
+            ],
+          },
+          escrow: {
+            rows: [
+              { label: "Payment made — held safely with Coabito", done: true },
+              { label: "Waiting for move-in confirmation", done: false },
+              { label: "Released to landlord after you confirm", done: false },
+            ],
+          },
+        },
+      },
+      owner: {
+        steps: [
+          {
+            title: "You tell Vesta about your property",
+            subtitle: "No long forms to fill in",
+          },
+          {
+            title: "Get pre-verified applicants",
+            subtitle: "University enrolment confirmed",
+          },
+          {
+            title: "Rent arrives on time",
+            subtitle: "Every month, no chasing anyone",
+          },
+          {
+            title: "What if something goes wrong?",
+            subtitle: "The question no one else answers honestly",
+          },
+        ],
+        proofs: [
+          {
+            badge: "✓ Guaranteed rent",
+            title: "No surprises, every month",
+            body: "On selected properties, Coabito guarantees the rent — even if the room is empty.",
+            accent: "teal" as const,
+          },
+          {
+            badge: "One contact",
+            title: "Not dozens of separate students",
+            body: "One contract, one person to talk to for anything.",
+            accent: "coral" as const,
+          },
+        ],
+        screens: {
+          chat: {
+            bot1: "How many rooms, and which area?",
+            me: "3 rooms, Torrette, near Medicine",
+            bot2: "Listing ready — you review it before it goes live",
+          },
+          applicants: {
+            rows: [
+              {
+                initials: "GM",
+                name: "Giulia M.",
+                badge: "✓ Verified student",
+                score: "91%",
+              },
+              {
+                initials: "LR",
+                name: "Luca R.",
+                badge: "✓ Verified student",
+                score: "84%",
+              },
+            ],
+          },
+          payout: {
+            label: "Next payout",
+            amount: "€637",
+            sub: "15 September · Occupied · No action needed",
+          },
+          whatIf: {
+            question: "What if the student doesn't pay?",
+            answer:
+              "On guaranteed-rent properties, the risk is ours: you still receive the rent.",
+          },
+        },
+      },
     },
     founderNote: {
       quote:
