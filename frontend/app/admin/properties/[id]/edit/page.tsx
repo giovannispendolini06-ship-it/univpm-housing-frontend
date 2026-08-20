@@ -176,6 +176,22 @@ export default async function EditPropertyPage({
                 </select>
               </div>
 
+              <label className="flex items-center gap-2 text-sm text-ink sm:col-span-2">
+                <input
+                  type="checkbox"
+                  name="guaranteed_rent"
+                  defaultChecked={property.guaranteed_rent === true}
+                  className="rounded border-sea-200"
+                />
+                <span>
+                  <span className="font-semibold">Canone garantito Coabito</span>
+                  <span className="block text-xs text-ink-muted">
+                    Seed supply sul marketplace (badge pubblico). Distinto dallo stato
+                    cauzione sopra.
+                  </span>
+                </span>
+              </label>
+
               <div>
                 <label className="mb-1 block text-xs font-medium text-ink-muted">
                   Deposito (€)
@@ -187,6 +203,28 @@ export default async function EditPropertyPage({
                   defaultValue={property.deposit_amount ?? ""}
                   className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
                 />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium text-ink-muted">
+                  Copertura escrow marketplace
+                </label>
+                <select
+                  name="escrow_coverage"
+                  defaultValue={property.escrow_coverage ?? ""}
+                  className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+                >
+                  <option value="">Default piattaforma (prima mensilità + cauzione)</option>
+                  <option value="first_month">Solo prima mensilità</option>
+                  <option value="deposit">Solo cauzione</option>
+                  <option value="first_month_and_deposit">
+                    Prima mensilità + cauzione
+                  </option>
+                </select>
+                <p className="mt-1 text-[11px] text-ink-muted">
+                  Solo per annunci marketplace (non canone garantito). Nessun addebito
+                  finché ESCROW_LIVE è off — il campo prepara la policy futura.
+                </p>
               </div>
 
               <div>

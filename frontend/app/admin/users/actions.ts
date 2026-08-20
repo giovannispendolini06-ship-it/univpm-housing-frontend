@@ -71,6 +71,38 @@ export async function updateUserProfile(formData: FormData) {
   redirect("/admin/users");
 }
 
+/** Imposta manualmente lo stato del badge verificato (marketplace). */
+export async function setUserVerification(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const userId = String(formData.get("user_id") ?? "");
+  if (!userId) throw new Error("ID utente mancante.");
+
+  const status = String(formData.get("verification_status") ?? "none");
+  if (!["none", "pending", "verified", "rejected"].includes(status)) {
+    throw new Error("Stato verifica non valido.");
+  }
+
+  const methodRaw = String(formData.get("verification_method") ?? "").trim();
+  const note = String(formData.get("verification_note") ?? "").trim() || null;
+
+  const updates: Record<string, unknown> = {
+    verification_status: status,
+    verification_method: methodRaw || (status === "verified" ? "manual_admin" : null),
+    verification_note: note,
+    verified_at: status === "verified" ? new Date().toISOString() : null,
+  };
+
+  const { error } = await db.from("users").update(updates).eq("id", userId);
+  if (error) throw new Error(`Errore verifica: ${error.message}`);
+
+  revalidatePath("/admin/users");
+  revalidatePath(`/admin/users/${userId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/owner");
+}
+
 // ---------------------------------------------------------------------------
 // Elimina completamente un account: prima la foto dallo Storage, poi
 // l'account di autenticazione vero e proprio. Cancellare da auth.users fa
