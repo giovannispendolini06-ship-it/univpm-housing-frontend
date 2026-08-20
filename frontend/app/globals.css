@@ -32,9 +32,40 @@
   button:not(:disabled):active {
     transform: scale(0.96);
   }
-  /* Focus visibile per accessibilità da tastiera */
+  /* Focus visibile per accessibilità da tastiera (brand teal) */
   :focus-visible {
     @apply outline-none ring-2 ring-sea-600 ring-offset-2 ring-offset-bg;
+  }
+
+  /* Eccezione: link skip-to-content gestisce il proprio focus */
+  .skip-to-content:focus-visible {
+    @apply ring-0 ring-offset-0;
+  }
+}
+
+@layer components {
+  .skip-to-content {
+    @apply sr-only;
+  }
+  .skip-to-content:focus {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0.65rem 1rem;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    border-radius: 9999px;
+    background: #0f6e6a;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(15, 42, 46, 0.2);
   }
 }
 
@@ -125,6 +156,13 @@
 #cc-main .cm__btn,
 #cc-main .pm__btn {
   font-weight: 600;
+}
+
+#cc-main .cm__btn:focus-visible,
+#cc-main .pm__btn:focus-visible,
+#cc-main a:focus-visible {
+  outline: 3px solid #ff6b4a;
+  outline-offset: 2px;
 }
 
 @media (max-width: 640px) {

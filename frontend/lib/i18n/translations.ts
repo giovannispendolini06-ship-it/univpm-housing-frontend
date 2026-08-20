@@ -12,6 +12,15 @@ export const translations = {
       login: "Accedi",
       waitlist: "Lista d'attesa",
     },
+    announceBar: {
+      ariaLabel: "Annuncio lista d'attesa",
+      message: "Le prime stanze arrivano a {month}",
+      cta: "Iscriviti gratis",
+      closeAria: "Chiudi annuncio",
+    },
+    a11y: {
+      skipToContent: "Salta al contenuto",
+    },
     hero: {
       badge: "Pensato per chi studia fuori sede ad Ancona",
       titlePart1: "La casa giusta. ",
@@ -35,6 +44,11 @@ export const translations = {
       badgeCompatSub: "Calcolata in tempo reale",
       badgeFeesTitle: "Zero commissioni",
       badgeFeesSub: "Per lo studente",
+    },
+    launchCountdown: {
+      days: "Le prime stanze arrivano tra {n} giorni",
+      oneDay: "Le prime stanze arrivano domani",
+      arrived: "Le prime stanze stanno arrivando",
     },
     intro: {
       skip: "Salta",
@@ -99,6 +113,7 @@ export const translations = {
     faq: {
       eyebrow: "Domande frequenti",
       title: "I dubbi più comuni, risolti subito",
+      seeAll: "Tutte le FAQ per studenti",
       items: [
         {
           question: "È davvero gratis per gli studenti?",
@@ -137,6 +152,52 @@ export const translations = {
         },
       ],
     },
+    faqStudenti: {
+      eyebrow: "Per gli studenti",
+      title: "Domande frequenti per chi cerca casa",
+      subtitle:
+        "Costi, matching con Vesta, lista d'attesa e come scegliamo le stanze compatibili — risposte chiare prima di iscriverti.",
+      backHome: "← Torna alla home",
+      ctaWaitlist: "Entra in lista d'attesa",
+      ctaChat: "Parla con Vesta",
+      items: [
+        {
+          question: "Quanto costa usare Coabito?",
+          answer:
+            "Per gli studenti è gratuito parlare con Vesta, entrare in lista d'attesa e vedere le stanze proposte. Non chiediamo carte di credito né costi di iscrizione. Paghi solo il canone della stanza che scegli, come in un affitto tradizionale.",
+        },
+        {
+          question: "Come funziona il matching con Vesta?",
+          answer:
+            "Racconti a Vesta facoltà, polo, budget e abitudini di convivenza. Confrontiamo ogni nuova stanza con il tuo profilo (prezzo, distanza dall'ateneo, stile di vita) e ti mostriamo solo le proposte davvero compatibili — con un punteggio chiaro, non un elenco infinito di annunci.",
+        },
+        {
+          question: "Cosa succede dopo che mi iscrivo alla lista d'attesa?",
+          answer:
+            "Se lasci l'email, ti mandiamo un link di conferma (double opt-in). Dopo la conferma sei in lista: quando arriva una stanza compatibile ti avvisiamo. Nel frattempo puoi ricevere qualche aggiornamento sul progetto; se nel frattempo trovi già una stanza con noi, smettiamo di mandarti messaggi di “aspetto”.",
+        },
+        {
+          question: "Posso scegliere zona e budget?",
+          answer:
+            "Sì. In chat o nel form indichi budget massimo e polo/zona di interesse. Vesta li usa come filtri: meglio essere realistici sul tetto di spesa piuttosto che accettare proposte che non reggi dopo pochi mesi.",
+        },
+        {
+          question: "Come vengono selezionati i coinquilini?",
+          answer:
+            "Non mettiamo a caso persone nella stessa casa. Guardiamo preferenze di studio, sociabilità, ospiti e ordine — oltre a budget e polo — così la convivenza ha più probabilità di funzionare. Tu vedi il punteggio e decidi se procedere.",
+        },
+        {
+          question: "Devo creare un account per la lista d'attesa?",
+          answer:
+            "No. Puoi iscriverti con il form leggero (nome + email o telefono). Se preferisci, puoi anche registrarti e chattare con Vesta: in quel caso salviamo le preferenze dal profilo quando non c'è ancora una stanza adatta.",
+        },
+        {
+          question: "Quando arrivano le prime stanze?",
+          answer:
+            "Stiamo preparando le disponibilità per l'anno accademico 2026/2027, con obiettivo intorno a settembre. Entrare in lista ora serve a essere tra i primi avvisati quando qualcosa di compatibile si libera.",
+        },
+      ],
+    },
     footer: {
       tagline:
         "Piattaforma indipendente per studenti fuori sede e proprietari di casa. Non affiliata a nessuna università.",
@@ -144,9 +205,45 @@ export const translations = {
       privacy: "Privacy",
       terms: "Termini di servizio",
       cookies: "Cookie",
+      manageCookies: "Gestisci preferenze cookie",
       guide: "Guida affitto Ancona",
+      faq: "FAQ studenti",
+      explore: "Esplora",
+      legal: "Legale",
+      contact: "Contatti",
+      waitlist: "Lista d'attesa",
+      howItWorks: "Come funziona",
+      forOwners: "Per i proprietari",
+      whatsapp: "WhatsApp",
       guideFirstTime: "Prima volta fuori sede",
       services: "Servizi",
+    },
+    ownerInquiry: {
+      nameLabel: "Nome e cognome *",
+      phoneLabel: "Telefono *",
+      emailLabel: "Email",
+      addressLabel: "Indirizzo dell'immobile",
+      addressPlaceholder: "Anche solo la zona, se preferisci",
+      messageLabel: "Messaggio (facoltativo)",
+      submit: "Invia richiesta",
+      submitting: "Invio...",
+      successTitle: "Richiesta ricevuta!",
+      successBody: "Ti contattiamo entro 24-48 ore per parlare del tuo immobile.",
+      nameRequired: "Inserisci il tuo nome.",
+      phoneRequired: "Inserisci un numero di telefono.",
+      emailInvalid: "Inserisci un indirizzo email valido.",
+      errorGeneric:
+        "Qualcosa è andato storto nell'invio. Riprova, o scrivici a info@coabito.it.",
+      rateLimited:
+        "Hai inviato troppe richieste in poco tempo. Riprova tra un'ora, o scrivici a info@coabito.it.",
+    },
+    whatsappFloat: {
+      ariaLabel: "Scrivici su WhatsApp",
+      generic: "Ciao! Ho visto Coabito e vorrei saperne di più",
+      owners:
+        "Ciao! Ho un immobile ad Ancona e vorrei saperne di più su Coabito.",
+      waitlist:
+        "Ciao! Sto cercando casa da studente ad Ancona e vorrei info su Coabito / la lista d'attesa.",
     },
     guidaAffittoAncona: {
       title: "Come affittare casa per studenti ad Ancona",
@@ -288,7 +385,7 @@ export const translations = {
         "Necessari per autenticazione, preferenza lingua e sicurezza. Non possono essere disattivati.",
       sectionAnalyticsTitle: "Analitici",
       sectionAnalyticsBody:
-        "Vercel Analytics: ci aiuta a capire quali pagine vengono visitate, in forma aggregata e anonima. Non usiamo Google Analytics né pubblicità.",
+        "Vercel Analytics: ci aiuta a capire quali pagine vengono visitate e i passaggi del percorso (es. chat, lista d'attesa), in forma aggregata e anonima. Non usiamo Google Analytics né pubblicità.",
       sectionMoreTitle: "Maggiori informazioni",
       sectionMoreBody: "Per dettagli su come trattiamo i dati, leggi la nostra",
     },
@@ -376,6 +473,9 @@ export const translations = {
       subtitle: "Il tuo assistente casa · UNIVPM Ancona",
       inputPlaceholder: "Scrivi un messaggio...",
       sendLabel: "Invia messaggio",
+      typing: "Vesta sta scrivendo…",
+      errorRetry:
+        "Uhm, qualcosa è andato storto dal mio lato. Puoi riprovare tra un attimo?",
       progressLabel: "{done}/{total} · {step}",
       progressComplete: "Profilo completo",
       progressSteps: {
@@ -527,6 +627,13 @@ export const translations = {
       home: "Torna alla home",
       waitlist: "Lista d'attesa",
     },
+    serverError: {
+      title: "Qualcosa non ha funzionato",
+      body: "Si è verificato un problema temporaneo. Riprova tra poco: se persiste, scrivici e ti aiutiamo.",
+      retry: "Riprova",
+      home: "Torna alla home",
+      contact: "Scrivici a info@coabito.it",
+    },
     listaAttesa: {
       backToHome: "← Torna alla home",
       title: "Lista d'attesa",
@@ -547,9 +654,12 @@ export const translations = {
       successTitle: "Sei in lista!",
       successBody:
         "Ti avviseremo appena arriva un immobile compatibile con le tue preferenze. Nel frattempo, puoi condividere il link con chi cerca casa ad Ancona.",
+      positionHeadline: "Sei il {n}° in lista d'attesa",
+      successBodyWithPosition:
+        "Ti avviseremo appena ci sarà una stanza compatibile con il tuo profilo.",
       pendingTitle: "Controlla la tua email",
       pendingBody:
-        "Ti abbiamo inviato un link di conferma. Cliccalo entro 7 giorni per attivare l'iscrizione: solo dopo potremo avvisarti quando arriva una stanza compatibile.",
+        "Ti abbiamo inviato un link di conferma. Cliccalo entro 7 giorni per attivare l'iscrizione: solo dopo potremo avvisarti quando arriva una stanza compatibile — e ti mostreremo la tua posizione in lista.",
       confirm: {
         successTitle: "Iscrizione confermata",
         successBody:
@@ -566,6 +676,19 @@ export const translations = {
       errorGeneric:
         "Qualcosa è andato storto. Riprova, o scrivici a info@coabito.it.",
       contactRequired: "Inserisci almeno un'email o un numero di telefono.",
+      nameRequired: "Inserisci il tuo nome.",
+      emailInvalid: "Inserisci un indirizzo email valido.",
+      referral: {
+        title: "Invita un amico",
+        body: "Condividi il tuo link: sarai avvisato prima quando arrivano le prime stanze.",
+        copy: "Copia link",
+        copied: "Copiato!",
+        copyFallback: "Copia questo link:",
+        whatsapp: "WhatsApp",
+        whatsappAria: "Condividi il link di invito su WhatsApp",
+        shareText:
+          "Sto cercando una stanza ad Ancona con Coabito — entra in lista d'attesa con il mio link:",
+      },
       facoltaOptions: [
         { value: "ingegneria_informatica", label: "Ingegneria informatica" },
         { value: "ingegneria_civile", label: "Ingegneria civile" },
@@ -708,6 +831,15 @@ export const translations = {
       login: "Log in",
       waitlist: "Waitlist",
     },
+    announceBar: {
+      ariaLabel: "Waitlist announcement",
+      message: "The first rooms arrive in {month}",
+      cta: "Join for free",
+      closeAria: "Dismiss announcement",
+    },
+    a11y: {
+      skipToContent: "Skip to content",
+    },
     hero: {
       badge: "Made for out-of-town students in Ancona",
       titlePart1: "The right home. ",
@@ -731,6 +863,11 @@ export const translations = {
       badgeCompatSub: "Calculated in real time",
       badgeFeesTitle: "Zero fees",
       badgeFeesSub: "For students",
+    },
+    launchCountdown: {
+      days: "The first rooms arrive in {n} days",
+      oneDay: "The first rooms arrive tomorrow",
+      arrived: "The first rooms are on their way",
     },
     intro: {
       skip: "Skip",
@@ -795,6 +932,7 @@ export const translations = {
     faq: {
       eyebrow: "Frequently asked questions",
       title: "The most common doubts, answered right away",
+      seeAll: "All student FAQs",
       items: [
         {
           question: "Is it really free for students?",
@@ -833,6 +971,52 @@ export const translations = {
         },
       ],
     },
+    faqStudenti: {
+      eyebrow: "For students",
+      title: "Frequently asked questions for students",
+      subtitle:
+        "Costs, matching with Vesta, the waitlist, and how we pick compatible rooms — clear answers before you sign up.",
+      backHome: "← Back to home",
+      ctaWaitlist: "Join the waitlist",
+      ctaChat: "Chat with Vesta",
+      items: [
+        {
+          question: "How much does Coabito cost?",
+          answer:
+            "For students, chatting with Vesta, joining the waitlist, and viewing suggested rooms is free. No credit card, no signup fee. You only pay the rent for the room you choose, like a normal tenancy.",
+        },
+        {
+          question: "How does matching with Vesta work?",
+          answer:
+            "You tell Vesta your course, campus, budget and living habits. We compare each new room to your profile (price, distance to campus, lifestyle) and only show truly compatible options — with a clear score, not an endless list of ads.",
+        },
+        {
+          question: "What happens after I join the waitlist?",
+          answer:
+            "If you leave an email, we send a confirmation link (double opt-in). After confirming you're on the list: when a compatible room appears, we notify you. You may get a couple of project updates in the meantime; if you already find a room with us, we stop the “we're still preparing” messages.",
+        },
+        {
+          question: "Can I choose area and budget?",
+          answer:
+            "Yes. In chat or on the form you set a max budget and campus/area of interest. Vesta uses them as filters — better to be honest about your ceiling than accept a place you can't sustain after a few months.",
+        },
+        {
+          question: "How are roommates selected?",
+          answer:
+            "We don't randomly put people in the same flat. We look at study habits, sociability, guests and cleanliness — plus budget and campus — so living together is more likely to work. You see the score and decide whether to go ahead.",
+        },
+        {
+          question: "Do I need an account for the waitlist?",
+          answer:
+            "No. You can join with the light form (name + email or phone). Or register and chat with Vesta: we'll save preferences from your profile when there isn't a suitable room yet.",
+        },
+        {
+          question: "When do the first rooms arrive?",
+          answer:
+            "We're preparing availability for the 2026/2027 academic year, aiming around September. Joining the waitlist now means you'll be among the first notified when something compatible opens up.",
+        },
+      ],
+    },
     footer: {
       tagline:
         "Independent platform for out-of-town students and property owners. Not affiliated with any university.",
@@ -840,9 +1024,45 @@ export const translations = {
       privacy: "Privacy",
       terms: "Terms of service",
       cookies: "Cookies",
+      manageCookies: "Manage cookie preferences",
       guide: "Ancona student housing guide",
+      faq: "Student FAQ",
+      explore: "Explore",
+      legal: "Legal",
+      contact: "Contact",
+      waitlist: "Waitlist",
+      howItWorks: "How it works",
+      forOwners: "For property owners",
+      whatsapp: "WhatsApp",
       guideFirstTime: "First time living away",
       services: "Services",
+    },
+    ownerInquiry: {
+      nameLabel: "Full name *",
+      phoneLabel: "Phone *",
+      emailLabel: "Email",
+      addressLabel: "Property address",
+      addressPlaceholder: "Even just the area is fine",
+      messageLabel: "Message (optional)",
+      submit: "Send request",
+      submitting: "Sending...",
+      successTitle: "Request received!",
+      successBody: "We'll get back to you within 24–48 hours about your property.",
+      nameRequired: "Please enter your name.",
+      phoneRequired: "Please enter a phone number.",
+      emailInvalid: "Please enter a valid email address.",
+      errorGeneric:
+        "Something went wrong. Please try again, or email us at info@coabito.it.",
+      rateLimited:
+        "You've sent too many requests. Try again in an hour, or email info@coabito.it.",
+    },
+    whatsappFloat: {
+      ariaLabel: "Message us on WhatsApp",
+      generic: "Hi! I found Coabito and I'd like to know more",
+      owners:
+        "Hi! I have a property in Ancona and I'd like to know more about Coabito.",
+      waitlist:
+        "Hi! I'm a student looking for a place in Ancona and I'd like info about Coabito / the waitlist.",
     },
     guidaAffittoAncona: {
       title: "How to rent student housing in Ancona",
@@ -984,7 +1204,7 @@ export const translations = {
         "Required for authentication, language preference and security. These cannot be turned off.",
       sectionAnalyticsTitle: "Analytics",
       sectionAnalyticsBody:
-        "Vercel Analytics: helps us understand which pages are visited, in aggregate and anonymous form. We do not use Google Analytics or ads.",
+        "Vercel Analytics: helps us understand which pages are visited and key funnel steps (e.g. chat, waitlist), in aggregate and anonymous form. We do not use Google Analytics or ads.",
       sectionMoreTitle: "More information",
       sectionMoreBody: "For details on how we process data, read our",
     },
@@ -1072,6 +1292,9 @@ export const translations = {
       subtitle: "Your housing assistant · UNIVPM Ancona",
       inputPlaceholder: "Write a message...",
       sendLabel: "Send message",
+      typing: "Vesta is typing…",
+      errorRetry:
+        "Hmm, something went wrong on my side. Could you try again in a moment?",
       progressLabel: "{done}/{total} · {step}",
       progressComplete: "Profile complete",
       progressSteps: {
@@ -1222,6 +1445,13 @@ export const translations = {
       home: "Back to home",
       waitlist: "Waitlist",
     },
+    serverError: {
+      title: "Something went wrong",
+      body: "A temporary problem occurred. Please try again shortly — if it persists, email us and we'll help.",
+      retry: "Try again",
+      home: "Back to home",
+      contact: "Email info@coabito.it",
+    },
     listaAttesa: {
       backToHome: "← Back to home",
       title: "Waitlist",
@@ -1242,9 +1472,12 @@ export const translations = {
       successTitle: "You're on the list!",
       successBody:
         "We'll notify you as soon as a compatible place becomes available. In the meantime, feel free to share the link with friends looking for a room in Ancona.",
+      positionHeadline: "You're #{n} on the waitlist",
+      successBodyWithPosition:
+        "We'll let you know as soon as a room compatible with your profile becomes available.",
       pendingTitle: "Check your email",
       pendingBody:
-        "We've sent you a confirmation link. Click it within 7 days to activate your signup — we'll only notify you about compatible rooms after that.",
+        "We've sent you a confirmation link. Click it within 7 days to activate your signup — we'll only notify you about compatible rooms after that, and that's when you'll see your waitlist position.",
       confirm: {
         successTitle: "Signup confirmed",
         successBody:
@@ -1260,6 +1493,19 @@ export const translations = {
       },
       errorGeneric: "Something went wrong. Please try again, or email us at info@coabito.it.",
       contactRequired: "Please enter at least an email or a phone number.",
+      nameRequired: "Please enter your name.",
+      emailInvalid: "Please enter a valid email address.",
+      referral: {
+        title: "Invite a friend",
+        body: "Share your link — you'll be notified earlier when the first rooms arrive.",
+        copy: "Copy link",
+        copied: "Copied!",
+        copyFallback: "Copy this link:",
+        whatsapp: "WhatsApp",
+        whatsappAria: "Share your invite link on WhatsApp",
+        shareText:
+          "I'm looking for a room in Ancona with Coabito — join the waitlist with my link:",
+      },
       facoltaOptions: [
         { value: "ingegneria_informatica", label: "Computer Engineering" },
         { value: "ingegneria_civile", label: "Civil Engineering" },

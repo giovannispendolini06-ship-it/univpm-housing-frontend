@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 
 export default function FaqSection() {
@@ -24,12 +25,17 @@ export default function FaqSection() {
         <div className="mt-8 divide-y divide-sea-100 rounded-xl2 bg-surface shadow-card">
           {t.faq.items.map((faq, index) => {
             const isOpen = openIndex === index;
+            const panelId = `home-faq-panel-${index}`;
+            const buttonId = `home-faq-button-${index}`;
             return (
               <div key={faq.question}>
                 <button
+                  id={buttonId}
+                  type="button"
                   onClick={() => toggle(index)}
-                  className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+                  className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea-600"
                   aria-expanded={isOpen}
+                  aria-controls={panelId}
                 >
                   <span className="font-display text-sm font-bold text-ink sm:text-base">
                     {faq.question}
@@ -44,6 +50,9 @@ export default function FaqSection() {
                   </span>
                 </button>
                 <div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={buttonId}
                   className={`grid overflow-hidden transition-all duration-300 ease-out ${
                     isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                   }`}
@@ -58,6 +67,15 @@ export default function FaqSection() {
             );
           })}
         </div>
+
+        <p className="mt-6 text-center text-sm">
+          <Link
+            href="/faq"
+            className="font-medium text-sea-700 underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea-600"
+          >
+            {t.faq.seeAll}
+          </Link>
+        </p>
       </div>
     </section>
   );

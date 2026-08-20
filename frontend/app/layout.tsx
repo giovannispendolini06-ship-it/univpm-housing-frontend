@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import AnnounceBar from "@/components/AnnounceBar";
+import SkipToContent from "@/components/SkipToContent";
 import JsonLd from "@/components/JsonLd";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 import { organizationJsonLd } from "@/lib/seo/structured-data";
@@ -85,7 +88,12 @@ export default function RootLayout({
       <body>
         <JsonLd data={organizationJsonLd()} />
         <LocaleProvider>
-          {children}
+          <SkipToContent />
+          <AnnounceBar />
+          <div id="main-content" tabIndex={-1}>
+            {children}
+          </div>
+          <FloatingWhatsApp />
           <CookieConsentBanner />
           <ServiceWorkerRegister />
         </LocaleProvider>

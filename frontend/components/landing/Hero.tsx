@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import HeroMockup from "./HeroMockup";
+import LaunchCountdown from "@/components/LaunchCountdown";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { WAITLIST_SOCIAL_PROOF_MIN } from "@/lib/waitlist-constants";
 import { trackCta } from "@/lib/analytics";
@@ -47,6 +48,10 @@ export default function Hero({ waitlistCount = 0 }: { waitlistCount?: number }) 
             >
               {t.hero.ctaOwner}
             </a>
+          </div>
+
+          <div className={styles.countdownWrap}>
+            <LaunchCountdown variant="hero" className={styles.countdown} />
           </div>
 
           {showSocialProof && (

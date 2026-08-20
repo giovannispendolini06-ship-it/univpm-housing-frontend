@@ -1,11 +1,19 @@
+import LandingNavbar from "@/components/landing/LandingNavbar";
+import LandingFooter from "@/components/landing/LandingFooter";
+import { SITE_URL } from "@/lib/site";
+
 export const metadata = {
   title: "Informativa Privacy | Coabito",
+  description:
+    "Come Coabito tratta i tuoi dati: iscrizione, chat con Vesta, cookie analytics e diritti GDPR. Contatti privacy@coabito.it.",
+  alternates: { canonical: `${SITE_URL}/privacy` },
 };
 
 export default function PrivacyPage() {
   return (
-    <main className="bg-bg px-4 py-12 sm:px-6">
-      <div className="mx-auto max-w-2xl">
+    <main className="bg-bg">
+      <LandingNavbar />
+      <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
         <a href="/" className="mb-6 inline-block text-sm text-ink-muted underline underline-offset-2">
           ← Torna alla home
         </a>
@@ -236,6 +244,7 @@ export default function PrivacyPage() {
           </section>
         </div>
       </div>
+      <LandingFooter />
     </main>
   );
 }

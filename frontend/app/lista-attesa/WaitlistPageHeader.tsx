@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import Reveal from "@/components/landing/Reveal";
+import LaunchCountdown from "@/components/LaunchCountdown";
 
 export default function WaitlistPageHeader() {
   const { t } = useLocale();
@@ -18,7 +19,8 @@ export default function WaitlistPageHeader() {
       <h1 className="mb-2 font-display text-3xl font-bold text-ink sm:text-4xl">
         {t.listaAttesa.title}
       </h1>
-      <p className="mb-8 text-base text-ink-muted">{t.listaAttesa.subtitle}</p>
+      <p className="mb-3 text-base text-ink-muted">{t.listaAttesa.subtitle}</p>
+      <LaunchCountdown variant="page" className="mb-8" />
     </Reveal>
   );
 }

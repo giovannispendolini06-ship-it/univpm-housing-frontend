@@ -2,12 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { trackFunnel } from "@/lib/analytics";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 import type { ChatProgress, ChatProgressStepKey } from "@/lib/chat-progress";
 import { CHAT_PROGRESS_TOTAL } from "@/lib/chat-progress";
 import ChatBubble from "./ChatBubble";
 import TypingIndicator from "./TypingIndicator";
 import VestaAvatar from "./VestaAvatar";
+
+const VESTA_STARTED_KEY = "coabito_vesta_started";
+const VESTA_COMPLETED_KEY = "coabito_vesta_completed";
+const VESTA_ABANDONED_KEY = "coabito_vesta_abandoned";
 
 interface ChatPanelProps {
   initialMessages: ChatMessage[];
@@ -33,6 +38,26 @@ function stepLabel(
 ): string | null {
   if (!key) return null;
   return labels[key] ?? null;
+}
+
+function markVestaStarted() {
+  try {
+    if (sessionStorage.getItem(VESTA_STARTED_KEY)) return;
+    sessionStorage.setItem(VESTA_STARTED_KEY, "1");
+    trackFunnel("vesta_chat_started");
+  } catch {
+    trackFunnel("vesta_chat_started");
+  }
+}
+
+function markVestaCompleted(reason: string) {
+  try {
+    if (sessionStorage.getItem(VESTA_COMPLETED_KEY)) return;
+    sessionStorage.setItem(VESTA_COMPLETED_KEY, "1");
+    trackFunnel("vesta_chat_completed", { reason });
+  } catch {
+    trackFunnel("vesta_chat_completed", { reason });
+  }
 }
 
 function formatDayLabel(iso: string, locale: string): string {
@@ -72,6 +97,7 @@ export default function ChatPanel({
   const [isTyping, setIsTyping] = useState(false);
   const [progress, setProgress] = useState<ChatProgress | null>(initialProgress);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const completedRef = useRef(false);
 
   useEffect(() => {
     if (!initialProgress) return;
@@ -88,9 +114,39 @@ export default function ChatPanel({
     });
   }, [messages, isTyping]);
 
+  // Abbandono: utente ha iniziato ma non completato e lascia la pagina.
+  useEffect(() => {
+    function maybeAbandon() {
+      try {
+        const started = sessionStorage.getItem(VESTA_STARTED_KEY);
+        const completed = sessionStorage.getItem(VESTA_COMPLETED_KEY);
+        const abandoned = sessionStorage.getItem(VESTA_ABANDONED_KEY);
+        if (started && !completed && !abandoned) {
+          sessionStorage.setItem(VESTA_ABANDONED_KEY, "1");
+          trackFunnel("vesta_chat_abandoned");
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    window.addEventListener("pagehide", maybeAbandon);
+    return () => window.removeEventListener("pagehide", maybeAbandon);
+  }, []);
+
+  useEffect(() => {
+    if (completedRef.current) return;
+    if (progress && progress.done >= progress.total) {
+      completedRef.current = true;
+      markVestaCompleted("profile_complete");
+    }
+  }, [progress]);
+
   async function handleSend() {
     const text = draft.trim();
     if (!text) return;
+
+    markVestaStarted();
 
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
@@ -122,14 +178,18 @@ export default function ChatPanel({
 
       if (nextProgress) setProgress(nextProgress);
       if (rooms) onRoomsUpdate?.(rooms, waitlisted);
+      if (waitlisted) {
+        trackFunnel("waitlist_signup_completed", { source: "vesta_chat" });
+        if (!completedRef.current) {
+          completedRef.current = true;
+          markVestaCompleted("waitlisted");
+        }
+      }
     } catch {
       const errorMessage: ChatMessage = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content:
-          locale === "en"
-            ? "Hmm, something went wrong on my side. Try again in a moment?"
-            : "Uhm, qualcosa è andato storto dal mio lato. Puoi riprovare tra un attimo?",
+        content: t.chat.errorRetry,
         createdAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -219,7 +279,7 @@ export default function ChatPanel({
             </div>
           );
         })}
-        {isTyping && <TypingIndicator />}
+        {isTyping && <TypingIndicator label={t.chat.typing} />}
       </div>
 
       <div className="shrink-0 border-t border-sea-100 bg-white p-3">
@@ -230,11 +290,12 @@ export default function ChatPanel({
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={t.chat.inputPlaceholder}
-            className="max-h-28 flex-1 resize-none bg-transparent text-[15px] text-ink placeholder:text-ink-muted focus:outline-none"
+            disabled={isTyping}
+            className="max-h-28 flex-1 resize-none bg-transparent text-[15px] text-ink placeholder:text-ink-muted focus:outline-none disabled:opacity-60"
           />
           <button
             onClick={handleSend}
-            disabled={!draft.trim()}
+            disabled={!draft.trim() || isTyping}
             aria-label={t.chat.sendLabel}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sunset-500 text-white transition enabled:hover:bg-sunset-600 disabled:cursor-not-allowed disabled:bg-sea-100 disabled:text-ink-muted"
           >

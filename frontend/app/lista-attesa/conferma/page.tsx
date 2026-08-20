@@ -31,7 +31,11 @@ export default async function WaitlistConfirmPage({
       <LandingNavbar />
 
       <div className="mx-auto max-w-lg px-4 py-10 sm:px-6 sm:py-14">
-        <ConfirmResult status={result.status} />
+        <ConfirmResult
+          status={result.status}
+          position={"position" in result ? result.position : null}
+          referralCode={"referralCode" in result ? result.referralCode : null}
+        />
         <p className="mt-6 text-center text-sm">
           <Link href="/" className="font-medium text-sea-700 underline-offset-2 hover:underline">
             ← Coabito
