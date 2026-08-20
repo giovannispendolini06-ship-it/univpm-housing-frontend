@@ -16,9 +16,23 @@ create index idx_property_images_property_id on public.property_images (property
 
 alter table public.property_images enable row level security;
 
--- Lettura pubblica: le foto le devono vedere anche gli studenti sulle schede
+-- Lettura pubblica: solo foto di immobili attivi (o owner/admin).
+-- Indirizzo/economia restano su properties con RLS più stretta.
 create policy "property_images_select_public" on public.property_images
-  for select using (true);
+  for select using (
+    exists (
+      select 1 from public.properties p
+      where p.id = property_images.property_id
+        and (
+          p.status = 'attivo'
+          or p.owner_id = auth.uid()
+          or exists (
+            select 1 from public.users u
+            where u.id = auth.uid() and u.role = 'admin'
+          )
+        )
+    )
+  );
 
 -- Scrittura riservata all'admin (le server action usano comunque la service
 -- role, ma questa policy resta come ulteriore livello di sicurezza)
