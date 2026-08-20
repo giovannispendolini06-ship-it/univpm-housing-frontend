@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { markWaitlistJoined } from "@/lib/announce-bar";
 import { submitWaitlistSignup } from "./actions";
 
 const SOURCE_MAP: Record<string, string> = {
@@ -41,6 +42,7 @@ export default function WaitlistForm() {
       if (result?.error) {
         setError(resolveError(result.error));
       } else {
+        markWaitlistJoined();
         setSuccessStatus(result?.status === "pending" ? "pending" : "ok");
       }
     });

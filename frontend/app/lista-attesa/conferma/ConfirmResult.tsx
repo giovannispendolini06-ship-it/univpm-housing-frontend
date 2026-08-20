@@ -1,12 +1,20 @@
 "use client";
 
+import { useEffect } from "react";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { markWaitlistJoined } from "@/lib/announce-bar";
 
 type Status = "confirmed" | "already" | "expired" | "invalid";
 
 export default function ConfirmResult({ status }: { status: Status }) {
   const { t } = useLocale();
   const copy = t.listaAttesa.confirm;
+
+  useEffect(() => {
+    if (status === "confirmed" || status === "already") {
+      markWaitlistJoined();
+    }
+  }, [status]);
 
   const title =
     status === "confirmed"
