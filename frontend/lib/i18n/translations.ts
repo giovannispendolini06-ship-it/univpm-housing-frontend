@@ -145,6 +145,7 @@ export const translations = {
       terms: "Termini di servizio",
       cookies: "Cookie",
       guide: "Guida affitto Ancona",
+      guideFirstTime: "Prima volta fuori sede",
       services: "Servizi",
     },
     guidaAffittoAncona: {
@@ -180,6 +181,93 @@ export const translations = {
       ctaChat: "Parla con Vesta",
       ctaWaitlist: "Lista d’attesa",
       backHome: "← Torna alla home",
+    },
+    guidaPrimaVolta: {
+      title: "Prima volta fuori sede: la guida pratica",
+      intro:
+        "Trasferirti per l'università è la prima volta che gestisci tutto da solo: casa, documenti, spese, convivenza. Non serve saperlo già fare — serve sapere cosa aspettarti. Questa guida raccoglie le cose che avremmo voluto sapere prima di partire noi stessi.",
+      sections: [
+        {
+          title: "Prima di partire",
+          blocks: [
+            {
+              heading: "Documenti da preparare",
+              bullets: [
+                "Carta d'identità e codice fiscale (portali sempre con te, non solo il giorno del trasferimento)",
+                "Certificato di iscrizione universitaria o attestato di immatricolazione",
+                "Se richiesto dal proprietario: documenti del garante (di solito un genitore)",
+              ],
+            },
+            {
+              heading: "Il contratto",
+              body: "Leggilo tutto prima di firmare, anche le parti noiose. Controlla in particolare: durata, importo del deposito cauzionale, cosa succede se vuoi lasciare la stanza prima della scadenza, chi paga cosa tra le utenze. Se qualcosa non è chiaro, chiedi — un contratto serio non ha problemi a spiegarti ogni riga.",
+            },
+            {
+              heading: "Budget reale, non solo l'affitto",
+              body: "L'affitto è solo una parte della spesa mensile. Metti in conto: utenze (luce, gas, internet — a volte incluse, a volte no, verificalo prima), spesa alimentare, trasporti, materiale universitario. Un budget realistico evita brutte sorprese al secondo mese.",
+            },
+          ],
+        },
+        {
+          title: "Il trasferimento",
+          blocks: [
+            {
+              heading: "Cosa portare (e cosa no)",
+              body: "Non serve portare tutto quello che hai in camera a casa. La maggior parte delle stanze in affitto per studenti sono già arredate con l'essenziale (letto, scrivania, armadio). Porta: biancheria, oggetti personali, eventuale attrezzatura per lo studio. Il resto si compra sul posto se serve, spesso costa meno che trasportarlo.",
+            },
+            {
+              heading: "Il cambio di residenza",
+              body: "Non è obbligatorio, ma vale la pena informarsi se conviene nel tuo caso (può incidere su alcune agevolazioni, tasse universitarie, o convenzioni sanitarie). Chiedi in anagrafe del tuo comune di origine cosa cambia.",
+            },
+            {
+              heading: "Attivare le utenze",
+              body: "Se non sono già incluse nel contratto, informati con anticipo sui tempi di attivazione — internet in particolare può richiedere alcuni giorni. Meglio saperlo prima di arrivare che scoprirlo il primo giorno senza connessione.",
+            },
+          ],
+        },
+        {
+          title: "Vivere con coinquilini",
+          blocks: [
+            {
+              heading: "I primi giorni contano",
+              body: "Parla subito, apertamente, delle regole della convivenza: pulizia, orari, ospiti, spese condivise. Non aspettare che diventi un problema per parlarne — la maggior parte degli attriti nasce da aspettative mai dette ad alta voce, non da cattiva volontà.",
+            },
+            {
+              heading: "Le spese condivise",
+              body: "Decidete insieme fin da subito come dividere spesa comune, utenze, e prodotti per la casa. Un metodo semplice (anche solo un foglio condiviso) evita discussioni continue su chi ha pagato cosa.",
+            },
+            {
+              heading: "Se qualcosa non funziona",
+              body: "È normale che una convivenza abbia momenti di attrito. Prova a parlarne direttamente prima di lasciare che la situazione peggiori. Se il problema persiste, è comunque meglio affrontarlo presto che aspettare la fine del contratto sperando che si risolva da solo.",
+            },
+          ],
+        },
+        {
+          title: "Errori comuni da evitare",
+          blocks: [
+            {
+              bullets: [
+                "Non leggere bene il contratto prima di firmare — anche se ha fretta chi te lo propone, tu prendi il tempo che ti serve",
+                "Non chiarire subito le regole di convivenza — meglio una conversazione scomoda il primo giorno che un conflitto dopo un mese",
+                "Sottovalutare il budget reale — l'affitto non è l'unica spesa",
+                "Non conservare le ricevute di pagamento — utile sia per te che per eventuali dispute future",
+              ],
+            },
+          ],
+        },
+      ],
+      closing:
+        "Non serve arrivare preparati al 100% — quasi nessuno lo è alla prima esperienza fuori sede. Serve solo sapere a cosa prestare attenzione. Se hai dubbi specifici sulla tua situazione, scrivici — vedi sotto.",
+      relatedGuide: "Guida: affittare casa per studenti ad Ancona",
+      backHome: "← Torna alla home",
+    },
+    founderContact: {
+      title: "Hai domande prima di iscriverti?",
+      body: "Scrivimi direttamente. Sono Giovanni, il fondatore di Coabito — studio anch'io all'UNIVPM e conosco bene la ricerca casa da fuori sede. Se hai dubbi su come funziona la piattaforma, o semplicemente vuoi capire se fa al caso tuo, scrivimi su WhatsApp: ti rispondo io.",
+      cta: "Scrivimi su WhatsApp",
+      whatsappMessage:
+        "Ciao Giovanni! Ho una domanda su Coabito / sulla guida Prima volta fuori sede.",
+      photoAlt: "Giovanni, fondatore di Coabito",
     },
     cookieBanner: {
       title: "Usiamo i cookie",
@@ -750,6 +838,7 @@ export const translations = {
       terms: "Terms of service",
       cookies: "Cookies",
       guide: "Ancona student housing guide",
+      guideFirstTime: "First time living away",
       services: "Services",
     },
     guidaAffittoAncona: {
@@ -785,6 +874,93 @@ export const translations = {
       ctaChat: "Chat with Vesta",
       ctaWaitlist: "Join the waitlist",
       backHome: "← Back to home",
+    },
+    guidaPrimaVolta: {
+      title: "First time living away: a practical guide",
+      intro:
+        "Moving for university is often the first time you handle everything yourself: housing, paperwork, money, flatmates. You don’t need to already know how — you need to know what to expect. This guide collects what we wish we’d known before we left home.",
+      sections: [
+        {
+          title: "Before you leave",
+          blocks: [
+            {
+              heading: "Documents to prepare",
+              bullets: [
+                "ID card and tax code (keep them with you, not only on move-in day)",
+                "University enrolment certificate or matriculation proof",
+                "If the landlord asks: guarantor documents (usually a parent)",
+              ],
+            },
+            {
+              heading: "The contract",
+              body: "Read all of it before signing, including the boring parts. Check especially: length, deposit amount, what happens if you leave early, and who pays which utilities. If something isn’t clear, ask — a serious contract can explain every line.",
+            },
+            {
+              heading: "A real budget, not just rent",
+              body: "Rent is only part of the monthly cost. Factor in utilities (electricity, gas, internet — sometimes included, sometimes not: check first), groceries, transport, and study materials. A realistic budget avoids nasty surprises in month two.",
+            },
+          ],
+        },
+        {
+          title: "The move",
+          blocks: [
+            {
+              heading: "What to bring (and what not to)",
+              body: "You don’t need to ship your entire bedroom. Most student rooms already have the basics (bed, desk, wardrobe). Bring: bedding, personal items, any study gear you need. Buy the rest locally if you need it — often cheaper than transporting it.",
+            },
+            {
+              heading: "Changing residence",
+              body: "It isn’t mandatory, but it’s worth checking whether it helps in your case (it can affect some benefits, university fees, or healthcare arrangements). Ask your home town registry office what changes.",
+            },
+            {
+              heading: "Turning on utilities",
+              body: "If they aren’t already included in the contract, check activation timelines in advance — internet especially can take a few days. Better to know before you arrive than discover it on day one with no connection.",
+            },
+          ],
+        },
+        {
+          title: "Living with flatmates",
+          blocks: [
+            {
+              heading: "The first days matter",
+              body: "Talk early and openly about house rules: cleaning, schedules, guests, shared expenses. Don’t wait until it becomes a problem — most friction comes from unspoken expectations, not bad intentions.",
+            },
+            {
+              heading: "Shared expenses",
+              body: "Decide together from day one how to split shared groceries, utilities, and household products. A simple method (even just a shared sheet) avoids endless “who paid what” debates.",
+            },
+            {
+              heading: "If something isn’t working",
+              body: "Friction is normal. Try talking directly before letting it escalate. If it persists, it’s still better to face it early than wait until the contract ends hoping it fixes itself.",
+            },
+          ],
+        },
+        {
+          title: "Common mistakes to avoid",
+          blocks: [
+            {
+              bullets: [
+                "Not reading the contract carefully before signing — even if someone is in a rush, take the time you need",
+                "Not clarifying house rules early — an awkward day-one talk beats a month-later conflict",
+                "Underestimating the real budget — rent isn’t the only cost",
+                "Not keeping payment receipts — useful for you and for any future dispute",
+              ],
+            },
+          ],
+        },
+      ],
+      closing:
+        "You don’t need to arrive 100% prepared — almost nobody is the first time they live away. You just need to know what to watch for. If you have specific questions about your situation, write to us — see below.",
+      relatedGuide: "Guide: renting student housing in Ancona",
+      backHome: "← Back to home",
+    },
+    founderContact: {
+      title: "Questions before you sign up?",
+      body: "Message me directly. I’m Giovanni, the founder of Coabito — I also study at UNIVPM and know the out-of-town housing search well. If you’re unsure how the platform works, or simply want to know if it’s right for you, write on WhatsApp: I’ll reply myself.",
+      cta: "Message me on WhatsApp",
+      whatsappMessage:
+        "Hi Giovanni! I have a question about Coabito / the First time living away guide.",
+      photoAlt: "Giovanni, founder of Coabito",
     },
     cookieBanner: {
       title: "We use cookies",
