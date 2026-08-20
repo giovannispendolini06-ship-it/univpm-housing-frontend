@@ -228,7 +228,7 @@ export async function POST(request: NextRequest) {
 
       if (rooms.length === 0) {
         waitlisted = true;
-        await upsertWaitlistFromStudentProfile(
+        const position = await upsertWaitlistFromStudentProfile(
           db,
           userId,
           studentProfile,
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
 
         const hasPhone = Boolean(userRow?.phone?.trim());
         if (!replyContainsWaitlistNotice(finalReply)) {
-          const fallback = buildWaitlistChatFallback(locale, hasPhone);
+          const fallback = buildWaitlistChatFallback(locale, hasPhone, position);
           finalReply = finalReply ? `${finalReply}\n\n${fallback}` : fallback;
         }
       }
