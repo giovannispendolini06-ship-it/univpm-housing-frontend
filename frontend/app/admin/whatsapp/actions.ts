@@ -15,12 +15,13 @@ export type ContactEntityKind =
   | "user"
   | "landlord_lead"
   | "waitlist"
-  | "property_owner";
+  | "property_owner"
+  | "crm_contact";
 
 export type ContactStartedPayload = {
   entityKind: ContactEntityKind;
   entityId: string;
-  contactType: "owner" | "student";
+  contactType: "owner" | "student" | "agency";
   contactTemplate: WhatsAppTemplateType | string;
   source?: string;
 };
@@ -137,6 +138,15 @@ export async function recordWhatsAppContactStarted(
 
     if (payload.entityKind === "property_owner") {
       revalidatePath(`/admin/properties/${payload.entityId}`);
+    }
+
+    if (payload.entityKind === "crm_contact") {
+      const { recordCrmWhatsAppOpened } = await import("@/app/admin/crm/actions");
+      await recordCrmWhatsAppOpened({
+        contactId: payload.entityId,
+        template,
+        source: payload.source,
+      });
     }
 
     return { ok: true };

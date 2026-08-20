@@ -6,10 +6,12 @@ import {
 } from "@/lib/whatsapp-templates";
 
 const OPTIONS: Exclude<WhatsAppTemplateType, "CUSTOM">[] = [
-  "OWNER",
-  "STUDENT",
-  "FOLLOW_UP_OWNER",
-  "FOLLOW_UP_STUDENT",
+  "OWNER_FIRST_CONTACT",
+  "OWNER_FOLLOW_UP",
+  "AGENCY_FIRST_CONTACT",
+  "AGENCY_FOLLOW_UP",
+  "STUDENT_FIRST_CONTACT",
+  "STUDENT_FOLLOW_UP",
 ];
 
 export default function ContactTemplateSelector({
@@ -23,6 +25,17 @@ export default function ContactTemplateSelector({
   allowCustom?: boolean;
   id?: string;
 }) {
+  const normalized =
+    value === "OWNER"
+      ? "OWNER_FIRST_CONTACT"
+      : value === "STUDENT"
+        ? "STUDENT_FIRST_CONTACT"
+        : value === "FOLLOW_UP_OWNER"
+          ? "OWNER_FOLLOW_UP"
+          : value === "FOLLOW_UP_STUDENT"
+            ? "STUDENT_FOLLOW_UP"
+            : value;
+
   return (
     <div>
       <label
@@ -33,7 +46,7 @@ export default function ContactTemplateSelector({
       </label>
       <select
         id={id}
-        value={value}
+        value={normalized}
         onChange={(e) => onChange(e.target.value as WhatsAppTemplateType)}
         className="w-full rounded-xl border border-sea-100 bg-white px-3 py-2.5 text-sm focus:border-sea-400 focus:outline-none focus:ring-2 focus:ring-sea-400/30"
       >

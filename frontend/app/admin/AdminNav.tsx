@@ -7,6 +7,12 @@ import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/crm", label: "Contact Center" },
+  { href: "/admin/crm/owners", label: "Proprietari" },
+  { href: "/admin/crm/agencies", label: "Agenzie" },
+  { href: "/admin/crm/pipeline", label: "Pipeline CRM" },
+  { href: "/admin/crm/properties", label: "Immobili CRM" },
+  { href: "/admin/crm/dashboard", label: "Acquisition" },
   { href: "/admin/users", label: "Persone" },
   { href: "/admin/conversations", label: "Conversazioni" },
   { href: "/admin/waitlist", label: "Lista d'attesa" },

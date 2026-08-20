@@ -13,17 +13,21 @@ import {
 } from "@/app/admin/whatsapp/actions";
 
 const KEYS: TemplateKey[] = [
-  "OWNER",
-  "STUDENT",
-  "FOLLOW_UP_OWNER",
-  "FOLLOW_UP_STUDENT",
+  "OWNER_FIRST_CONTACT",
+  "OWNER_FOLLOW_UP",
+  "AGENCY_FIRST_CONTACT",
+  "AGENCY_FOLLOW_UP",
+  "STUDENT_FIRST_CONTACT",
+  "STUDENT_FOLLOW_UP",
 ];
 
-const LABELS: Record<TemplateKey, string> = {
-  OWNER: "Messaggio proprietario",
-  STUDENT: "Messaggio studente",
-  FOLLOW_UP_OWNER: "Follow-up proprietario",
-  FOLLOW_UP_STUDENT: "Follow-up studente",
+const LABELS: Partial<Record<TemplateKey, string>> = {
+  OWNER_FIRST_CONTACT: "Proprietario — primo",
+  OWNER_FOLLOW_UP: "Proprietario — follow-up",
+  AGENCY_FIRST_CONTACT: "Agenzia — primo",
+  AGENCY_FOLLOW_UP: "Agenzia — follow-up",
+  STUDENT_FIRST_CONTACT: "Studente — primo",
+  STUDENT_FOLLOW_UP: "Studente — follow-up",
 };
 
 export default function WhatsAppSettingsForm({
@@ -31,22 +35,33 @@ export default function WhatsAppSettingsForm({
 }: {
   initialTemplates: Record<TemplateKey, string>;
 }) {
-  const [active, setActive] = useState<TemplateKey>("OWNER");
+  const [active, setActive] = useState<TemplateKey>("OWNER_FIRST_CONTACT");
   const [drafts, setDrafts] = useState(initialTemplates);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const preview = useMemo(() => {
-    return buildWhatsAppMessage(active as WhatsAppTemplateType, {
-      contactType: active.includes("STUDENT") ? "student" : "owner",
-      firstName: "Marco",
-      lastName: "Rossi",
-      city: "Ancona",
-      propertyName: "Via Podesti 12",
-      propertyLink: "https://coabito.it/stanza/esempio",
-      agentName: "Giovanni",
-    }, null, drafts);
+    const kind = active.includes("AGENCY")
+      ? "agency"
+      : active.includes("STUDENT")
+        ? "student"
+        : "owner";
+    return buildWhatsAppMessage(
+      active as WhatsAppTemplateType,
+      {
+        contactType: kind,
+        firstName: "Marco",
+        lastName: "Rossi",
+        city: "Ancona",
+        propertyName: "Via Podesti 12",
+        propertyLink: "https://coabito.it/stanza/esempio",
+        agencyName: "Agenzia Adriatica",
+        agentName: "Giovanni",
+      },
+      null,
+      drafts,
+    );
   }, [active, drafts]);
 
   function save() {
@@ -68,7 +83,6 @@ export default function WhatsAppSettingsForm({
         setError(res.error ?? "Errore reset");
         return;
       }
-      // Ricarica pagina per riprendere i default dal server
       window.location.reload();
     });
   }
@@ -91,7 +105,7 @@ export default function WhatsAppSettingsForm({
                 : "bg-sea-50 text-sea-700 hover:bg-sea-100"
             }`}
           >
-            {LABELS[key]}
+            {LABELS[key] ?? key}
           </button>
         ))}
       </div>
@@ -110,19 +124,14 @@ export default function WhatsAppSettingsForm({
             </code>
           ))}
         </div>
-        <p className="mt-2 text-[11px] text-ink-muted">
-          Usa anche{" "}
-          <code className="text-[11px]">{"{{#propertyName}}…{{/propertyName}}"}</code>{" "}
-          per testo opzionale.
-        </p>
       </div>
 
       <div>
         <label className="mb-1 block text-xs font-medium text-ink-muted">
-          {LABELS[active]}
+          {LABELS[active] ?? active}
         </label>
         <textarea
-          value={drafts[active]}
+          value={drafts[active] ?? ""}
           onChange={(e) =>
             setDrafts((d) => ({ ...d, [active]: e.target.value }))
           }
