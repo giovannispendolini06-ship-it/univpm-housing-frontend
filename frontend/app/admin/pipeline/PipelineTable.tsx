@@ -11,8 +11,10 @@ import {
   labelForZone,
   type LandlordLeadStatus,
 } from "@/lib/landlord-leads";
-import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { updateLandlordLeadStatus } from "./actions";
+import WhatsAppButton from "@/components/admin/whatsapp/WhatsAppButton";
+import { splitFullName } from "@/lib/whatsapp-templates";
+import { SITE_URL } from "@/lib/site";
 
 function sortLeads(leads: LandlordLead[]): LandlordLead[] {
   const rank = (lead: LandlordLead) => {
@@ -145,10 +147,7 @@ export default function PipelineTable({ leads }: { leads: LandlordLead[] }) {
             </thead>
             <tbody>
               {sorted.map((lead) => {
-                const wa = buildWhatsAppLink(
-                  lead.telefono,
-                  `Ciao ${lead.nome}, sono Giovanni di Coabito. Ti contatto riguardo all'immobile${lead.indirizzo_immobile ? ` in ${lead.indirizzo_immobile}` : ""} — hai un momento per parlarne?`,
-                );
+                const { firstName, lastName } = splitFullName(lead.nome);
                 return (
                   <tr key={lead.id} className="border-b border-sea-50 last:border-0">
                     <td className="px-3 py-3">
@@ -186,17 +185,26 @@ export default function PipelineTable({ leads }: { leads: LandlordLead[] }) {
                       {lead.prezzo_richiesto != null ? `${lead.prezzo_richiesto}€` : "—"}
                     </td>
                     <td className="px-3 py-3">
-                      <div className="flex flex-wrap gap-2">
-                        {wa && (
-                          <a
-                            href={wa}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="rounded-full bg-[#25D366]/15 px-2.5 py-1 text-[11px] font-semibold text-[#128C7E]"
-                          >
-                            WhatsApp
-                          </a>
-                        )}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <WhatsAppButton
+                          phone={lead.telefono}
+                          displayName={lead.nome}
+                          contactData={{
+                            contactType: "owner",
+                            fullName: lead.nome,
+                            firstName,
+                            lastName,
+                            phone: lead.telefono,
+                            propertyName: lead.indirizzo_immobile,
+                            propertyLink: lead.link_annuncio,
+                            coabitoLink: SITE_URL,
+                          }}
+                          entityKind="landlord_lead"
+                          entityId={lead.id}
+                          source="admin_pipeline_table"
+                          variant="compact"
+                          showMenu
+                        />
                         <Link
                           href={`/admin/pipeline/${lead.id}`}
                           className="rounded-full bg-sea-50 px-2.5 py-1 text-[11px] font-semibold text-sea-700"

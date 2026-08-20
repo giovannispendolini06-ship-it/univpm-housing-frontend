@@ -7,6 +7,12 @@ import { Menu, X } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/crm", label: "Contact Center" },
+  { href: "/admin/crm/owners", label: "Proprietari" },
+  { href: "/admin/crm/agencies", label: "Agenzie" },
+  { href: "/admin/crm/pipeline", label: "Pipeline CRM" },
+  { href: "/admin/crm/properties", label: "Immobili CRM" },
+  { href: "/admin/crm/dashboard", label: "Acquisition" },
   { href: "/admin/users", label: "Persone" },
   { href: "/admin/conversations", label: "Conversazioni" },
   { href: "/admin/waitlist", label: "Lista d'attesa" },
@@ -15,6 +21,7 @@ const NAV_LINKS = [
   { href: "/admin/leads", label: "Annunci esterni" },
   { href: "/admin/properties", label: "Immobili" },
   { href: "/admin/payments", label: "Pagamenti" },
+  { href: "/admin/settings/whatsapp", label: "Messaggi WhatsApp" },
 ];
 
 export default function AdminNav({
