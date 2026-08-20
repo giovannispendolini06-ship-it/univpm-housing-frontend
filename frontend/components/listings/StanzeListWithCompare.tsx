@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
 import type { Listing } from "@/lib/domain/types";
 import { useLocale } from "@/lib/i18n/LocaleContext";
@@ -35,7 +41,7 @@ export default function StanzeListWithCompare({
   }, []);
 
   return (
-    <div className={selectedIds.length >= 2 ? "pb-24" : undefined}>
+    <div className={selectedIds.length >= 2 ? "pb-[calc(5.5rem+env(safe-area-inset-bottom))]" : undefined}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {listings.map((listing) => (
           <PublicRoomCard
@@ -50,11 +56,20 @@ export default function StanzeListWithCompare({
         ))}
       </div>
 
+      {selectedIds.length >= 1 && selectedIds.length < 2 && (
+        <p className="mt-4 text-center text-xs text-ink-muted" role="status">
+          {C.needTwo}
+        </p>
+      )}
+
       {selectedIds.length >= 2 && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-sea-100 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(15,42,46,0.08)] backdrop-blur-sm sm:px-6">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-sea-100 bg-white/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(15,42,46,0.08)] backdrop-blur-sm sm:px-6">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-ink-muted">
               {C.selectedCount.replace("{n}", String(selectedIds.length))}
+              {selectedIds.length >= MAX_COMPARE ? (
+                <span className="ml-1 text-[11px]">· {C.maxReached}</span>
+              ) : null}
             </p>
             <div className="flex flex-wrap gap-2">
               <button
@@ -67,7 +82,7 @@ export default function StanzeListWithCompare({
               <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sea-700"
+                className="rounded-full bg-sunset-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sunset-600"
               >
                 {C.compareButton.replace("{n}", String(selectedIds.length))}
               </button>
@@ -77,10 +92,7 @@ export default function StanzeListWithCompare({
       )}
 
       {open && selected.length >= 2 && (
-        <CompareModal
-          listings={selected}
-          onClose={() => setOpen(false)}
-        />
+        <CompareModal listings={selected} onClose={() => setOpen(false)} />
       )}
     </div>
   );
@@ -96,6 +108,33 @@ function CompareModal({
   const { t } = useLocale();
   const C = t.listingsCompare;
   const L = t.listingsCard;
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  const bestMatchId = useMemo(() => {
+    let best: string | null = null;
+    let bestScore = -1;
+    for (const l of listings) {
+      if (l.matchScore != null && l.matchScore > bestScore) {
+        bestScore = l.matchScore;
+        best = l.id;
+      }
+    }
+    return best;
+  }, [listings]);
+
+  const colMin = listings.length >= 3 ? "min-w-[200px]" : "min-w-[240px]";
 
   return (
     <div
@@ -122,14 +161,25 @@ function CompareModal({
           </button>
         </div>
 
-        <div className="overflow-x-auto p-4 sm:p-6">
-          <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+        {/* Mobile-first: horizontal scroll so cards stay side-by-side */}
+        <div className="overflow-x-auto overscroll-x-contain p-4 sm:p-6">
+          <table
+            className={`w-full border-collapse text-left text-sm ${
+              listings.length >= 3 ? "min-w-[640px]" : "min-w-[480px]"
+            }`}
+          >
             <thead>
               <tr>
-                <th className="w-28 py-2 pr-3 text-xs font-semibold uppercase tracking-wide text-ink-muted" />
+                <th className="sticky left-0 z-[1] w-24 bg-bg py-2 pr-3 text-xs font-semibold uppercase tracking-wide text-ink-muted sm:w-28" />
                 {listings.map((listing) => (
-                  <th key={listing.id} className="px-2 py-2 align-bottom">
-                    <div className="overflow-hidden rounded-xl border border-sea-100 bg-white shadow-card">
+                  <th key={listing.id} className={`px-2 py-2 align-bottom ${colMin}`}>
+                    <div
+                      className={`overflow-hidden rounded-xl border bg-white shadow-card ${
+                        listing.id === bestMatchId
+                          ? "border-sea-600 ring-2 ring-sea-600/20"
+                          : "border-sea-100"
+                      }`}
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={listing.photoUrls[0]}
@@ -144,6 +194,11 @@ function CompareModal({
                           <span className="mt-1 inline-flex rounded-full bg-sea-600 px-2 py-0.5 text-[10px] font-semibold text-white">
                             {L.guaranteedRent}
                           </span>
+                        )}
+                        {listing.id === bestMatchId && listing.matchScore != null && (
+                          <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-sea-700">
+                            {C.bestMatch}
+                          </p>
                         )}
                         <Link
                           href={`/stanza/${listing.id}`}
@@ -160,7 +215,10 @@ function CompareModal({
             <tbody>
               <CompareRow label={C.rowPrice}>
                 {listings.map((l) => (
-                  <td key={l.id} className="px-2 py-3 align-top font-semibold tabular-nums text-ink">
+                  <td
+                    key={l.id}
+                    className="px-2 py-3 align-top font-semibold tabular-nums text-ink"
+                  >
                     {l.monthlyRent}€
                     <span className="block text-[11px] font-normal text-ink-muted">
                       {l.utilitiesEstimate > 0
@@ -187,15 +245,26 @@ function CompareModal({
               </CompareRow>
               <CompareRow label={C.rowMatch}>
                 {listings.map((l) => (
-                  <td key={l.id} className="px-2 py-3 align-top font-semibold text-ink">
-                    {l.matchScore != null ? `${Math.round(l.matchScore)}%` : C.matchUnknown}
+                  <td
+                    key={l.id}
+                    className={`px-2 py-3 align-top font-semibold ${
+                      l.id === bestMatchId ? "text-sea-700" : "text-ink"
+                    }`}
+                  >
+                    {l.matchScore != null
+                      ? `${Math.round(l.matchScore)}%`
+                      : C.matchUnknown}
                   </td>
                 ))}
               </CompareRow>
               <CompareRow label={C.rowGuaranteed}>
                 {listings.map((l) => (
                   <td key={l.id} className="px-2 py-3 align-top text-ink">
-                    {l.guaranteedRent ? C.yes : C.no}
+                    {l.guaranteedRent ? (
+                      <span className="font-semibold text-sea-700">{C.yes}</span>
+                    ) : (
+                      C.no
+                    )}
                   </td>
                 ))}
               </CompareRow>
@@ -242,7 +311,7 @@ function CompareRow({
     <tr className="border-t border-sea-100">
       <th
         scope="row"
-        className="py-3 pr-3 align-top text-xs font-semibold uppercase tracking-wide text-ink-muted"
+        className="sticky left-0 z-[1] bg-bg py-3 pr-3 align-top text-xs font-semibold uppercase tracking-wide text-ink-muted"
       >
         {label}
       </th>

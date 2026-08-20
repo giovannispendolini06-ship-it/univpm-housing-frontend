@@ -340,6 +340,9 @@ export const translations = {
       noTags: "—",
       distancePending: "Non ancora calcolata",
       utilitiesIncludedHint: "utenze da verificare",
+      needTwo: "Seleziona almeno 2 stanze per confrontarle.",
+      maxReached: "massimo 3",
+      bestMatch: "Miglior match",
     },
     ownerDashboard: {
       widgetEyebrow: "Canone garantito Coabito",
@@ -927,6 +930,9 @@ export const translations = {
       noTags: "—",
       distancePending: "Not calculated yet",
       utilitiesIncludedHint: "utilities TBC",
+      needTwo: "Select at least 2 rooms to compare them.",
+      maxReached: "max 3",
+      bestMatch: "Best match",
     },
     ownerDashboard: {
       widgetEyebrow: "Coabito guaranteed rent",
