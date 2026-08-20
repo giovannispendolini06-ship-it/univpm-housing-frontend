@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Fraunces, Source_Sans_3 } from "next/font/google";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import JsonLd from "@/components/JsonLd";
@@ -8,16 +8,20 @@ import { organizationJsonLd } from "@/lib/seo/structured-data";
 import { SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const display = Space_Grotesk({
+/** Display: Fraunces — editorial warmth without cream/terracotta stock look */
+const display = Fraunces({
   subsets: ["latin"],
-  weight: ["500", "700"],
+  weight: ["600", "700"],
   variable: "--font-display",
+  display: "swap",
 });
 
-const body = Inter({
+/** Body: Source Sans 3 — readable UI, pairs with Fraunces (matches email brand) */
+const body = Source_Sans_3({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-body",
+  display: "swap",
 });
 
 export const viewport: Viewport = {
