@@ -27,13 +27,19 @@ export interface User {
   verifiedAt: string | null;
 }
 
-/** Onboarding KYC-lite fields on users (not a separate table). */
+/** Onboarding KYC-lite + progressive profile fields on users. */
 export interface Profile {
   userId: string;
   fiscalCode: string | null;
   dateOfBirth: string | null;
   phone: string | null;
   avatarUrl: string | null;
+  lastName?: string | null;
+  placeOfBirth?: string | null;
+  sex?: string | null;
+  hasGuarantor?: boolean | null;
+  iban?: string | null;
+  companyName?: string | null;
 }
 
 /** student_profiles — lifestyle + academic prefs for Compatibilità Coabito */

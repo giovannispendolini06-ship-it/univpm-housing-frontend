@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireSession } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { getLifestyleProfile } from "@/lib/data/profiles";
-import VerifiedBadge from "@/components/VerifiedBadge";
+import {
+  computeProfileCompletion,
+  displayFullName,
+  type ProfileSex,
+} from "@/lib/profile-completion";
 import type { VerificationStatus } from "@/lib/verification";
 import StudentShell from "@/components/student/StudentShell";
-import SignOutButton from "@/components/SignOutButton";
-import DeleteAccountButton from "@/components/DeleteAccountButton";
+import ProfiloContent from "./ProfiloContent";
 
 export const dynamic = "force-dynamic";
 
@@ -22,12 +24,12 @@ export default async function ProfiloPage() {
   const { data: user } = await db
     .from("users")
     .select(
-      "full_name, email, phone, avatar_url, fiscal_code, date_of_birth, verification_status, role",
+      "full_name, last_name, email, phone, avatar_url, fiscal_code, date_of_birth, place_of_birth, sex, has_guarantor, iban, company_name, verification_status, role",
     )
     .eq("id", session.id)
     .single();
 
-  const lifestyle =
+  const lifestyleRow =
     session.role === "student"
       ? (await getLifestyleProfile(db, session.id)).data
       : null;
@@ -40,134 +42,65 @@ export default async function ProfiloPage() {
         : "/dashboard";
 
   const isStudent = session.role === "student";
+  const completion = computeProfileCompletion(
+    session.role === "owner" ? "owner" : session.role === "admin" ? "admin" : "student",
+    user,
+  );
+
+  const guarantorValue: "yes" | "no" | "" =
+    user?.has_guarantor === true
+      ? "yes"
+      : user?.has_guarantor === false
+        ? "no"
+        : "";
+
+  const formInitial =
+    session.role === "student" || session.role === "owner"
+      ? {
+          full_name: user?.full_name ?? "",
+          last_name: user?.last_name ?? "",
+          phone: user?.phone ?? "",
+          date_of_birth: user?.date_of_birth ?? "",
+          place_of_birth: user?.place_of_birth ?? "",
+          sex: ((user?.sex as ProfileSex | null) ?? "") as ProfileSex | "",
+          has_guarantor: guarantorValue,
+          fiscal_code: user?.fiscal_code ?? "",
+          iban: user?.iban ?? "",
+          company_name: user?.company_name ?? "",
+          avatar_url: user?.avatar_url ?? null,
+        }
+      : null;
+
+  const lifestyle = lifestyleRow
+    ? {
+        budget_max: lifestyleRow.budget_max as number | null,
+        preferred_move_in_date: lifestyleRow.preferred_move_in_date as string | null,
+        polo_univpm: lifestyleRow.polo_univpm as string | null,
+        cleanliness_level: lifestyleRow.cleanliness_level as number | null,
+        sociability_level: lifestyleRow.sociability_level as number | null,
+        is_smoker: lifestyleRow.is_smoker as boolean | null,
+        has_pets: lifestyleRow.has_pets as boolean | null,
+      }
+    : null;
 
   const body = (
-    <div className="px-4 py-6 sm:px-6">
-      <header className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-ink">Il tuo profilo</h1>
-        <p className="mt-1 text-sm text-ink-muted">
-          Dati account e preferenze raccolte con Vesta.
-        </p>
-      </header>
-
-      <section className="rounded-xl2 bg-white p-5 shadow-card">
-        <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sea-50">
-            {user?.avatar_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={user.avatar_url}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <span className="text-lg font-bold text-sea-700">
-                {(user?.full_name ?? "?").slice(0, 1).toUpperCase()}
-              </span>
-            )}
-          </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-display text-lg font-bold text-ink">
-                {user?.full_name ?? "Utente"}
-              </p>
-              <VerifiedBadge
-                status={(user?.verification_status as VerificationStatus) ?? "none"}
-                role={session.role === "owner" ? "owner" : "student"}
-              />
-            </div>
-            <p className="text-sm text-ink-muted">{user?.email}</p>
-            <p className="text-xs capitalize text-ink-muted">{session.role}</p>
-          </div>
-        </div>
-
-        <dl className="mt-5 grid gap-3 border-t border-bg pt-4 text-sm">
-          <div>
-            <dt className="text-xs text-ink-muted">Telefono</dt>
-            <dd className="font-medium text-ink">{user?.phone ?? "—"}</dd>
-          </div>
-          {session.role === "student" && (
-            <div>
-              <dt className="text-xs text-ink-muted">Data di nascita</dt>
-              <dd className="font-medium text-ink">{user?.date_of_birth ?? "—"}</dd>
-            </div>
-          )}
-        </dl>
-      </section>
-
-      {lifestyle && (
-        <section className="mt-4 rounded-xl2 bg-white p-5 shadow-card">
-          <h2 className="font-display text-sm font-bold text-ink">
-            Preferenze casa (Compatibilità Coabito)
-          </h2>
-          <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-            <div>
-              <dt className="text-xs text-ink-muted">Budget max</dt>
-              <dd className="font-medium text-ink">
-                {lifestyle.budget_max != null ? `${lifestyle.budget_max}€` : "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink-muted">Ingresso preferito</dt>
-              <dd className="font-medium text-ink">
-                {lifestyle.preferred_move_in_date ?? "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink-muted">Polo</dt>
-              <dd className="font-medium text-ink">{lifestyle.polo_univpm ?? "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink-muted">Ordine (1–5)</dt>
-              <dd className="font-medium text-ink">
-                {lifestyle.cleanliness_level ?? "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink-muted">Fumo</dt>
-              <dd className="font-medium text-ink">
-                {lifestyle.is_smoker ? "Fumo" : "Non fumo"}
-                {lifestyle.tolerates_smokers === false ? " · no-smoke casa" : ""}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs text-ink-muted">Animali</dt>
-              <dd className="font-medium text-ink">
-                {lifestyle.has_pets ? "Sì" : "No"}
-              </dd>
-            </div>
-          </dl>
-          <p className="mt-4 text-xs text-ink-muted">
-            Per aggiornare le preferenze, continua la chat con Vesta: aggiorna
-            Compatibilità Coabito senza ripetere l&apos;onboarding.
-          </p>
-          <Link
-            href="/dashboard"
-            className="mt-3 inline-block text-sm font-semibold text-sea-700 underline"
-          >
-            Apri Vesta →
-          </Link>
-        </section>
-      )}
-
-      <div className="mt-8 flex flex-wrap items-center gap-3 border-t border-sea-100 pt-6">
-        <SignOutButton className="rounded-full bg-sea-50 px-4 py-2 text-sm font-semibold text-ink" />
-        <DeleteAccountButton
-          isOwner={session.role === "owner"}
-          className="text-xs text-ink-muted underline underline-offset-2 hover:text-sunset-600"
-        />
-        {!isStudent && (
-          <Link href={home} className="text-sm text-sea-700 underline">
-            ← Area personale
-          </Link>
-        )}
-      </div>
-    </div>
+    <ProfiloContent
+      role={session.role}
+      email={user?.email ?? session.email}
+      displayName={displayFullName(user ?? {})}
+      completion={completion}
+      formInitial={formInitial}
+      verificationStatus={
+        (user?.verification_status as VerificationStatus) ?? "none"
+      }
+      lifestyle={lifestyle}
+      homeHref={home}
+    />
   );
 
   if (isStudent) {
     return <StudentShell>{body}</StudentShell>;
   }
 
-  return <main className="min-h-dvh bg-bg">{body}</main>;
+  return <main className="mx-auto min-h-dvh max-w-lg bg-bg">{body}</main>;
 }
