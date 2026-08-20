@@ -36,14 +36,45 @@ create policy "room_applications_select_own" on public.room_applications
   for select using (auth.uid() = student_id);
 
 create policy "room_applications_insert_own" on public.room_applications
-  for insert with check (auth.uid() = student_id);
+  for insert with check (
+    auth.uid() = student_id
+    and status in ('draft', 'submitted')
+  );
 
-create policy "room_applications_update_own" on public.room_applications
-  for update using (auth.uid() = student_id);
+-- Studente: può solo ritirare (withdrawn) o aggiornare message — mai accepted/rejected.
+create policy "room_applications_update_own_withdraw" on public.room_applications
+  for update
+  using (auth.uid() = student_id)
+  with check (
+    auth.uid() = student_id
+    and status in ('draft', 'submitted', 'withdrawn')
+  );
 
 -- Owners can read applications for rooms on their properties
 create policy "room_applications_select_owner" on public.room_applications
   for select using (
+    exists (
+      select 1
+      from public.rooms r
+      join public.properties p on p.id = r.property_id
+      where r.id = room_applications.room_id
+        and p.owner_id = auth.uid()
+    )
+  );
+
+-- Owners: update status on applications for their rooms (not student self-accept)
+create policy "room_applications_update_owner" on public.room_applications
+  for update
+  using (
+    exists (
+      select 1
+      from public.rooms r
+      join public.properties p on p.id = r.property_id
+      where r.id = room_applications.room_id
+        and p.owner_id = auth.uid()
+    )
+  )
+  with check (
     exists (
       select 1
       from public.rooms r

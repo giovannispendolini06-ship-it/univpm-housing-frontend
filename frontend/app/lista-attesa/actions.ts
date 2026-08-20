@@ -108,7 +108,7 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
       : null,
   };
 
-  // Service role: serve anche se le colonne DOI non fossero ancora nelle policy RLS tipiche.
+  // Service role: waitlist RLS denies anon INSERT (DOI fields server-only).
   const supabase = createServiceSupabaseClient();
   const { error } = await supabase.from("waitlist_signups").insert(insertPayload);
 

@@ -1,11 +1,7 @@
 -- ============================================================================
--- MIGRATION: auto-creazione profilo utente alla registrazione
--- Necessaria ora che abbiamo aggiunto login/registrazione: quando qualcuno
--- si iscrive tramite Supabase Auth, questa funzione copia automaticamente
--- i suoi dati nella tabella public.users (quella collegata al resto dello
--- schema: properties, student_profiles, ecc.).
---
--- SECURITY: role da metadata SOLO student|owner. Mai admin (solo SQL/ops).
+-- SECURITY CORRECTIVE: lock down handle_new_user role assignment
+-- Apply on existing projects where migration_auto_create_user.sql already ran.
+-- Admin MUST never come from Auth user metadata / client signup.
 -- ============================================================================
 
 create or replace function public.handle_new_user()
@@ -17,7 +13,6 @@ as $$
 declare
   safe_role text;
 begin
-  -- Non fidarsi di raw_user_meta_data per privilegi: admin non è mai ammesso qui.
   safe_role := case
     when new.raw_user_meta_data->>'role' in ('student', 'owner')
       then new.raw_user_meta_data->>'role'
@@ -37,8 +32,5 @@ begin
 end;
 $$;
 
-drop trigger if exists on_auth_user_created on auth.users;
-
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
+comment on function public.handle_new_user() is
+  'Copies auth.users → public.users. Role limited to student|owner; admin only via ops SQL.';
