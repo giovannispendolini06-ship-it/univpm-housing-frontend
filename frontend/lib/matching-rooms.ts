@@ -293,7 +293,7 @@ export async function recalculateMatchesForRoom(
         const content =
           studentLocale === "en"
             ? `I found a new room that might interest you! 🏠 ${room.room_label}${zoneLabel ? ` in ${property.zone}` : ""}, €${room.price_monthly}/month, compatibility ${m.compatibility_score}% — check out the rooms suggested on the right.`
-            : `Ho trovato una stanza nuova che potrebbe interessarti! 🏠 ${room.room_label}${zoneLabel}, ${room.price_monthly}€/mese, compatibilità ${m.compatibility_score}% — dai un'occhiata tra le stanze proposte qui a destra.`;
+            : `Ho trovato una nuova stanza che potrebbe interessarti! 🏠 ${room.room_label}${zoneLabel}, ${room.price_monthly}€/mese, compatibilità ${m.compatibility_score}% — dai un'occhiata tra le stanze proposte qui a destra.`;
 
         return {
           student_id: m.student_id,

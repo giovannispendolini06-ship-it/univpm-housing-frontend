@@ -598,7 +598,7 @@ export function buildNewRoomMatchEmail(input: {
   `
     : `
     <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
-      Ciao ${input.fullName}, una stanza nuova per te! 🏠
+      Ciao ${input.fullName}, una nuova stanza per te! 🏠
     </h1>
     <p style="margin:0 0 16px; color:${COLORS.ink};">
       Vesta ha trovato una nuova stanza che potrebbe interessarti:
@@ -614,7 +614,7 @@ export function buildNewRoomMatchEmail(input: {
   return {
     subject: isEn
       ? "A new compatible room, just for you"
-      : "Una stanza nuova compatibile, solo per te",
+      : "Una nuova stanza compatibile, solo per te",
     html: renderEmailLayout({
       preheader: isEn
         ? `A new room with ${input.matchScore}% compatibility is waiting for you`
