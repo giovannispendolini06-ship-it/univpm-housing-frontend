@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useLocale } from "@/lib/i18n/LocaleContext";
-import { completeOnboarding } from "./actions";
+import { completeOnboarding, skipOnboarding } from "./actions";
 import { track } from "@/lib/analytics";
 
 type Step = 1 | 2;
@@ -25,19 +25,19 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
     if (role === "student" && step === 1) {
       const fd = new FormData(e.currentTarget);
       if (!(fd.get("avatar") instanceof File) || (fd.get("avatar") as File).size === 0) {
-        setError("La foto profilo è obbligatoria.");
+        setError(t.onboarding.photoRequired);
         return;
       }
       if (!String(fd.get("phone") ?? "").trim()) {
-        setError("Il numero di telefono è obbligatorio.");
+        setError(t.onboarding.phoneRequired);
         return;
       }
       if (!String(fd.get("fiscal_code") ?? "").trim()) {
-        setError("Il codice fiscale è obbligatorio.");
+        setError(t.onboarding.fiscalRequired);
         return;
       }
       if (!String(fd.get("date_of_birth") ?? "").trim()) {
-        setError("La data di nascita è obbligatoria.");
+        setError(t.onboarding.dobRequired);
         return;
       }
       track("onboarding_started", { role, step: 1 });
@@ -56,6 +56,14 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
     });
   }
 
+  function handleSkip() {
+    setError(null);
+    track("onboarding_skipped", { role });
+    startTransition(async () => {
+      await skipOnboarding();
+    });
+  }
+
   return (
     <form
       action={handleSubmit}
@@ -64,9 +72,16 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
     >
       {role === "student" && (
         <p className="text-xs font-medium text-ink-muted">
-          Passaggio {step} di 2 — {step === 1 ? "Profilo" : "Preferenze casa"}
+          {t.onboarding.stepOf
+            .replace("{step}", String(step))
+            .replace("{total}", "2")}{" "}
+          — {step === 1 ? t.onboarding.stepProfile : t.onboarding.stepPrefs}
         </p>
       )}
+
+      <p className="rounded-xl bg-sea-50 px-3 py-2 text-xs text-sea-700">
+        {t.onboarding.optionalBanner}
+      </p>
 
       <div className={step === 1 ? "space-y-5" : "hidden"}>
         <div className="flex items-center gap-4">
@@ -79,7 +94,15 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
                 className="h-full w-full object-cover"
               />
             ) : (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-sea-300">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="text-sea-300"
+              >
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" />
               </svg>
@@ -142,9 +165,10 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
 
       {role === "student" && step === 2 && (
         <div className="space-y-4">
+          <p className="text-xs text-ink-muted">{t.onboarding.prefsViaVestaHint}</p>
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Budget max mensile (€, utenze escluse) *
+              {t.onboarding.budgetMax}
             </label>
             <input
               type="number"
@@ -158,7 +182,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Data ingresso preferita *
+              {t.onboarding.moveInDate}
             </label>
             <input
               type="date"
@@ -169,7 +193,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Polo / campus *
+              {t.onboarding.campus}
             </label>
             <select
               name="polo_univpm"
@@ -178,7 +202,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
               defaultValue=""
             >
               <option value="" disabled>
-                Seleziona
+                {t.onboarding.selectPlaceholder}
               </option>
               <option value="monte_dago">Monte Dago</option>
               <option value="torrette">Torrette</option>
@@ -188,7 +212,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
-              Livello di ordine (1 = rilassato, 5 = molto ordinato) *
+              {t.onboarding.cleanliness}
             </label>
             <input
               type="number"
@@ -203,31 +227,31 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
           <div className="grid grid-cols-1 gap-3 text-sm">
             <label className="flex items-center gap-2 text-ink">
               <input type="radio" name="is_smoker" value="no" defaultChecked />
-              Non fumo
+              {t.onboarding.noSmoke}
             </label>
             <label className="flex items-center gap-2 text-ink">
               <input type="radio" name="is_smoker" value="yes" />
-              Fumo
+              {t.onboarding.yesSmoke}
             </label>
           </div>
           <div className="grid grid-cols-1 gap-3 text-sm">
             <label className="flex items-center gap-2 text-ink">
               <input type="radio" name="tolerates_smokers" value="yes" defaultChecked />
-              Tollero chi fuma in casa
+              {t.onboarding.tolerateSmokers}
             </label>
             <label className="flex items-center gap-2 text-ink">
               <input type="radio" name="tolerates_smokers" value="no" />
-              Preferisco casa no-smoke
+              {t.onboarding.noSmokeHome}
             </label>
           </div>
           <div className="grid grid-cols-1 gap-3 text-sm">
             <label className="flex items-center gap-2 text-ink">
               <input type="radio" name="has_pets" value="no" defaultChecked />
-              Non ho animali
+              {t.onboarding.noPets}
             </label>
             <label className="flex items-center gap-2 text-ink">
               <input type="radio" name="has_pets" value="yes" />
-              Ho / vorrei animali
+              {t.onboarding.hasPets}
             </label>
           </div>
           <button
@@ -235,7 +259,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
             onClick={() => setStep(1)}
             className="text-xs font-semibold text-sea-700 underline"
           >
-            ← Torna al profilo
+            {t.onboarding.backToProfile}
           </button>
         </div>
       )}
@@ -251,7 +275,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
           type="submit"
           className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition hover:bg-sea-700"
         >
-          Continua — preferenze
+          {t.onboarding.continuePrefs}
         </button>
       ) : (
         <button
@@ -262,6 +286,15 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
           {isPending ? t.common.oneMoment : t.onboarding.continueButton}
         </button>
       )}
+
+      <button
+        type="button"
+        onClick={handleSkip}
+        disabled={isPending}
+        className="w-full text-center text-xs font-semibold text-sea-700 underline underline-offset-2 disabled:opacity-50"
+      >
+        {t.onboarding.skipForNow}
+      </button>
     </form>
   );
 }

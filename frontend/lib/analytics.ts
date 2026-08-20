@@ -52,6 +52,7 @@ export type AnalyticsEventName =
   | "landing_cta_clicked"
   | "onboarding_started"
   | "onboarding_completed"
+  | "onboarding_skipped"
   | "search_performed"
   | "listing_viewed"
   | "listing_saved"
