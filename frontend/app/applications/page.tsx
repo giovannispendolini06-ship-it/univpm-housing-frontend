@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { listApplicationsForStudent } from "@/lib/data/applications";
 import EscrowStatusPanel from "@/components/escrow/EscrowStatusPanel";
+import StudentShell from "@/components/student/StudentShell";
 import {
   computeEscrowAmountCents,
   type EscrowCoverage,
@@ -16,22 +17,16 @@ export default async function ApplicationsPage() {
   const { data: apps, error } = await listApplicationsForStudent(db, session.id);
 
   return (
-    <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="font-display text-2xl font-bold text-ink">Le tue candidature</h1>
-          <div className="flex gap-3 text-sm">
-            <Link href="/profilo" className="text-sea-700 underline">
-              Profilo
-            </Link>
-            <Link href="/messages" className="text-sea-700 underline">
-              Messaggi
-            </Link>
-            <Link href="/dashboard" className="text-sea-700 underline">
-              Dashboard
-            </Link>
-          </div>
-        </div>
+    <StudentShell>
+      <div className="px-4 py-6 sm:px-6">
+        <header className="mb-6">
+          <h1 className="font-display text-2xl font-bold text-ink">
+            Le tue candidature
+          </h1>
+          <p className="mt-1 text-sm text-ink-muted">
+            Stato delle richieste alle stanze che ti interessano.
+          </p>
+        </header>
 
         {error && (
           <p
@@ -51,7 +46,7 @@ export default async function ApplicationsPage() {
             </p>
             <Link
               href="/stanze"
-              className="mt-4 inline-block rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white"
+              className="mt-4 inline-block rounded-full bg-sunset-500 px-4 py-2 text-sm font-semibold text-white"
             >
               Vai alle stanze
             </Link>
@@ -135,6 +130,6 @@ export default async function ApplicationsPage() {
           })}
         </ul>
       </div>
-    </main>
+    </StudentShell>
   );
 }

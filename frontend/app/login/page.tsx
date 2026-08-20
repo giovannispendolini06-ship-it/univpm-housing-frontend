@@ -386,7 +386,7 @@ function LoginPageInner() {
                       type="button"
                       onClick={() => setRole("student")}
                       aria-pressed={role === "student"}
-                      className={`${styles.roleCard} ${
+                      className={`${styles.roleCard} text-sea-600 ${
                         role === "student" ? styles.roleCardSelected : ""
                       }`}
                     >
@@ -397,7 +397,7 @@ function LoginPageInner() {
                       type="button"
                       onClick={() => setRole("owner")}
                       aria-pressed={role === "owner"}
-                      className={`${styles.roleCard} ${
+                      className={`${styles.roleCard} text-sea-600 ${
                         role === "owner" ? styles.roleCardSelected : ""
                       }`}
                     >

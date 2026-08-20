@@ -3,6 +3,7 @@ import Link from "next/link";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
 import StanzeBrowse from "@/components/listings/StanzeBrowse";
+import StudentShell from "@/components/student/StudentShell";
 import { listPublicListings } from "@/lib/listings";
 import { getOptionalSession } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
@@ -97,6 +98,8 @@ export default async function StanzePage({
 
   let listings: Listing[] = [];
   let loadError: string | null = null;
+  const session = await getOptionalSession();
+  const useStudentChrome = session?.role === "student";
 
   try {
     listings = await listPublicListings({
@@ -115,9 +118,7 @@ export default async function StanzePage({
       err instanceof Error ? err.message : "Errore nel caricamento delle stanze.";
   }
 
-  return (
-    <main className="bg-bg">
-      <LandingNavbar />
+  const pageBody = (
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <header className="mb-8 max-w-2xl">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-sea-700">
@@ -284,6 +285,16 @@ export default async function StanzePage({
 
         {listings.length > 0 && <StanzeBrowse listings={listings} />}
       </div>
+  );
+
+  if (useStudentChrome) {
+    return <StudentShell>{pageBody}</StudentShell>;
+  }
+
+  return (
+    <main className="bg-bg">
+      <LandingNavbar />
+      {pageBody}
       <LandingFooter />
     </main>
   );
