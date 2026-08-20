@@ -1,23 +1,54 @@
 import type { ChatMessage } from "@/lib/types";
 import VestaAvatar from "./VestaAvatar";
 
-export default function ChatBubble({ message }: { message: ChatMessage }) {
+/**
+ * Visual thread: Vesta (assistant) left / neutral; student (user) right / coral.
+ * Labels make attribution obvious even in long histories.
+ */
+export default function ChatBubble({
+  message,
+  showLabel = true,
+}: {
+  message: ChatMessage;
+  showLabel?: boolean;
+}) {
   const isAssistant = message.role === "assistant";
 
   return (
     <div
-      className={`flex items-end gap-2 ${isAssistant ? "justify-start" : "justify-end"} w-full animate-fade-in-up`}
+      className={`flex w-full items-end gap-2 animate-fade-in-up ${
+        isAssistant ? "justify-start" : "justify-end"
+      }`}
     >
-      {isAssistant && <VestaAvatar size={26} />}
+      {isAssistant && (
+        <div className="mb-0.5 shrink-0">
+          <VestaAvatar size={28} />
+        </div>
+      )}
       <div
-        className={[
-          "max-w-[80%] sm:max-w-[70%] rounded-xl2 px-4 py-2.5 text-[15px] leading-relaxed shadow-chat",
-          isAssistant
-            ? "bg-white text-ink rounded-tl-sm"
-            : "bg-sea-600 text-white rounded-tr-sm",
-        ].join(" ")}
+        className={`flex max-w-[82%] flex-col sm:max-w-[72%] ${
+          isAssistant ? "items-start" : "items-end"
+        }`}
       >
-        {message.content}
+        {showLabel && (
+          <span
+            className={`mb-1 px-1 text-[10px] font-semibold uppercase tracking-wide ${
+              isAssistant ? "text-sea-700" : "text-sunset-600"
+            }`}
+          >
+            {isAssistant ? "Vesta" : "Tu"}
+          </span>
+        )}
+        <div
+          className={[
+            "rounded-2xl px-3.5 py-2.5 text-[15px] leading-relaxed shadow-chat",
+            isAssistant
+              ? "rounded-tl-md border border-sea-100 bg-white text-ink"
+              : "rounded-tr-md bg-sunset-500 text-white",
+          ].join(" ")}
+        >
+          {message.content}
+        </div>
       </div>
     </div>
   );
