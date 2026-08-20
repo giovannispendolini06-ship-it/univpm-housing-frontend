@@ -122,6 +122,9 @@ export interface Listing {
   /** True = seed supply with Coabito guaranteed rent (trust badge) */
   guaranteedRent: boolean;
   propertyStatus: string;
+  /** Optional exact pin; prefer approximate zone centroid when absent */
+  latitude?: number | null;
+  longitude?: number | null;
   /** Present when the viewer has Compatibilità Coabito scores */
   matchScore?: number | null;
   matchReasons?: { label: string; detail: string; weight: "alto" | "medio" | "basso" }[];
