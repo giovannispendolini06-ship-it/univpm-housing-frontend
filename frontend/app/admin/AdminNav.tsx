@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { href: "/admin/leads", label: "Annunci esterni" },
   { href: "/admin/properties", label: "Immobili" },
   { href: "/admin/payments", label: "Pagamenti" },
+  { href: "/admin/settings/whatsapp", label: "Messaggi WhatsApp" },
 ];
 
 export default function AdminNav({

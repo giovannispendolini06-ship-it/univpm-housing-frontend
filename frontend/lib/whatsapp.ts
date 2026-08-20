@@ -49,3 +49,21 @@ export function buildWhatsAppLink(phone: string, message: string): string | null
 
   return `https://wa.me/${digitsOnly}?text=${encodeURIComponent(message)}`;
 }
+
+/**
+ * Alias semantico per il flusso CRM admin.
+ * Normalizza telefono, URL-encode del testo, restituisce wa.me o null.
+ */
+export function createWhatsAppUrl(
+  phone: string | null | undefined,
+  message: string,
+): string | null {
+  if (!phone?.trim()) return null;
+  return buildWhatsAppLink(phone, message);
+}
+
+/** True se il numero è utilizzabile per wa.me. */
+export function isValidWhatsAppPhone(phone: string | null | undefined): boolean {
+  if (!phone?.trim()) return false;
+  return normalizeWhatsAppDigits(phone) != null;
+}

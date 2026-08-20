@@ -16,7 +16,10 @@ export type FunnelEventName =
   | "waitlist_form_started"
   | "waitlist_signup_completed"
   | "waitlist_email_confirmed"
-  | "whatsapp_button_clicked";
+  | "whatsapp_button_clicked"
+  | "whatsapp_modal_opened"
+  | "whatsapp_contact_clicked"
+  | "whatsapp_contact_started";
 
 type FunnelProps = Record<string, string | number | boolean | null>;
 
@@ -62,7 +65,11 @@ export type AnalyticsEventName =
   | "host_listing_created"
   | "host_listing_published"
   | "verification_started"
-  | "verification_completed";
+  | "verification_completed"
+  | "whatsapp_contact_clicked"
+  | "whatsapp_modal_opened"
+  | "whatsapp_template_changed"
+  | "whatsapp_contact_started";
 
 export type AnalyticsProps = Record<string, string | number | boolean | null | undefined>;
 
