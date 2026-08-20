@@ -58,7 +58,7 @@ export function buildWaitlistChatFallback(
   }
 
   let msg =
-    "Al momento non ho ancora stanze che corrispondono al tuo profilo, ma ho salvato le tue preferenze. Appena carico un immobile compatibile con te e il tuo budget, sarai tra i primi ad essere avvisato.";
+    "Al momento non ho ancora stanze che corrispondono al tuo profilo, ma ho salvato le tue preferenze. Appena arriva un immobile compatibile con te e il tuo budget, sarai tra i primi a essere avvisati.";
   msg += positionBit;
   if (!hasPhone) {
     msg +=

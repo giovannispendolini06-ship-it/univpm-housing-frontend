@@ -601,7 +601,7 @@ export function buildNewRoomMatchEmail(input: {
       Ciao ${input.fullName}, una stanza nuova per te! 🏠
     </h1>
     <p style="margin:0 0 16px; color:${COLORS.ink};">
-      Vesta ha trovato una stanza nuova che potrebbe interessarti:
+      Vesta ha trovato una nuova stanza che potrebbe interessarti:
       <strong>${input.roomLabel}</strong>${zonePart}, ${input.priceMonthly}€/mese,
       compatibilità <strong>${input.matchScore}%</strong>.
     </p>

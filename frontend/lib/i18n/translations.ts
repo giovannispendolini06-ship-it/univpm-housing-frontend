@@ -431,7 +431,7 @@ export const translations = {
     dashboard: {
       chatTab: "Chat",
       roomsTab: "Stanze",
-      loadingChat: "Sto ritrovando la tua chat...",
+      loadingChat: "Sto recuperando la tua chat...",
     },
     chat: {
       subtitle: "Il tuo assistente casa · UNIVPM Ancona",
@@ -577,7 +577,7 @@ export const translations = {
         "Continua a chattare con Vesta: appena avrà budget, polo e abitudini troverà le stanze più compatibili con te.",
       noMatchTitle: "Ancora nessuna stanza compatibile",
       noMatchSubtitle:
-        "Ho salvato le tue preferenze. Appena arriva un immobile compatibile con te, sarai tra i primi ad essere avvisato.",
+        "Ho salvato le tue preferenze. Appena arriva un immobile compatibile con te, sarai tra i primi a essere avvisati.",
       shareCta: "Condividi con un amico",
       shareText: "Sto cercando casa ad Ancona con Coabito — entra in lista d'attesa:",
       loadingLabel: "Caricamento stanze compatibili…",
