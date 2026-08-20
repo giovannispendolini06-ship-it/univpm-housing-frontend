@@ -1,18 +1,34 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { trackFunnel } from "@/lib/analytics";
+import { waitlistReferralUrl } from "@/lib/waitlist-referral";
+import ReferralShare from "@/components/ReferralShare";
 
 type Status = "confirmed" | "already" | "expired" | "invalid";
 
 export default function ConfirmResult({
   status,
   position = null,
+  referralCode = null,
 }: {
   status: Status;
   position?: number | null;
+  referralCode?: string | null;
 }) {
   const { t } = useLocale();
   const copy = t.listaAttesa.confirm;
+  const tracked = useRef(false);
+
+  useEffect(() => {
+    if (tracked.current) return;
+    if (status === "confirmed" || status === "already") {
+      tracked.current = true;
+      trackFunnel("waitlist_email_confirmed", { status });
+    }
+  }, [status]);
+
   const showPosition =
     (status === "confirmed" || status === "already") &&
     typeof position === "number" &&
@@ -43,6 +59,11 @@ export default function ConfirmResult({
       ? "bg-sea-50 text-sea-700"
       : "bg-sand-400/20 text-ink";
 
+  const referralUrl =
+    referralCode && (status === "confirmed" || status === "already")
+      ? waitlistReferralUrl(referralCode)
+      : null;
+
   return (
     <div className={`animate-pop-in rounded-xl2 p-6 text-center shadow-card ${tone}`}>
       <p
@@ -53,6 +74,7 @@ export default function ConfirmResult({
         {title}
       </p>
       <p className="mt-2 text-sm text-ink-muted">{body}</p>
+      {referralUrl && <ReferralShare referralUrl={referralUrl} />}
     </div>
   );
 }

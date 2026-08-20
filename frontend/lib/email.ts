@@ -16,19 +16,22 @@ interface SendEmailInput {
  * l'invio fallisce, lo logghiamo soltanto e andiamo avanti.
  * Per email auth con risultato tipizzato → lib/auth-emails.ts.
  */
-export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<void> {
-  if (!to) return;
+/** @returns true se l'invio è andato a buon fine (o skipped per `to` vuoto). */
+export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<boolean> {
+  if (!to) return true;
 
   const resend = getResendClient();
   if (!resend) {
     console.warn("[email] RESEND_API_KEY non impostata: email non inviata.", { to, subject });
-    return;
+    return false;
   }
 
   try {
     await resend.emails.send({ from: FROM_ADDRESS, to, subject, html });
+    return true;
   } catch (err) {
     console.error("[email] Errore nell'invio:", err);
+    return false;
   }
 }
 
@@ -344,6 +347,124 @@ export function buildWaitlistConfirmEmail(input: {
       preheader: isEn
         ? "One click to confirm your waitlist signup"
         : "Un click per confermare la tua iscrizione alla lista d'attesa",
+      bodyHtml,
+      locale,
+    }),
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Waitlist nurture #1 — come funziona il matching con Vesta (default +3 giorni)
+// ----------------------------------------------------------------------------
+export function buildWaitlistNurtureMatchingEmail(input: {
+  nome: string;
+  locale?: EmailLocale;
+}) {
+  const locale = input.locale ?? "it";
+  const isEn = locale === "en";
+  const firstName = escapeHtml(input.nome.split(/\s+/)[0] || input.nome);
+
+  const bodyHtml = isEn
+    ? `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      How matching with Vesta works, ${firstName}
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Your Coabito waitlist request is safely with us. Here's what happens next — no endless scrolling required.
+    </p>
+    <ol style="margin:0 0 16px; padding-left:20px; color:${COLORS.ink};">
+      <li style="margin:0 0 10px;"><strong>We remember your preferences</strong> — budget, area, and roommate habits from your signup or chat with Vesta.</li>
+      <li style="margin:0 0 10px;"><strong>We score new rooms against your profile</strong> — only listings that fit get flagged for you.</li>
+      <li style="margin:0 0 10px;"><strong>You hear from us first</strong> — when a compatible room lands, we email (and chat) so you can decide quickly.</li>
+    </ol>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Nothing else to do for now. If your plans change, just reply to this email — we're happy to update your preferences.
+    </p>
+    ${ctaButton("Open Coabito", SITE_URL)}
+  `
+    : `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Come funziona il matching con Vesta, ${firstName}
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      La tua richiesta in lista d'attesa Coabito è al sicuro con noi. Ecco cosa succede dopo — senza scorrere annunci a caso.
+    </p>
+    <ol style="margin:0 0 16px; padding-left:20px; color:${COLORS.ink};">
+      <li style="margin:0 0 10px;"><strong>Ricordiamo le tue preferenze</strong> — budget, zona e abitudini da coinquilino dall'iscrizione o dalla chat con Vesta.</li>
+      <li style="margin:0 0 10px;"><strong>Valutiamo ogni nuova stanza sul tuo profilo</strong> — segnaliamo solo gli annunci davvero compatibili.</li>
+      <li style="margin:0 0 10px;"><strong>Ti avvisiamo per primi</strong> — quando arriva una stanza adatta, ti scriviamo (email e chat) così puoi decidere in fretta.</li>
+    </ol>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Per ora non serve fare altro. Se cambiano i piani, rispondi a questa email: aggiorniamo volentieri le preferenze.
+    </p>
+    ${ctaButton("Apri Coabito", SITE_URL)}
+  `;
+
+  return {
+    subject: isEn
+      ? "How matching with Vesta works"
+      : "Come funziona il matching con Vesta",
+    html: renderEmailLayout({
+      preheader: isEn
+        ? "Your waitlist request is with us — here's what happens next"
+        : "La tua richiesta è in carico — ecco cosa succede dopo",
+      bodyHtml,
+      locale,
+    }),
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Waitlist nurture #2 — aggiornamento progetto / avvicinamento al lancio
+// ----------------------------------------------------------------------------
+export function buildWaitlistNurtureLaunchEmail(input: {
+  nome: string;
+  locale?: EmailLocale;
+}) {
+  const locale = input.locale ?? "it";
+  const isEn = locale === "en";
+  const firstName = escapeHtml(input.nome.split(/\s+/)[0] || input.nome);
+
+  const bodyHtml = isEn
+    ? `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      We're getting closer to launch, ${firstName}
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      A quick update from Coabito: we're onboarding verified landlords and preparing the first compatible rooms for the <strong>2026/2027</strong> academic year — aiming for availability around September.
+    </p>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      You're still on the waitlist. As soon as a room matches your profile, you'll get a personal heads-up — no need to hunt listings yourself.
+    </p>
+    <p style="margin:0 0 16px; color:${COLORS.inkMuted}; font-size:14px;">
+      Prefer WhatsApp updates? Reply with your number and we'll note it.
+    </p>
+    ${ctaButton("Visit Coabito", SITE_URL)}
+  `
+    : `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Ci avviciniamo al lancio, ${firstName}
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Un aggiornamento da Coabito: stiamo onboarding proprietari verificati e preparando le prime stanze compatibili per l'anno accademico <strong>2026/2027</strong> — con obiettivo disponibilità intorno a settembre.
+    </p>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Sei ancora in lista d'attesa. Appena una stanza combacia con il tuo profilo, ti avvisiamo personalmente — senza dover cercare annunci da solo/a.
+    </p>
+    <p style="margin:0 0 16px; color:${COLORS.inkMuted}; font-size:14px;">
+      Preferisci aggiornamenti su WhatsApp? Rispondi con il tuo numero e lo annotiamo.
+    </p>
+    ${ctaButton("Visita Coabito", SITE_URL)}
+  `;
+
+  return {
+    subject: isEn
+      ? "Coabito update: getting closer to launch"
+      : "Aggiornamento Coabito: ci avviciniamo al lancio",
+    html: renderEmailLayout({
+      preheader: isEn
+        ? "First rooms for 2026/2027 are on the way"
+        : "Le prime stanze per il 2026/2027 stanno arrivando",
       bodyHtml,
       locale,
     }),

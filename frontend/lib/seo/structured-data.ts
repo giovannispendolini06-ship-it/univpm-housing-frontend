@@ -19,7 +19,7 @@ export function organizationJsonLd() {
   };
 }
 
-/** FAQPage da copy italiano (html lang=it). */
+/** FAQPage da copy italiano homepage. */
 export function faqPageJsonLd() {
   const items = translations.it.faq.items;
   return {
@@ -33,6 +33,24 @@ export function faqPageJsonLd() {
         text: item.answer,
       },
     })),
+  };
+}
+
+/** FAQ dedicata studenti (/faq). */
+export function studentFaqPageJsonLd() {
+  const items = translations.it.faqStudenti.items;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+    url: `${SITE_URL}/faq`,
   };
 }
 

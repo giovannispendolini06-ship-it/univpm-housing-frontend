@@ -8,6 +8,7 @@
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { calculateMatchScore, type StudentProfileRow } from "@/lib/matching";
 import { sendEmail, buildNewRoomMatchEmail } from "@/lib/email";
+import { stopWaitlistNurture } from "@/lib/waitlist-nurture";
 
 function buildDistancesByProperty(
   rows: { property_id: string; campus_id: string; distance_km: number | null }[],
@@ -320,6 +321,12 @@ export async function recalculateMatchesForRoom(
           locale: studentLocale,
         });
         sendEmail({ to: user.email, ...matchEmail });
+
+        // Interrompe la sequenza nurture waitlist: ha già ricevuto una stanza.
+        stopWaitlistNurture(db, {
+          userId: m.student_id,
+          email: user.email,
+        });
       }
     }
   }

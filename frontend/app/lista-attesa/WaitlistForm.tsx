@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { trackFunnel } from "@/lib/analytics";
+import { waitlistReferralUrl } from "@/lib/waitlist-referral";
+import ReferralShare from "@/components/ReferralShare";
 import { submitWaitlistSignup } from "./actions";
 
 const SOURCE_MAP: Record<string, string> = {
@@ -21,12 +24,21 @@ export default function WaitlistForm() {
   const { t, locale } = useLocale();
   const searchParams = useSearchParams();
   const source = resolveSourceParam(searchParams.get("src"));
+  const refCode = searchParams.get("ref")?.trim() || "";
 
   const [error, setError] = useState<string | null>(null);
   const [successStatus, setSuccessStatus] = useState<"pending" | "ok" | null>(null);
   const [position, setPosition] = useState<number | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [renderedAt] = useState(() => Date.now());
+  const formStartedRef = useRef(false);
+
+  function markFormStarted() {
+    if (formStartedRef.current) return;
+    formStartedRef.current = true;
+    trackFunnel("waitlist_form_started");
+  }
 
   function resolveError(code: string): string {
     if (code === "contactRequired") return t.listaAttesa.contactRequired;
@@ -44,9 +56,16 @@ export default function WaitlistForm() {
       } else {
         setSuccessStatus(result?.status === "pending" ? "pending" : "ok");
         setPosition(typeof result?.position === "number" ? result.position : null);
+        setReferralCode(result?.referralCode ?? null);
+        trackFunnel("waitlist_signup_completed", {
+          source,
+          status: result?.status === "pending" ? "pending" : "confirmed",
+        });
       }
     });
   }
+
+  const referralUrl = referralCode ? waitlistReferralUrl(referralCode) : null;
 
   if (successStatus === "pending") {
     return (
@@ -55,6 +74,7 @@ export default function WaitlistForm() {
           {t.listaAttesa.pendingTitle}
         </p>
         <p className="mt-2 text-sm text-ink-muted">{t.listaAttesa.pendingBody}</p>
+        {referralUrl && <ReferralShare referralUrl={referralUrl} />}
       </div>
     );
   }
@@ -77,12 +97,17 @@ export default function WaitlistForm() {
           </p>
         )}
         <p className="mt-2 text-sm text-ink-muted">{body}</p>
+        {referralUrl && <ReferralShare referralUrl={referralUrl} />}
       </div>
     );
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4 rounded-xl2 bg-surface p-6 shadow-card">
+    <form
+      action={handleSubmit}
+      className="space-y-4 rounded-xl2 bg-surface p-6 shadow-card"
+      onFocusCapture={markFormStarted}
+    >
       <div className="absolute -left-[9999px] opacity-0" aria-hidden="true">
         <label htmlFor="website">Non compilare questo campo</label>
         <input type="text" id="website" name="website" tabIndex={-1} autoComplete="off" />
@@ -90,6 +115,7 @@ export default function WaitlistForm() {
       <input type="hidden" name="rendered_at" value={renderedAt} />
       <input type="hidden" name="source" value={source} />
       <input type="hidden" name="locale" value={locale} />
+      {refCode ? <input type="hidden" name="ref" value={refCode} /> : null}
 
       <div>
         <label className="mb-1 block text-xs font-medium text-ink-muted">

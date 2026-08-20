@@ -7,6 +7,7 @@ import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import FounderNote from "@/components/landing/FounderNote";
 import FaqSection from "@/components/landing/FaqSection";
 import LandingFooter from "@/components/landing/LandingFooter";
+import TrackOnce from "@/components/TrackOnce";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 
 export default function HomePageClient({
@@ -18,6 +19,7 @@ export default function HomePageClient({
 
   return (
     <main className="bg-bg">
+      <TrackOnce event="homepage_view" />
       <HomeIntro />
       <LandingNavbar />
       <Hero waitlistCount={waitlistCount} />
