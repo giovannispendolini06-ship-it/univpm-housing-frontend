@@ -36,18 +36,18 @@ export default function PublicRoomCard({
       : null;
 
   return (
-    <article className="relative flex h-full flex-col overflow-hidden rounded-xl2 border border-sea-100 bg-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg">
+    <article className="relative flex h-full flex-col overflow-hidden rounded-xl2 border border-sea-100 bg-white shadow-card transition motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg">
       {onToggleCompare && (
-        <label className="absolute left-2 top-2 z-10 flex cursor-pointer items-center gap-1.5 rounded-full bg-white/95 px-2 py-1 text-[11px] font-semibold text-ink shadow-sm">
+        <label className="absolute left-2 top-2 z-10 flex cursor-pointer items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1.5 text-[11px] font-semibold text-ink shadow-sm">
           <input
             type="checkbox"
             checked={compareSelected}
             disabled={compareDisabled && !compareSelected}
             onChange={onToggleCompare}
-            className="rounded border-sea-200 text-sea-600 focus:ring-sea-500"
+            className="h-4 w-4 rounded border-sea-200 text-sea-600 focus:ring-sea-500"
             aria-label={t.listingsCompare.selectAria}
           />
-          <span className="hidden sm:inline">{t.listingsCompare.selectShort}</span>
+          <span>{t.listingsCompare.selectShort}</span>
         </label>
       )}
 

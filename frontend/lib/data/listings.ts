@@ -17,6 +17,46 @@ export type ListingFilters = {
 
 type Db = ReturnType<typeof createServiceSupabaseClient>;
 
+
+/** Map common service strings → short atmosphere tags for compare/cards. */
+const SERVICE_TAG_HINTS: { match: RegExp; tag: string }[] = [
+  { match: /wifi|wi-?fi|internet/i, tag: "Wifi" },
+  { match: /lavatrice|washer|washing/i, tag: "Lavatrice" },
+  { match: /asciugatrice|dryer/i, tag: "Asciugatrice" },
+  { match: /riscaldamento|heating/i, tag: "Riscaldamento" },
+  { match: /aria.?condizionata|a\/?c|climatizz/i, tag: "Aria cond." },
+  { match: /balcone|terraz|balcony/i, tag: "Balcone" },
+  { match: /parcheggio|garage|parking/i, tag: "Parcheggio" },
+  { match: /cucina|kitchen/i, tag: "Cucina" },
+  { match: /scrivania|desk/i, tag: "Scrivania" },
+];
+
+export function deriveAtmosphereTags(input: {
+  amenities: string[];
+  privateBathroom: boolean | null;
+  furnished: boolean | null;
+}): string[] {
+  const tags: string[] = [];
+  const seen = new Set<string>();
+
+  function push(tag: string) {
+    if (seen.has(tag)) return;
+    seen.add(tag);
+    tags.push(tag);
+  }
+
+  if (input.privateBathroom) push("Bagno privato");
+  if (input.furnished) push("Arredata");
+
+  for (const raw of input.amenities) {
+    for (const { match, tag } of SERVICE_TAG_HINTS) {
+      if (match.test(raw)) push(tag);
+    }
+  }
+
+  return tags.slice(0, 4);
+}
+
 function asProperty(raw: unknown): {
   id: string;
   zone: string | null;
@@ -153,7 +193,13 @@ export async function fetchPublicListings(
       landlordVerified: verifiedOwners.has(property.owner_id),
       guaranteedRent: property.guaranteed_rent === true,
       propertyStatus: property.status,
-      atmosphereTags: [],
+      atmosphereTags: deriveAtmosphereTags({
+        amenities: Array.isArray(row.services_included)
+          ? (row.services_included as string[])
+          : [],
+        privateBathroom: Boolean(row.has_private_bathroom),
+        furnished: property.is_furnished,
+      }),
     };
   });
 
