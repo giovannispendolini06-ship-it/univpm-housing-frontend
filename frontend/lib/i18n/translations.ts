@@ -154,6 +154,14 @@ export const translations = {
       guideFirstTime: "Prima volta fuori sede",
       services: "Servizi",
     },
+    whatsappFloat: {
+      ariaLabel: "Scrivici su WhatsApp",
+      generic: "Ciao! Ho visto Coabito e vorrei saperne di più",
+      owners:
+        "Ciao! Ho un immobile ad Ancona e vorrei saperne di più su Coabito.",
+      waitlist:
+        "Ciao! Sto cercando casa da studente ad Ancona e vorrei info su Coabito / la lista d'attesa.",
+    },
     guidaAffittoAncona: {
       title: "Come affittare casa per studenti ad Ancona",
       subtitle:
@@ -553,9 +561,12 @@ export const translations = {
       successTitle: "Sei in lista!",
       successBody:
         "Ti avviseremo appena arriva un immobile compatibile con le tue preferenze. Nel frattempo, puoi condividere il link con chi cerca casa ad Ancona.",
+      positionHeadline: "Sei il {n}° in lista d'attesa",
+      successBodyWithPosition:
+        "Ti avviseremo appena ci sarà una stanza compatibile con il tuo profilo.",
       pendingTitle: "Controlla la tua email",
       pendingBody:
-        "Ti abbiamo inviato un link di conferma. Cliccalo entro 7 giorni per attivare l'iscrizione: solo dopo potremo avvisarti quando arriva una stanza compatibile.",
+        "Ti abbiamo inviato un link di conferma. Cliccalo entro 7 giorni per attivare l'iscrizione: solo dopo potremo avvisarti quando arriva una stanza compatibile — e ti mostreremo la tua posizione in lista.",
       confirm: {
         successTitle: "Iscrizione confermata",
         successBody:
@@ -855,6 +866,14 @@ export const translations = {
       guide: "Ancona student housing guide",
       guideFirstTime: "First time living away",
       services: "Services",
+    },
+    whatsappFloat: {
+      ariaLabel: "Message us on WhatsApp",
+      generic: "Hi! I found Coabito and I'd like to know more",
+      owners:
+        "Hi! I have a property in Ancona and I'd like to know more about Coabito.",
+      waitlist:
+        "Hi! I'm a student looking for a place in Ancona and I'd like info about Coabito / the waitlist.",
     },
     guidaAffittoAncona: {
       title: "How to rent student housing in Ancona",
@@ -1254,9 +1273,12 @@ export const translations = {
       successTitle: "You're on the list!",
       successBody:
         "We'll notify you as soon as a compatible place becomes available. In the meantime, feel free to share the link with friends looking for a room in Ancona.",
+      positionHeadline: "You're #{n} on the waitlist",
+      successBodyWithPosition:
+        "We'll let you know as soon as a room compatible with your profile becomes available.",
       pendingTitle: "Check your email",
       pendingBody:
-        "We've sent you a confirmation link. Click it within 7 days to activate your signup — we'll only notify you about compatible rooms after that.",
+        "We've sent you a confirmation link. Click it within 7 days to activate your signup — we'll only notify you about compatible rooms after that, and that's when you'll see your waitlist position.",
       confirm: {
         successTitle: "Signup confirmed",
         successBody:

@@ -3,6 +3,7 @@ import { Space_Grotesk, Inter } from "next/font/google";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import CookieConsentBanner from "@/components/CookieConsentBanner";
 import AnnounceBar from "@/components/AnnounceBar";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import JsonLd from "@/components/JsonLd";
 import { LocaleProvider } from "@/lib/i18n/LocaleContext";
 import { organizationJsonLd } from "@/lib/seo/structured-data";
@@ -88,6 +89,7 @@ export default function RootLayout({
         <LocaleProvider>
           <AnnounceBar />
           {children}
+          <FloatingWhatsApp />
           <CookieConsentBanner />
           <ServiceWorkerRegister />
         </LocaleProvider>

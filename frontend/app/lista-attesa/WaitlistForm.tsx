@@ -25,6 +25,7 @@ export default function WaitlistForm() {
 
   const [error, setError] = useState<string | null>(null);
   const [successStatus, setSuccessStatus] = useState<"pending" | "ok" | null>(null);
+  const [position, setPosition] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
   const [renderedAt] = useState(() => Date.now());
 
@@ -44,6 +45,7 @@ export default function WaitlistForm() {
       } else {
         markWaitlistJoined();
         setSuccessStatus(result?.status === "pending" ? "pending" : "ok");
+        setPosition(typeof result?.position === "number" ? result.position : null);
       }
     });
   }
@@ -60,12 +62,23 @@ export default function WaitlistForm() {
   }
 
   if (successStatus === "ok") {
+    const body =
+      position && position > 0
+        ? t.listaAttesa.successBodyWithPosition.replace("{n}", String(position))
+        : t.listaAttesa.successBody;
+
     return (
       <div className="animate-pop-in rounded-xl2 bg-sea-50 p-6 text-center shadow-card">
-        <p className="font-display text-base font-bold text-sea-700">
-          {t.listaAttesa.successTitle}
-        </p>
-        <p className="mt-2 text-sm text-ink-muted">{t.listaAttesa.successBody}</p>
+        {position && position > 0 ? (
+          <p className="font-display text-2xl font-bold text-sea-700">
+            {t.listaAttesa.positionHeadline.replace("{n}", String(position))}
+          </p>
+        ) : (
+          <p className="font-display text-base font-bold text-sea-700">
+            {t.listaAttesa.successTitle}
+          </p>
+        )}
+        <p className="mt-2 text-sm text-ink-muted">{body}</p>
       </div>
     );
   }
