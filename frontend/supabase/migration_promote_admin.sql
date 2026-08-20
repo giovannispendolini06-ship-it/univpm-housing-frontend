@@ -1,7 +1,7 @@
 -- ============================================================================
--- MIGRATION: promuovi il tuo account a 'admin'
--- Necessaria per poter accedere a /admin/leads. Sostituisci l'email con
--- quella che usi per accedere a Domoria (quella con cui ti sei registrato).
+-- MIGRATION: promuovi un account a 'admin' (OPS ONLY)
+-- Unica via supportata per ottenere role=admin. NON usare Auth metadata.
+-- Sostituisci l'email. Non eseguire in automatico su deploy.
 -- ============================================================================
 
 update public.users
