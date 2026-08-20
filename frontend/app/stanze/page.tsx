@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
-import StanzeListWithCompare from "@/components/listings/StanzeListWithCompare";
+import StanzeBrowse from "@/components/listings/StanzeBrowse";
 import StudentShell from "@/components/student/StudentShell";
 import { listPublicListings } from "@/lib/listings";
 import { getOptionalSession } from "@/lib/auth/session";
@@ -283,7 +283,7 @@ export default async function StanzePage({
           </div>
         )}
 
-        {listings.length > 0 && <StanzeListWithCompare listings={listings} />}
+        {listings.length > 0 && <StanzeBrowse listings={listings} />}
       </div>
   );
 
