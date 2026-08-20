@@ -61,6 +61,19 @@ export default function LandingFooter() {
                 </Link>
               </li>
               <li>
+                <Link
+                  href="/guida/prima-volta-fuori-sede"
+                  className={linkClass}
+                >
+                  {t.footer.guideFirstTime}
+                </Link>
+              </li>
+              <li>
+                <Link href="/servizi" className={linkClass}>
+                  {t.footer.services}
+                </Link>
+              </li>
+              <li>
                 <Link href="/esempi" className={linkClass}>
                   {t.footer.howItWorks}
                 </Link>

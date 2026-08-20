@@ -1,5 +1,8 @@
 -- ============================================================================
--- MIGRATION: conferma il tuo account come admin
+-- MIGRATION: conferma il tuo account come admin (OPS ONLY)
+-- Assegna admin SOLO tramite questa (o migration_promote_admin), mai via
+-- signup / raw_user_meta_data. Contiene un'email reale di bootstrap founder —
+-- riesegui solo consapevolmente su progetti autorizzati.
 -- ============================================================================
 
 update public.users

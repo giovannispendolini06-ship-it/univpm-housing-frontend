@@ -29,7 +29,7 @@ export default function MatchScoreRing({
       className="relative shrink-0"
       style={{ width: size, height: size }}
       role="img"
-      aria-label={`Compatibilità ${score} per cento`}
+      aria-label={`Compatibilità Coabito ${score} per cento`}
     >
       <svg width={size} height={size} className="-rotate-90">
         <circle

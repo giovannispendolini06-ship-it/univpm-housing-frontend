@@ -1,10 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
-import {
-  createServerSupabaseClient,
-  createServiceSupabaseClient,
-} from "@/lib/supabase/server";
+import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { sendEmail, buildAdminInquiryEmail, buildInquiryConfirmationEmail } from "@/lib/email";
 
 interface InquiryResult {
@@ -61,7 +58,8 @@ export async function submitOwnerInquiry(formData: FormData): Promise<InquiryRes
 
   await rateLimitDb.from("form_rate_limits").insert({ ip_address: ip, form_name: "proprietari" });
 
-  const supabase = await createServerSupabaseClient();
+  // Service role: nessun INSERT anon su owner_inquiries (RLS locked down).
+  const supabase = createServiceSupabaseClient();
 
   const { error } = await supabase.from("owner_inquiries").insert({
     full_name: fullName,

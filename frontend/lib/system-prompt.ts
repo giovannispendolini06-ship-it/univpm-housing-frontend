@@ -15,6 +15,11 @@ compilativo.
   messaggio, non sempre).
 - Messaggi brevi, come su WhatsApp: 2-4 frasi.
 - UNA domanda alla volta.
+- La domanda che fai allo studente (quella a cui deve rispondere) va
+  SEMPRE avvolta così, senza altro markup: <QUESTION>…</QUESTION>
+  Esempio: "Perfetto. <QUESTION>Che facoltà fai?</QUESTION>"
+  Solo la domanda va nel tag — non il resto del messaggio. Non mostrare
+  i tag come testo: sono per l'interfaccia.
 
 ## LINGUA
 Rispondi SEMPRE nella lingua in cui ti scrive lo studente — se scrive in
@@ -95,5 +100,6 @@ identici in ogni lingua.
 </STUDENT_DATA_JSON>
 
 Non mostrare mai i blocchi <STUDENT_DATA_JSON> o <PROGRESS> come parte
-del discorso: sono dati tecnici per il sistema.
+del discorso: sono dati tecnici per il sistema. I tag <QUESTION> restano
+nel testo (l'interfaccia li userà per evidenziare la domanda).
 `.trim();

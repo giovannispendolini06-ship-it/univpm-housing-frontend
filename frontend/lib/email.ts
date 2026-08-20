@@ -1,16 +1,6 @@
 // lib/email.ts
-import { Resend } from "resend";
 import { SITE_URL } from "@/lib/site";
-
-function getResendClient(): Resend | null {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return null;
-  return new Resend(apiKey);
-}
-
-// Dominio coabito.it verificato su Resend: tutte le email transazionali
-// partono da info@coabito.it (lista d'attesa, benvenuto, pagamenti, ecc.).
-const FROM_ADDRESS = "Coabito <info@coabito.it>";
+import { FROM_ADDRESS, getResendClient } from "@/lib/resend";
 
 type EmailLocale = "it" | "en";
 
@@ -24,6 +14,7 @@ interface SendEmailInput {
  * Invia un'email. Non lancia MAI un errore che possa bloccare il resto
  * del flusso (es. il salvataggio di un form): se manca la chiave API o
  * l'invio fallisce, lo logghiamo soltanto e andiamo avanti.
+ * Per email auth con risultato tipizzato → lib/auth-emails.ts.
  */
 /** @returns true se l'invio è andato a buon fine (o skipped per `to` vuoto). */
 export async function sendEmail({ to, subject, html }: SendEmailInput): Promise<boolean> {
@@ -494,9 +485,10 @@ export function buildInquiryConfirmationEmail(input: { fullName: string }) {
     </p>
     <p style="margin:0 0 16px; color:${COLORS.ink};">
       La nostra promessa: niente perditempo. Ti ricontattiamo entro
-      <strong>24-48 ore</strong> per parlare del tuo immobile e di come
-      affittarlo a studenti già verificati, senza che tu debba gestire
-      trattative infinite.
+      <strong>24-48 ore</strong> per parlarti del marketplace Coabito:
+      matching con studenti compatibili (e, appena disponibili, verificati),
+      tu firmi direttamente con chi scegli — noi restiamo fuori dal contratto
+      e lavoriamo su fiducia e sicurezza della transazione.
     </p>
     <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
       Nel frattempo, se hai domande, rispondi pure a questa email.
@@ -525,7 +517,7 @@ export function buildWelcomeEmail(input: { fullName: string; role: "student" | "
     <p style="margin:0 0 16px; color:${COLORS.ink};">
       ${
         isOwner
-          ? "Il tuo profilo è pronto. Da qui in poi ci pensiamo noi a trovarti inquilini seri: filtriamo gli studenti compatibili, tu decidi solo con chi firmare."
+          ? "Il tuo profilo è pronto. Da qui in poi filtriamo gli studenti compatibili: tu decidi con chi firmare direttamente. Il contratto resta tra te e lo studente — Coabito è il marketplace di matching e fiducia."
           : "Il tuo profilo è pronto. Vesta, il nostro assistente, ti aspetta per capire facoltà, budget e abitudini — e proporti solo le stanze davvero compatibili con te, non l'ennesimo annuncio a caso."
       }
     </p>
@@ -536,6 +528,34 @@ export function buildWelcomeEmail(input: { fullName: string; role: "student" | "
     subject: "Benvenuto su Coabito! 🎉",
     html: renderEmailLayout({
       preheader: "Il tuo profilo è pronto",
+      bodyHtml,
+    }),
+  };
+}
+
+export function buildApplicationStatusEmail(input: {
+  fullName: string;
+  statusLabel: string;
+}) {
+  const bodyHtml = `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Aggiornamento candidatura
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Ciao ${input.fullName || ""}, la tua candidatura è stata segnata come
+      <strong>${input.statusLabel}</strong>.
+    </p>
+    <p style="margin:0 0 16px; color:${COLORS.inkMuted}; font-size:13px;">
+      Il contratto di locazione, se si procede, resta diretto tra te e il proprietario.
+      Coabito resta il marketplace di matching e fiducia.
+    </p>
+    ${ctaButton("Vedi le tue candidature", `${SITE_URL}/applications`)}
+  `;
+
+  return {
+    subject: `Candidatura ${input.statusLabel} — Coabito`,
+    html: renderEmailLayout({
+      preheader: `La tua candidatura è ${input.statusLabel}`,
       bodyHtml,
     }),
   };
