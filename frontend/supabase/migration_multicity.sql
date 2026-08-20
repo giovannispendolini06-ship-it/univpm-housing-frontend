@@ -123,3 +123,20 @@ where c.name = 'Ancona'
   and sp.polo_univpm = 'centro_economia_giurisprudenza'
   and camp.name = 'Centro (Economia/Giurisprudenza)'
   and sp.campus_id is null;
+
+-- RLS: reference geo tables (writes via service role / later admin policies)
+alter table public.cities enable row level security;
+alter table public.campuses enable row level security;
+alter table public.property_campus_distances enable row level security;
+
+drop policy if exists "cities_select_all" on public.cities;
+create policy "cities_select_all" on public.cities
+  for select to anon, authenticated using (true);
+
+drop policy if exists "campuses_select_all" on public.campuses;
+create policy "campuses_select_all" on public.campuses
+  for select to anon, authenticated using (true);
+
+drop policy if exists "pcd_select_all" on public.property_campus_distances;
+create policy "pcd_select_all" on public.property_campus_distances
+  for select to anon, authenticated using (true);

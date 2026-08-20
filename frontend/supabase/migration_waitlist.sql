@@ -55,13 +55,10 @@ create unique index if not exists idx_waitlist_signups_user_unique
 
 alter table public.waitlist_signups enable row level security;
 
--- Invio anonimo dal form pubblico (solo insert).
+-- SECURITY: nessun INSERT/SELECT/UPDATE/DELETE per anon|authenticated.
+-- Iscrizione solo via Server Action con service role (DOI + campi interni
+-- gestiti server-side). Evita bypass di confirmed_at / confirmation_token.
 drop policy if exists "Anyone can join waitlist" on public.waitlist_signups;
-create policy "Anyone can join waitlist"
-  on public.waitlist_signups
-  for insert
-  to anon, authenticated
-  with check (true);
 
--- Lettura/aggiornamento solo via service role (admin) — nessuna policy SELECT
+-- Lettura/aggiornamento solo via service role (admin) — nessuna policy
 -- per anon/authenticated: il pannello admin usa createServiceSupabaseClient.

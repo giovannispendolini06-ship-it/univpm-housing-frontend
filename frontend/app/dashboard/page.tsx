@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import ChatPanel from "@/components/ChatPanel";
 import RoomList from "@/components/RoomList";
-import SignOutButton from "@/components/SignOutButton";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
 import LoadingRing from "@/components/LoadingRing";
 import MyHomeCard, { type MyTenancy } from "@/components/MyHomeCard";
 import MyPaymentsSection from "@/components/MyPaymentsSection";
+import StudentShell from "@/components/student/StudentShell";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import type { ChatMessage, RecommendedRoom } from "@/lib/types";
 import {
@@ -16,28 +15,22 @@ import {
   type ChatProgress,
 } from "@/lib/chat-progress";
 import { useLocale } from "@/lib/i18n/LocaleContext";
-import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
+import VerificationPanel from "@/components/VerificationPanel";
+import VerifiedBadge from "@/components/VerifiedBadge";
+import type { VerificationStatus } from "@/lib/verification";
+import Link from "next/link";
 
 type MobileTab = "chat" | "rooms";
 
 const WELCOME_MESSAGES: Record<"it" | "en", string> = {
-  it: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
-  en: "Hey! 👋 I'm Vesta, I'll help you find a place here in Ancona. What are you studying?",
+  it: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa qui ad Ancona. <QUESTION>Che facoltà fai?</QUESTION>",
+  en: "Hey! 👋 I'm Vesta, I'll help you find a place here in Ancona. <QUESTION>What are you studying?</QUESTION>",
 };
 
 /**
- * Layout:
- * - Mobile (< md): un solo pannello alla volta, switch con tab in alto.
- * - Desktop (>= md): split screen, chat a sinistra (fissa), stanze a
- *   destra (scroll indipendente).
- *
- * Questa pagina è protetta da middleware.ts: se non sei loggato, Next.js
- * ti reindirizza automaticamente a /login prima di arrivare qui.
- *
- * Al primo caricamento, ricarica dal database la conversazione con Vesta
- * e le stanze già calcolate (invece di ripartire sempre da zero): due
- * semplici query indicizzate, nessuna chiamata a OpenAI, quindi resta
- * leggero e veloce anche per chi torna il giorno dopo.
+ * Student home: Vesta chat + matched rooms.
+ * Navigation lives in StudentShell (not floating pills).
+ * chat_messages loaded scoped to student_id, ordered by created_at ASC.
  */
 export default function StudentDashboardPage() {
   const { locale, t } = useLocale();
@@ -51,12 +44,12 @@ export default function StudentDashboardPage() {
   const [activeTab, setActiveTab] = useState<MobileTab>("chat");
   const [studentId, setStudentId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<string>("none");
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
   const [roomsLoading, setRoomsLoading] = useState(true);
   const [waitlisted, setWaitlisted] = useState(false);
   const [myTenancy, setMyTenancy] = useState<MyTenancy | null>(null);
-  // null = ancora in caricamento: evita di mostrare per un istante il
-  // messaggio di benvenuto e poi "saltare" alla cronologia vera.
   const [initialMessages, setInitialMessages] = useState<ChatMessage[] | null>(null);
   const [chatProgress, setChatProgress] = useState<ChatProgress | null>(null);
 
@@ -72,18 +65,18 @@ export default function StudentDashboardPage() {
         return;
       }
 
-      // Ruolo (per il badge Admin)
       supabase
         .from("users")
-        .select("role")
+        .select("role, email, verification_status")
         .eq("id", userId)
         .single()
         .then(({ data: profile }) => {
           setIsAdmin(profile?.role === "admin");
+          setVerificationStatus(profile?.verification_status ?? "none");
+          setUserEmail(profile?.email ?? null);
         });
 
-      // Storico chat: se esiste già una conversazione, la ricarichiamo
-      // invece del messaggio di benvenuto.
+      // Scoped to this student only; chronological thread (no session_id in schema)
       supabase
         .from("chat_messages")
         .select("id, role, content, created_at")
@@ -109,7 +102,6 @@ export default function StudentDashboardPage() {
           }
         });
 
-      // Progresso iniziale dal profilo già salvato (se la chat era stata chiusa).
       supabase
         .from("student_profiles")
         .select(
@@ -121,20 +113,15 @@ export default function StudentDashboardPage() {
           setChatProgress(computeChatProgressFromProfile(profile));
         });
 
-      // Se lo studente ha già un affitto attivo, mostra subito affitto +
-      // utenze + stato del pagamento — la prima cosa che deve vedere
-      // aprendo il sito, non qualcosa da andare a cercare.
       fetch(`/api/my-tenancy?studentId=${userId}`)
         .then((res) => (res.ok ? res.json() : { tenancy: null }))
         .then((data) => setMyTenancy(data.tenancy ?? null))
         .catch(() => setMyTenancy(null));
     });
+    // welcomeMessage is locale-stable for this mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Stanze già calcolate in precedenza: così non serve riscrivere a Vesta
-  // solo per rivederle. Effetto separato (non dentro quello sopra) perché
-  // deve rifarsi da solo se la lingua cambia dopo il primo caricamento —
-  // il resto (auth, storico chat) non deve invece ripartire ogni volta.
   useEffect(() => {
     if (!studentId) return;
 
@@ -151,9 +138,6 @@ export default function StudentDashboardPage() {
       })
       .finally(() => setRoomsLoading(false));
 
-    // Salva la lingua sul profilo: serve alle azioni lato server (nuova
-    // stanza, nuovo affitto) che non possono leggere il cookie del
-    // browser. Fallisce in silenzio: non è mai bloccante per lo studente.
     fetch("/api/sync-locale", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -213,76 +197,107 @@ export default function StudentDashboardPage() {
   }
 
   return (
-    <main className="relative flex h-dvh flex-col bg-bg">
-      <div className="fixed right-3 top-3 z-50 flex flex-col items-end gap-1.5">
-        <div className="flex items-center gap-2">
-          <LanguageSwitcher />
-          {isAdmin && (
+    <StudentShell fillHeight>
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        {isAdmin && (
+          <div className="shrink-0 px-3 pt-2 sm:px-4">
             <Link
               href="/admin"
-              className="rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white shadow-card"
+              className="inline-flex rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white"
             >
               Admin
             </Link>
-          )}
-          <SignOutButton
-            className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-ink-muted shadow-card"
-            label={t.common.signOut}
+          </div>
+        )}
+
+        {studentId && !isAdmin && (
+          <div className="shrink-0 px-3 pt-3 sm:px-4">
+            <div className="mb-2 flex items-center gap-2">
+              <VerifiedBadge
+                status={verificationStatus as VerificationStatus}
+                role="student"
+              />
+            </div>
+            <VerificationPanel
+              role="student"
+              status={verificationStatus as VerificationStatus}
+              email={userEmail}
+            />
+          </div>
+        )}
+
+        {myTenancy && <MyHomeCard tenancy={myTenancy} />}
+        {studentId && myTenancy && <MyPaymentsSection studentId={studentId} />}
+
+        <div className="flex shrink-0 border-b border-sea-100 bg-white md:hidden">
+          <TabButton
+            label={t.dashboard.chatTab}
+            isActive={activeTab === "chat"}
+            onClick={() => setActiveTab("chat")}
+          />
+          <TabButton
+            label={`${t.dashboard.roomsTab} (${rooms.length})`}
+            isActive={activeTab === "rooms"}
+            onClick={() => setActiveTab("rooms")}
           />
         </div>
-        <DeleteAccountButton
-          className="rounded-full bg-white/70 px-2 py-1 text-[10px] text-ink-muted underline underline-offset-2 transition hover:text-sunset-600"
-          labels={{
-            buttonLabel: t.common.deleteAccount,
-            deletingLabel: t.common.deletingAccount,
-            warningStudent: t.common.deleteAccountWarningStudent,
-            warningOwner: t.common.deleteAccountWarningOwner,
-            confirmAgain: t.common.deleteAccountConfirm,
-          }}
-        />
-      </div>
 
-      {myTenancy && <MyHomeCard tenancy={myTenancy} />}
-      {studentId && myTenancy && <MyPaymentsSection studentId={studentId} />}
+        <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(320px,420px)_1fr]">
+          <div
+            className={`${
+              activeTab === "chat" ? "flex" : "hidden"
+            } min-h-0 flex-col md:flex md:border-r md:border-sea-100`}
+          >
+            {initialMessages ? (
+              <ChatPanel
+                initialMessages={initialMessages}
+                initialProgress={chatProgress}
+                onSendMessage={handleSendMessage}
+                onRoomsUpdate={handleRoomsUpdate}
+              />
+            ) : (
+              <div className="flex h-full flex-col items-center justify-center gap-3">
+                <LoadingRing size={36} />
+                <p className="text-sm text-ink-muted">{t.dashboard.loadingChat}</p>
+              </div>
+            )}
+          </div>
 
-      {/* Tab bar solo mobile */}
-      <div className="flex shrink-0 border-b border-sea-100 bg-white md:hidden">
-        <TabButton
-          label={t.dashboard.chatTab}
-          isActive={activeTab === "chat"}
-          onClick={() => setActiveTab("chat")}
-        />
-        <TabButton
-          label={`${t.dashboard.roomsTab} (${rooms.length})`}
-          isActive={activeTab === "rooms"}
-          onClick={() => setActiveTab("rooms")}
-        />
-      </div>
-
-      <div className="mx-auto grid w-full min-h-0 max-w-7xl flex-1 grid-cols-1 md:grid-cols-[minmax(320px,420px)_1fr]">
-        <div
-          className={`${activeTab === "chat" ? "block" : "hidden"} h-full min-h-0 md:block md:border-r md:border-sea-100`}
-        >
-          {initialMessages ? (
-            <ChatPanel
-              initialMessages={initialMessages}
-              initialProgress={chatProgress}
-              onSendMessage={handleSendMessage}
-              onRoomsUpdate={handleRoomsUpdate}
-            />
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-3">
-              <LoadingRing size={36} />
-              <p className="text-sm text-ink-muted">{t.dashboard.loadingChat}</p>
+          <div
+            className={`${
+              activeTab === "rooms" ? "block" : "hidden"
+            } min-h-0 overflow-y-auto md:block`}
+          >
+            <div className="hidden border-b border-sea-100 bg-white px-4 py-3 md:block">
+              <h2 className="font-display text-sm font-bold text-ink">
+                {t.dashboard.roomsTab}
+              </h2>
+              <p className="text-xs text-ink-muted">
+                {locale === "en"
+                  ? "Rooms matched from your chat with Vesta"
+                  : "Stanze proposte dalla chat con Vesta"}
+              </p>
             </div>
-          )}
+            <RoomList rooms={rooms} waitlisted={waitlisted} loading={roomsLoading} />
+          </div>
         </div>
 
-        <div className={`${activeTab === "rooms" ? "block" : "hidden"} h-full min-h-0 md:block`}>
-          <RoomList rooms={rooms} waitlisted={waitlisted} loading={roomsLoading} />
-        </div>
+        {!isAdmin && (
+          <div className="hidden px-4 py-2 md:block">
+            <DeleteAccountButton
+              className="text-[10px] text-ink-muted underline underline-offset-2 transition hover:text-sunset-600"
+              labels={{
+                buttonLabel: t.common.deleteAccount,
+                deletingLabel: t.common.deletingAccount,
+                warningStudent: t.common.deleteAccountWarningStudent,
+                warningOwner: t.common.deleteAccountWarningOwner,
+                confirmAgain: t.common.deleteAccountConfirm,
+              }}
+            />
+          </div>
+        )}
       </div>
-    </main>
+    </StudentShell>
   );
 }
 

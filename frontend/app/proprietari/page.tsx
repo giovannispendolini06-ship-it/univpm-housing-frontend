@@ -7,14 +7,14 @@ import { buildWhatsAppLink } from "@/lib/whatsapp";
 export const metadata = {
   title: "Proponi il tuo immobile | Coabito",
   description:
-    "Affitta il tuo immobile a studenti verificati, senza gestire tu le trattative.",
+    "Marketplace Coabito: studenti verificati e filtrati, tu firmi direttamente. Matching, fiducia e strumenti di sicurezza della transazione.",
 };
 
 export default function OwnersPage() {
   const whatsappLink = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
     ? buildWhatsAppLink(
         process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
-        "Ciao! Ho un immobile ad Ancona e vorrei saperne di più su Coabito.",
+        "Ciao! Ho un immobile ad Ancona e vorrei saperne di più sul marketplace Coabito.",
       )
     : null;
 
@@ -25,12 +25,24 @@ export default function OwnersPage() {
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <Reveal>
           <h1 className="mb-3 font-display text-3xl font-bold text-ink sm:text-4xl">
-            Affitta il tuo immobile a studenti verificati
+            Affitta a studenti verificati, tu firmi direttamente
           </h1>
-          <p className="mb-10 max-w-xl text-base text-ink-muted">
-            Ci occupiamo noi della ricerca, della verifica e del primo contatto.
-            Tu decidi solo con chi firmare.
+          <p className="mb-6 max-w-xl text-base text-ink-muted">
+            Coabito è il marketplace: matching, verifica e fiducia tra le parti.
+            Il contratto di locazione resta tra te e lo studente — noi non entriamo
+            come controparte.
           </p>
+          <div className="mb-10 rounded-xl2 border border-sea-100 bg-sea-50 px-4 py-3 text-sm text-ink">
+            <p className="font-display text-sm font-bold text-sea-700">
+              Fiducia senza diventare intermediari del contratto
+            </p>
+            <p className="mt-1 text-ink-muted">
+              Pre-filtro degli studenti, badge di verifica e — in roadmap —
+              escrow sulla prima mensilità/cauzione e garanzia opzionale contro
+              inadempimento: sicurezza della transazione, contratto diretto tra le
+              parti.
+            </p>
+          </div>
         </Reveal>
 
         <div className="grid gap-10 md:grid-cols-2">
@@ -43,19 +55,27 @@ export default function OwnersPage() {
                 <ol className="space-y-4 text-sm text-ink-muted">
                   <li>
                     <strong className="block text-ink">1. Ci racconti il tuo immobile</strong>
-                    Compila il form qui a fianco, ti ricontattiamo entro 24-48 ore.
+                    Compila il form qui a fianco: ti ricontattiamo entro 24-48 ore.
                   </li>
                   <li>
-                    <strong className="block text-ink">2. Lo pubblichiamo</strong>
-                    Sia sulla nostra piattaforma sia sui principali portali immobiliari.
+                    <strong className="block text-ink">2. Pubblichiamo l&apos;annuncio</strong>
+                    Sulla piattaforma (e, dove ha senso, sui portali): foto e testo
+                    chiari, pronti per gli studenti.
                   </li>
                   <li>
-                    <strong className="block text-ink">3. Filtriamo gli interessati</strong>
-                    Solo studenti compatibili e verificati arrivano fino a te.
+                    <strong className="block text-ink">
+                      3. Ti mostriamo solo profili filtrati
+                    </strong>
+                    Studenti compatibili e, appena disponibili, verificati: meno
+                    perditempo in selezione.
                   </li>
                   <li>
-                    <strong className="block text-ink">4. Decidi tu</strong>
-                    Chiudi l&apos;affitto quando sei pronto, ai tuoi tempi.
+                    <strong className="block text-ink">
+                      4. Decidi tu con chi firmare
+                    </strong>
+                    Chiudi il contratto direttamente con lo studente, ai tuoi tempi.
+                    Coabito resta fuori dal contratto e può supportarti su matching,
+                    mediazione e sicurezza della transazione.
                   </li>
                 </ol>
               </div>
@@ -67,7 +87,8 @@ export default function OwnersPage() {
                 </a>
                 {whatsappLink && (
                   <>
-                    {" "}o su{" "}
+                    {" "}
+                    o su{" "}
                     <a
                       href={whatsappLink}
                       target="_blank"

@@ -1,17 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 
-export default function ResetPasswordPage() {
+function ResetPasswordInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { t } = useLocale();
   const supabase = createClientSupabaseClient();
 
+  const tokenHash = searchParams.get("token_hash") ?? "";
+  const type = searchParams.get("type") ?? "recovery";
+
   const [isReady, setIsReady] = useState(false);
+  const [useTokenHash, setUseTokenHash] = useState(false);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +24,14 @@ export default function ResetPasswordPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    // Preferred path: Resend link with token_hash (no native Auth SMTP)
+    if (tokenHash && type === "recovery") {
+      setUseTokenHash(true);
+      setIsReady(true);
+      return;
+    }
+
+    // Legacy fallback: session from Supabase verify redirect hash
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event) => {
@@ -32,7 +45,7 @@ export default function ResetPasswordPage() {
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase]);
+  }, [supabase, tokenHash, type]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,17 +62,43 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password });
-      if (error) throw error;
+      if (useTokenHash) {
+        const res = await fetch("/api/auth/reset-password/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token_hash: tokenHash,
+            newPassword: password,
+            type: "recovery",
+          }),
+        });
+        const payload = (await res.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        if (!res.ok) {
+          if (payload.error === "invalid_or_expired_token") {
+            setError(t.resetPassword.invalidToken);
+          } else if (payload.error === "password_short") {
+            setError(t.resetPassword.tooShort);
+          } else {
+            setError(t.login.genericError);
+          }
+          return;
+        }
+      } else {
+        const { error: updateError } = await supabase.auth.updateUser({
+          password,
+        });
+        if (updateError) throw updateError;
+      }
+
       setSuccess(true);
       setTimeout(() => {
         router.push("/dashboard");
         router.refresh();
       }, 1500);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t.login.genericError,
-      );
+      setError(err instanceof Error ? err.message : t.login.genericError);
     } finally {
       setLoading(false);
     }
@@ -85,7 +124,7 @@ export default function ResetPasswordPage() {
         ) : !isReady ? (
           <p className="text-sm text-ink-muted">
             {t.resetPassword.verifying}{" "}
-            <a href="/login" className="text-sea-700 underline">
+            <a href="/login?mode=forgot" className="text-sea-700 underline">
               {t.resetPassword.loginLink}
             </a>{" "}
             {t.resetPassword.andRequestNew}
@@ -99,6 +138,7 @@ export default function ResetPasswordPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
+              autoComplete="new-password"
               className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
             />
             <input
@@ -108,6 +148,7 @@ export default function ResetPasswordPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={6}
+              autoComplete="new-password"
               className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
             />
 
@@ -124,5 +165,19 @@ export default function ResetPasswordPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-dvh items-center justify-center bg-bg px-4">
+          <div className="h-40 w-full max-w-sm animate-pulse rounded-xl2 bg-surface" />
+        </main>
+      }
+    >
+      <ResetPasswordInner />
+    </Suspense>
   );
 }
