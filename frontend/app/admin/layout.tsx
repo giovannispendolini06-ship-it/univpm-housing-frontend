@@ -1,6 +1,7 @@
 import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
 import AdminNav from "./AdminNav";
+import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 
 export default async function AdminLayout({
@@ -8,8 +9,9 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Conteggi per il pannello a scomparsa: quante cose aspettano attenzione,
-  // visibili da qualsiasi pagina del pannello admin senza doverci navigare.
+  // Fail closed before any service-role aggregates (middleware is not enough alone).
+  await requireRole(["admin"]);
+
   const db = createServiceSupabaseClient();
 
   const [

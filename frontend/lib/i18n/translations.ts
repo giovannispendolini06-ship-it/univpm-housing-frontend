@@ -6,20 +6,24 @@ export const translations = {
       forStudents: "Per gli studenti",
       forOwners: "Per i proprietari",
       howItWorks: "Come funziona",
+      services: "Servizi",
+      rooms: "Stanze",
       installApp: "Installa l'app",
       login: "Accedi",
       waitlist: "Lista d'attesa",
     },
     hero: {
-      badge: "Pensato per chi studia fuori sede",
-      titlePart1: "Trova casa ",
-      titleHighlight: "chattando",
-      titlePart2: ", non scorrendo annunci a caso.",
+      badge: "Pensato per chi studia fuori sede ad Ancona",
+      titlePart1: "La casa giusta. ",
+      titleHighlight: "Le persone",
+      titlePart2: " giuste.",
       subtitle:
-        "Racconta a Vesta la tua facoltà, il tuo budget e le tue abitudini di convivenza. Ti proponiamo solo le stanze davvero compatibili con te, vicino al tuo ateneo.",
-      ctaStudent: "Sono uno studente",
-      ctaOwner: "Sono un proprietario",
+        "Marketplace abitativo per fuori sede ad Ancona: stanze trasparenti, profili verificabili e Compatibilità Coabito — per trovare stanza e coinquilini giusti, non solo un annuncio.",
+      ctaStudent: "Trova il tuo match",
+      ctaOwner: "Pubblica un immobile",
+      ctaBrowse: "Sfoglia le stanze",
       freeNote: "Gratuito per gli studenti. Nessuna carta di credito richiesta.",
+      alreadyAccount: "Hai già un account? Accedi",
       seeExample: "Vedi un esempio",
       socialProof: "{count} studenti già in lista d'attesa",
       liveCompatibility: "Compatibilità calcolata in tempo reale",
@@ -69,26 +73,26 @@ export const translations = {
     },
     howItWorksOwners: {
       eyebrow: "Per i proprietari",
-      title: "Affitta senza gestire tu le trattative",
+      title: "Matching e fiducia, contratto diretto",
       ctaLabel: "Proponi il tuo immobile",
       steps: [
         {
           number: "1",
-          title: "Ci mandi l'immobile",
+          title: "Ci racconti il tuo immobile",
           description:
-            "Indirizzo, prezzo, foto: lo carichiamo noi sul tuo profilo e lo pubblichiamo anche sui portali principali.",
+            "Indirizzo, prezzo, foto: pubblichiamo l'annuncio sulla piattaforma e, dove ha senso, sui portali.",
         },
         {
           number: "2",
-          title: "Filtriamo noi gli interessati",
+          title: "Pre-filtro degli interessati",
           description:
-            "Solo studenti già verificati e compatibili con la tua casa arrivano fino a te: niente perditempo.",
+            "Solo studenti compatibili — e, appena disponibili, verificati — arrivano fino a te: niente perditempo.",
         },
         {
           number: "3",
-          title: "Tu decidi, noi gestiamo il resto",
+          title: "Tu scegli e firmi direttamente",
           description:
-            "Ti aggiorniamo su ogni richiesta seria. Chiudi l'affitto quando sei pronto, ai tuoi tempi.",
+            "Il contratto resta tra te e lo studente. Coabito supporta matching, fiducia e sicurezza della transazione.",
         },
       ],
     },
@@ -110,7 +114,7 @@ export const translations = {
         {
           question: "Come guadagna Coabito?",
           answer:
-            "Applichiamo un piccolo margine tra quello che paga lo studente e quello che versiamo al proprietario — lo stesso modello di chi gestisce affitti per conto terzi, reso più semplice e veloce grazie alla chat.",
+            "Siamo un marketplace: il contratto di locazione resta diretto tra studente e proprietario. Guadagniamo da servizi a valore aggiunto (verifica, escrow, garanzie opzionali, supporti al trasloco e partnership), non entrando come parte del contratto.",
         },
         {
           question: "Devo pagare qualcosa prima di trovare la stanza giusta?",
@@ -120,7 +124,7 @@ export const translations = {
         {
           question: "Chi si occupa del contratto?",
           answer:
-            "Ce ne occupiamo noi: gestiamo il rapporto con il proprietario, tu firmi solo il contratto per la tua stanza, senza dover trattare direttamente ogni dettaglio.",
+            "Il contratto di locazione lo firmi direttamente con il proprietario. Coabito facilita matching e contatto, e può offrire strumenti di fiducia (verifica, escrow, mediazione) senza essere parte del contratto.",
         },
         {
           question: "Come funziona il punteggio di compatibilità?",
@@ -135,7 +139,7 @@ export const translations = {
         {
           question: "Sono un proprietario: devo pagare per proporre il mio immobile?",
           answer:
-            "No, proporre il tuo immobile è gratuito. Ci pensiamo noi a trovare studenti compatibili e verificati: tu decidi solo con chi firmare, quando sei pronto.",
+            "No, proporre il tuo immobile è gratuito. Ti mostriamo studenti compatibili (e, appena disponibili, verificati): tu decidi con chi firmare direttamente. Servizi opzionali come garanzia contro inadempimento o escrow arriveranno a pagamento, senza farci entrare nel contratto.",
         },
       ],
     },
@@ -194,6 +198,8 @@ export const translations = {
       cookies: "Cookie",
       guide: "Guida affitto Ancona",
       faq: "FAQ studenti",
+      guideFirstTime: "Prima volta fuori sede",
+      services: "Servizi",
     },
     whatsappFloat: {
       ariaLabel: "Scrivici su WhatsApp",
@@ -224,7 +230,7 @@ export const translations = {
         },
         {
           title: "Cosa chiedere (e cosa evitare)",
-          body: "Chiedi sempre data di disponibilità, cosa è incluso nelle spese, se la stanza è singola o doppia, e regole su ospiti/fumo. Diffida di richieste di caparra via bonifico prima di aver visto la casa o firmato qualcosa di chiaro. Coabito gestisce il rapporto con il proprietario proprio per ridurre questi passaggi opachi.",
+          body: "Chiedi sempre data di disponibilità, cosa è incluso nelle spese, se la stanza è singola o doppia, e regole su ospiti/fumo. Diffida di richieste di caparra via bonifico prima di aver visto la casa o firmato qualcosa di chiaro. Su Coabito il contratto resta diretto con il proprietario: la piattaforma riduce i passaggi opachi con matching, verifica e — in roadmap — escrow sulla prima mensilità/cauzione.",
         },
         {
           title: "Come ti aiuta Coabito",
@@ -236,6 +242,93 @@ export const translations = {
       ctaChat: "Parla con Vesta",
       ctaWaitlist: "Lista d’attesa",
       backHome: "← Torna alla home",
+    },
+    guidaPrimaVolta: {
+      title: "Prima volta fuori sede: la guida pratica",
+      intro:
+        "Trasferirti per l'università è la prima volta che gestisci tutto da solo: casa, documenti, spese, convivenza. Non serve saperlo già fare — serve sapere cosa aspettarti. Questa guida raccoglie le cose che avremmo voluto sapere prima di partire noi stessi.",
+      sections: [
+        {
+          title: "Prima di partire",
+          blocks: [
+            {
+              heading: "Documenti da preparare",
+              bullets: [
+                "Carta d'identità e codice fiscale (portali sempre con te, non solo il giorno del trasferimento)",
+                "Certificato di iscrizione universitaria o attestato di immatricolazione",
+                "Se richiesto dal proprietario: documenti del garante (di solito un genitore)",
+              ],
+            },
+            {
+              heading: "Il contratto",
+              body: "Leggilo tutto prima di firmare, anche le parti noiose. Controlla in particolare: durata, importo del deposito cauzionale, cosa succede se vuoi lasciare la stanza prima della scadenza, chi paga cosa tra le utenze. Se qualcosa non è chiaro, chiedi — un contratto serio non ha problemi a spiegarti ogni riga.",
+            },
+            {
+              heading: "Budget reale, non solo l'affitto",
+              body: "L'affitto è solo una parte della spesa mensile. Metti in conto: utenze (luce, gas, internet — a volte incluse, a volte no, verificalo prima), spesa alimentare, trasporti, materiale universitario. Un budget realistico evita brutte sorprese al secondo mese.",
+            },
+          ],
+        },
+        {
+          title: "Il trasferimento",
+          blocks: [
+            {
+              heading: "Cosa portare (e cosa no)",
+              body: "Non serve portare tutto quello che hai in camera a casa. La maggior parte delle stanze in affitto per studenti sono già arredate con l'essenziale (letto, scrivania, armadio). Porta: biancheria, oggetti personali, eventuale attrezzatura per lo studio. Il resto si compra sul posto se serve, spesso costa meno che trasportarlo.",
+            },
+            {
+              heading: "Il cambio di residenza",
+              body: "Non è obbligatorio, ma vale la pena informarsi se conviene nel tuo caso (può incidere su alcune agevolazioni, tasse universitarie, o convenzioni sanitarie). Chiedi in anagrafe del tuo comune di origine cosa cambia.",
+            },
+            {
+              heading: "Attivare le utenze",
+              body: "Se non sono già incluse nel contratto, informati con anticipo sui tempi di attivazione — internet in particolare può richiedere alcuni giorni. Meglio saperlo prima di arrivare che scoprirlo il primo giorno senza connessione.",
+            },
+          ],
+        },
+        {
+          title: "Vivere con coinquilini",
+          blocks: [
+            {
+              heading: "I primi giorni contano",
+              body: "Parla subito, apertamente, delle regole della convivenza: pulizia, orari, ospiti, spese condivise. Non aspettare che diventi un problema per parlarne — la maggior parte degli attriti nasce da aspettative mai dette ad alta voce, non da cattiva volontà.",
+            },
+            {
+              heading: "Le spese condivise",
+              body: "Decidete insieme fin da subito come dividere spesa comune, utenze, e prodotti per la casa. Un metodo semplice (anche solo un foglio condiviso) evita discussioni continue su chi ha pagato cosa.",
+            },
+            {
+              heading: "Se qualcosa non funziona",
+              body: "È normale che una convivenza abbia momenti di attrito. Prova a parlarne direttamente prima di lasciare che la situazione peggiori. Se il problema persiste, è comunque meglio affrontarlo presto che aspettare la fine del contratto sperando che si risolva da solo.",
+            },
+          ],
+        },
+        {
+          title: "Errori comuni da evitare",
+          blocks: [
+            {
+              bullets: [
+                "Non leggere bene il contratto prima di firmare — anche se ha fretta chi te lo propone, tu prendi il tempo che ti serve",
+                "Non chiarire subito le regole di convivenza — meglio una conversazione scomoda il primo giorno che un conflitto dopo un mese",
+                "Sottovalutare il budget reale — l'affitto non è l'unica spesa",
+                "Non conservare le ricevute di pagamento — utile sia per te che per eventuali dispute future",
+              ],
+            },
+          ],
+        },
+      ],
+      closing:
+        "Non serve arrivare preparati al 100% — quasi nessuno lo è alla prima esperienza fuori sede. Serve solo sapere a cosa prestare attenzione. Se hai dubbi specifici sulla tua situazione, scrivici — vedi sotto.",
+      relatedGuide: "Guida: affittare casa per studenti ad Ancona",
+      backHome: "← Torna alla home",
+    },
+    founderContact: {
+      title: "Hai domande prima di iscriverti?",
+      body: "Scrivimi direttamente. Sono Giovanni, il fondatore di Coabito — studio anch'io all'UNIVPM e conosco bene la ricerca casa da fuori sede. Se hai dubbi su come funziona la piattaforma, o semplicemente vuoi capire se fa al caso tuo, scrivimi su WhatsApp: ti rispondo io.",
+      cta: "Scrivimi su WhatsApp",
+      whatsappMessage:
+        "Ciao Giovanni! Ho una domanda su Coabito / sulla guida Prima volta fuori sede.",
+      photoAlt: "Giovanni, fondatore di Coabito",
     },
     cookieBanner: {
       title: "Usiamo i cookie",
@@ -275,7 +368,7 @@ export const translations = {
       forgotTitle: "Password dimenticata",
       forgotSubtitle: "Ti mandiamo un link per reimpostarla.",
       forgotSuccess:
-        "✓ Controlla la tua casella email — ti abbiamo mandato un link per scegliere una nuova password. Se non lo vedi, guarda anche nello spam.",
+        "Se esiste un account con questa email, riceverai a breve un link per scegliere una nuova password. Controlla anche lo spam.",
       emailPlaceholderReset: "Email con cui ti sei registrato",
       sendResetLink: "Invia link di reset",
       backToLogin: "← Torna al login",
@@ -294,11 +387,34 @@ export const translations = {
       and: "e i",
       termsOfService: "Termini di Servizio",
       consentMissing: "Devi accettare Privacy e Termini di servizio per registrarti.",
+      rateLimitError:
+        "Troppe email di conferma inviate in poco tempo. Riprova tra qualche minuto — se il problema continua, scrivici a info@coabito.it.",
+      alreadyRegisteredError:
+        "Esiste già un account con questa email. Prova ad accedere, oppure usa «Password dimenticata».",
+      networkSmtpError:
+        "Non siamo riusciti a completare la registrazione (problema di rete o invio email). Riprova tra un minuto; se ripeti, scrivici a info@coabito.it.",
       genericError: "Qualcosa è andato storto, riprova.",
       signUpButton: "Registrati",
       signInButton: "Accedi",
       alreadyHaveAccount: "Hai già un account? Accedi",
       noAccount: "Non hai un account? Registrati",
+      stepIndicator: "{current} di {total}",
+      step1Title: "Come ti chiami?",
+      step1Hint: "Dicci chi sei e se cerchi casa o la proponi.",
+      step2Title: "Come ti contattiamo?",
+      step3Title: "Ultimo passo",
+      stepContinue: "Continua",
+      stepBack: "Indietro",
+      stepNameRequired: "Un nome basta per iniziare — anche solo il tuo.",
+      stepEmailRequired: "Serve un'email valida per scriverti.",
+      stepPasswordRequired: "La password deve avere almeno 6 caratteri.",
+      vestaStep1: "Piacere di conoscerti",
+      vestaStep2: "Perfetto, ci siamo quasi",
+      vestaStep3:
+        "Perfetto, {name} — manca solo il consenso, poi ti mando la conferma via email.",
+      vestaSignupDone:
+        "Perfetto, {name} — account creato. Accedi con email e password, poi ti aspetto per parlare della tua stanza ideale.",
+      vestaNameFallback: "ciao",
     },
     onboarding: {
       title: "Ultimo passaggio",
@@ -340,6 +456,118 @@ export const translations = {
       viewListing: "Vedi annuncio",
       availableFrom: "Libera dal {date}",
       otherCampus: "Altro polo",
+    },
+    listingsCard: {
+      guaranteedRent: "Canone garantito",
+      verifiedOwner: "Proprietario verificato",
+      photoSoon: "Foto in arrivo",
+      zoneTbd: "Zona da confermare",
+      seeDetails: "Vedi i dettagli",
+      discoverFit: "Scopri la tua compatibilità con Vesta",
+      share: "Condividi",
+      shareAria: "Condividi questa stanza",
+      shareCopied: "Link copiato",
+      filterGuaranteed: "Solo canone garantito Coabito",
+    },
+    listingsCompare: {
+      selectAria: "Seleziona per confrontare",
+      selectShort: "Confronta",
+      selectedCount: "{n} stanze selezionate",
+      compareButton: "Confronta ({n})",
+      clear: "Deseleziona",
+      title: "Confronto stanze",
+      close: "Chiudi",
+      rowPrice: "Prezzo",
+      rowZone: "Zona",
+      rowDistance: "Distanza polo",
+      rowMatch: "Compatibilità",
+      rowGuaranteed: "Canone garantito",
+      rowTags: "Atmosfera",
+      yes: "Sì",
+      no: "No",
+      matchUnknown: "—",
+      noTags: "—",
+      distancePending: "Non ancora calcolata",
+      utilitiesIncludedHint: "utenze da verificare",
+      needTwo: "Seleziona almeno 2 stanze per confrontarle.",
+      maxReached: "massimo 3",
+      bestMatch: "Miglior match",
+    },
+    listingsMap: {
+      viewLabel: "Vista elenco o mappa",
+      viewList: "Elenco",
+      viewMap: "Mappa",
+      countOne: "1 stanza",
+      countMany: "{n} stanze",
+      styleLabel: "Stile mappa",
+      styleStreets: "Standard",
+      styleSatellite: "Satellite",
+      styleDark: "Scuro",
+      privacyNote: "I pin indicano la zona, non l’indirizzo esatto.",
+      legendGuaranteed: "Canone garantito",
+      legendMarketplace: "Marketplace",
+      closePreview: "Chiudi anteprima",
+      tokenMissingTitle: "Mappa non configurata",
+      tokenMissingBody:
+        "Aggiungi NEXT_PUBLIC_MAPBOX_TOKEN per attivare la mappa interattiva. L’elenco resta disponibile.",
+    },
+    ownerDashboard: {
+      widgetEyebrow: "Canone garantito Coabito",
+      nextPayout: "Prossimo pagamento",
+      expectedOn: "Previsto il {date}",
+      widgetAllOccupied: "Immobile occupato · Nessuna azione richiesta",
+      widgetMixed: "Parte degli immobili in gestione · Nessuna azione richiesta",
+      widgetSearching: "In fase di ricerca inquilino",
+      showDetail: "Mostra dettaglio per immobile",
+      hideDetail: "Nascondi dettaglio",
+      occupied: "Occupato",
+      searchingTenant: "In ricerca",
+      guaranteedBadge: "Canone garantito",
+      marketplaceBadge: "Sul marketplace",
+      coabitoHandles:
+        "Se ne occupa Coabito — nessuna gestione richiesta da parte tua.",
+      contactCoabito: "Contatta Coabito",
+      emptyCandidates:
+        "Il tuo annuncio è visibile agli studenti compatibili — i primi candidati arriveranno a breve.",
+      manage: "Dettaglio immobile",
+      roomAvailable: "Libera",
+      roomOccupied: "Occupata",
+      verifiedStudent: "Studente verificato",
+      message: "Messaggio",
+      compatibility: "Compatibilità",
+      candidatesHeading: "Candidati",
+      messagesLink: "Messaggi in-app",
+    },
+    escrow: {
+      title: "Pagamento in escrow",
+      notLiveBadge: "Non ancora attivo",
+      statusLabel: "Stato",
+      statusPending: "In attesa (pending)",
+      statusReleased: "Sbloccato (released)",
+      statusDisputed: "In contestazione (disputed)",
+      statusRefunded: "Rimborsato (refunded)",
+      amountLabel: "Importo previsto",
+      illustrative: "illustrativo",
+      studentPendingCopy:
+        "Il tuo pagamento resterà al sicuro finché non confermi il trasloco. Il prelievo reale non è ancora attivo: stiamo completando l'inquadramento legale.",
+      ownerPendingCopy:
+        "Riceverai il pagamento non appena lo studente conferma l'arrivo. Il prelievo reale non è ancora attivo: stiamo completando l'inquadramento legale.",
+      confirmMoveInStudent: "Confermo di essere arrivato",
+      confirmMoveInOwner: "Confermo il trasloco",
+      reportIssue: "Segnala un problema",
+      disabledHint: "Disponibile quando l'escrow sarà attivo",
+      legalHoldNote:
+        "Demo / predisposizione: nessun addebito Stripe finché non riceviamo parere legale e non attiviamo ESCROW_LIVE.",
+      marketplaceOnlyNote:
+        "L'escrow riguarda solo gli immobili sul marketplace indipendente, non il canone garantito Coabito.",
+      optionalPublishNote:
+        "Opzionale e non bloccante: puoi pubblicare l'annuncio anche prima di completare l'onboarding Stripe.",
+      coverageLabel: "Cosa può includere",
+      coverageFirstMonth: "Solo prima mensilità",
+      coverageDeposit: "Solo cauzione",
+      coverageBoth: "Prima mensilità + cauzione",
+      breakdownFirstMonth: "Prima mensilità",
+      breakdownDeposit: "Cauzione",
     },
     roomList: {
       title: "Stanze consigliate per te",
@@ -495,6 +723,7 @@ export const translations = {
       repeatPasswordPlaceholder: "Ripeti la nuova password",
       tooShort: "La password deve avere almeno 6 caratteri.",
       mismatch: "Le due password non coincidono.",
+      invalidToken: "Questo link non è più valido. Richiedine uno nuovo dal login.",
       saveButton: "Salva nuova password",
     },
     installa: {
@@ -548,20 +777,24 @@ export const translations = {
       forStudents: "For students",
       forOwners: "For property owners",
       howItWorks: "How it works",
+      services: "Services",
+      rooms: "Rooms",
       installApp: "Install the app",
       login: "Log in",
       waitlist: "Waitlist",
     },
     hero: {
-      badge: "Made for out-of-town students",
-      titlePart1: "Find a home by ",
-      titleHighlight: "chatting",
-      titlePart2: ", not scrolling endless listings.",
+      badge: "Made for out-of-town students in Ancona",
+      titlePart1: "The right home. ",
+      titleHighlight: "The right",
+      titlePart2: " people.",
       subtitle:
-        "Tell Vesta your degree course, your budget, and your living habits. We'll only suggest rooms that are truly compatible with you, close to your university.",
-      ctaStudent: "I'm a student",
-      ctaOwner: "I'm a property owner",
+        "Housing marketplace for students in Ancona: transparent rooms, verifiable profiles and Coabito Compatibility — find the right room and roommates, not just another listing.",
+      ctaStudent: "Find your match",
+      ctaOwner: "List a room",
+      ctaBrowse: "Browse rooms",
       freeNote: "Free for students. No credit card required.",
+      alreadyAccount: "Already have an account? Sign in",
       seeExample: "See an example",
       socialProof: "{count} students already on the waitlist",
       liveCompatibility: "Compatibility calculated in real time",
@@ -611,26 +844,26 @@ export const translations = {
     },
     howItWorksOwners: {
       eyebrow: "For property owners",
-      title: "Rent out without handling negotiations yourself",
+      title: "Matching and trust, direct contract",
       ctaLabel: "List your property",
       steps: [
         {
           number: "1",
-          title: "Send us your property",
+          title: "Tell us about your property",
           description:
-            "Address, price, photos: we upload it to your profile and publish it on the main listing sites too.",
+            "Address, price, photos: we publish the listing on the platform and, where it makes sense, on major portals.",
         },
         {
           number: "2",
-          title: "We filter the interested students",
+          title: "We pre-filter interested students",
           description:
-            "Only verified students compatible with your home reach you: no time-wasters.",
+            "Only compatible students — and, as soon as available, verified ones — reach you: no time-wasters.",
         },
         {
           number: "3",
-          title: "You decide, we handle the rest",
+          title: "You choose and sign directly",
           description:
-            "We keep you updated on every serious request. Close the deal whenever you're ready, on your own time.",
+            "The lease stays between you and the student. Coabito supports matching, trust and transaction safety.",
         },
       ],
     },
@@ -652,7 +885,7 @@ export const translations = {
         {
           question: "How does Coabito make money?",
           answer:
-            "We apply a small margin between what the student pays and what we pass on to the property owner — the same model used by anyone managing rentals on someone else's behalf, made simpler and faster through chat.",
+            "We're a marketplace: the lease stays direct between student and owner. We earn from value-added services (verification, escrow, optional guarantees, move-in support and partnerships), without becoming a party to the contract.",
         },
         {
           question: "Do I have to pay anything before finding the right room?",
@@ -662,7 +895,7 @@ export const translations = {
         {
           question: "Who handles the contract?",
           answer:
-            "We do: we manage the relationship with the property owner, you only sign the contract for your room, without having to negotiate every detail yourself.",
+            "You sign the lease directly with the property owner. Coabito facilitates matching and contact, and may offer trust tools (verification, escrow, mediation) without being a party to the contract.",
         },
         {
           question: "How does the compatibility score work?",
@@ -677,7 +910,7 @@ export const translations = {
         {
           question: "I'm a property owner: do I have to pay to list my property?",
           answer:
-            "No, listing your property is free. We take care of finding compatible, verified students: you only decide who to sign with, when you're ready.",
+            "No, listing your property is free. We show you compatible students (and, as soon as available, verified ones): you decide who to sign with directly. Optional services like non-payment cover or escrow will be paid add-ons — without us entering the lease.",
         },
       ],
     },
@@ -736,6 +969,8 @@ export const translations = {
       cookies: "Cookies",
       guide: "Ancona student housing guide",
       faq: "Student FAQ",
+      guideFirstTime: "First time living away",
+      services: "Services",
     },
     whatsappFloat: {
       ariaLabel: "Message us on WhatsApp",
@@ -766,7 +1001,7 @@ export const translations = {
         },
         {
           title: "What to ask (and what to avoid)",
-          body: "Always ask about availability date, what’s included in bills, whether the room is single or shared, and rules on guests/smoking. Be wary of deposit transfers before you’ve seen the place or signed something clear. Coabito manages the landlord relationship to reduce those opaque steps.",
+          body: "Always ask about availability date, what’s included in bills, whether the room is single or shared, and rules on guests/smoking. Be wary of deposit transfers before you’ve seen the place or signed something clear. On Coabito the lease stays direct with the landlord: the platform reduces opaque steps with matching, verification and — on the roadmap — escrow on the first month’s rent/deposit.",
         },
         {
           title: "How Coabito helps",
@@ -778,6 +1013,93 @@ export const translations = {
       ctaChat: "Chat with Vesta",
       ctaWaitlist: "Join the waitlist",
       backHome: "← Back to home",
+    },
+    guidaPrimaVolta: {
+      title: "First time living away: a practical guide",
+      intro:
+        "Moving for university is often the first time you handle everything yourself: housing, paperwork, money, flatmates. You don’t need to already know how — you need to know what to expect. This guide collects what we wish we’d known before we left home.",
+      sections: [
+        {
+          title: "Before you leave",
+          blocks: [
+            {
+              heading: "Documents to prepare",
+              bullets: [
+                "ID card and tax code (keep them with you, not only on move-in day)",
+                "University enrolment certificate or matriculation proof",
+                "If the landlord asks: guarantor documents (usually a parent)",
+              ],
+            },
+            {
+              heading: "The contract",
+              body: "Read all of it before signing, including the boring parts. Check especially: length, deposit amount, what happens if you leave early, and who pays which utilities. If something isn’t clear, ask — a serious contract can explain every line.",
+            },
+            {
+              heading: "A real budget, not just rent",
+              body: "Rent is only part of the monthly cost. Factor in utilities (electricity, gas, internet — sometimes included, sometimes not: check first), groceries, transport, and study materials. A realistic budget avoids nasty surprises in month two.",
+            },
+          ],
+        },
+        {
+          title: "The move",
+          blocks: [
+            {
+              heading: "What to bring (and what not to)",
+              body: "You don’t need to ship your entire bedroom. Most student rooms already have the basics (bed, desk, wardrobe). Bring: bedding, personal items, any study gear you need. Buy the rest locally if you need it — often cheaper than transporting it.",
+            },
+            {
+              heading: "Changing residence",
+              body: "It isn’t mandatory, but it’s worth checking whether it helps in your case (it can affect some benefits, university fees, or healthcare arrangements). Ask your home town registry office what changes.",
+            },
+            {
+              heading: "Turning on utilities",
+              body: "If they aren’t already included in the contract, check activation timelines in advance — internet especially can take a few days. Better to know before you arrive than discover it on day one with no connection.",
+            },
+          ],
+        },
+        {
+          title: "Living with flatmates",
+          blocks: [
+            {
+              heading: "The first days matter",
+              body: "Talk early and openly about house rules: cleaning, schedules, guests, shared expenses. Don’t wait until it becomes a problem — most friction comes from unspoken expectations, not bad intentions.",
+            },
+            {
+              heading: "Shared expenses",
+              body: "Decide together from day one how to split shared groceries, utilities, and household products. A simple method (even just a shared sheet) avoids endless “who paid what” debates.",
+            },
+            {
+              heading: "If something isn’t working",
+              body: "Friction is normal. Try talking directly before letting it escalate. If it persists, it’s still better to face it early than wait until the contract ends hoping it fixes itself.",
+            },
+          ],
+        },
+        {
+          title: "Common mistakes to avoid",
+          blocks: [
+            {
+              bullets: [
+                "Not reading the contract carefully before signing — even if someone is in a rush, take the time you need",
+                "Not clarifying house rules early — an awkward day-one talk beats a month-later conflict",
+                "Underestimating the real budget — rent isn’t the only cost",
+                "Not keeping payment receipts — useful for you and for any future dispute",
+              ],
+            },
+          ],
+        },
+      ],
+      closing:
+        "You don’t need to arrive 100% prepared — almost nobody is the first time they live away. You just need to know what to watch for. If you have specific questions about your situation, write to us — see below.",
+      relatedGuide: "Guide: renting student housing in Ancona",
+      backHome: "← Back to home",
+    },
+    founderContact: {
+      title: "Questions before you sign up?",
+      body: "Message me directly. I’m Giovanni, the founder of Coabito — I also study at UNIVPM and know the out-of-town housing search well. If you’re unsure how the platform works, or simply want to know if it’s right for you, write on WhatsApp: I’ll reply myself.",
+      cta: "Message me on WhatsApp",
+      whatsappMessage:
+        "Hi Giovanni! I have a question about Coabito / the First time living away guide.",
+      photoAlt: "Giovanni, founder of Coabito",
     },
     cookieBanner: {
       title: "We use cookies",
@@ -817,7 +1139,7 @@ export const translations = {
       forgotTitle: "Forgot password",
       forgotSubtitle: "We'll send you a link to reset it.",
       forgotSuccess:
-        "✓ Check your inbox — we've sent you a link to choose a new password. If you don't see it, check your spam folder too.",
+        "If an account exists for this email, you’ll soon receive a link to choose a new password. Check spam too.",
       emailPlaceholderReset: "Email you signed up with",
       sendResetLink: "Send reset link",
       backToLogin: "← Back to login",
@@ -836,11 +1158,34 @@ export const translations = {
       and: "and the",
       termsOfService: "Terms of Service",
       consentMissing: "You must accept the Privacy Policy and Terms of Service to sign up.",
+      rateLimitError:
+        "Too many confirmation emails sent in a short time. Try again in a few minutes — if it keeps happening, email info@coabito.it.",
+      alreadyRegisteredError:
+        "An account with this email already exists. Try signing in, or use “Forgot password”.",
+      networkSmtpError:
+        "We couldn't complete sign-up (network or email delivery issue). Try again in a minute; if it persists, email info@coabito.it.",
       genericError: "Something went wrong, please try again.",
       signUpButton: "Sign up",
       signInButton: "Log in",
       alreadyHaveAccount: "Already have an account? Log in",
       noAccount: "Don't have an account? Sign up",
+      stepIndicator: "{current} of {total}",
+      step1Title: "What's your name?",
+      step1Hint: "Tell us who you are and whether you're looking for a room or listing one.",
+      step2Title: "How do we reach you?",
+      step3Title: "One last step",
+      stepContinue: "Continue",
+      stepBack: "Back",
+      stepNameRequired: "A name is enough to start — even just your first name.",
+      stepEmailRequired: "We need a valid email to reach you.",
+      stepPasswordRequired: "Password must be at least 6 characters.",
+      vestaStep1: "Nice to meet you",
+      vestaStep2: "Perfect — almost there",
+      vestaStep3:
+        "Perfect, {name} — just the consent, then I’ll send your confirmation email.",
+      vestaSignupDone:
+        "Perfect, {name} — account created. Sign in with email and password, then I’ll be here to talk about your ideal room.",
+      vestaNameFallback: "there",
     },
     onboarding: {
       title: "One last step",
@@ -882,6 +1227,117 @@ export const translations = {
       viewListing: "View listing",
       availableFrom: "Available from {date}",
       otherCampus: "Other campus",
+    },
+    listingsCard: {
+      guaranteedRent: "Guaranteed rent",
+      verifiedOwner: "Verified landlord",
+      photoSoon: "Photo coming soon",
+      zoneTbd: "Area TBC",
+      seeDetails: "See details",
+      discoverFit: "Discover your fit with Vesta",
+      share: "Share",
+      shareAria: "Share this room",
+      shareCopied: "Link copied",
+      filterGuaranteed: "Coabito guaranteed rent only",
+    },
+    listingsCompare: {
+      selectAria: "Select to compare",
+      selectShort: "Compare",
+      selectedCount: "{n} rooms selected",
+      compareButton: "Compare ({n})",
+      clear: "Clear",
+      title: "Compare rooms",
+      close: "Close",
+      rowPrice: "Price",
+      rowZone: "Area",
+      rowDistance: "Campus distance",
+      rowMatch: "Compatibility",
+      rowGuaranteed: "Guaranteed rent",
+      rowTags: "Atmosphere",
+      yes: "Yes",
+      no: "No",
+      matchUnknown: "—",
+      noTags: "—",
+      distancePending: "Not calculated yet",
+      utilitiesIncludedHint: "utilities TBC",
+      needTwo: "Select at least 2 rooms to compare them.",
+      maxReached: "max 3",
+      bestMatch: "Best match",
+    },
+    listingsMap: {
+      viewLabel: "List or map view",
+      viewList: "List",
+      viewMap: "Map",
+      countOne: "1 room",
+      countMany: "{n} rooms",
+      styleLabel: "Map style",
+      styleStreets: "Standard",
+      styleSatellite: "Satellite",
+      styleDark: "Dark",
+      privacyNote: "Pins show the area, not the exact address.",
+      legendGuaranteed: "Guaranteed rent",
+      legendMarketplace: "Marketplace",
+      closePreview: "Close preview",
+      tokenMissingTitle: "Map not configured",
+      tokenMissingBody:
+        "Add NEXT_PUBLIC_MAPBOX_TOKEN to enable the interactive map. The list view still works.",
+    },
+    ownerDashboard: {
+      widgetEyebrow: "Coabito guaranteed rent",
+      nextPayout: "Next payout",
+      expectedOn: "Expected on {date}",
+      widgetAllOccupied: "Property occupied · No action required",
+      widgetMixed: "Some properties under management · No action required",
+      widgetSearching: "Looking for a tenant",
+      showDetail: "Show per-property detail",
+      hideDetail: "Hide detail",
+      occupied: "Occupied",
+      searchingTenant: "Searching",
+      guaranteedBadge: "Guaranteed rent",
+      marketplaceBadge: "On the marketplace",
+      coabitoHandles: "Coabito handles everything — no management required from you.",
+      contactCoabito: "Contact Coabito",
+      emptyCandidates:
+        "Your listing is visible to compatible students — the first applicants will arrive shortly.",
+      manage: "Property details",
+      roomAvailable: "Available",
+      roomOccupied: "Occupied",
+      verifiedStudent: "Verified student",
+      message: "Message",
+      compatibility: "Compatibility",
+      candidatesHeading: "Applicants",
+      messagesLink: "In-app messages",
+    },
+    escrow: {
+      title: "Escrow payment",
+      notLiveBadge: "Not live yet",
+      statusLabel: "Status",
+      statusPending: "Pending",
+      statusReleased: "Released",
+      statusDisputed: "Disputed",
+      statusRefunded: "Refunded",
+      amountLabel: "Expected amount",
+      illustrative: "illustrative",
+      studentPendingCopy:
+        "Your payment stays safe until you confirm move-in. Real charges are not active yet — we are completing the legal setup.",
+      ownerPendingCopy:
+        "You will receive the payment once the student confirms arrival. Real charges are not active yet — we are completing the legal setup.",
+      confirmMoveInStudent: "I confirm I have moved in",
+      confirmMoveInOwner: "I confirm move-in",
+      reportIssue: "Report an issue",
+      disabledHint: "Available when escrow goes live",
+      legalHoldNote:
+        "Demo / predisposed only: no Stripe charge until legal clearance and ESCROW_LIVE.",
+      marketplaceOnlyNote:
+        "Escrow applies only to independent marketplace listings, not Coabito guaranteed-rent stock.",
+      optionalPublishNote:
+        "Optional and non-blocking: you can publish the listing before finishing Stripe onboarding.",
+      coverageLabel: "What it may include",
+      coverageFirstMonth: "First month only",
+      coverageDeposit: "Deposit only",
+      coverageBoth: "First month + deposit",
+      breakdownFirstMonth: "First month",
+      breakdownDeposit: "Deposit",
     },
     roomList: {
       title: "Recommended rooms for you",
@@ -1036,6 +1492,7 @@ export const translations = {
       repeatPasswordPlaceholder: "Repeat the new password",
       tooShort: "Password must be at least 6 characters.",
       mismatch: "The two passwords don't match.",
+      invalidToken: "This link is no longer valid. Request a new one from login.",
       saveButton: "Save new password",
     },
     installa: {

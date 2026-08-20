@@ -29,6 +29,9 @@ interface ChatPanelProps {
   onRoomsUpdate?: (rooms: RecommendedRoom[], waitlisted?: boolean) => void;
 }
 
+/** Gap (ms) above which we show a date separator — no session_id in schema. */
+const DATE_GAP_MS = 4 * 60 * 60 * 1000;
+
 function stepLabel(
   key: ChatProgressStepKey | null,
   labels: Record<ChatProgressStepKey, string>,
@@ -57,13 +60,38 @@ function markVestaCompleted(reason: string) {
   }
 }
 
+function formatDayLabel(iso: string, locale: string): string {
+  try {
+    return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "it-IT", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(iso));
+  } catch {
+    return iso.slice(0, 16);
+  }
+}
+
+function shouldShowDayBreak(
+  prev: ChatMessage | undefined,
+  current: ChatMessage,
+): boolean {
+  if (!prev) return false;
+  const a = Date.parse(prev.createdAt);
+  const b = Date.parse(current.createdAt);
+  if (Number.isNaN(a) || Number.isNaN(b)) return false;
+  return b - a >= DATE_GAP_MS;
+}
+
 export default function ChatPanel({
   initialMessages,
   initialProgress = null,
   onSendMessage,
   onRoomsUpdate,
 }: ChatPanelProps) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -162,7 +190,9 @@ export default function ChatPanel({
         id: crypto.randomUUID(),
         role: "assistant",
         content:
-          "Uhm, qualcosa è andato storto dal mio lato. Puoi riprovare tra un attimo?",
+          locale === "en"
+            ? "Hmm, something went wrong on my side. Try again in a moment?"
+            : "Uhm, qualcosa è andato storto dal mio lato. Puoi riprovare tra un attimo?",
         createdAt: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -191,17 +221,17 @@ export default function ChatPanel({
           .replace("{step}", currentLabel ?? "");
 
   return (
-    <section className="flex h-full flex-col bg-bg">
-      <header className="border-b border-sea-100 bg-white/80 px-4 py-3 backdrop-blur">
+    <section className="flex h-full min-h-0 flex-col bg-bg">
+      <header className="shrink-0 border-b border-sea-100 bg-white px-4 py-3">
         <div className="flex items-center gap-3">
-          <VestaAvatar size={36} />
+          <VestaAvatar size={40} />
           <div className="min-w-0 flex-1">
-            <h1 className="font-display text-sm font-bold text-ink">Vesta</h1>
+            <h1 className="font-display text-base font-bold text-ink">Vesta</h1>
             <p className="text-xs text-ink-muted">{t.chat.subtitle}</p>
           </div>
         </div>
 
-        <div className="mt-2.5" aria-live="polite">
+        <div className="mt-3" aria-live="polite">
           <div className="mb-1 flex items-center justify-between gap-2">
             <p className="truncate text-[11px] font-medium text-sea-700">
               {progressText}
@@ -228,15 +258,34 @@ export default function ChatPanel({
 
       <div
         ref={scrollRef}
-        className="scrollbar-thin flex-1 space-y-3 overflow-y-auto px-4 py-4"
+        className="scrollbar-thin flex-1 space-y-3 overflow-y-auto px-3 py-4 sm:px-4"
+        role="log"
+        aria-label="Conversazione con Vesta"
       >
-        {messages.map((message) => (
-          <ChatBubble key={message.id} message={message} />
-        ))}
+        {messages.map((message, index) => {
+          const prev = index > 0 ? messages[index - 1] : undefined;
+          const showBreak = shouldShowDayBreak(prev, message);
+          // Collapse repeated labels in a quick back-and-forth
+          const showLabel = !prev || prev.role !== message.role || showBreak;
+          return (
+            <div key={message.id} className="space-y-3">
+              {showBreak && (
+                <div className="flex items-center gap-3 py-1" role="separator">
+                  <span className="h-px flex-1 bg-sea-100" />
+                  <span className="text-[10px] font-medium uppercase tracking-wide text-ink-muted">
+                    {formatDayLabel(message.createdAt, locale)}
+                  </span>
+                  <span className="h-px flex-1 bg-sea-100" />
+                </div>
+              )}
+              <ChatBubble message={message} showLabel={showLabel} />
+            </div>
+          );
+        })}
         {isTyping && <TypingIndicator />}
       </div>
 
-      <div className="border-t border-sea-100 bg-white p-3">
+      <div className="shrink-0 border-t border-sea-100 bg-white p-3">
         <div className="flex items-end gap-2 rounded-xl2 border border-sea-100 bg-bg px-3 py-2 focus-within:border-sea-400">
           <textarea
             rows={1}
@@ -250,7 +299,7 @@ export default function ChatPanel({
             onClick={handleSend}
             disabled={!draft.trim()}
             aria-label={t.chat.sendLabel}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sea-600 text-white transition enabled:hover:bg-sea-700 disabled:cursor-not-allowed disabled:bg-sea-100 disabled:text-ink-muted"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sunset-500 text-white transition enabled:hover:bg-sunset-600 disabled:cursor-not-allowed disabled:bg-sea-100 disabled:text-ink-muted"
           >
             <svg
               width="18"
