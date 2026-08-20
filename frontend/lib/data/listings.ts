@@ -1,6 +1,5 @@
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import type { Listing } from "@/lib/domain/types";
-import { mockListings } from "@/lib/mock-listings";
 
 const PLACEHOLDER_PHOTO =
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop";
@@ -17,6 +16,7 @@ export type ListingFilters = {
 };
 
 type Db = ReturnType<typeof createServiceSupabaseClient>;
+
 
 /** Map common service strings → short atmosphere tags for compare/cards. */
 const SERVICE_TAG_HINTS: { match: RegExp; tag: string }[] = [
@@ -76,206 +76,153 @@ export async function fetchPublicListings(
   db: Db,
   filters: ListingFilters = {},
 ): Promise<Listing[]> {
-  // Try to fetch from database, but fall back to mock data if it fails
-  try {
-    let query = db
-      .from("rooms")
-      .select(
-        `
+  let query = db
+    .from("rooms")
+    .select(
+      `
+      id,
+      room_label,
+      price_monthly,
+      estimated_utilities,
+      has_private_bathroom,
+      services_included,
+      available_from,
+      is_available,
+      created_at,
+      properties:property_id!inner (
         id,
-        room_label,
-        price_monthly,
-        estimated_utilities,
-        has_private_bathroom,
-        services_included,
-        available_from,
-        is_available,
-        created_at,
-        properties:property_id!inner (
-          id,
-          zone,
-          city,
-          status,
-          contract_type,
-          deposit_amount,
-          is_furnished,
-          owner_id,
-          guaranteed_rent
-        )
-      `,
+        zone,
+        city,
+        status,
+        contract_type,
+        deposit_amount,
+        is_furnished,
+        owner_id,
+        guaranteed_rent
       )
-      .eq("is_available", true)
-      .eq("properties.status", "attivo")
-      .limit(48);
+    `,
+    )
+    .eq("is_available", true)
+    .eq("properties.status", "attivo")
+    .limit(48);
 
-    if (filters.sort === "price_desc") {
-      query = query.order("price_monthly", { ascending: false });
-    } else if (filters.sort === "newest") {
-      query = query.order("created_at", { ascending: false });
-    } else {
-      query = query.order("price_monthly", { ascending: true });
-    }
+  if (filters.sort === "price_desc") {
+    query = query.order("price_monthly", { ascending: false });
+  } else if (filters.sort === "newest") {
+    query = query.order("created_at", { ascending: false });
+  } else {
+    query = query.order("price_monthly", { ascending: true });
+  }
 
-    if (typeof filters.maxPrice === "number" && Number.isFinite(filters.maxPrice)) {
-      query = query.lte("price_monthly", filters.maxPrice);
-    }
-    if (typeof filters.minPrice === "number" && Number.isFinite(filters.minPrice)) {
-      query = query.gte("price_monthly", filters.minPrice);
-    }
-    if (filters.privateBathroom) {
-      query = query.eq("has_private_bathroom", true);
-    }
-    if (filters.guaranteedRentOnly) {
-      query = query.eq("properties.guaranteed_rent", true);
-    }
+  if (typeof filters.maxPrice === "number" && Number.isFinite(filters.maxPrice)) {
+    query = query.lte("price_monthly", filters.maxPrice);
+  }
+  if (typeof filters.minPrice === "number" && Number.isFinite(filters.minPrice)) {
+    query = query.gte("price_monthly", filters.minPrice);
+  }
+  if (filters.privateBathroom) {
+    query = query.eq("has_private_bathroom", true);
+  }
+  if (filters.guaranteedRentOnly) {
+    query = query.eq("properties.guaranteed_rent", true);
+  }
 
-    const { data, error } = await query;
-    if (error) {
-      console.error("[data/listings]", error.message, "- using mock data");
-      return applyFiltersToMockData(mockListings, filters);
-    }
+  const { data, error } = await query;
+  if (error) {
+    console.error("[data/listings]", error.message);
+    throw new Error("Impossibile caricare le stanze. Riprova tra poco.");
+  }
 
-    const rows = data ?? [];
-    if (rows.length === 0) {
-      console.log("[data/listings] No rows from DB - using mock data");
-      return applyFiltersToMockData(mockListings, filters);
-    }
+  const rows = data ?? [];
+  const propertyIds = Array.from(
+    new Set(rows.map((r) => asProperty(r.properties).id).filter(Boolean)),
+  );
+  const ownerIds = Array.from(
+    new Set(rows.map((r) => asProperty(r.properties).owner_id).filter(Boolean)),
+  );
 
-    const propertyIds = Array.from(
-      new Set(rows.map((r) => asProperty(r.properties).id).filter(Boolean)),
-    );
-    const ownerIds = Array.from(
-      new Set(rows.map((r) => asProperty(r.properties).owner_id).filter(Boolean)),
-    );
+  const [{ data: images }, { data: owners }] = await Promise.all([
+    propertyIds.length
+      ? db
+          .from("property_images")
+          .select("property_id, url, sort_order")
+          .in("property_id", propertyIds)
+          .order("sort_order", { ascending: true })
+      : Promise.resolve({ data: [] as { property_id: string; url: string }[] }),
+    ownerIds.length
+      ? db.from("users").select("id, verification_status").in("id", ownerIds)
+      : Promise.resolve({ data: [] as { id: string; verification_status: string }[] }),
+  ]);
 
-    const [{ data: images }, { data: owners }] = await Promise.all([
-      propertyIds.length
-        ? db
-            .from("property_images")
-            .select("property_id, url, sort_order")
-            .in("property_id", propertyIds)
-            .order("sort_order", { ascending: true })
-        : Promise.resolve({ data: [] as { property_id: string; url: string }[] }),
-      ownerIds.length
-        ? db.from("users").select("id, verification_status").in("id", ownerIds)
-        : Promise.resolve({ data: [] as { id: string; verification_status: string }[] }),
-    ]);
+  const photosByProperty = new Map<string, string[]>();
+  for (const img of images ?? []) {
+    const list = photosByProperty.get(img.property_id) ?? [];
+    list.push(img.url);
+    photosByProperty.set(img.property_id, list);
+  }
 
-    const photosByProperty = new Map<string, string[]>();
-    for (const img of images ?? []) {
-      const list = photosByProperty.get(img.property_id) ?? [];
-      list.push(img.url);
-      photosByProperty.set(img.property_id, list);
-    }
+  const verifiedOwners = new Set(
+    (owners ?? [])
+      .filter((o) => o.verification_status === "verified")
+      .map((o) => o.id),
+  );
 
-    const verifiedOwners = new Set(
-      (owners ?? [])
-        .filter((o) => o.verification_status === "verified")
-        .map((o) => o.id),
-    );
-
-    let listings: Listing[] = rows.map((row) => {
-      const property = asProperty(row.properties);
-      const photos = photosByProperty.get(property.id) ?? [];
-      const hasRealPhoto = photos.length > 0;
-      return {
-        id: String(row.id),
-        propertyId: property.id,
-        title: String(row.room_label ?? "Stanza"),
-        cityLabel: property.city?.trim() || "Ancona",
-        neighbourhood: property.zone,
-        monthlyRent: Number(row.price_monthly) || 0,
-        utilitiesEstimate: Number(row.estimated_utilities) || 0,
-        deposit: property.deposit_amount,
-        contractType: property.contract_type,
-        availableFrom: row.available_from ? String(row.available_from) : null,
-        roomTypeLabel: String(row.room_label ?? "Stanza"),
-        furnished: property.is_furnished,
-        privateBathroom: Boolean(row.has_private_bathroom),
+  let listings: Listing[] = rows.map((row) => {
+    const property = asProperty(row.properties);
+    const photos = photosByProperty.get(property.id) ?? [];
+    const hasRealPhoto = photos.length > 0;
+    return {
+      id: String(row.id),
+      propertyId: property.id,
+      title: String(row.room_label ?? "Stanza"),
+      cityLabel: property.city?.trim() || "Ancona",
+      neighbourhood: property.zone,
+      monthlyRent: Number(row.price_monthly) || 0,
+      utilitiesEstimate: Number(row.estimated_utilities) || 0,
+      deposit: property.deposit_amount,
+      contractType: property.contract_type,
+      availableFrom: row.available_from ? String(row.available_from) : null,
+      roomTypeLabel: String(row.room_label ?? "Stanza"),
+      furnished: property.is_furnished,
+      privateBathroom: Boolean(row.has_private_bathroom),
+      amenities: Array.isArray(row.services_included)
+        ? (row.services_included as string[])
+        : [],
+      photoUrls: hasRealPhoto ? photos : [PLACEHOLDER_PHOTO],
+      hasRealPhoto,
+      landlordVerified: verifiedOwners.has(property.owner_id),
+      guaranteedRent: property.guaranteed_rent === true,
+      propertyStatus: property.status,
+      atmosphereTags: deriveAtmosphereTags({
         amenities: Array.isArray(row.services_included)
           ? (row.services_included as string[])
           : [],
-        photoUrls: hasRealPhoto ? photos : [PLACEHOLDER_PHOTO],
-        hasRealPhoto,
-        landlordVerified: verifiedOwners.has(property.owner_id),
-        guaranteedRent: property.guaranteed_rent === true,
-        propertyStatus: property.status,
-        atmosphereTags: deriveAtmosphereTags({
-          amenities: Array.isArray(row.services_included)
-            ? (row.services_included as string[])
-            : [],
-          privateBathroom: Boolean(row.has_private_bathroom),
-          furnished: property.is_furnished,
-        }),
-      };
-    });
+        privateBathroom: Boolean(row.has_private_bathroom),
+        furnished: property.is_furnished,
+      }),
+    };
+  });
 
-    if (filters.zone) {
-      const z = filters.zone.toLowerCase();
-      listings = listings.filter((l) =>
-        (l.neighbourhood ?? "").toLowerCase().includes(z),
-      );
-    }
-    if (filters.verifiedOnly) {
-      listings = listings.filter((l) => l.landlordVerified);
-    }
-    if (filters.guaranteedRentOnly) {
-      listings = listings.filter((l) => l.guaranteedRent);
-    }
-    if (filters.availableFromBefore) {
-      const cutoff = filters.availableFromBefore;
-      listings = listings.filter(
-        (l) => !l.availableFrom || l.availableFrom <= cutoff,
-      );
-    }
-
-    return listings;
-  } catch (err) {
-    console.error("[data/listings] Exception:", err instanceof Error ? err.message : String(err), "- using mock data");
-    return applyFiltersToMockData(mockListings, filters);
-  }
-}
-
-function applyFiltersToMockData(listings: Listing[], filters: ListingFilters): Listing[] {
-  let result = [...listings];
-
-  if (typeof filters.maxPrice === "number" && Number.isFinite(filters.maxPrice)) {
-    result = result.filter((l) => l.monthlyRent <= filters.maxPrice!);
-  }
-  if (typeof filters.minPrice === "number" && Number.isFinite(filters.minPrice)) {
-    result = result.filter((l) => l.monthlyRent >= filters.minPrice!);
-  }
   if (filters.zone) {
     const z = filters.zone.toLowerCase();
-    result = result.filter((l) =>
+    listings = listings.filter((l) =>
       (l.neighbourhood ?? "").toLowerCase().includes(z),
     );
   }
-  if (filters.privateBathroom) {
-    result = result.filter((l) => l.privateBathroom);
-  }
   if (filters.verifiedOnly) {
-    result = result.filter((l) => l.landlordVerified);
+    listings = listings.filter((l) => l.landlordVerified);
   }
   if (filters.guaranteedRentOnly) {
-    result = result.filter((l) => l.guaranteedRent);
+    listings = listings.filter((l) => l.guaranteedRent);
   }
   if (filters.availableFromBefore) {
     const cutoff = filters.availableFromBefore;
-    result = result.filter(
+    listings = listings.filter(
       (l) => !l.availableFrom || l.availableFrom <= cutoff,
     );
   }
 
-  if (filters.sort === "price_desc") {
-    result.sort((a, b) => b.monthlyRent - a.monthlyRent);
-  } else if (filters.sort === "newest") {
-    // Mock data doesn't have createdAt, keep default order
-  } else {
-    result.sort((a, b) => a.monthlyRent - b.monthlyRent);
-  }
-
-  return result;
+  return listings;
 }
 
 export async function fetchPublicListingById(
