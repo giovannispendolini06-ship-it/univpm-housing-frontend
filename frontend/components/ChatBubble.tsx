@@ -1,9 +1,11 @@
 import type { ChatMessage } from "@/lib/types";
 import VestaAvatar from "./VestaAvatar";
+import { renderVestaMessageContent } from "./ChatMessageContent";
 
 /**
  * Visual thread: Vesta (assistant) left / neutral; student (user) right / coral.
  * Labels make attribution obvious even in long histories.
+ * Domande di Vesta: grassetto + teal (tag <QUESTION> o frasi con "?").
  */
 export default function ChatBubble({
   message,
@@ -41,13 +43,15 @@ export default function ChatBubble({
         )}
         <div
           className={[
-            "rounded-2xl px-3.5 py-2.5 text-[15px] leading-relaxed shadow-chat",
+            "rounded-2xl px-3.5 py-2.5 text-[15px] leading-relaxed shadow-chat whitespace-pre-wrap",
             isAssistant
               ? "rounded-tl-md border border-sea-100 bg-white text-ink"
               : "rounded-tr-md bg-sunset-500 text-white",
           ].join(" ")}
         >
-          {message.content}
+          {isAssistant
+            ? renderVestaMessageContent(message.content)
+            : message.content}
         </div>
       </div>
     </div>

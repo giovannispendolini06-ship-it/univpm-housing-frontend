@@ -17,7 +17,7 @@ const EXAMPLE_MESSAGES: Record<
   it: [
     {
       role: "assistant",
-      content: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa. Che facoltà fai?",
+      content: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa. <QUESTION>Che facoltà fai?</QUESTION>",
     },
     {
       role: "user",

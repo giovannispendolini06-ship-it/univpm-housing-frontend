@@ -23,8 +23,8 @@ import Link from "next/link";
 type MobileTab = "chat" | "rooms";
 
 const WELCOME_MESSAGES: Record<"it" | "en", string> = {
-  it: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa qui ad Ancona. Che facoltà fai?",
-  en: "Hey! 👋 I'm Vesta, I'll help you find a place here in Ancona. What are you studying?",
+  it: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa qui ad Ancona. <QUESTION>Che facoltà fai?</QUESTION>",
+  en: "Hey! 👋 I'm Vesta, I'll help you find a place here in Ancona. <QUESTION>What are you studying?</QUESTION>",
 };
 
 /**
