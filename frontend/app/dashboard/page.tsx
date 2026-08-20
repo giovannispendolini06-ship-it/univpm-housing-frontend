@@ -1,326 +1,198 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import ChatPanel from "@/components/ChatPanel";
-import RoomList from "@/components/RoomList";
-import DeleteAccountButton from "@/components/DeleteAccountButton";
-import LoadingRing from "@/components/LoadingRing";
-import MyHomeCard, { type MyTenancy } from "@/components/MyHomeCard";
-import MyPaymentsSection from "@/components/MyPaymentsSection";
-import StudentShell from "@/components/student/StudentShell";
-import { createClientSupabaseClient } from "@/lib/supabase/client";
-import type { ChatMessage, RecommendedRoom } from "@/lib/types";
+import type { Metadata } from "next";
+import { requireRole } from "@/lib/auth/session";
+import { createServiceSupabaseClient } from "@/lib/supabase/server";
+import { listApplicationsForStudent } from "@/lib/data/applications";
+import { getPublicListing } from "@/lib/listings";
 import {
-  computeChatProgressFromProfile,
-  type ChatProgress,
-} from "@/lib/chat-progress";
-import { useLocale } from "@/lib/i18n/LocaleContext";
-import VerificationPanel from "@/components/VerificationPanel";
-import VerifiedBadge from "@/components/VerifiedBadge";
-import type { VerificationStatus } from "@/lib/verification";
-import Link from "next/link";
+  computeProfileCompletion,
+  type ProgressiveUserFields,
+} from "@/lib/profile-completion";
+import { computeChatProgressFromProfile } from "@/lib/chat-progress";
+import StudentShell from "@/components/student/StudentShell";
+import StudentHomeContent, {
+  type HomeApplication,
+} from "@/components/student/StudentHomeContent";
+import type { Listing } from "@/lib/domain/types";
+import type { MyTenancy } from "@/components/MyHomeCard";
 
-type MobileTab = "chat" | "rooms";
+export const dynamic = "force-dynamic";
 
-const WELCOME_MESSAGES: Record<"it" | "en", string> = {
-  it: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa qui ad Ancona. <QUESTION>Che facoltà fai?</QUESTION>",
-  en: "Hey! 👋 I'm Vesta, I'll help you find a place here in Ancona. <QUESTION>What are you studying?</QUESTION>",
+export const metadata: Metadata = {
+  title: "La tua ricerca | Coabito",
 };
 
-/**
- * Student home: Vesta chat + matched rooms.
- * Navigation lives in StudentShell (not floating pills).
- * chat_messages loaded scoped to student_id, ordered by created_at ASC.
- */
-export default function StudentDashboardPage() {
-  const { locale, t } = useLocale();
-  const welcomeMessage: ChatMessage = {
-    id: "welcome",
-    role: "assistant",
-    content: WELCOME_MESSAGES[locale],
-    createdAt: new Date().toISOString(),
-  };
+type StoredReason = {
+  label: string;
+  detail: string;
+  weight: "alto" | "medio" | "basso";
+};
 
-  const [activeTab, setActiveTab] = useState<MobileTab>("chat");
-  const [studentId, setStudentId] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [verificationStatus, setVerificationStatus] = useState<string>("none");
-  const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
-  const [roomsLoading, setRoomsLoading] = useState(true);
-  const [waitlisted, setWaitlisted] = useState(false);
-  const [myTenancy, setMyTenancy] = useState<MyTenancy | null>(null);
-  const [initialMessages, setInitialMessages] = useState<ChatMessage[] | null>(null);
-  const [chatProgress, setChatProgress] = useState<ChatProgress | null>(null);
+async function loadRecommended(
+  studentId: string,
+  limit = 3,
+): Promise<{ listings: Listing[]; matchCount: number }> {
+  const db = createServiceSupabaseClient();
+  const { data: scores, count } = await db
+    .from("match_scores")
+    .select("room_id, compatibility_score, ai_reasoning", { count: "exact" })
+    .eq("student_id", studentId)
+    .order("compatibility_score", { ascending: false })
+    .limit(limit);
 
-  useEffect(() => {
-    const supabase = createClientSupabaseClient();
+  const matchCount = count ?? scores?.length ?? 0;
+  if (!scores?.length) return { listings: [], matchCount: 0 };
 
-    supabase.auth.getUser().then(({ data }) => {
-      const userId = data.user?.id ?? null;
-      setStudentId(userId);
+  const listings: Listing[] = [];
+  for (const row of scores) {
+    const listing = await getPublicListing(String(row.room_id));
+    if (!listing) continue;
+    const reasoning = row.ai_reasoning as { reasons?: StoredReason[] } | null;
+    const reasons = Array.isArray(reasoning?.reasons) ? reasoning!.reasons! : [];
+    listings.push({
+      ...listing,
+      matchScore: Number(row.compatibility_score) || 0,
+      matchReasons: reasons,
+    });
+  }
 
-      if (!userId) {
-        setInitialMessages([welcomeMessage]);
-        return;
-      }
+  return { listings, matchCount };
+}
 
-      supabase
+async function loadMyTenancy(
+  studentId: string,
+): Promise<MyTenancy | null> {
+  const db = createServiceSupabaseClient();
+  try {
+    const { data: tenancy } = await db
+      .from("room_tenancies")
+      .select(
+        `
+        id, started_at, move_checklist,
+        rooms:room_id (
+          room_label, price_monthly, estimated_utilities,
+          properties:property_id ( address, zone )
+        )
+      `,
+      )
+      .eq("student_id", studentId)
+      .is("ended_at", null)
+      .maybeSingle();
+
+    if (!tenancy) return null;
+
+    const now = new Date();
+    const periodMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+    const { data: payment } = await db
+      .from("rent_payments")
+      .select("status")
+      .eq("tenancy_id", tenancy.id)
+      .eq("period_month", periodMonth)
+      .maybeSingle();
+
+    const room = Array.isArray((tenancy as { rooms?: unknown }).rooms)
+      ? (tenancy as { rooms: unknown[] }).rooms[0]
+      : (tenancy as { rooms?: unknown }).rooms;
+    const propertyRaw =
+      room && typeof room === "object"
+        ? (room as { properties?: unknown }).properties
+        : null;
+    const property = Array.isArray(propertyRaw) ? propertyRaw[0] : propertyRaw;
+
+    return {
+      startedAt: String((tenancy as { started_at?: string }).started_at ?? ""),
+      roomLabel: String((room as { room_label?: string } | null)?.room_label ?? ""),
+      priceMonthly: Number((room as { price_monthly?: number } | null)?.price_monthly ?? 0),
+      estimatedUtilities: Number(
+        (room as { estimated_utilities?: number } | null)?.estimated_utilities ?? 0,
+      ),
+      address: String((property as { address?: string } | null)?.address ?? ""),
+      zone: (property as { zone?: string | null } | null)?.zone ?? null,
+      paymentStatus:
+        (payment?.status as MyTenancy["paymentStatus"] | undefined) ??
+        "da_registrare",
+      moveChecklist:
+        ((tenancy as { move_checklist?: string[] | null }).move_checklist as
+          | string[]
+          | null) ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function mapApplications(
+  apps: Awaited<ReturnType<typeof listApplicationsForStudent>>["data"],
+): HomeApplication[] {
+  return (apps ?? []).slice(0, 4).map((app) => {
+    const room = Array.isArray(app.rooms) ? app.rooms[0] : app.rooms;
+    type PropShape = { zone?: string; city?: string };
+    const property = room
+      ? Array.isArray((room as { properties?: unknown }).properties)
+        ? (room as { properties: PropShape[] }).properties[0]
+        : (room as { properties?: PropShape }).properties
+      : null;
+    return {
+      id: String(app.id),
+      status: String(app.status),
+      roomId: (room as { id?: string } | null)?.id ?? null,
+      roomLabel: (room as { room_label?: string } | null)?.room_label ?? "Stanza",
+      zone: property?.zone ?? "Zona",
+      city: property?.city ?? "Ancona",
+    };
+  });
+}
+
+export default async function StudentDashboardPage() {
+  const session = await requireRole(["student", "admin"]);
+  const db = createServiceSupabaseClient();
+
+  const [{ data: user }, { data: lifestyle }, appsRes, recommended, myTenancy] =
+    await Promise.all([
+      db
         .from("users")
-        .select("role, email, verification_status")
-        .eq("id", userId)
-        .single()
-        .then(({ data: profile }) => {
-          setIsAdmin(profile?.role === "admin");
-          setVerificationStatus(profile?.verification_status ?? "none");
-          setUserEmail(profile?.email ?? null);
-        });
-
-      // Scoped to this student only; chronological thread (no session_id in schema)
-      supabase
-        .from("chat_messages")
-        .select("id, role, content, created_at")
-        .eq("student_id", userId)
-        .order("created_at", { ascending: true })
-        .then(({ data: history, error }) => {
-          if (error) {
-            console.error("Errore nel caricamento della cronologia chat:", error);
-            setInitialMessages([welcomeMessage]);
-            return;
-          }
-          if (history && history.length > 0) {
-            setInitialMessages(
-              history.map((m) => ({
-                id: m.id,
-                role: m.role as ChatMessage["role"],
-                content: m.content,
-                createdAt: m.created_at,
-              })),
-            );
-          } else {
-            setInitialMessages([welcomeMessage]);
-          }
-        });
-
-      supabase
+        .select(
+          "full_name, last_name, phone, avatar_url, date_of_birth, place_of_birth, sex, has_guarantor, verification_status",
+        )
+        .eq("id", session.id)
+        .single(),
+      db
         .from("student_profiles")
         .select(
           "campus_id, degree_course, budget_max, preferred_move_in_date, study_habit, sociability_level, guests_frequency, cleanliness_level, is_smoker, has_pets",
         )
-        .eq("user_id", userId)
-        .maybeSingle()
-        .then(({ data: profile }) => {
-          setChatProgress(computeChatProgressFromProfile(profile));
-        });
+        .eq("user_id", session.id)
+        .maybeSingle(),
+      listApplicationsForStudent(db, session.id),
+      loadRecommended(session.id, 3),
+      loadMyTenancy(session.id),
+    ]);
 
-      fetch(`/api/my-tenancy?studentId=${userId}`)
-        .then((res) => (res.ok ? res.json() : { tenancy: null }))
-        .then((data) => setMyTenancy(data.tenancy ?? null))
-        .catch(() => setMyTenancy(null));
-    });
-    // welcomeMessage is locale-stable for this mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (!studentId) return;
-
-    setRoomsLoading(true);
-    fetch(`/api/matches?studentId=${studentId}&locale=${locale}`)
-      .then((res) => (res.ok ? res.json() : { rooms: [] }))
-      .then((data) => {
-        setRooms(data.rooms ?? []);
-        setWaitlisted(Boolean(data.waitlisted));
-      })
-      .catch(() => {
-        setRooms([]);
-        setWaitlisted(false);
-      })
-      .finally(() => setRoomsLoading(false));
-
-    fetch("/api/sync-locale", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ studentId, locale }),
-    }).catch(() => {});
-  }, [studentId, locale]);
-
-  async function handleSendMessage(
-    text: string,
-    history: { role: ChatMessage["role"]; content: string }[],
-  ): Promise<{
-    reply: string;
-    rooms?: RecommendedRoom[];
-    waitlisted?: boolean;
-    progress?: ChatProgress;
-  }> {
-    if (!studentId) {
-      return {
-        reply:
-          locale === "en"
-            ? "You need to log in to talk to me — reload the page."
-            : "Devi effettuare il login per parlare con me — ricarica la pagina.",
-      };
-    }
-
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ studentId, message: text, history, locale }),
-    });
-
-    if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      return {
-        reply:
-          data?.error ??
-          (locale === "en"
-            ? "Something went wrong on my end, try again shortly."
-            : "Qualcosa è andato storto dal mio lato, riprova tra poco."),
-      };
-    }
-
-    const data = await res.json();
-    if (data.waitlisted) setWaitlisted(true);
-    if (data.progress) setChatProgress(data.progress);
-    return {
-      reply: data.reply,
-      rooms: data.rooms,
-      waitlisted: data.waitlisted,
-      progress: data.progress,
-    };
-  }
-
-  function handleRoomsUpdate(updatedRooms: RecommendedRoom[], isWaitlisted?: boolean) {
-    setRooms(updatedRooms);
-    if (isWaitlisted !== undefined) setWaitlisted(isWaitlisted);
-  }
-
-  return (
-    <StudentShell fillHeight>
-      <div className="relative flex min-h-0 flex-1 flex-col">
-        {isAdmin && (
-          <div className="shrink-0 px-3 pt-2 sm:px-4">
-            <Link
-              href="/admin"
-              className="inline-flex rounded-full bg-ink px-3 py-1.5 text-xs font-semibold text-white"
-            >
-              Admin
-            </Link>
-          </div>
-        )}
-
-        {studentId && !isAdmin && (
-          <div className="shrink-0 px-3 pt-3 sm:px-4">
-            <div className="mb-2 flex items-center gap-2">
-              <VerifiedBadge
-                status={verificationStatus as VerificationStatus}
-                role="student"
-              />
-            </div>
-            <VerificationPanel
-              role="student"
-              status={verificationStatus as VerificationStatus}
-              email={userEmail}
-            />
-          </div>
-        )}
-
-        {myTenancy && <MyHomeCard tenancy={myTenancy} />}
-        {studentId && myTenancy && <MyPaymentsSection studentId={studentId} />}
-
-        <div className="flex shrink-0 border-b border-sea-100 bg-white md:hidden">
-          <TabButton
-            label={t.dashboard.chatTab}
-            isActive={activeTab === "chat"}
-            onClick={() => setActiveTab("chat")}
-          />
-          <TabButton
-            label={`${t.dashboard.roomsTab} (${rooms.length})`}
-            isActive={activeTab === "rooms"}
-            onClick={() => setActiveTab("rooms")}
-          />
-        </div>
-
-        <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(320px,420px)_1fr]">
-          <div
-            className={`${
-              activeTab === "chat" ? "flex" : "hidden"
-            } min-h-0 flex-col md:flex md:border-r md:border-sea-100`}
-          >
-            {initialMessages ? (
-              <ChatPanel
-                initialMessages={initialMessages}
-                initialProgress={chatProgress}
-                onSendMessage={handleSendMessage}
-                onRoomsUpdate={handleRoomsUpdate}
-              />
-            ) : (
-              <div className="flex h-full flex-col items-center justify-center gap-3">
-                <LoadingRing size={36} />
-                <p className="text-sm text-ink-muted">{t.dashboard.loadingChat}</p>
-              </div>
-            )}
-          </div>
-
-          <div
-            className={`${
-              activeTab === "rooms" ? "block" : "hidden"
-            } min-h-0 overflow-y-auto md:block`}
-          >
-            <div className="hidden border-b border-sea-100 bg-white px-4 py-3 md:block">
-              <h2 className="font-display text-sm font-bold text-ink">
-                {t.dashboard.roomsTab}
-              </h2>
-              <p className="text-xs text-ink-muted">
-                {locale === "en"
-                  ? "Rooms matched from your chat with Vesta"
-                  : "Stanze proposte dalla chat con Vesta"}
-              </p>
-            </div>
-            <RoomList rooms={rooms} waitlisted={waitlisted} loading={roomsLoading} />
-          </div>
-        </div>
-
-        {!isAdmin && (
-          <div className="hidden px-4 py-2 md:block">
-            <DeleteAccountButton
-              className="text-[10px] text-ink-muted underline underline-offset-2 transition hover:text-sunset-600"
-              labels={{
-                buttonLabel: t.common.deleteAccount,
-                deletingLabel: t.common.deletingAccount,
-                warningStudent: t.common.deleteAccountWarningStudent,
-                warningOwner: t.common.deleteAccountWarningOwner,
-                confirmAgain: t.common.deleteAccountConfirm,
-              }}
-            />
-          </div>
-        )}
-      </div>
-    </StudentShell>
+  const completion = computeProfileCompletion(
+    "student",
+    user as ProgressiveUserFields | null,
   );
-}
+  const chatProgress = computeChatProgressFromProfile(
+    lifestyle as Record<string, unknown> | null,
+  );
+  const hasVestaProfile = Boolean(
+    lifestyle?.campus_id || lifestyle?.budget_max,
+  );
 
-function TabButton({
-  label,
-  isActive,
-  onClick,
-}: {
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-}) {
   return (
-    <button
-      onClick={onClick}
-      className={[
-        "flex-1 border-b-2 py-2.5 text-sm font-medium transition",
-        isActive
-          ? "border-sea-600 text-sea-700"
-          : "border-transparent text-ink-muted",
-      ].join(" ")}
-    >
-      {label}
-    </button>
+    <StudentShell>
+      <StudentHomeContent
+        firstName={(user?.full_name ?? session.fullName ?? "").split(" ")[0] ?? ""}
+        completion={completion}
+        matchCount={recommended.matchCount}
+        recommended={recommended.listings}
+        applications={mapApplications(appsRes.data)}
+        vestaProgressDone={chatProgress.done}
+        vestaProgressTotal={chatProgress.total}
+        hasVestaProfile={hasVestaProfile}
+        studentId={session.id}
+        myTenancy={myTenancy}
+        isAdmin={session.role === "admin"}
+      />
+    </StudentShell>
   );
 }

@@ -9,34 +9,34 @@ import {
   IconCasa,
   IconChat,
   IconDocumento,
-  IconMessaggi,
+  IconHome,
   IconProfilo,
 } from "@/components/icons/CoabitoIcons";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 
 const NAV = [
-  { href: "/dashboard", labelKey: "vesta" as const, Icon: IconChat },
+  { href: "/dashboard", labelKey: "home" as const, Icon: IconHome },
+  { href: "/vesta", labelKey: "vesta" as const, Icon: IconChat },
   { href: "/stanze", labelKey: "stanze" as const, Icon: IconCasa },
   { href: "/applications", labelKey: "candidature" as const, Icon: IconDocumento },
-  { href: "/messages", labelKey: "messaggi" as const, Icon: IconMessaggi },
   { href: "/profilo", labelKey: "profilo" as const, Icon: IconProfilo },
 ];
 
 const LABELS = {
   it: {
+    home: "Home",
     vesta: "Vesta",
     stanze: "Stanze",
     candidature: "Candidature",
-    messaggi: "Messaggi",
     profilo: "Profilo",
     brand: "Coabito",
     area: "La tua ricerca",
   },
   en: {
+    home: "Home",
     vesta: "Vesta",
     stanze: "Rooms",
     candidature: "Applications",
-    messaggi: "Messages",
     profilo: "Profile",
     brand: "Coabito",
     area: "Your search",
@@ -47,6 +47,9 @@ function isActive(pathname: string, href: string) {
   if (href === "/dashboard") {
     return pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   }
+  if (href === "/vesta") {
+    return pathname === "/vesta" || pathname.startsWith("/vesta/");
+  }
   if (href === "/stanze") {
     return pathname === "/stanze" || pathname.startsWith("/stanza/");
   }
@@ -55,15 +58,14 @@ function isActive(pathname: string, href: string) {
 
 /**
  * Persistent student chrome: top bar (desktop) + bottom nav (mobile).
- * Replaces the floating pill soup on /dashboard and ad-hoc link rows
- * on applications / messages / profilo.
+ * Home hub + Vesta chat + browse + applications + profile.
  */
 export default function StudentShell({
   children,
   fillHeight = false,
 }: {
   children: ReactNode;
-  /** Dashboard chat split needs full viewport height */
+  /** Vesta chat split needs full viewport height */
   fillHeight?: boolean;
 }) {
   const pathname = usePathname() ?? "/dashboard";

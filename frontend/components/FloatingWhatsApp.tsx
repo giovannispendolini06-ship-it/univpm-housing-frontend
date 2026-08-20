@@ -10,10 +10,14 @@ import styles from "./FloatingWhatsApp.module.css";
 const HIDDEN_PREFIXES = [
   "/admin",
   "/dashboard",
+  "/vesta",
   "/owner",
   "/onboarding",
   "/login",
   "/reset-password",
+  "/applications",
+  "/messages",
+  "/profilo",
 ];
 
 function resolveMessage(

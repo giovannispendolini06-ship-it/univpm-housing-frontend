@@ -142,7 +142,7 @@ export default function ProfiloContent({
             <p className="mt-3 text-sm text-ink-muted">{P.lifestyleEmpty}</p>
           )}
           <Link
-            href="/dashboard"
+            href="/vesta"
             className="mt-4 inline-flex rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sea-700"
           >
             {P.openVesta}

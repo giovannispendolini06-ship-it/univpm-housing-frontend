@@ -116,6 +116,7 @@ export async function updateProgressiveProfile(
 
   revalidatePath("/profilo");
   revalidatePath("/dashboard");
+  revalidatePath("/vesta");
   revalidatePath("/owner");
   return { ok: true };
 }

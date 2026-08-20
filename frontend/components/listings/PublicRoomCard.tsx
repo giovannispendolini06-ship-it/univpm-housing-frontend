@@ -6,6 +6,7 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 import MatchScoreRing from "@/components/MatchScoreRing";
 import VestaAvatar from "@/components/VestaAvatar";
 import ShareListingButton from "@/components/listings/ShareListingButton";
+import SaveRoomButton from "@/components/listings/SaveRoomButton";
 import { buildMatchFitSentence } from "@/lib/match-explanation";
 
 export default function PublicRoomCard({
@@ -152,6 +153,7 @@ export default function PublicRoomCard({
           >
             {t.listingsCard.seeDetails}
           </Link>
+          <SaveRoomButton roomId={listing.id} />
           <ShareListingButton
             roomId={listing.id}
             title={listing.title}

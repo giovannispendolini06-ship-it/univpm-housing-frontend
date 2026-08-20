@@ -44,13 +44,16 @@ export async function middleware(request: NextRequest) {
   // Extended protect list — same auth cookie flow as before
   const isProtectedArea =
     path.startsWith("/dashboard") ||
+    path.startsWith("/vesta") ||
     path.startsWith("/admin") ||
     path.startsWith("/owner") ||
     path.startsWith("/applications") ||
     path.startsWith("/messages") ||
     path.startsWith("/profilo");
   const isOnboarding = path.startsWith("/onboarding");
-  const isStudentExtra = path.startsWith("/applications");
+  // Student-only extras (not under /dashboard prefix)
+  const isStudentExtra =
+    path.startsWith("/applications") || path.startsWith("/vesta");
   const isSharedAuth =
     path.startsWith("/messages") || path.startsWith("/profilo");
 
@@ -113,6 +116,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/dashboard/:path*",
+    "/vesta/:path*",
     "/login",
     "/admin/:path*",
     "/owner/:path*",

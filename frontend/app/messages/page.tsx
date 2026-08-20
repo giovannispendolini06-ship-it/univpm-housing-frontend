@@ -48,7 +48,7 @@ export default async function MessagesPage() {
         <h1 className="font-display text-2xl font-bold text-ink">Messaggi</h1>
         <p className="mt-1 text-sm text-ink-muted">
           Thread con proprietari dopo una candidatura accettata. La chat con Vesta
-          resta in <Link href="/dashboard" className="font-semibold text-sea-700 underline">Vesta</Link>.
+          resta in <Link href="/vesta" className="font-semibold text-sea-700 underline">Vesta</Link>.
         </p>
       </header>
 
