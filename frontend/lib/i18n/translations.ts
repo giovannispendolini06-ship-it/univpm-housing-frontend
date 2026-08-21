@@ -172,7 +172,7 @@ export const translations = {
             bot2: "Perfetto, iniziamo a cercare 🔥",
           },
           cost: {
-            title: "Singola · Torrette",
+            title: "Singola · Zona universitaria",
             match: "92%",
             rent: "Canone: 320€",
             utilities: "Utenze: 40€",
@@ -233,7 +233,7 @@ export const translations = {
         screens: {
           chat: {
             bot1: "Quante stanze ha l'immobile, e in che zona?",
-            me: "3 stanze, Torrette, vicino Medicina",
+            me: "3 stanze, zona universitaria, vicino al mio polo",
             bot2: "Annuncio pronto — lo rivedi tu prima di pubblicarlo",
           },
           applicants: {
@@ -1347,7 +1347,7 @@ export const translations = {
             bot2: "Perfect — let's start looking 🔥",
           },
           cost: {
-            title: "Single · Torrette",
+            title: "Single · Campus area",
             match: "92%",
             rent: "Rent: €320",
             utilities: "Utilities: €40",
@@ -1408,7 +1408,7 @@ export const translations = {
         screens: {
           chat: {
             bot1: "How many rooms, and which area?",
-            me: "3 rooms, Torrette, near Medicine",
+            me: "3 rooms, campus area, near my faculty",
             bot2: "Listing ready — you review it before it goes live",
           },
           applicants: {
