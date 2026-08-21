@@ -103,43 +103,68 @@ export const translations = {
     },
     faq: {
       eyebrow: "Domande frequenti",
-      title: "I dubbi più comuni, risolti subito",
+      title: "Le domande che ci fate davvero",
       seeAll: "Tutte le FAQ per studenti",
-      items: [
+      toggleStudent: "Sono studente",
+      toggleOwner: "Sono proprietario",
+      toggleAria: "Scegli se vedere le FAQ per studenti o proprietari",
+      studentItems: [
         {
-          question: "È davvero gratis per gli studenti?",
-          answer:
-            "Sì. Chattare con Vesta e vedere le stanze proposte è sempre gratuito, nessuna carta di credito richiesta. Paghi solo il canone della stanza che scegli, come faresti comunque affittando da chiunque altro.",
+          question: "Quanto costa usare Coabito?",
+          answer: "Niente. Zero commissioni di ricerca per gli studenti, sempre.",
         },
         {
-          question: "Come guadagna Coabito?",
+          question: "I miei soldi sono al sicuro?",
           answer:
-            "Siamo un marketplace: il contratto di locazione resta diretto tra studente e proprietario. Guadagniamo da servizi a valore aggiunto (verifica, escrow, garanzie opzionali, supporti al trasloco e partnership), non entrando come parte del contratto.",
+            "Sì. Il pagamento resta bloccato con Coabito finché non confermi tu stesso che il trasloco è andato come previsto — non viene rilasciato al proprietario prima.",
+          worry: true,
         },
         {
-          question: "Devo pagare qualcosa prima di trovare la stanza giusta?",
+          question: "Posso scegliere con chi vivere?",
           answer:
-            "No, mai. Non c'è nessun costo di iscrizione o di ricerca: paghi solo quando decidi davvero di prendere una stanza specifica.",
+            "Vesta ti propone stanze dove i coinquilini hanno abitudini simili alle tue (orari, pulizia, vita sociale) — vedi sempre perché prima di candidarti.",
+          worry: true,
         },
         {
-          question: "Chi si occupa del contratto?",
+          question: "Quando arrivano le prime stanze?",
           answer:
-            "Il contratto di locazione lo firmi direttamente con il proprietario. Coabito facilita matching e contatto, e può offrire strumenti di fiducia (verifica, escrow, mediazione) senza essere parte del contratto.",
+            "Le prime disponibilità arrivano a settembre 2026. Iscriviti alla lista d'attesa per essere avvisato.",
         },
         {
-          question: "Come funziona il punteggio di compatibilità?",
+          question: "Cosa succede se non trovo posto?",
           answer:
-            'Vesta confronta budget, orari di studio, abitudini di convivenza e vicinanza al tuo polo universitario — non solo prezzo e metri quadri. Puoi vedere un esempio vero nella pagina "Come funziona".',
+            "Resti in lista d'attesa e continui a ricevere proposte compatibili man mano che nuove stanze si aggiungono — nessun impegno, nessuna scadenza.",
+          worry: true,
+        },
+      ],
+      ownerItems: [
+        {
+          question: "E se lo studente non paga?",
+          answer:
+            "Sulle proprietà a canone garantito, il rischio è nostro: tu ricevi comunque il canone concordato, ogni mese.",
+          worry: true,
         },
         {
-          question: "I miei dati sono al sicuro?",
+          question: "E se lascia danni all'immobile?",
           answer:
-            "Sì, trattiamo i tuoi dati secondo il GDPR. Puoi leggere tutti i dettagli nella nostra Privacy Policy, e puoi eliminare il tuo account in qualsiasi momento, direttamente dalla tua area personale.",
+            "La cauzione versata dallo studente resta a garanzia. Per i casi sul marketplace indipendente, valutiamo insieme l'attivazione di una garanzia aggiuntiva opzionale.",
+          worry: true,
         },
         {
-          question: "Sono un proprietario: devo pagare per proporre il mio immobile?",
+          question: "Posso rifiutare un candidato?",
           answer:
-            "No, proporre il tuo immobile è gratuito. Ti mostriamo studenti compatibili (e, appena disponibili, verificati): tu decidi con chi firmare direttamente. Servizi opzionali come garanzia contro inadempimento o escrow arriveranno a pagamento, senza farci entrare nel contratto.",
+            "Sulle proprietà a canone garantito, selezioniamo noi. Su quelle indipendenti, decidi sempre tu chi accettare tra i candidati verificati.",
+        },
+        {
+          question: "Quanto mi costa?",
+          answer:
+            "Nulla per pubblicare. Coabito si remunera sulla gestione, non su commissioni a tuo carico.",
+        },
+        {
+          question: "Posso interrompere l'accordo?",
+          answer:
+            "Sì, le condizioni di recesso sono definite chiaramente nel contratto, concordate prima della firma e valide per entrambe le parti.",
+          worry: true,
         },
       ],
     },
@@ -874,43 +899,68 @@ export const translations = {
     },
     faq: {
       eyebrow: "Frequently asked questions",
-      title: "The most common doubts, answered right away",
+      title: "The questions you really ask us",
       seeAll: "All student FAQs",
-      items: [
+      toggleStudent: "I'm a student",
+      toggleOwner: "I'm an owner",
+      toggleAria: "Choose student or owner FAQs",
+      studentItems: [
         {
-          question: "Is it really free for students?",
-          answer:
-            "Yes. Chatting with Vesta and seeing the suggested rooms is always free, no credit card required. You only pay the rent for the room you choose, just like renting from anyone else.",
+          question: "How much does Coabito cost?",
+          answer: "Nothing. Zero search fees for students, always.",
         },
         {
-          question: "How does Coabito make money?",
+          question: "Is my money safe?",
           answer:
-            "We're a marketplace: the lease stays direct between student and owner. We earn from value-added services (verification, escrow, optional guarantees, move-in support and partnerships), without becoming a party to the contract.",
+            "Yes. Payment stays held with Coabito until you confirm the move-in went as expected — it isn't released to the landlord before that.",
+          worry: true,
         },
         {
-          question: "Do I have to pay anything before finding the right room?",
+          question: "Can I choose who I live with?",
           answer:
-            "No, never. There's no sign-up or search fee: you only pay once you actually decide to take a specific room.",
+            "Vesta suggests rooms where flatmates have habits similar to yours (hours, cleanliness, social life) — you always see why before you apply.",
+          worry: true,
         },
         {
-          question: "Who handles the contract?",
+          question: "When do the first rooms arrive?",
           answer:
-            "You sign the lease directly with the property owner. Coabito facilitates matching and contact, and may offer trust tools (verification, escrow, mediation) without being a party to the contract.",
+            "The first availability arrives in September 2026. Join the waitlist to be notified.",
         },
         {
-          question: "How does the compatibility score work?",
+          question: "What if I don't find a place?",
           answer:
-            'Vesta compares budget, study hours, living habits and distance from your university campus — not just price and square meters. You can see a real example on the "How it works" page.',
+            "You stay on the waitlist and keep receiving compatible suggestions as new rooms are added — no commitment, no deadline.",
+          worry: true,
+        },
+      ],
+      ownerItems: [
+        {
+          question: "What if the student doesn't pay?",
+          answer:
+            "On guaranteed-rent properties, the risk is ours: you still receive the agreed rent, every month.",
+          worry: true,
         },
         {
-          question: "Is my data safe?",
+          question: "What if they damage the property?",
           answer:
-            "Yes, we handle your data according to GDPR. You can read all the details in our Privacy Policy, and you can delete your account at any time, directly from your personal area.",
+            "The student's deposit stays as security. For independent marketplace listings, we can discuss activating an optional extra guarantee together.",
+          worry: true,
         },
         {
-          question: "I'm a property owner: do I have to pay to list my property?",
+          question: "Can I reject a candidate?",
           answer:
-            "No, listing your property is free. We show you compatible students (and, as soon as available, verified ones): you decide who to sign with directly. Optional services like non-payment cover or escrow will be paid add-ons — without us entering the lease.",
+            "On guaranteed-rent properties, we select. On independent ones, you always decide who to accept among verified candidates.",
+        },
+        {
+          question: "How much does it cost me?",
+          answer:
+            "Nothing to publish. Coabito is paid through management, not fees charged to you.",
+        },
+        {
+          question: "Can I end the agreement?",
+          answer:
+            "Yes — exit terms are clearly defined in the contract, agreed before signing, and apply to both parties.",
+          worry: true,
         },
       ],
     },
