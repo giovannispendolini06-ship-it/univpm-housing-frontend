@@ -628,12 +628,14 @@ export const translations = {
       loadingChat: "Sto ritrovando la tua chat...",
     },
     chat: {
-      subtitle: "Il tuo assistente casa · UNIVPM Ancona",
+      subtitle: "Il tuo assistente casa · fuori sede",
       inputPlaceholder: "Scrivi un messaggio...",
       sendLabel: "Invia messaggio",
       progressLabel: "{done}/{total} · {step}",
       progressComplete: "Profilo completo",
       progressSteps: {
+        city: "Città",
+        university: "Università",
         campus: "Polo / facoltà",
         budget: "Budget",
         moveIn: "Data ingresso",
@@ -1797,12 +1799,14 @@ export const translations = {
       loadingChat: "Loading your chat...",
     },
     chat: {
-      subtitle: "Your housing assistant · UNIVPM Ancona",
+      subtitle: "Your housing assistant · away from home",
       inputPlaceholder: "Write a message...",
       sendLabel: "Send message",
       progressLabel: "{done}/{total} · {step}",
       progressComplete: "Profile complete",
       progressSteps: {
+        city: "City",
+        university: "University",
         campus: "Campus / course",
         budget: "Budget",
         moveIn: "Move-in date",
