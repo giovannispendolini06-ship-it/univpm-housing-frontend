@@ -96,6 +96,31 @@ export const translations = {
         },
       ],
     },
+    ownerCalculator: {
+      eyebrow: "Per i proprietari",
+      title: "Quanto potresti ricevere con il canone garantito?",
+      subtitle:
+        "Una stima indicativa in base alla zona e alle dimensioni del tuo immobile — non un'offerta vincolante.",
+      zoneLabel: "Zona",
+      zoneTorrette: "Torrette",
+      zoneCentro: "Centro",
+      zonePalombina: "Palombina",
+      roomsLabel: "Numero di stanze",
+      sizeLabel: "Superficie totale (mq)",
+      mqUnit: "mq",
+      conditionLabel: "Stato dell'immobile",
+      conditionGood: "Buono",
+      conditionRefresh: "Da rinfrescare",
+      conditionRenovated: "Ristrutturato",
+      resultLabel: "Canone garantito stimato",
+      perMonth: "/mese",
+      rangeLabel: "Range indicativo: {low}€ - {high}€",
+      disclaimer:
+        "Questa è una stima basata su prezzi medi di zona, non un'offerta vincolante. Il canone reale viene definito insieme durante un sopralluogo.",
+      cta: "Richiedi una valutazione precisa",
+      whatsappMessage:
+        "Ciao! Ho usato il calcolatore canone garantito Coabito. Immobile: {zone}, {rooms} stanze, {mq} mq, stato {condition}. Stima indicativa: {amount}€/mese (range {low}–{high}€). Vorrei una valutazione precisa.",
+    },
     founderNote: {
       quote:
         "Anche io ho cercato casa ad Ancona da studente, senza sapere nulla delle persone con cui avrei convissuto. Coabito è il servizio che avrei voluto avere io, il primo anno.",
@@ -866,6 +891,31 @@ export const translations = {
             "The lease stays between you and the student. Coabito supports matching, trust and transaction safety.",
         },
       ],
+    },
+    ownerCalculator: {
+      eyebrow: "For property owners",
+      title: "How much could you receive with guaranteed rent?",
+      subtitle:
+        "An indicative estimate based on area and size of your property — not a binding offer.",
+      zoneLabel: "Area",
+      zoneTorrette: "Torrette",
+      zoneCentro: "Centro",
+      zonePalombina: "Palombina",
+      roomsLabel: "Number of rooms",
+      sizeLabel: "Total size (sqm)",
+      mqUnit: "sqm",
+      conditionLabel: "Property condition",
+      conditionGood: "Good",
+      conditionRefresh: "Needs refresh",
+      conditionRenovated: "Renovated",
+      resultLabel: "Estimated guaranteed rent",
+      perMonth: "/month",
+      rangeLabel: "Indicative range: €{low} - €{high}",
+      disclaimer:
+        "This is an estimate based on average area prices, not a binding offer. The real rent is agreed together during a site visit.",
+      cta: "Request a precise valuation",
+      whatsappMessage:
+        "Hi! I used the Coabito guaranteed-rent calculator. Property: {zone}, {rooms} rooms, {mq} sqm, condition {condition}. Indicative estimate: €{amount}/month (range €{low}–{high}). I'd like a precise valuation.",
     },
     founderNote: {
       quote:
