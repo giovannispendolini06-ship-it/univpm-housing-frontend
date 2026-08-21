@@ -1,8 +1,10 @@
-/** Progresso scoperta profilo in chat Vesta (7 step). */
+/** Progresso scoperta profilo in chat Vesta (9 step: geo + preferenze). */
 
-export const CHAT_PROGRESS_TOTAL = 7;
+export const CHAT_PROGRESS_TOTAL = 9;
 
 export type ChatProgressStepKey =
+  | "city"
+  | "university"
   | "campus"
   | "budget"
   | "moveIn"
@@ -23,7 +25,9 @@ export const CHAT_PROGRESS_STEPS: {
   /** Almeno uno di questi campi profilo deve essere valorizzato */
   anyOf: string[];
 }[] = [
-  { key: "campus", anyOf: ["campus_id", "degree_course"] },
+  { key: "city", anyOf: ["city_id", "city_slug"] },
+  { key: "university", anyOf: ["university_id", "university_slug"] },
+  { key: "campus", anyOf: ["campus_id", "pole_slug", "degree_course"] },
   { key: "budget", anyOf: ["budget_max"] },
   { key: "moveIn", anyOf: ["preferred_move_in_date"] },
   { key: "study", anyOf: ["study_habit"] },
