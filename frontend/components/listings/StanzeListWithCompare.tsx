@@ -47,7 +47,7 @@ export default function StanzeListWithCompare({
     <div className={selectedIds.length >= 2 ? "pb-[calc(5.5rem+env(safe-area-inset-bottom))]" : undefined}>
       <div
         className={`grid gap-4 sm:grid-cols-2 ${
-          expandedGrid ? "lg:grid-cols-3 xl:grid-cols-4" : "lg:grid-cols-3"
+          expandedGrid ? "lg:grid-cols-4" : "lg:grid-cols-3"
         }`}
       >
         {listings.map((listing) => (

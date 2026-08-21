@@ -31,12 +31,15 @@ export function getStanzeFilterChromeSnapshot(): ChromeState {
   return state;
 }
 
+/** Stable server snapshot — must be referentially equal across calls. */
+const SERVER_SNAPSHOT: ChromeState = {
+  active: false,
+  filtersCollapsed: false,
+  showFilters: noop,
+};
+
 export function getStanzeFilterChromeServerSnapshot(): ChromeState {
-  return {
-    active: false,
-    filtersCollapsed: false,
-    showFilters: noop,
-  };
+  return SERVER_SNAPSHOT;
 }
 
 /** Called by StanzeBrowse to publish filter chrome for the navbar. */
