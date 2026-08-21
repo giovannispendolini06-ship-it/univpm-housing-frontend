@@ -5,10 +5,12 @@ import Link from "next/link";
 import CoabitoLogo from "@/components/CoabitoLogo";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import { useStanzeFilterChrome } from "@/components/listings/StanzeFilterChrome";
 
 export default function LandingNavbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useLocale();
+  const filterChrome = useStanzeFilterChrome();
 
   return (
     <header className="sticky top-0 z-50 border-b border-sea-100 bg-white/90 backdrop-blur">
@@ -41,6 +43,16 @@ export default function LandingNavbar() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          {filterChrome.active && filterChrome.filtersCollapsed && (
+            <button
+              type="button"
+              onClick={filterChrome.showFilters}
+              className="inline-flex items-center gap-1.5 rounded-[9px] border border-sea-100 bg-sea-50 px-3.5 py-2 text-xs font-bold text-sea-700"
+            >
+              <span aria-hidden>☰</span>
+              {t.listingsFilters.show}
+            </button>
+          )}
           <LanguageSwitcher />
           <Link
             href="/installa"
@@ -65,6 +77,16 @@ export default function LandingNavbar() {
 
         {/* Toggle mobile */}
         <div className="flex items-center gap-2 md:hidden">
+          {filterChrome.active && filterChrome.filtersCollapsed && (
+            <button
+              type="button"
+              onClick={filterChrome.showFilters}
+              className="inline-flex items-center gap-1 rounded-[9px] border border-sea-100 bg-sea-50 px-2.5 py-1.5 text-[11px] font-bold text-sea-700"
+            >
+              <span aria-hidden>☰</span>
+              {t.listingsFilters.show}
+            </button>
+          )}
           <LanguageSwitcher />
           <button
             onClick={() => setIsOpen((v) => !v)}
