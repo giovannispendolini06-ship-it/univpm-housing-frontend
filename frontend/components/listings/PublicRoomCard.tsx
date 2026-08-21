@@ -56,7 +56,7 @@ export default function PublicRoomCard({
         <img
           src={photo}
           alt=""
-          className="h-44 w-full object-cover sm:h-48"
+          className="h-[300px] w-full object-cover sm:h-[320px]"
         />
         {!listing.hasRealPhoto && (
           <span className="absolute bottom-2 left-2 rounded-md bg-ink/70 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
