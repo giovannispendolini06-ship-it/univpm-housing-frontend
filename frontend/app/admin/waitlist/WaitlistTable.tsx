@@ -3,6 +3,9 @@
 import { Fragment, useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toggleWaitlistContattato, updateWaitlistNotes } from "./actions";
+import WhatsAppButton from "@/components/admin/whatsapp/WhatsAppButton";
+import { splitFullName } from "@/lib/whatsapp-templates";
+import { SITE_URL } from "@/lib/site";
 
 export interface WaitlistSignup {
   id: string;
@@ -241,11 +244,13 @@ export default function WaitlistTable({ signups }: { signups: WaitlistSignup[] }
               <th className="px-3 py-2 font-medium">Conferma</th>
               <th className="px-3 py-2 font-medium">Data</th>
               <th className="px-3 py-2 font-medium">Contattato</th>
+              <th className="px-3 py-2 font-medium">WhatsApp</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((row) => {
               const status = confirmStatus(row);
+              const { firstName, lastName } = splitFullName(row.nome);
               return (
               <Fragment key={row.id}>
                 <tr
@@ -295,10 +300,30 @@ export default function WaitlistTable({ signups }: { signups: WaitlistSignup[] }
                       {row.contattato ? "Sì" : "No"}
                     </button>
                   </td>
+                  <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                    <WhatsAppButton
+                      phone={row.phone}
+                      displayName={row.nome}
+                      contactData={{
+                        contactType: "student",
+                        fullName: row.nome,
+                        firstName,
+                        lastName,
+                        phone: row.phone,
+                        city: "Ancona",
+                        coabitoLink: SITE_URL,
+                      }}
+                      entityKind="waitlist"
+                      entityId={row.id}
+                      source="admin_waitlist"
+                      variant="compact"
+                      showMenu
+                    />
+                  </td>
                 </tr>
                 {expandedId === row.id && (
                   <tr className="border-b border-sea-50 bg-bg">
-                    <td colSpan={9} className="px-3 py-3">
+                    <td colSpan={10} className="px-3 py-3">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div className="text-xs text-ink-muted">
                           <p className="font-semibold text-ink">Abitudini (da Vesta)</p>

@@ -65,6 +65,9 @@ export interface LandlordLead {
   data_ultimo_contatto: string | null;
   data_prossimo_followup: string | null;
   note: string | null;
+  last_contact_method?: string | null;
+  last_contact_template?: string | null;
+  last_contact_status?: string | null;
 }
 
 /** Giorni fino al follow-up: negativo = scaduto, 0 = oggi, 1 = domani. */

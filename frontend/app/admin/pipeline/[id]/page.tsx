@@ -8,11 +8,15 @@ import {
   LANDLORD_SOURCE_OPTIONS,
   LANDLORD_STATUS_OPTIONS,
   LANDLORD_ZONE_OPTIONS,
+  labelForStatus,
   type LandlordLead,
 } from "@/lib/landlord-leads";
-import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { deleteLandlordLead, updateLandlordLead } from "../actions";
 import SubmitButton from "@/components/SubmitButton";
+import AdminWhatsAppContactPanel from "@/components/admin/whatsapp/AdminWhatsAppContactPanel";
+import { getWhatsAppTemplates } from "@/app/admin/whatsapp/actions";
+import { splitFullName } from "@/lib/whatsapp-templates";
+import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -47,11 +51,12 @@ export default async function LandlordLeadDetailPage({
 
   if (!lead) notFound();
 
-  const row = lead as LandlordLead;
-  const wa = buildWhatsAppLink(
-    row.telefono,
-    `Ciao ${row.nome}, sono Giovanni di Coabito. Ti contatto riguardo all'immobile${row.indirizzo_immobile ? ` in ${row.indirizzo_immobile}` : ""} — hai un momento per parlarne?`,
-  );
+  const row = lead as LandlordLead & {
+    last_contact_status?: string | null;
+    last_contact_template?: string | null;
+  };
+  const templates = await getWhatsAppTemplates();
+  const { firstName, lastName } = splitFullName(row.nome);
 
   const fieldClass =
     "w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none";
@@ -66,22 +71,40 @@ export default async function LandlordLeadDetailPage({
           >
             ← Pipeline
           </Link>
-          {wa && (
-            <a
-              href={wa}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white"
-            >
-              Apri WhatsApp
-            </a>
-          )}
         </div>
 
         <header>
           <h1 className="font-display text-2xl font-bold text-ink">{row.nome}</h1>
-          <p className="mt-1 text-sm text-ink-muted">{row.telefono}</p>
+          <p className="mt-1 text-sm text-ink-muted">
+            {row.telefono}
+            {row.stato ? ` · ${labelForStatus(row.stato)}` : ""}
+          </p>
         </header>
+
+        <AdminWhatsAppContactPanel
+          phone={row.telefono}
+          displayName={row.nome}
+          contactData={{
+            contactType: "owner",
+            fullName: row.nome,
+            firstName,
+            lastName,
+            phone: row.telefono,
+            city: "Ancona",
+            propertyName: row.indirizzo_immobile,
+            propertyLink: row.link_annuncio,
+            coabitoLink: SITE_URL,
+          }}
+          entityKind="landlord_lead"
+          entityId={row.id}
+          source="admin_pipeline"
+          lastContactedAt={row.data_ultimo_contatto}
+          lastContactStatus={
+            row.last_contact_status ??
+            (row.data_ultimo_contatto ? "whatsapp_opened" : null)
+          }
+          templateOverrides={templates}
+        />
 
         <form action={updateLandlordLead} className="space-y-4 rounded-xl2 bg-surface p-5 shadow-card">
           <input type="hidden" name="id" value={row.id} />
