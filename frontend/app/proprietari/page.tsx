@@ -1,6 +1,7 @@
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
 import Reveal from "@/components/landing/Reveal";
+import GuaranteedRentCalculator from "@/components/owner/GuaranteedRentCalculator";
 import OwnerInquiryForm from "./OwnerInquiryForm";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 
@@ -11,9 +12,10 @@ export const metadata = {
 };
 
 export default function OwnersPage() {
-  const whatsappLink = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? null;
+  const whatsappLink = whatsappNumber
     ? buildWhatsAppLink(
-        process.env.NEXT_PUBLIC_WHATSAPP_NUMBER,
+        whatsappNumber,
         "Ciao! Ho un immobile ad Ancona e vorrei saperne di più sul marketplace Coabito.",
       )
     : null;
@@ -44,7 +46,18 @@ export default function OwnersPage() {
             </p>
           </div>
         </Reveal>
+      </div>
 
+      <div className="mx-auto max-w-[920px] px-4 pb-4 sm:px-6">
+        <Reveal>
+          <GuaranteedRentCalculator
+            whatsappNumber={whatsappNumber}
+            formHref="#proponi"
+          />
+        </Reveal>
+      </div>
+
+      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <div className="grid gap-10 md:grid-cols-2">
           <Reveal delay={100}>
             <div className="space-y-6">
@@ -104,7 +117,9 @@ export default function OwnersPage() {
           </Reveal>
 
           <Reveal delay={200}>
-            <OwnerInquiryForm />
+            <div id="proponi" className="scroll-mt-24">
+              <OwnerInquiryForm />
+            </div>
           </Reveal>
         </div>
       </div>
