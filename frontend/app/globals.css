@@ -9,6 +9,14 @@
   }
   body {
     @apply font-body antialiased;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+  .font-display,
+  h1,
+  h2,
+  h3 {
+    font-feature-settings: "ss01" 1, "soft" 1;
+    letter-spacing: -0.02em;
   }
   /* Grana sottilissima sullo sfondo: rompe l'effetto "troppo piatto e
      vettoriale" tipico delle interfacce fatte rapidamente, senza
@@ -68,6 +76,23 @@
   }
   .animate-pop-in {
     animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* Brand settle: titoli display entrano con un respiro morbido */
+  @keyframes brand-settle {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+      filter: blur(2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+  }
+  .animate-brand-settle {
+    animation: brand-settle 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .scrollbar-thin {

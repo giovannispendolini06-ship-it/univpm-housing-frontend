@@ -52,7 +52,7 @@
 
 .headline {
   color: #fff;
-  font-family: var(--font-display), sans-serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(32px, 5vw, 52px);
   font-weight: 700;
   line-height: 1.15;
