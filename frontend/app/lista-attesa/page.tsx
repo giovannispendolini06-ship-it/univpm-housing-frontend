@@ -6,7 +6,7 @@ import WaitlistForm from "./WaitlistForm";
 export const metadata = {
   title: "Lista d'attesa | Coabito",
   description:
-    "Iscriviti alla lista d'attesa Coabito: ti avvisiamo appena arriva una stanza compatibile ad Ancona.",
+    "Iscriviti alla lista d'attesa Coabito: ti avvisiamo appena arriva una stanza compatibile vicino al tuo ateneo.",
 };
 
 export default function ListaAttesaPage() {

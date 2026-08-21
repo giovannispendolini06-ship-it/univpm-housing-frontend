@@ -231,6 +231,13 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
+.statFootnote {
+  margin-top: 18px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .successCard {
   max-width: 440px;
   margin: 0 auto 28px;

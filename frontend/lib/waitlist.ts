@@ -10,6 +10,7 @@ import {
 export interface StudentProfileForWaitlist {
   degree_course?: string | null;
   polo_univpm?: string | null;
+  city_slug?: string | null;
   budget_max?: number | null;
   study_habit?: string | null;
   sociability_level?: number | null;
@@ -223,6 +224,7 @@ export async function upsertWaitlistFromStudentProfile(
     phone,
     facolta: profile.degree_course ?? null,
     polo: profile.polo_univpm ?? null,
+    city_slug: profile.city_slug ?? null,
     budget: profile.budget_max ?? null,
     study_habit: profile.study_habit ?? null,
     sociability_level: profile.sociability_level ?? null,

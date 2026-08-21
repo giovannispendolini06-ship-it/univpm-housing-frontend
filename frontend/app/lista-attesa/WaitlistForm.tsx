@@ -6,7 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { trackFunnel } from "@/lib/analytics";
 import { getLaunchMonthLabel } from "@/lib/launch";
-import { UNIVPM_STUDENTS_COUNT_LABEL } from "@/lib/waitlist-constants";
+import { ITALY_VACANT_HOMES_LABEL } from "@/lib/waitlist-constants";
+import { getCityBySlug } from "@/lib/geo/catalog";
 import { waitlistReferralUrl } from "@/lib/waitlist-referral";
 import ReferralShare from "@/components/ReferralShare";
 import { submitWaitlistSignup } from "./actions";
@@ -42,6 +43,11 @@ export default function WaitlistForm() {
   const searchParams = useSearchParams();
   const source = resolveSourceParam(searchParams.get("src"));
   const refCode = searchParams.get("ref")?.trim() || "";
+  const cityParam = searchParams.get("city")?.trim().toLowerCase() || "";
+  const cityFromCatalog = cityParam ? getCityBySlug(cityParam) : undefined;
+  const citySlug = cityFromCatalog?.slug ?? "";
+  const cityName = cityFromCatalog?.name ?? "";
+  const cityComingSoon = cityFromCatalog?.status === "coming_soon";
 
   const [error, setError] = useState<string | null>(null);
   const [successStatus, setSuccessStatus] = useState<"pending" | "ok" | null>(
@@ -146,7 +152,13 @@ export default function WaitlistForm() {
           <span className={styles.accent}>{titleAccent}</span>
           {titleAfter}
         </h1>
-        <p className={styles.sub}>{L.subtitle}</p>
+        <p className={styles.sub}>
+          {cityComingSoon && cityName
+            ? L.subtitleCity
+                .replace("{city}", cityName)
+                .replace("{status}", L.comingSoonLabel)
+            : L.subtitle}
+        </p>
 
         {successStatus ? (
           <SuccessBlock />
@@ -172,6 +184,7 @@ export default function WaitlistForm() {
               <input type="hidden" name="locale" value={locale} />
               <input type="hidden" name="privacy" value="on" />
               <input type="hidden" name="light" value="1" />
+              {citySlug ? <input type="hidden" name="city" value={citySlug} /> : null}
               {refCode ? <input type="hidden" name="ref" value={refCode} /> : null}
 
               <label htmlFor="waitlist-email" className="sr-only">
@@ -211,8 +224,8 @@ export default function WaitlistForm() {
 
         <div className={styles.statsRow}>
           <div className={styles.stat}>
-            <div className={styles.statNum}>{UNIVPM_STUDENTS_COUNT_LABEL}</div>
-            <div className={styles.statLabel}>{L.statStudents}</div>
+            <div className={styles.statNum}>{ITALY_VACANT_HOMES_LABEL}</div>
+            <div className={styles.statLabel}>{L.statVacantHomes}</div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statNum}>{launchMonth}</div>
@@ -223,6 +236,7 @@ export default function WaitlistForm() {
             <div className={styles.statLabel}>{L.statFees}</div>
           </div>
         </div>
+        <p className={styles.statFootnote}>{L.statStudentsQualitative}</p>
       </div>
     </section>
   );

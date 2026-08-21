@@ -69,6 +69,9 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
     (light ? "Iscritto" : "");
   const facolta = String(formData.get("facolta") ?? "").trim() || null;
   const polo = String(formData.get("polo") ?? "").trim() || null;
+  const citySlugRaw = String(formData.get("city") ?? "").trim().toLowerCase();
+  const city_slug =
+    citySlugRaw && /^[a-z0-9-]{2,64}$/.test(citySlugRaw) ? citySlugRaw : null;
   const budgetRaw = String(formData.get("budget") ?? "").trim();
   const budget = budgetRaw ? Number(budgetRaw) : null;
   const privacy = formData.get("privacy") === "on";
@@ -120,6 +123,7 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
     phone: phone || null,
     facolta,
     polo,
+    city_slug,
     budget: budget && !Number.isNaN(budget) ? budget : null,
     source,
     preferred_locale: locale,
