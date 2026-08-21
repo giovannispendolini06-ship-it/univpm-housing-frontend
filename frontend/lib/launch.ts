@@ -32,3 +32,39 @@ export function daysUntilLaunch(now: Date = new Date()): number {
   if (diffMs <= 0) return 0;
   return Math.ceil(diffMs / (24 * 60 * 60 * 1000));
 }
+
+const MONTH_IT = [
+  "gennaio",
+  "febbraio",
+  "marzo",
+  "aprile",
+  "maggio",
+  "giugno",
+  "luglio",
+  "agosto",
+  "settembre",
+  "ottobre",
+  "novembre",
+  "dicembre",
+] as const;
+
+const MONTH_EN = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
+
+/** Nome mese della data di lancio (da NEXT_PUBLIC_LAUNCH_DATE). */
+export function getLaunchMonthLabel(locale: "it" | "en" = "it"): string {
+  const monthIndex = getLaunchTargetDate().getUTCMonth();
+  return locale === "en" ? MONTH_EN[monthIndex] : MONTH_IT[monthIndex];
+}

@@ -31,7 +31,8 @@ interface WaitlistResult {
 }
 
 const MAX_SUBMISSIONS_PER_HOUR = 5;
-const MIN_FILL_TIME_MS = 2000;
+/** Soft bot gate — keep low so email-only light signup still works. */
+const MIN_FILL_TIME_MS = 800;
 
 const SOURCE_MAP: Record<string, string> = {
   instagram: "instagram",
@@ -58,9 +59,14 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
     return { success: true, status: "ok" };
   }
 
-  const nome = String(formData.get("nome") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
+  const light = formData.get("light") === "1";
+  const nomeRaw = String(formData.get("nome") ?? "").trim();
+  const nome =
+    nomeRaw ||
+    (email.includes("@") ? email.split("@")[0]!.slice(0, 80) : "") ||
+    (light ? "Iscritto" : "");
   const facolta = String(formData.get("facolta") ?? "").trim() || null;
   const polo = String(formData.get("polo") ?? "").trim() || null;
   const budgetRaw = String(formData.get("budget") ?? "").trim();
@@ -71,6 +77,7 @@ export async function submitWaitlistSignup(formData: FormData): Promise<Waitlist
   const refParam = String(formData.get("ref") ?? "").trim();
 
   if (!nome) return { error: "Il nome è obbligatorio." };
+  if (light && !email) return { error: "contactRequired" };
   if (!email && !phone) return { error: "contactRequired" };
   if (!privacy) return { error: "privacyRequired" };
 
