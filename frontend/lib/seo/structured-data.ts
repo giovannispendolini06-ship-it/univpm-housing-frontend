@@ -12,8 +12,8 @@ export function organizationJsonLd() {
     description:
       "Piattaforma per studenti fuori sede: trova casa chattando con Vesta, vicino al tuo ateneo.",
     areaServed: {
-      "@type": "City",
-      name: "Ancona",
+      "@type": "Country",
+      name: "Italia",
     },
     sameAs: [] as string[],
   };

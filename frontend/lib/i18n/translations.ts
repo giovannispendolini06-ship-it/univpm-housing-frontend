@@ -13,12 +13,12 @@ export const translations = {
       waitlist: "Lista d'attesa",
     },
     hero: {
-      badge: "Pensato per chi studia fuori sede ad Ancona",
+      badge: "Pensato per chi studia fuori sede",
       titlePart1: "La casa giusta. ",
       titleHighlight: "Le persone",
       titlePart2: " giuste.",
       subtitle:
-        "Marketplace abitativo per fuori sede ad Ancona: stanze trasparenti, profili verificabili e Compatibilità Coabito — per trovare stanza e coinquilini giusti, non solo un annuncio.",
+        "Marketplace abitativo per fuori sede: stanze trasparenti, profili verificabili e Compatibilità Coabito — per trovare stanza e coinquilini giusti, non solo un annuncio.",
       ctaStudent: "Trova il tuo match",
       ctaOwner: "Pubblica un immobile",
       ctaBrowse: "Sfoglia le stanze",
@@ -172,7 +172,7 @@ export const translations = {
             bot2: "Perfetto, iniziamo a cercare 🔥",
           },
           cost: {
-            title: "Singola · Torrette",
+            title: "Singola · Zona universitaria",
             match: "92%",
             rent: "Canone: 320€",
             utilities: "Utenze: 40€",
@@ -233,7 +233,7 @@ export const translations = {
         screens: {
           chat: {
             bot1: "Quante stanze ha l'immobile, e in che zona?",
-            me: "3 stanze, Torrette, vicino Medicina",
+            me: "3 stanze, zona universitaria, vicino al mio polo",
             bot2: "Annuncio pronto — lo rivedi tu prima di pubblicarlo",
           },
           applicants: {
@@ -399,9 +399,9 @@ export const translations = {
       ariaLabel: "Scrivici su WhatsApp",
       generic: "Ciao! Ho visto Coabito e vorrei saperne di più",
       owners:
-        "Ciao! Ho un immobile ad Ancona e vorrei saperne di più su Coabito.",
+        "Ciao! Ho un immobile e vorrei saperne di più su Coabito.",
       waitlist:
-        "Ciao! Sto cercando casa da studente ad Ancona e vorrei info su Coabito / la lista d'attesa.",
+        "Ciao! Sto cercando casa da studente fuori sede e vorrei info su Coabito / la lista d'attesa.",
     },
     guidaAffittoAncona: {
       title: "Come affittare casa per studenti ad Ancona",
@@ -628,12 +628,14 @@ export const translations = {
       loadingChat: "Sto ritrovando la tua chat...",
     },
     chat: {
-      subtitle: "Il tuo assistente casa · UNIVPM Ancona",
+      subtitle: "Il tuo assistente casa · fuori sede",
       inputPlaceholder: "Scrivi un messaggio...",
       sendLabel: "Invia messaggio",
       progressLabel: "{done}/{total} · {step}",
       progressComplete: "Profilo completo",
       progressSteps: {
+        city: "Città",
+        university: "Università",
         campus: "Polo / facoltà",
         budget: "Budget",
         moveIn: "Data ingresso",
@@ -678,7 +680,7 @@ export const translations = {
       emptyBody:
         "Prova ad allargare la ricerca: alza il budget, togli qualche caratteristica o azzera i filtri.",
       emptyCta: "Azzera filtri",
-      pageTitle: "Stanze ad Ancona",
+      pageTitle: "Stanze disponibili",
       budget: "Budget mensile",
       zone: "Zona",
       roomType: "Tipo di stanza",
@@ -837,7 +839,7 @@ export const translations = {
       noMatchSubtitle:
         "Ho salvato le tue preferenze. Appena arriva un immobile compatibile con te, sarai tra i primi ad essere avvisato.",
       shareCta: "Condividi con un amico",
-      shareText: "Sto cercando casa ad Ancona con Coabito — entra in lista d'attesa:",
+      shareText: "Sto cercando casa da fuori sede con Coabito — entra in lista d'attesa:",
       loadingLabel: "Caricamento stanze compatibili…",
     },
     notFound: {
@@ -846,26 +848,170 @@ export const translations = {
       home: "Torna alla home",
       waitlist: "Lista d'attesa",
     },
+
+    serviziJourney: {
+      eyebrow: "I nostri servizi",
+      title: "Ti accompagniamo in ogni fase, non solo nella ricerca",
+      intro:
+        "Coabito non è parte del contratto di locazione: studente e proprietario firmano direttamente. Il nostro ruolo è fiducia, matching e sicurezza della transazione.",
+      toggleStudent: "Sono studente",
+      toggleOwner: "Sono proprietario",
+      ctaBody: "Pronto a iniziare? Entra in lista d'attesa o proponi un immobile.",
+      ctaStudent: "Sono uno studente",
+      ctaOwner: "Sono un proprietario",
+      student: {
+        phases: [
+          {
+            title: "Prima di candidarti",
+            subtitle: "Verifica, fiducia, trasparenza dei costi",
+            items: [
+              {
+                title: "Badge verificato",
+                body: "Studenti e proprietari verificati, non solo dichiarati.",
+              },
+              {
+                title: "Costo totale trasparente",
+                body: "Canone, utenze e cauzione visibili insieme, mai scoperti dopo.",
+              },
+              {
+                title: "Reputazione portabile",
+                body: "Il tuo storico di buon inquilino ti segue città dopo città.",
+              },
+            ],
+          },
+          {
+            title: "Durante il trasloco",
+            subtitle: "Pagamento sicuro e supporto pratico",
+            items: [
+              {
+                title: "Pagamento in escrow",
+                body: "Il tuo pagamento resta al sicuro finché non confermi il trasloco.",
+              },
+              {
+                title: "Checklist personalizzata",
+                body: "Documenti e scadenze, generati in base al tuo caso specifico.",
+              },
+              {
+                title: "Attivazione utenze assistita",
+                body: "Luce, gas, internet — ti aiutiamo ad attivarle senza stress.",
+              },
+            ],
+          },
+          {
+            title: "Dopo esserti trasferito",
+            subtitle: "Non spariamo se qualcosa va storto",
+            items: [
+              {
+                title: "Mediazione diretta",
+                body: "Un problema con il proprietario o un coinquilino? Scrivici, non sei solo.",
+              },
+              {
+                title: "Assistenza ricerca sostituto",
+                body: "Se devi lasciare la stanza, ti aiutiamo a trovare chi ti sostituisce.",
+              },
+              {
+                title: "Contatto diretto col fondatore",
+                body: "Per qualsiasi dubbio, non un ticket assegnato a caso.",
+              },
+            ],
+          },
+        ],
+      },
+      owner: {
+        phases: [
+          {
+            title: "Prima di pubblicare",
+            subtitle: "Fiducia e un annuncio che lavora per te",
+            items: [
+              {
+                title: "Badge proprietario verificato",
+                body: "Documento di proprietà o delega verificato, visibile agli studenti.",
+              },
+              {
+                title: "Annuncio assistito da Vesta",
+                body: "Descrivi l'immobile in chat: Vesta genera un annuncio strutturato.",
+              },
+              {
+                title: "Foto e presentazione",
+                body: "Supporto per rendere l'immobile chiaro e credibile al primo sguardo.",
+              },
+            ],
+          },
+          {
+            title: "Durante le candidature",
+            subtitle: "Selezione filtrata e pagamento sicuro",
+            items: [
+              {
+                title: "Pre-filtro studenti compatibili",
+                body: "Solo profili filtrati per criteri di base, per ridurre il tempo di selezione.",
+              },
+              {
+                title: "Pagamento in escrow",
+                body: "Prima mensilità o cauzione trattenute finché il trasloco non è confermato.",
+              },
+              {
+                title: "Reputazione studente visibile",
+                body: "Storico da buon inquilino mostrato prima del contatto diretto.",
+              },
+            ],
+          },
+          {
+            title: "Dopo l'affitto",
+            subtitle: "Supporto operativo senza entrare nel contratto",
+            items: [
+              {
+                title: "Mediazione e garanzia",
+                body: "Canale di supporto e, in roadmap, copertura su inadempimento — senza che Coabito sia parte del contratto.",
+              },
+              {
+                title: "Assistenza ricerca sostituto",
+                body: "Quando uno studente lascia, aiutiamo a trovare il prossimo inquilino.",
+              },
+              {
+                title: "Contatto diretto col fondatore",
+                body: "Un interlocutore reale per dubbi e urgenze, non un ticket anonimo.",
+              },
+            ],
+          },
+        ],
+      },
+    },
     listaAttesa: {
       backToHome: "← Torna alla home",
       title: "Lista d'attesa",
+      eyebrow: "Le prime stanze arrivano a {month}",
+      titleBefore: "Sarai tra i primi a ",
+      titleAccent: "trovare casa",
+      titleAfter: "",
       subtitle:
-        "Non c'è ancora la stanza giusta per te? Lasciaci i tuoi dati: ti avvisiamo appena arriva qualcosa di compatibile.",
+        "Iscriviti alla lista d'attesa: appena una stanza compatibile con te sarà disponibile, sarai il primo a saperlo.",
       nameLabel: "Nome e cognome *",
       emailLabel: "Email",
+      emailPlaceholder: "La tua email",
       phoneLabel: "Telefono / WhatsApp",
       contactHint: "Almeno uno tra email e telefono è obbligatorio.",
       facoltaLabel: "Facoltà",
       poloLabel: "Polo universitario",
       budgetLabel: "Budget massimo (€/mese)",
       privacyPrefix: "Ho letto e accetto la",
+      privacyLightPrefix: "Iscrivendoti accetti la",
+      privacyLightSuffix: ".",
       privacyLink: "Privacy Policy",
       privacyRequired: "Devi accettare la Privacy Policy per iscriverti.",
-      submit: "Entra in lista d'attesa",
+      submit: "Iscriviti gratis",
       submitting: "Invio...",
+      trustItems: ["Gratis, sempre", "Zero spam", "Cancellati quando vuoi"] as const,
+      comingSoonLabel: "Presto disponibile",
+      subtitleCity:
+        "Coabito sta arrivando a {city} ({status}). Iscriviti: ti avvisiamo appena apriamo le iscrizioni lì.",
+      statVacantHomes: "Case sfitte in Italia",
+      statStudentsQualitative: "Migliaia di studenti fuori sede in tutta Italia",
+      statLaunch: "Prime stanze disponibili",
+      statFees: "Commissioni",
+      statFeesValue: "0€",
       successTitle: "Sei in lista!",
       successBody:
-        "Ti avviseremo appena arriva un immobile compatibile con le tue preferenze. Nel frattempo, puoi condividere il link con chi cerca casa ad Ancona.",
+        "Ti avviseremo appena arriva un immobile compatibile con le tue preferenze. Nel frattempo, puoi condividere il link con chi cerca casa da fuori sede.",
       positionHeadline: "Sei il {n}° in lista d'attesa",
       successBodyWithPosition:
         "Ti avviseremo appena ci sarà una stanza compatibile con il tuo profilo.",
@@ -897,7 +1043,7 @@ export const translations = {
         whatsapp: "WhatsApp",
         whatsappAria: "Condividi il link di invito su WhatsApp",
         shareText:
-          "Sto cercando una stanza ad Ancona con Coabito — entra in lista d'attesa con il mio link:",
+          "Sto cercando una stanza da fuori sede con Coabito — entra in lista d'attesa con il mio link:",
       },
       facoltaOptions: [
         { value: "ingegneria_informatica", label: "Ingegneria informatica" },
@@ -1042,12 +1188,12 @@ export const translations = {
       waitlist: "Waitlist",
     },
     hero: {
-      badge: "Made for out-of-town students in Ancona",
+      badge: "Made for students living away from home",
       titlePart1: "The right home. ",
       titleHighlight: "The right",
       titlePart2: " people.",
       subtitle:
-        "Housing marketplace for students in Ancona: transparent rooms, verifiable profiles and Coabito Compatibility — find the right room and roommates, not just another listing.",
+        "Housing marketplace for students living away from home: transparent rooms, verifiable profiles and Coabito Compatibility — find the right room and roommates, not just another listing.",
       ctaStudent: "Find your match",
       ctaOwner: "List a room",
       ctaBrowse: "Browse rooms",
@@ -1201,7 +1347,7 @@ export const translations = {
             bot2: "Perfect — let's start looking 🔥",
           },
           cost: {
-            title: "Single · Torrette",
+            title: "Single · Campus area",
             match: "92%",
             rent: "Rent: €320",
             utilities: "Utilities: €40",
@@ -1262,7 +1408,7 @@ export const translations = {
         screens: {
           chat: {
             bot1: "How many rooms, and which area?",
-            me: "3 rooms, Torrette, near Medicine",
+            me: "3 rooms, campus area, near my faculty",
             bot2: "Listing ready — you review it before it goes live",
           },
           applicants: {
@@ -1428,9 +1574,9 @@ export const translations = {
       ariaLabel: "Message us on WhatsApp",
       generic: "Hi! I found Coabito and I'd like to know more",
       owners:
-        "Hi! I have a property in Ancona and I'd like to know more about Coabito.",
+        "Hi! I have a property and I'd like to know more about Coabito.",
       waitlist:
-        "Hi! I'm a student looking for a place in Ancona and I'd like info about Coabito / the waitlist.",
+        "Hi! I'm a student living away from home and I'd like info about Coabito / the waitlist.",
     },
     guidaAffittoAncona: {
       title: "How to rent student housing in Ancona",
@@ -1657,12 +1803,14 @@ export const translations = {
       loadingChat: "Loading your chat...",
     },
     chat: {
-      subtitle: "Your housing assistant · UNIVPM Ancona",
+      subtitle: "Your housing assistant · away from home",
       inputPlaceholder: "Write a message...",
       sendLabel: "Send message",
       progressLabel: "{done}/{total} · {step}",
       progressComplete: "Profile complete",
       progressSteps: {
+        city: "City",
+        university: "University",
         campus: "Campus / course",
         budget: "Budget",
         moveIn: "Move-in date",
@@ -1707,7 +1855,7 @@ export const translations = {
       emptyBody:
         "Try widening your search: raise the budget, remove a feature, or reset the filters.",
       emptyCta: "Reset filters",
-      pageTitle: "Rooms in Ancona",
+      pageTitle: "Available rooms",
       budget: "Monthly budget",
       zone: "Area",
       roomType: "Room type",
@@ -1865,7 +2013,7 @@ export const translations = {
       noMatchSubtitle:
         "I've saved your preferences. As soon as a compatible place becomes available, you'll be among the first to know.",
       shareCta: "Share with a friend",
-      shareText: "I'm looking for a room in Ancona with Coabito — join the waitlist:",
+      shareText: "I'm looking for a room with Coabito while studying away from home — join the waitlist:",
       loadingLabel: "Loading compatible rooms…",
     },
     notFound: {
@@ -1874,26 +2022,170 @@ export const translations = {
       home: "Back to home",
       waitlist: "Waitlist",
     },
+
+    serviziJourney: {
+      eyebrow: "Our services",
+      title: "We support you at every stage, not just the search",
+      intro:
+        "Coabito is not a party to the lease: student and landlord sign directly. Our role is trust, matching, and transaction safety.",
+      toggleStudent: "I'm a student",
+      toggleOwner: "I'm a landlord",
+      ctaBody: "Ready to start? Join the waitlist or list a property.",
+      ctaStudent: "I'm a student",
+      ctaOwner: "I'm a landlord",
+      student: {
+        phases: [
+          {
+            title: "Before you apply",
+            subtitle: "Verification, trust, cost transparency",
+            items: [
+              {
+                title: "Verified badge",
+                body: "Students and landlords verified — not just self-declared.",
+              },
+              {
+                title: "Transparent total cost",
+                body: "Rent, utilities and deposit shown together — never discovered later.",
+              },
+              {
+                title: "Portable reputation",
+                body: "Your good-tenant history follows you from city to city.",
+              },
+            ],
+          },
+          {
+            title: "During move-in",
+            subtitle: "Safe payment and practical support",
+            items: [
+              {
+                title: "Escrow payment",
+                body: "Your payment stays safe until you confirm move-in.",
+              },
+              {
+                title: "Personalised checklist",
+                body: "Documents and deadlines generated for your specific case.",
+              },
+              {
+                title: "Assisted utility setup",
+                body: "Electricity, gas, internet — we help you activate them without stress.",
+              },
+            ],
+          },
+          {
+            title: "After you've moved in",
+            subtitle: "We don't disappear if something goes wrong",
+            items: [
+              {
+                title: "Direct mediation",
+                body: "Issue with the landlord or a roommate? Write to us — you're not alone.",
+              },
+              {
+                title: "Replacement search help",
+                body: "If you need to leave the room, we help find someone to take your place.",
+              },
+              {
+                title: "Direct founder contact",
+                body: "For any doubt — not a randomly assigned ticket.",
+              },
+            ],
+          },
+        ],
+      },
+      owner: {
+        phases: [
+          {
+            title: "Before you publish",
+            subtitle: "Trust and a listing that works for you",
+            items: [
+              {
+                title: "Verified landlord badge",
+                body: "Ownership or mandate document verified, visible to students.",
+              },
+              {
+                title: "Vesta-assisted listing",
+                body: "Describe the property in chat: Vesta builds a structured listing.",
+              },
+              {
+                title: "Photos and presentation",
+                body: "Support to make the property clear and credible at first glance.",
+              },
+            ],
+          },
+          {
+            title: "During applications",
+            subtitle: "Filtered selection and safe payment",
+            items: [
+              {
+                title: "Pre-filtered compatible students",
+                body: "Only profiles matching basic criteria, so you spend less time selecting.",
+              },
+              {
+                title: "Escrow payment",
+                body: "First month or deposit held until move-in is confirmed.",
+              },
+              {
+                title: "Visible student reputation",
+                body: "Good-tenant history shown before direct contact.",
+              },
+            ],
+          },
+          {
+            title: "After the lease starts",
+            subtitle: "Operational support without joining the contract",
+            items: [
+              {
+                title: "Mediation and cover",
+                body: "Support channel and, on the roadmap, non-payment cover — without Coabito joining the lease.",
+              },
+              {
+                title: "Replacement search help",
+                body: "When a student leaves, we help find the next tenant.",
+              },
+              {
+                title: "Direct founder contact",
+                body: "A real person for questions and urgencies — not an anonymous ticket.",
+              },
+            ],
+          },
+        ],
+      },
+    },
     listaAttesa: {
       backToHome: "← Back to home",
       title: "Waitlist",
+      eyebrow: "First rooms arrive in {month}",
+      titleBefore: "Be among the first to ",
+      titleAccent: "find a home",
+      titleAfter: "",
       subtitle:
-        "Haven't found the right room yet? Leave your details and we'll notify you as soon as something compatible comes up.",
+        "Join the waitlist: as soon as a room compatible with you is available, you'll be the first to know.",
       nameLabel: "Full name *",
       emailLabel: "Email",
+      emailPlaceholder: "Your email",
       phoneLabel: "Phone / WhatsApp",
       contactHint: "At least one of email or phone is required.",
       facoltaLabel: "Degree course",
       poloLabel: "University campus",
       budgetLabel: "Maximum budget (€/month)",
       privacyPrefix: "I have read and accept the",
+      privacyLightPrefix: "By joining you accept the",
+      privacyLightSuffix: ".",
       privacyLink: "Privacy Policy",
       privacyRequired: "You must accept the Privacy Policy to sign up.",
-      submit: "Join the waitlist",
+      submit: "Join for free",
       submitting: "Submitting...",
+      trustItems: ["Always free", "Zero spam", "Unsubscribe anytime"] as const,
+      comingSoonLabel: "Coming soon",
+      subtitleCity:
+        "Coabito is coming to {city} ({status}). Join the waitlist and we'll notify you when we open there.",
+      statVacantHomes: "Vacant homes in Italy",
+      statStudentsQualitative: "Thousands of students living away from home across Italy",
+      statLaunch: "First rooms available",
+      statFees: "Fees",
+      statFeesValue: "€0",
       successTitle: "You're on the list!",
       successBody:
-        "We'll notify you as soon as a compatible place becomes available. In the meantime, feel free to share the link with friends looking for a room in Ancona.",
+        "We'll notify you as soon as a compatible place becomes available. In the meantime, feel free to share the link with friends looking for a room while studying away from home.",
       positionHeadline: "You're #{n} on the waitlist",
       successBodyWithPosition:
         "We'll let you know as soon as a room compatible with your profile becomes available.",
@@ -1924,7 +2216,7 @@ export const translations = {
         whatsapp: "WhatsApp",
         whatsappAria: "Share your invite link on WhatsApp",
         shareText:
-          "I'm looking for a room in Ancona with Coabito — join the waitlist with my link:",
+          "I'm looking for a room with Coabito while studying away from home — join the waitlist with my link:",
       },
       facoltaOptions: [
         { value: "ingegneria_informatica", label: "Computer Engineering" },

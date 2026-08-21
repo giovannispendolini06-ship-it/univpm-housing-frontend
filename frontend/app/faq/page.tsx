@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "FAQ studenti | Coabito",
     description:
-      "Risposte chiare su costi, Vesta, lista d'attesa e matching per chi cerca casa da studente ad Ancona.",
+      "Risposte chiare su costi, Vesta, lista d'attesa e matching per chi cerca casa da studente fuori sede.",
     url: `${SITE_URL}${PATH}`,
     type: "website",
   },
