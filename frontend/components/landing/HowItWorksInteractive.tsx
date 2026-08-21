@@ -3,16 +3,33 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import VestaAvatar from "@/components/VestaAvatar";
+import {
+  IconCasa,
+  IconChat,
+  IconDocumento,
+  IconProfilo,
+  IconVerificato,
+} from "@/components/icons/CoabitoIcons";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import styles from "./HowItWorksInteractive.module.css";
 
 type Audience = "student" | "owner";
 type StepIndex = 0 | 1 | 2 | 3;
 
+const STUDENT_ICONS = [IconChat, IconCasa, IconProfilo, IconVerificato] as const;
+const OWNER_ICONS = [IconChat, IconVerificato, IconCasa, IconDocumento] as const;
+
+type Proof = {
+  badge: string;
+  title: string;
+  body: string;
+  detail: string;
+  accent: "coral" | "teal";
+};
+
 /**
- * Homepage “Come funziona”: un modulo interattivo Studente/Proprietario
- * (spec: coabito-sezione-demo-interattiva-v2.html). I numeri nel device
- * frame sono esempi illustrativi, etichettati come tali.
+ * Homepage “Come funziona”: modulo interattivo Studente/Proprietario
+ * con progress, icone step, frecce e riquadri fiducia espandibili.
  */
 export default function HowItWorksInteractive() {
   const { t } = useLocale();
@@ -20,6 +37,7 @@ export default function HowItWorksInteractive() {
   const [audience, setAudience] = useState<Audience>("student");
   const [step, setStep] = useState<StepIndex>(0);
   const [screenKey, setScreenKey] = useState(0);
+  const [openProof, setOpenProof] = useState<number | null>(null);
 
   const applyHash = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -27,10 +45,12 @@ export default function HowItWorksInteractive() {
     if (hash === "#proprietari") {
       setAudience("owner");
       setStep(0);
+      setOpenProof(null);
       setScreenKey((k) => k + 1);
     } else if (hash === "#studenti") {
       setAudience("student");
       setStep(0);
+      setOpenProof(null);
       setScreenKey((k) => k + 1);
     }
   }, []);
@@ -44,6 +64,7 @@ export default function HowItWorksInteractive() {
   function selectAudience(next: Audience) {
     setAudience(next);
     setStep(0);
+    setOpenProof(null);
     setScreenKey((k) => k + 1);
     if (typeof window !== "undefined") {
       const hash = next === "owner" ? "#proprietari" : "#studenti";
@@ -58,13 +79,25 @@ export default function HowItWorksInteractive() {
     setScreenKey((k) => k + 1);
   }
 
+  function goPrev() {
+    if (step === 0) return;
+    selectStep((step - 1) as StepIndex);
+  }
+
+  function goNext() {
+    if (step === 3) return;
+    selectStep((step + 1) as StepIndex);
+  }
+
   const steps = audience === "student" ? D.student.steps : D.owner.steps;
-  const proofs = audience === "student" ? D.student.proofs : D.owner.proofs;
+  const proofs = (audience === "student" ? D.student.proofs : D.owner.proofs) as readonly Proof[];
+  const icons = audience === "student" ? STUDENT_ICONS : OWNER_ICONS;
   const isOwner = audience === "owner";
+  const accentActive = isOwner ? "bg-sunset-500 text-white" : "bg-sea-600 text-white";
+  const accentIdle = "bg-[#EAF4F2] text-sea-600";
 
   return (
     <section className="relative scroll-mt-24 bg-bg">
-      {/* Anchors for existing navbar links */}
       <span id="studenti" className="absolute -top-24" aria-hidden />
       <span id="proprietari" className="absolute -top-24 left-0" aria-hidden />
 
@@ -117,14 +150,37 @@ export default function HowItWorksInteractive() {
           </div>
         </header>
 
+        <div
+          className={[
+            styles.progress,
+            isOwner ? styles.progressOwner : styles.progressStudent,
+          ].join(" ")}
+          role="progressbar"
+          aria-label={D.progressAria}
+          aria-valuemin={1}
+          aria-valuemax={4}
+          aria-valuenow={step + 1}
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className={styles.progressTrack}>
+              <div
+                className={[
+                  styles.progressFill,
+                  i <= step ? styles.progressFillOn : "",
+                ].join(" ")}
+              />
+            </div>
+          ))}
+        </div>
+
         <div className="grid grid-cols-1 gap-4 md:grid-cols-[1.15fr_1fr] md:grid-rows-[auto_auto]">
-          {/* Demo tile — steps + device */}
           <div
             className={`${styles.tile} flex flex-col p-5 sm:p-6 md:row-span-2`}
           >
             <ol className="mb-4 flex flex-col gap-0.5" aria-label={D.stepsAria}>
               {steps.map((s, i) => {
                 const active = step === i;
+                const Icon = icons[i] ?? IconChat;
                 return (
                   <li key={s.title}>
                     <button
@@ -134,19 +190,21 @@ export default function HowItWorksInteractive() {
                       className={[
                         styles.step,
                         "flex w-full gap-3 rounded-xl px-3 py-2.5 text-left",
-                        active ? "bg-sea-50" : "hover:bg-[#F7FAF9]",
+                        active
+                          ? isOwner
+                            ? "bg-[#FFF1EC]"
+                            : "bg-sea-50"
+                          : "hover:bg-[#F7FAF9]",
                       ].join(" ")}
                     >
                       <span
                         className={[
-                          styles.stepNum,
-                          "flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full text-xs font-bold",
-                          active
-                            ? "bg-sea-600 text-white"
-                            : "bg-[#E1EAE8] text-[#6d817d]",
+                          styles.stepIcon,
+                          "flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full",
+                          active ? accentActive : accentIdle,
                         ].join(" ")}
                       >
-                        {i + 1}
+                        <Icon size={16} className="shrink-0" />
                       </span>
                       <span className="min-w-0">
                         <span className="block text-[13.5px] font-bold text-ink">
@@ -166,7 +224,10 @@ export default function HowItWorksInteractive() {
               <span className="absolute right-3 top-3 rounded-md bg-white/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white/70">
                 {D.exampleBadge}
               </span>
-              <div key={`${audience}-${step}-${screenKey}`} className={styles.settle}>
+              <div
+                key={`${audience}-${step}-${screenKey}`}
+                className={styles.settle}
+              >
                 {audience === "student" ? (
                   <StudentScreen index={step} copy={D.student.screens} />
                 ) : (
@@ -174,30 +235,93 @@ export default function HowItWorksInteractive() {
                 )}
               </div>
             </div>
+
+            <div className={styles.navRow}>
+              <button
+                type="button"
+                className={[
+                  styles.navBtn,
+                  isOwner ? styles.navBtnOwner : "",
+                ].join(" ")}
+                onClick={goPrev}
+                disabled={step === 0}
+                aria-label={D.prev}
+              >
+                ← {D.prev}
+              </button>
+              <span className={styles.navStepLabel}>
+                {step + 1} / 4
+              </span>
+              <button
+                type="button"
+                className={[
+                  styles.navBtn,
+                  isOwner ? styles.navBtnOwner : "",
+                ].join(" ")}
+                onClick={goNext}
+                disabled={step === 3}
+                aria-label={D.next}
+              >
+                {D.next} →
+              </button>
+            </div>
           </div>
 
-          {/* Proof tiles */}
-          {proofs.map((proof) => (
-            <div
-              key={proof.badge}
-              className={`${styles.tile} flex flex-col justify-center gap-2.5 px-5 py-5 sm:px-[21px]`}
-            >
-              <span
-                className={[
-                  "inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold",
-                  proof.accent === "coral"
-                    ? "bg-[#FFF1EC] text-sunset-500"
-                    : "bg-sea-50 text-sea-600",
-                ].join(" ")}
-              >
-                {proof.badge}
-              </span>
-              <p className="text-sm font-bold text-ink">{proof.title}</p>
-              <p className="text-[11.5px] leading-relaxed text-[#6d817d]">
-                {proof.body}
-              </p>
-            </div>
-          ))}
+          {proofs.map((proof, index) => {
+            const isOpen = openProof === index;
+            const panelId = `how-proof-${audience}-${index}`;
+            const buttonId = `how-proof-btn-${audience}-${index}`;
+            return (
+              <div key={proof.badge} className={styles.tile}>
+                <button
+                  id={buttonId}
+                  type="button"
+                  className={styles.proofBtn}
+                  onClick={() =>
+                    setOpenProof((prev) => (prev === index ? null : index))
+                  }
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
+                  aria-label={isOpen ? D.collapseHint : D.expandHint}
+                >
+                  <div className={styles.proofHead}>
+                    <span
+                      className={[
+                        "inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold",
+                        proof.accent === "coral"
+                          ? "bg-[#FFF1EC] text-sunset-500"
+                          : "bg-sea-50 text-sea-600",
+                      ].join(" ")}
+                    >
+                      {proof.badge}
+                    </span>
+                    <span
+                      className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ""}`}
+                      aria-hidden
+                    >
+                      ⌄
+                    </span>
+                  </div>
+                  <p className="text-sm font-bold text-ink">{proof.title}</p>
+                  <p className="text-[11.5px] leading-relaxed text-[#6d817d]">
+                    {proof.body}
+                  </p>
+                  <div
+                    id={panelId}
+                    role="region"
+                    aria-labelledby={buttonId}
+                    className={`${styles.proofBody} ${
+                      isOpen ? styles.proofBodyOpen : styles.proofBodyClosed
+                    }`}
+                  >
+                    <div className={styles.proofBodyInner}>
+                      <p className={styles.proofDetail}>{proof.detail}</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            );
+          })}
         </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
