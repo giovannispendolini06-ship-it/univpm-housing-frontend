@@ -59,6 +59,12 @@ export type EscrowCoverage =
   | "deposit"
   | "first_month_and_deposit";
 
+/** Room typology for marketplace filters */
+export type RoomType = "singola" | "doppia" | "dus";
+
+/** Heating typology for marketplace filters */
+export type HeatingType = "autonomo" | "centralizzato";
+
 /** properties — supply side (never expose exact address publicly). */
 export interface Property {
   id: string;
@@ -78,6 +84,14 @@ export interface Property {
   escrowCoverage?: EscrowCoverage | null;
   /** Internal only — not for public listing cards */
   addressInternal?: string;
+  /** Existing admin field — surface for filters when present */
+  hasElevator?: boolean | null;
+  totalRooms?: number | null;
+  /** NEW (migration_listing_rich_filters) — null until collected */
+  heatingType?: HeatingType | null;
+  minContractMonths?: number | null;
+  petsAllowed?: boolean | null;
+  smokingAllowed?: boolean | null;
 }
 
 /** rooms — the bookable unit; public "Listing" is Room + Property + images */
@@ -94,6 +108,8 @@ export interface Room {
   servicesIncluded: string[];
   isAvailable: boolean;
   availableFrom: string | null;
+  /** NEW (migration_listing_rich_filters) — null until collected */
+  roomType?: RoomType | null;
 }
 
 /**
@@ -130,6 +146,21 @@ export interface Listing {
   matchReasons?: { label: string; detail: string; weight: "alto" | "medio" | "basso" }[];
   /** Short atmosphere labels; omit UI row when empty */
   atmosphereTags?: string[];
+  /** Room size in mq — existing DB column, now surfaced for filters */
+  sizeSqm?: number | null;
+  hasBalcony?: boolean | null;
+  maxOccupants?: number | null;
+  hasElevator?: boolean | null;
+  /** Other rooms in the flat (total_rooms - 1), when known */
+  flatmatesCount?: number | null;
+  /** Explicit typology when set; else inferred from label/contract */
+  roomType?: RoomType | null;
+  heatingType?: HeatingType | null;
+  minContractMonths?: number | null;
+  petsAllowed?: boolean | null;
+  smokingAllowed?: boolean | null;
+  /** ISO created_at for "newest" sort */
+  createdAt?: string | null;
 }
 
 export type ApplicationStatus =

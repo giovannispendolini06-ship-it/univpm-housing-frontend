@@ -1,0 +1,11 @@
+---
+description: Stack new feature work on prior unmerged agent branches
+alwaysApply: true
+---
+# Branch stacking
+
+When prior feature PRs from this agent are still open and unmerged into `main`, do **not** start the next feature from `main` alone.
+
+- Branch from or merge the latest open `cursor/*` feature branch so cumulative work stays in one tip.
+- The latest PR must include earlier session improvements (filters, calculator, FAQ, etc.), not only the newest change.
+- Before opening/updating a PR, verify key files from prior open PRs are present on the branch.

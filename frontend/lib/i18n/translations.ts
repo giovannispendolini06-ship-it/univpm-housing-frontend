@@ -96,6 +96,175 @@ export const translations = {
         },
       ],
     },
+    ownerCalculator: {
+      eyebrow: "Per i proprietari",
+      title: "Quanto potresti ricevere con il canone garantito?",
+      subtitle:
+        "Una stima indicativa in base alla zona e alle dimensioni del tuo immobile — non un'offerta vincolante.",
+      zoneLabel: "Zona",
+      zoneTorrette: "Torrette",
+      zoneCentro: "Centro",
+      zonePalombina: "Palombina",
+      roomsLabel: "Numero di stanze",
+      sizeLabel: "Superficie totale (mq)",
+      mqUnit: "mq",
+      conditionLabel: "Stato dell'immobile",
+      conditionGood: "Buono",
+      conditionRefresh: "Da rinfrescare",
+      conditionRenovated: "Ristrutturato",
+      resultLabel: "Canone garantito stimato",
+      perMonth: "/mese",
+      rangeLabel: "Range indicativo: {low}€ - {high}€",
+      disclaimer:
+        "Questa è una stima basata su prezzi medi di zona, non un'offerta vincolante. Il canone reale viene definito insieme durante un sopralluogo.",
+      cta: "Richiedi una valutazione precisa",
+      whatsappMessage:
+        "Ciao! Ho usato il calcolatore canone garantito Coabito. Immobile: {zone}, {rooms} stanze, {mq} mq, stato {condition}. Stima indicativa: {amount}€/mese (range {low}–{high}€). Vorrei una valutazione precisa.",
+    },
+    howItWorksDemo: {
+      eyebrow: "Come funziona",
+      titleLine1: "Non te lo raccontiamo.",
+      titleLine2: "Te lo facciamo vedere.",
+      toggleAria: "Scegli il tuo punto di vista",
+      toggleStudent: "Sono studente",
+      toggleOwner: "Sono proprietario",
+      stepsAria: "Passaggi",
+      exampleBadge: "Esempio",
+      ctaStudent: "Inizia a chattare con Vesta",
+      ctaOwner: "Proponi il tuo immobile",
+      student: {
+        steps: [
+          {
+            title: "Parli con Vesta",
+            subtitle: "Facoltà, budget, orari di studio",
+          },
+          {
+            title: "Vedi il costo reale, non solo l'affitto",
+            subtitle: "Canone + utenze + cauzione, tutto insieme",
+          },
+          {
+            title: "Scopri con chi vivresti",
+            subtitle: "Coinquilini con abitudini simili alle tue",
+          },
+          {
+            title: "Il tuo pagamento resta al sicuro",
+            subtitle: "Sbloccato solo dopo la conferma del trasloco",
+          },
+        ],
+        proofs: [
+          {
+            badge: "Zero commissioni",
+            title: "Gratis per gli studenti",
+            body: "Nessuna commissione di ricerca, mai — a differenza dei portali tradizionali.",
+            accent: "coral" as const,
+          },
+          {
+            badge: "✓ Studente verificato",
+            title: "Sai sempre con chi parli",
+            body: "Badge assegnato solo dopo verifica reale dell'iscrizione universitaria.",
+            accent: "teal" as const,
+          },
+        ],
+        screens: {
+          chat: {
+            bot1: "Che facoltà frequenti, e quanto puoi spendere al mese?",
+            me: "Ingegneria, secondo anno. Max 420€",
+            bot2: "Perfetto, iniziamo a cercare 🔥",
+          },
+          cost: {
+            title: "Singola · Torrette",
+            match: "92%",
+            rent: "Canone: 320€",
+            utilities: "Utenze: 40€",
+            deposit: "Cauzione: 640€ (una tantum)",
+            total: "Totale mensile: 360€",
+            note: "nessun costo nascosto dopo",
+          },
+          roommates: {
+            title: "I tuoi coinquilini",
+            people: [
+              { initials: "GM", tag: "Studia molto" },
+              { initials: "LR", tag: "Casa tranquilla" },
+              { initials: "+1", tag: "Orari simili" },
+            ],
+          },
+          escrow: {
+            rows: [
+              { label: "Pagamento versato — al sicuro con Coabito", done: true },
+              { label: "In attesa di conferma trasloco", done: false },
+              { label: "Rilascio al proprietario dopo tua conferma", done: false },
+            ],
+          },
+        },
+      },
+      owner: {
+        steps: [
+          {
+            title: "Racconti il tuo immobile a Vesta",
+            subtitle: "Niente form lunghi da compilare",
+          },
+          {
+            title: "Ricevi candidati già verificati",
+            subtitle: "Iscrizione universitaria confermata",
+          },
+          {
+            title: "Il canone arriva puntuale",
+            subtitle: "Ogni mese, senza rincorrere nessuno",
+          },
+          {
+            title: "E se qualcosa va storto?",
+            subtitle: "La domanda che nessun altro risponde davvero",
+          },
+        ],
+        proofs: [
+          {
+            badge: "✓ Canone garantito",
+            title: "Zero sorprese, ogni mese",
+            body: "Su alcuni immobili, il canone è garantito direttamente da Coabito — anche a stanza vuota.",
+            accent: "teal" as const,
+          },
+          {
+            badge: "Un solo interlocutore",
+            title: "Non decine di studenti separati",
+            body: "Un unico contratto, una sola persona di riferimento per qualsiasi cosa.",
+            accent: "coral" as const,
+          },
+        ],
+        screens: {
+          chat: {
+            bot1: "Quante stanze ha l'immobile, e in che zona?",
+            me: "3 stanze, Torrette, vicino Medicina",
+            bot2: "Annuncio pronto — lo rivedi tu prima di pubblicarlo",
+          },
+          applicants: {
+            rows: [
+              {
+                initials: "GM",
+                name: "Giulia M.",
+                badge: "✓ Studentessa verificata",
+                score: "91%",
+              },
+              {
+                initials: "LR",
+                name: "Luca R.",
+                badge: "✓ Studente verificato",
+                score: "84%",
+              },
+            ],
+          },
+          payout: {
+            label: "Prossimo pagamento",
+            amount: "637€",
+            sub: "15 settembre · Immobile occupato · Nessuna azione richiesta",
+          },
+          whatIf: {
+            question: "Se lo studente non paga?",
+            answer:
+              "Sulle proprietà a canone garantito, il rischio è nostro: tu ricevi comunque il canone.",
+          },
+        },
+      },
+    },
     founderNote: {
       quote:
         "Anche io ho cercato casa ad Ancona da studente, senza sapere nulla delle persone con cui avrei convissuto. Coabito è il servizio che avrei voluto avere io, il primo anno.",
@@ -103,43 +272,68 @@ export const translations = {
     },
     faq: {
       eyebrow: "Domande frequenti",
-      title: "I dubbi più comuni, risolti subito",
+      title: "Le domande che ci fate davvero",
       seeAll: "Tutte le FAQ per studenti",
-      items: [
+      toggleStudent: "Sono studente",
+      toggleOwner: "Sono proprietario",
+      toggleAria: "Scegli se vedere le FAQ per studenti o proprietari",
+      studentItems: [
         {
-          question: "È davvero gratis per gli studenti?",
-          answer:
-            "Sì. Chattare con Vesta e vedere le stanze proposte è sempre gratuito, nessuna carta di credito richiesta. Paghi solo il canone della stanza che scegli, come faresti comunque affittando da chiunque altro.",
+          question: "Quanto costa usare Coabito?",
+          answer: "Niente. Zero commissioni di ricerca per gli studenti, sempre.",
         },
         {
-          question: "Come guadagna Coabito?",
+          question: "I miei soldi sono al sicuro?",
           answer:
-            "Siamo un marketplace: il contratto di locazione resta diretto tra studente e proprietario. Guadagniamo da servizi a valore aggiunto (verifica, escrow, garanzie opzionali, supporti al trasloco e partnership), non entrando come parte del contratto.",
+            "Sì. Il pagamento resta bloccato con Coabito finché non confermi tu stesso che il trasloco è andato come previsto — non viene rilasciato al proprietario prima.",
+          worry: true,
         },
         {
-          question: "Devo pagare qualcosa prima di trovare la stanza giusta?",
+          question: "Posso scegliere con chi vivere?",
           answer:
-            "No, mai. Non c'è nessun costo di iscrizione o di ricerca: paghi solo quando decidi davvero di prendere una stanza specifica.",
+            "Vesta ti propone stanze dove i coinquilini hanno abitudini simili alle tue (orari, pulizia, vita sociale) — vedi sempre perché prima di candidarti.",
+          worry: true,
         },
         {
-          question: "Chi si occupa del contratto?",
+          question: "Quando arrivano le prime stanze?",
           answer:
-            "Il contratto di locazione lo firmi direttamente con il proprietario. Coabito facilita matching e contatto, e può offrire strumenti di fiducia (verifica, escrow, mediazione) senza essere parte del contratto.",
+            "Le prime disponibilità arrivano a settembre 2026. Iscriviti alla lista d'attesa per essere avvisato.",
         },
         {
-          question: "Come funziona il punteggio di compatibilità?",
+          question: "Cosa succede se non trovo posto?",
           answer:
-            'Vesta confronta budget, orari di studio, abitudini di convivenza e vicinanza al tuo polo universitario — non solo prezzo e metri quadri. Puoi vedere un esempio vero nella pagina "Come funziona".',
+            "Resti in lista d'attesa e continui a ricevere proposte compatibili man mano che nuove stanze si aggiungono — nessun impegno, nessuna scadenza.",
+          worry: true,
+        },
+      ],
+      ownerItems: [
+        {
+          question: "E se lo studente non paga?",
+          answer:
+            "Sulle proprietà a canone garantito, il rischio è nostro: tu ricevi comunque il canone concordato, ogni mese.",
+          worry: true,
         },
         {
-          question: "I miei dati sono al sicuro?",
+          question: "E se lascia danni all'immobile?",
           answer:
-            "Sì, trattiamo i tuoi dati secondo il GDPR. Puoi leggere tutti i dettagli nella nostra Privacy Policy, e puoi eliminare il tuo account in qualsiasi momento, direttamente dalla tua area personale.",
+            "La cauzione versata dallo studente resta a garanzia. Per i casi sul marketplace indipendente, valutiamo insieme l'attivazione di una garanzia aggiuntiva opzionale.",
+          worry: true,
         },
         {
-          question: "Sono un proprietario: devo pagare per proporre il mio immobile?",
+          question: "Posso rifiutare un candidato?",
           answer:
-            "No, proporre il tuo immobile è gratuito. Ti mostriamo studenti compatibili (e, appena disponibili, verificati): tu decidi con chi firmare direttamente. Servizi opzionali come garanzia contro inadempimento o escrow arriveranno a pagamento, senza farci entrare nel contratto.",
+            "Sulle proprietà a canone garantito, selezioniamo noi. Su quelle indipendenti, decidi sempre tu chi accettare tra i candidati verificati.",
+        },
+        {
+          question: "Quanto mi costa?",
+          answer:
+            "Nulla per pubblicare. Coabito si remunera sulla gestione, non su commissioni a tuo carico.",
+        },
+        {
+          question: "Posso interrompere l'accordo?",
+          answer:
+            "Sì, le condizioni di recesso sono definite chiaramente nel contratto, concordate prima della firma e valide per entrambe le parti.",
+          worry: true,
         },
       ],
     },
@@ -468,6 +662,70 @@ export const translations = {
       shareAria: "Condividi questa stanza",
       shareCopied: "Link copiato",
       filterGuaranteed: "Solo canone garantito Coabito",
+    },
+    listingsFilters: {
+      title: "Filtri",
+      reset: "Azzera",
+      hide: "Nascondi filtri",
+      show: "Mostra filtri",
+      collapseAria: "Nascondi pannello filtri",
+      closeOverlayAria: "Chiudi filtri",
+      resultCount: "{n} stanze trovate",
+      resultCountOne: "1 stanza trovata",
+      headCount: "{n} risultati",
+      headCountOne: "1 risultato",
+      emptyTitle: "Nessuna stanza con questi filtri",
+      emptyBody:
+        "Prova ad allargare la ricerca: alza il budget, togli qualche caratteristica o azzera i filtri.",
+      emptyCta: "Azzera filtri",
+      pageTitle: "Stanze ad Ancona",
+      budget: "Budget mensile",
+      zone: "Zona",
+      roomType: "Tipo di stanza",
+      size: "Superficie stanza (mq)",
+      availability: "Data disponibilità",
+      contract: "Durata minima contratto",
+      flatmates: "Coinquilini in casa",
+      heating: "Riscaldamento",
+      features: "Caratteristiche",
+      rules: "Regole della casa",
+      trust: "Fiducia",
+      all: "Tutte",
+      any: "Qualsiasi",
+      zoneTorrette: "Torrette",
+      zoneCentro: "Centro",
+      zonePalombina: "Palombina",
+      zoneTavernelle: "Tavernelle",
+      typeSingola: "Singola",
+      typeDoppia: "Doppia",
+      typeDus: "Doppia uso singola",
+      sizeS: "Fino a 12",
+      sizeM: "12-18",
+      sizeL: "18+",
+      availNow: "Da subito",
+      availSept: "Da settembre",
+      months6: "6 mesi",
+      months12: "12 mesi",
+      flatmates3plus: "3+",
+      heatAutonomous: "Autonomo",
+      heatCentral: "Centralizzato",
+      featBathroom: "Bagno privato",
+      featFurnished: "Arredata",
+      featWasher: "Lavatrice",
+      featWifi: "Wifi incluso",
+      featBalcony: "Balcone",
+      featElevator: "Ascensore",
+      featAc: "Aria condizionata",
+      featBills: "Spese incluse",
+      rulePets: "Animali ammessi",
+      ruleSmoking: "Fumatori ammessi",
+      trustGuaranteed: "Solo canone garantito Coabito",
+      trustVerified: "Solo proprietari verificati",
+      sortLabel: "Ordina",
+      sortRecommended: "Consigliati",
+      sortPriceAsc: "Prezzo crescente",
+      sortPriceDesc: "Prezzo decrescente",
+      sortNewest: "Più recenti",
     },
     listingsCompare: {
       selectAria: "Seleziona per confrontare",
@@ -867,6 +1125,175 @@ export const translations = {
         },
       ],
     },
+    ownerCalculator: {
+      eyebrow: "For property owners",
+      title: "How much could you receive with guaranteed rent?",
+      subtitle:
+        "An indicative estimate based on area and size of your property — not a binding offer.",
+      zoneLabel: "Area",
+      zoneTorrette: "Torrette",
+      zoneCentro: "Centro",
+      zonePalombina: "Palombina",
+      roomsLabel: "Number of rooms",
+      sizeLabel: "Total size (sqm)",
+      mqUnit: "sqm",
+      conditionLabel: "Property condition",
+      conditionGood: "Good",
+      conditionRefresh: "Needs refresh",
+      conditionRenovated: "Renovated",
+      resultLabel: "Estimated guaranteed rent",
+      perMonth: "/month",
+      rangeLabel: "Indicative range: €{low} - €{high}",
+      disclaimer:
+        "This is an estimate based on average area prices, not a binding offer. The real rent is agreed together during a site visit.",
+      cta: "Request a precise valuation",
+      whatsappMessage:
+        "Hi! I used the Coabito guaranteed-rent calculator. Property: {zone}, {rooms} rooms, {mq} sqm, condition {condition}. Indicative estimate: €{amount}/month (range €{low}–{high}). I'd like a precise valuation.",
+    },
+    howItWorksDemo: {
+      eyebrow: "How it works",
+      titleLine1: "We won't just tell you.",
+      titleLine2: "We'll show you.",
+      toggleAria: "Choose your point of view",
+      toggleStudent: "I'm a student",
+      toggleOwner: "I'm a landlord",
+      stepsAria: "Steps",
+      exampleBadge: "Example",
+      ctaStudent: "Start chatting with Vesta",
+      ctaOwner: "List your property",
+      student: {
+        steps: [
+          {
+            title: "You chat with Vesta",
+            subtitle: "Course, budget, study hours",
+          },
+          {
+            title: "See the real cost, not just rent",
+            subtitle: "Rent + utilities + deposit, together",
+          },
+          {
+            title: "Meet who you'd live with",
+            subtitle: "Roommates with habits like yours",
+          },
+          {
+            title: "Your payment stays safe",
+            subtitle: "Released only after you confirm move-in",
+          },
+        ],
+        proofs: [
+          {
+            badge: "Zero fees",
+            title: "Free for students",
+            body: "No search commission, ever — unlike traditional portals.",
+            accent: "coral" as const,
+          },
+          {
+            badge: "✓ Verified student",
+            title: "You always know who you're talking to",
+            body: "Badge granted only after real university enrolment verification.",
+            accent: "teal" as const,
+          },
+        ],
+        screens: {
+          chat: {
+            bot1: "What are you studying, and what's your monthly budget?",
+            me: "Engineering, second year. Max €420",
+            bot2: "Perfect — let's start looking 🔥",
+          },
+          cost: {
+            title: "Single · Torrette",
+            match: "92%",
+            rent: "Rent: €320",
+            utilities: "Utilities: €40",
+            deposit: "Deposit: €640 (one-off)",
+            total: "Monthly total: €360",
+            note: "no hidden costs later",
+          },
+          roommates: {
+            title: "Your roommates",
+            people: [
+              { initials: "GM", tag: "Studies a lot" },
+              { initials: "LR", tag: "Quiet home" },
+              { initials: "+1", tag: "Similar hours" },
+            ],
+          },
+          escrow: {
+            rows: [
+              { label: "Payment made — held safely with Coabito", done: true },
+              { label: "Waiting for move-in confirmation", done: false },
+              { label: "Released to landlord after you confirm", done: false },
+            ],
+          },
+        },
+      },
+      owner: {
+        steps: [
+          {
+            title: "You tell Vesta about your property",
+            subtitle: "No long forms to fill in",
+          },
+          {
+            title: "Get pre-verified applicants",
+            subtitle: "University enrolment confirmed",
+          },
+          {
+            title: "Rent arrives on time",
+            subtitle: "Every month, no chasing anyone",
+          },
+          {
+            title: "What if something goes wrong?",
+            subtitle: "The question no one else answers honestly",
+          },
+        ],
+        proofs: [
+          {
+            badge: "✓ Guaranteed rent",
+            title: "No surprises, every month",
+            body: "On selected properties, Coabito guarantees the rent — even if the room is empty.",
+            accent: "teal" as const,
+          },
+          {
+            badge: "One contact",
+            title: "Not dozens of separate students",
+            body: "One contract, one person to talk to for anything.",
+            accent: "coral" as const,
+          },
+        ],
+        screens: {
+          chat: {
+            bot1: "How many rooms, and which area?",
+            me: "3 rooms, Torrette, near Medicine",
+            bot2: "Listing ready — you review it before it goes live",
+          },
+          applicants: {
+            rows: [
+              {
+                initials: "GM",
+                name: "Giulia M.",
+                badge: "✓ Verified student",
+                score: "91%",
+              },
+              {
+                initials: "LR",
+                name: "Luca R.",
+                badge: "✓ Verified student",
+                score: "84%",
+              },
+            ],
+          },
+          payout: {
+            label: "Next payout",
+            amount: "€637",
+            sub: "15 September · Occupied · No action needed",
+          },
+          whatIf: {
+            question: "What if the student doesn't pay?",
+            answer:
+              "On guaranteed-rent properties, the risk is ours: you still receive the rent.",
+          },
+        },
+      },
+    },
     founderNote: {
       quote:
         "I also searched for a room in Ancona as a student, without knowing anything about the people I'd end up living with. Coabito is the service I wish I'd had, my first year.",
@@ -874,43 +1301,68 @@ export const translations = {
     },
     faq: {
       eyebrow: "Frequently asked questions",
-      title: "The most common doubts, answered right away",
+      title: "The questions you really ask us",
       seeAll: "All student FAQs",
-      items: [
+      toggleStudent: "I'm a student",
+      toggleOwner: "I'm an owner",
+      toggleAria: "Choose student or owner FAQs",
+      studentItems: [
         {
-          question: "Is it really free for students?",
-          answer:
-            "Yes. Chatting with Vesta and seeing the suggested rooms is always free, no credit card required. You only pay the rent for the room you choose, just like renting from anyone else.",
+          question: "How much does Coabito cost?",
+          answer: "Nothing. Zero search fees for students, always.",
         },
         {
-          question: "How does Coabito make money?",
+          question: "Is my money safe?",
           answer:
-            "We're a marketplace: the lease stays direct between student and owner. We earn from value-added services (verification, escrow, optional guarantees, move-in support and partnerships), without becoming a party to the contract.",
+            "Yes. Payment stays held with Coabito until you confirm the move-in went as expected — it isn't released to the landlord before that.",
+          worry: true,
         },
         {
-          question: "Do I have to pay anything before finding the right room?",
+          question: "Can I choose who I live with?",
           answer:
-            "No, never. There's no sign-up or search fee: you only pay once you actually decide to take a specific room.",
+            "Vesta suggests rooms where flatmates have habits similar to yours (hours, cleanliness, social life) — you always see why before you apply.",
+          worry: true,
         },
         {
-          question: "Who handles the contract?",
+          question: "When do the first rooms arrive?",
           answer:
-            "You sign the lease directly with the property owner. Coabito facilitates matching and contact, and may offer trust tools (verification, escrow, mediation) without being a party to the contract.",
+            "The first availability arrives in September 2026. Join the waitlist to be notified.",
         },
         {
-          question: "How does the compatibility score work?",
+          question: "What if I don't find a place?",
           answer:
-            'Vesta compares budget, study hours, living habits and distance from your university campus — not just price and square meters. You can see a real example on the "How it works" page.',
+            "You stay on the waitlist and keep receiving compatible suggestions as new rooms are added — no commitment, no deadline.",
+          worry: true,
+        },
+      ],
+      ownerItems: [
+        {
+          question: "What if the student doesn't pay?",
+          answer:
+            "On guaranteed-rent properties, the risk is ours: you still receive the agreed rent, every month.",
+          worry: true,
         },
         {
-          question: "Is my data safe?",
+          question: "What if they damage the property?",
           answer:
-            "Yes, we handle your data according to GDPR. You can read all the details in our Privacy Policy, and you can delete your account at any time, directly from your personal area.",
+            "The student's deposit stays as security. For independent marketplace listings, we can discuss activating an optional extra guarantee together.",
+          worry: true,
         },
         {
-          question: "I'm a property owner: do I have to pay to list my property?",
+          question: "Can I reject a candidate?",
           answer:
-            "No, listing your property is free. We show you compatible students (and, as soon as available, verified ones): you decide who to sign with directly. Optional services like non-payment cover or escrow will be paid add-ons — without us entering the lease.",
+            "On guaranteed-rent properties, we select. On independent ones, you always decide who to accept among verified candidates.",
+        },
+        {
+          question: "How much does it cost me?",
+          answer:
+            "Nothing to publish. Coabito is paid through management, not fees charged to you.",
+        },
+        {
+          question: "Can I end the agreement?",
+          answer:
+            "Yes — exit terms are clearly defined in the contract, agreed before signing, and apply to both parties.",
+          worry: true,
         },
       ],
     },
@@ -1239,6 +1691,70 @@ export const translations = {
       shareAria: "Share this room",
       shareCopied: "Link copied",
       filterGuaranteed: "Coabito guaranteed rent only",
+    },
+    listingsFilters: {
+      title: "Filters",
+      reset: "Reset",
+      hide: "Hide filters",
+      show: "Show filters",
+      collapseAria: "Hide filters panel",
+      closeOverlayAria: "Close filters",
+      resultCount: "{n} rooms found",
+      resultCountOne: "1 room found",
+      headCount: "{n} results",
+      headCountOne: "1 result",
+      emptyTitle: "No rooms match these filters",
+      emptyBody:
+        "Try widening your search: raise the budget, remove a feature, or reset the filters.",
+      emptyCta: "Reset filters",
+      pageTitle: "Rooms in Ancona",
+      budget: "Monthly budget",
+      zone: "Area",
+      roomType: "Room type",
+      size: "Room size (sqm)",
+      availability: "Availability",
+      contract: "Minimum contract length",
+      flatmates: "Flatmates in the home",
+      heating: "Heating",
+      features: "Features",
+      rules: "House rules",
+      trust: "Trust",
+      all: "All",
+      any: "Any",
+      zoneTorrette: "Torrette",
+      zoneCentro: "Centro",
+      zonePalombina: "Palombina",
+      zoneTavernelle: "Tavernelle",
+      typeSingola: "Single",
+      typeDoppia: "Double",
+      typeDus: "Double used as single",
+      sizeS: "Up to 12",
+      sizeM: "12-18",
+      sizeL: "18+",
+      availNow: "Immediate",
+      availSept: "From September",
+      months6: "6 months",
+      months12: "12 months",
+      flatmates3plus: "3+",
+      heatAutonomous: "Independent",
+      heatCentral: "Central",
+      featBathroom: "Private bathroom",
+      featFurnished: "Furnished",
+      featWasher: "Washing machine",
+      featWifi: "Wifi included",
+      featBalcony: "Balcony",
+      featElevator: "Lift",
+      featAc: "Air conditioning",
+      featBills: "Bills included",
+      rulePets: "Pets allowed",
+      ruleSmoking: "Smoking allowed",
+      trustGuaranteed: "Coabito guaranteed rent only",
+      trustVerified: "Verified landlords only",
+      sortLabel: "Sort",
+      sortRecommended: "Recommended",
+      sortPriceAsc: "Price: low to high",
+      sortPriceDesc: "Price: high to low",
+      sortNewest: "Newest",
     },
     listingsCompare: {
       selectAria: "Select to compare",

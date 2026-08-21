@@ -19,9 +19,10 @@ export function organizationJsonLd() {
   };
 }
 
-/** FAQPage da copy italiano homepage. */
+/** FAQPage da copy italiano homepage (studenti + proprietari). */
 export function faqPageJsonLd() {
-  const items = translations.it.faq.items;
+  const faq = translations.it.faq;
+  const items = [...faq.studentItems, ...faq.ownerItems];
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",

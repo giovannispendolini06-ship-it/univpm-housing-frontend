@@ -1,5 +1,5 @@
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
-import type { Listing } from "@/lib/domain/types";
+import type { HeatingType, Listing, RoomType } from "@/lib/domain/types";
 
 const PLACEHOLDER_PHOTO =
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop";
@@ -12,11 +12,10 @@ export type ListingFilters = {
   guaranteedRentOnly?: boolean;
   privateBathroom?: boolean;
   availableFromBefore?: string; // ISO date — room available_from <= date or null
-  sort?: "price_asc" | "price_desc" | "newest";
+  sort?: "price_asc" | "price_desc" | "newest" | "recommended";
 };
 
 type Db = ReturnType<typeof createServiceSupabaseClient>;
-
 
 /** Map common service strings → short atmosphere tags for compare/cards. */
 const SERVICE_TAG_HINTS: { match: RegExp; tag: string }[] = [
@@ -67,24 +66,126 @@ function asProperty(raw: unknown): {
   is_furnished: boolean | null;
   owner_id: string;
   guaranteed_rent: boolean | null;
+  has_elevator: boolean | null;
+  total_rooms: number | null;
+  heating_type: string | null;
+  min_contract_months: number | null;
+  pets_allowed: boolean | null;
+  smoking_allowed: boolean | null;
 } {
   const p = Array.isArray(raw) ? raw[0] : raw;
   return p as ReturnType<typeof asProperty>;
+}
+
+function parseRoomType(
+  explicit: string | null | undefined,
+  contractType: string | null,
+  label: string,
+): RoomType | null {
+  if (explicit === "singola" || explicit === "doppia" || explicit === "dus") {
+    return explicit;
+  }
+  const l = label.toLowerCase();
+  if (/uso\s*singola|\bdus\b|doppia\s+uso/.test(l)) return "dus";
+  if (/doppia|double|shared/.test(l)) return "doppia";
+  if (/singola|single/.test(l)) return "singola";
+  if (contractType === "stanza_singola") return "singola";
+  if (contractType === "stanza_doppia") return "doppia";
+  return null;
+}
+
+function parseHeatingType(
+  explicit: string | null | undefined,
+  amenities: string[],
+): HeatingType | null {
+  if (explicit === "autonomo" || explicit === "centralizzato") return explicit;
+  const joined = amenities.join(" ").toLowerCase();
+  if (/centralizz/.test(joined)) return "centralizzato";
+  if (/autonom/.test(joined)) return "autonomo";
+  return null;
+}
+
+function amenityHas(amenities: string[], pattern: RegExp): boolean {
+  return amenities.some((a) => pattern.test(a));
+}
+
+export function listingHasFeature(
+  listing: Listing,
+  feature: string,
+): boolean {
+  const amenities = listing.amenities ?? [];
+  switch (feature) {
+    case "bagno":
+      return listing.privateBathroom === true;
+    case "arredata":
+      return listing.furnished === true;
+    case "lavatrice":
+      return amenityHas(amenities, /lavatrice|washer|washing/i);
+    case "wifi":
+      return amenityHas(amenities, /wifi|wi-?fi|internet/i);
+    case "balcone":
+      return (
+        listing.hasBalcony === true ||
+        amenityHas(amenities, /balcone|terraz|balcony/i)
+      );
+    case "ascensore":
+      return listing.hasElevator === true;
+    case "aria":
+      return amenityHas(amenities, /aria.?condizionata|a\/?c|climatizz/i);
+    case "spese":
+      return listing.utilitiesEstimate === 0;
+    case "animali":
+      return listing.petsAllowed === true;
+    case "fumatori":
+      return listing.smokingAllowed === true;
+    case "garantito":
+      return listing.guaranteedRent === true;
+    case "verificato":
+      return listing.landlordVerified === true;
+    default:
+      return false;
+  }
+}
+
+export function sizeBand(sizeSqm: number | null | undefined): "s" | "m" | "l" | null {
+  if (sizeSqm == null || !Number.isFinite(sizeSqm)) return null;
+  if (sizeSqm <= 12) return "s";
+  if (sizeSqm < 18) return "m";
+  return "l";
+}
+
+export function availabilityBand(
+  availableFrom: string | null | undefined,
+): "subito" | "settembre" | "other" | null {
+  if (!availableFrom) return "subito";
+  const d = new Date(availableFrom);
+  if (Number.isNaN(d.getTime())) return null;
+  const now = new Date();
+  const inTwoWeeks = new Date(now);
+  inTwoWeeks.setDate(inTwoWeeks.getDate() + 14);
+  if (d <= inTwoWeeks) return "subito";
+  if (d.getMonth() === 8) return "settembre"; // September = month index 8
+  // Also treat late Aug / early Oct as "da settembre" for academic year
+  if (d.getMonth() === 7 && d.getDate() >= 20) return "settembre";
+  if (d.getMonth() === 9 && d.getDate() <= 10) return "settembre";
+  return "other";
 }
 
 export async function fetchPublicListings(
   db: Db,
   filters: ListingFilters = {},
 ): Promise<Listing[]> {
-  let query = db
-    .from("rooms")
-    .select(
-      `
+  // Select may fail if new filter columns are not migrated yet — retry without them.
+  const baseSelect = `
       id,
       room_label,
       price_monthly,
       estimated_utilities,
       has_private_bathroom,
+      has_balcony,
+      size_sqm,
+      max_occupants,
+      room_type,
       services_included,
       available_from,
       is_available,
@@ -98,42 +199,91 @@ export async function fetchPublicListings(
         deposit_amount,
         is_furnished,
         owner_id,
-        guaranteed_rent
+        guaranteed_rent,
+        has_elevator,
+        total_rooms,
+        heating_type,
+        min_contract_months,
+        pets_allowed,
+        smoking_allowed
       )
-    `,
-    )
-    .eq("is_available", true)
-    .eq("properties.status", "attivo")
-    .limit(48);
+    `;
 
-  if (filters.sort === "price_desc") {
-    query = query.order("price_monthly", { ascending: false });
-  } else if (filters.sort === "newest") {
-    query = query.order("created_at", { ascending: false });
-  } else {
-    query = query.order("price_monthly", { ascending: true });
+  const legacySelect = `
+      id,
+      room_label,
+      price_monthly,
+      estimated_utilities,
+      has_private_bathroom,
+      has_balcony,
+      size_sqm,
+      max_occupants,
+      services_included,
+      available_from,
+      is_available,
+      created_at,
+      properties:property_id!inner (
+        id,
+        zone,
+        city,
+        status,
+        contract_type,
+        deposit_amount,
+        is_furnished,
+        owner_id,
+        guaranteed_rent,
+        has_elevator,
+        total_rooms
+      )
+    `;
+
+  async function runQuery(select: string) {
+    let query = db
+      .from("rooms")
+      .select(select)
+      .eq("is_available", true)
+      .eq("properties.status", "attivo")
+      .limit(48);
+
+    if (filters.sort === "price_desc") {
+      query = query.order("price_monthly", { ascending: false });
+    } else if (filters.sort === "newest") {
+      query = query.order("created_at", { ascending: false });
+    } else {
+      query = query.order("price_monthly", { ascending: true });
+    }
+
+    if (typeof filters.maxPrice === "number" && Number.isFinite(filters.maxPrice)) {
+      query = query.lte("price_monthly", filters.maxPrice);
+    }
+    if (typeof filters.minPrice === "number" && Number.isFinite(filters.minPrice)) {
+      query = query.gte("price_monthly", filters.minPrice);
+    }
+    if (filters.privateBathroom) {
+      query = query.eq("has_private_bathroom", true);
+    }
+    if (filters.guaranteedRentOnly) {
+      query = query.eq("properties.guaranteed_rent", true);
+    }
+
+    return query;
   }
 
-  if (typeof filters.maxPrice === "number" && Number.isFinite(filters.maxPrice)) {
-    query = query.lte("price_monthly", filters.maxPrice);
-  }
-  if (typeof filters.minPrice === "number" && Number.isFinite(filters.minPrice)) {
-    query = query.gte("price_monthly", filters.minPrice);
-  }
-  if (filters.privateBathroom) {
-    query = query.eq("has_private_bathroom", true);
-  }
-  if (filters.guaranteedRentOnly) {
-    query = query.eq("properties.guaranteed_rent", true);
+  let { data, error } = await runQuery(baseSelect);
+  if (error) {
+    console.warn(
+      "[data/listings] rich-filter columns unavailable, falling back:",
+      error.message,
+    );
+    ({ data, error } = await runQuery(legacySelect));
   }
 
-  const { data, error } = await query;
   if (error) {
     console.error("[data/listings]", error.message);
     throw new Error("Impossibile caricare le stanze. Riprova tra poco.");
   }
 
-  const rows = data ?? [];
+  const rows = (data ?? []) as unknown as Record<string, unknown>[];
   const propertyIds = Array.from(
     new Set(rows.map((r) => asProperty(r.properties).id).filter(Boolean)),
   );
@@ -171,10 +321,19 @@ export async function fetchPublicListings(
     const property = asProperty(row.properties);
     const photos = photosByProperty.get(property.id) ?? [];
     const hasRealPhoto = photos.length > 0;
+    const amenities = Array.isArray(row.services_included)
+      ? (row.services_included as string[])
+      : [];
+    const label = String(row.room_label ?? "Stanza");
+    const totalRooms =
+      typeof property.total_rooms === "number" ? property.total_rooms : null;
+    const flatmatesCount =
+      totalRooms != null && totalRooms >= 1 ? Math.max(0, totalRooms - 1) : null;
+
     return {
       id: String(row.id),
       propertyId: property.id,
-      title: String(row.room_label ?? "Stanza"),
+      title: label,
       cityLabel: property.city?.trim() || "Ancona",
       neighbourhood: property.zone,
       monthlyRent: Number(row.price_monthly) || 0,
@@ -182,21 +341,45 @@ export async function fetchPublicListings(
       deposit: property.deposit_amount,
       contractType: property.contract_type,
       availableFrom: row.available_from ? String(row.available_from) : null,
-      roomTypeLabel: String(row.room_label ?? "Stanza"),
+      roomTypeLabel: label,
       furnished: property.is_furnished,
       privateBathroom: Boolean(row.has_private_bathroom),
-      amenities: Array.isArray(row.services_included)
-        ? (row.services_included as string[])
-        : [],
+      amenities,
       photoUrls: hasRealPhoto ? photos : [PLACEHOLDER_PHOTO],
       hasRealPhoto,
       landlordVerified: verifiedOwners.has(property.owner_id),
       guaranteedRent: property.guaranteed_rent === true,
       propertyStatus: property.status,
+      sizeSqm:
+        row.size_sqm != null && Number.isFinite(Number(row.size_sqm))
+          ? Number(row.size_sqm)
+          : null,
+      hasBalcony: Boolean(row.has_balcony),
+      maxOccupants:
+        row.max_occupants != null ? Number(row.max_occupants) : null,
+      hasElevator: property.has_elevator === true,
+      flatmatesCount,
+      roomType: parseRoomType(
+        row.room_type as string | null | undefined,
+        property.contract_type,
+        label,
+      ),
+      heatingType: parseHeatingType(property.heating_type, amenities),
+      minContractMonths:
+        typeof property.min_contract_months === "number"
+          ? property.min_contract_months
+          : null,
+      petsAllowed:
+        typeof property.pets_allowed === "boolean"
+          ? property.pets_allowed
+          : null,
+      smokingAllowed:
+        typeof property.smoking_allowed === "boolean"
+          ? property.smoking_allowed
+          : null,
+      createdAt: row.created_at ? String(row.created_at) : null,
       atmosphereTags: deriveAtmosphereTags({
-        amenities: Array.isArray(row.services_included)
-          ? (row.services_included as string[])
-          : [],
+        amenities,
         privateBathroom: Boolean(row.has_private_bathroom),
         furnished: property.is_furnished,
       }),

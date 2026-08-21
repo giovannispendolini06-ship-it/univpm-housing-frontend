@@ -3,46 +3,73 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLocale } from "@/lib/i18n/LocaleContext";
+import AudienceToggle, { type Audience } from "./AudienceToggle";
+import styles from "./FaqSection.module.css";
+
+type FaqItem = {
+  question: string;
+  answer: string;
+  worry?: boolean;
+};
 
 export default function FaqSection() {
   const { t } = useLocale();
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [audience, setAudience] = useState<Audience>("student");
+  const [openIndex, setOpenIndex] = useState(0);
+
+  const items: readonly FaqItem[] =
+    audience === "student" ? t.faq.studentItems : t.faq.ownerItems;
+
+  function handleAudience(next: Audience) {
+    setAudience(next);
+    setOpenIndex(0);
+  }
 
   function toggle(index: number) {
-    setOpenIndex(openIndex === index ? null : index);
+    setOpenIndex((prev) => (prev === index ? -1 : index));
   }
 
   return (
-    <section className="bg-white">
-      <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
-        <span className="text-xs font-semibold uppercase tracking-wide text-sea-600">
-          {t.faq.eyebrow}
-        </span>
-        <h2 className="mt-2 font-display text-2xl font-bold text-ink sm:text-3xl">
-          {t.faq.title}
-        </h2>
+    <section className="bg-bg" id="faq">
+      <div className="mx-auto max-w-[760px] px-4 py-14 sm:px-6 sm:py-20">
+        <div className="mb-7 text-center">
+          <p className="mb-3 text-[12.5px] font-bold uppercase tracking-[1.3px] text-sunset-500">
+            {t.faq.eyebrow}
+          </p>
+          <h2 className="mb-5 font-display text-[1.75rem] font-semibold text-ink sm:text-[28px]">
+            {t.faq.title}
+          </h2>
+          <AudienceToggle value={audience} onChange={handleAudience} />
+        </div>
 
-        <div className="mt-8 divide-y divide-sea-100 rounded-xl2 bg-surface shadow-card">
-          {t.faq.items.map((faq, index) => {
+        <div className="flex flex-col gap-2.5" key={audience}>
+          {items.map((faq, index) => {
             const isOpen = openIndex === index;
-            const panelId = `home-faq-panel-${index}`;
-            const buttonId = `home-faq-button-${index}`;
+            const panelId = `home-faq-panel-${audience}-${index}`;
+            const buttonId = `home-faq-button-${audience}-${index}`;
             return (
-              <div key={faq.question}>
+              <div
+                key={faq.question}
+                className="overflow-hidden rounded-2xl bg-white shadow-[0_6px_20px_rgba(15,62,57,0.06)]"
+              >
                 <button
                   id={buttonId}
                   type="button"
                   onClick={() => toggle(index)}
-                  className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea-600"
+                  className="flex w-full items-center justify-between gap-4 px-5 py-[18px] text-left sm:px-[22px]"
                   aria-expanded={isOpen}
                   aria-controls={panelId}
                 >
-                  <span className="font-display text-sm font-bold text-ink sm:text-base">
+                  <span
+                    className={`text-[14.5px] font-bold leading-snug ${
+                      faq.worry ? "text-sunset-500" : "text-ink"
+                    }`}
+                  >
                     {faq.question}
                   </span>
                   <span
-                    className={`shrink-0 text-xl text-sea-600 transition-transform duration-200 ${
-                      isOpen ? "rotate-45" : ""
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm text-sea-600 ${styles.icon} ${
+                      isOpen ? `${styles.iconOpen} bg-sea-50` : "bg-bg"
                     }`}
                     aria-hidden="true"
                   >
@@ -53,12 +80,12 @@ export default function FaqSection() {
                   id={panelId}
                   role="region"
                   aria-labelledby={buttonId}
-                  className={`grid overflow-hidden transition-all duration-300 ease-out ${
-                    isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                  className={`${styles.panel} ${
+                    isOpen ? styles.panelOpen : styles.panelClosed
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <p className="px-5 pb-4 text-sm leading-relaxed text-ink-muted">
+                    <p className="px-5 pb-5 text-[13px] leading-relaxed text-ink-muted sm:px-[22px]">
                       {faq.answer}
                     </p>
                   </div>
@@ -71,7 +98,7 @@ export default function FaqSection() {
         <p className="mt-6 text-center text-sm">
           <Link
             href="/faq"
-            className="font-medium text-sea-700 underline-offset-2 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sea-600"
+            className="font-medium text-sea-700 underline-offset-2 hover:underline"
           >
             {t.faq.seeAll}
           </Link>
