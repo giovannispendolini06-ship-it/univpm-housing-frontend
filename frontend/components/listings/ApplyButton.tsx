@@ -47,7 +47,7 @@ export default function ApplyButton({
           Il contratto di locazione, se si procede, resta diretto tra le parti.
         </p>
         <Link href="/dashboard" className="mt-3 inline-block text-sm font-semibold text-sea-700 underline">
-          Vai alla dashboard
+          Vai alla home
         </Link>
       </div>
     );

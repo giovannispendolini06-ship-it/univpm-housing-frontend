@@ -163,3 +163,26 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
     role === "owner" ? "/owner" : role === "admin" ? "/admin" : "/dashboard",
   );
 }
+
+/**
+ * Skip post-signup enrichment. Does NOT set profile_completed —
+ * progressive profile (punto 2) will track completion % instead.
+ * Lifestyle prefs stay with Vesta; KYC-lite moves to /profilo later.
+ */
+export async function skipOnboarding(): Promise<void> {
+  const authClient = await createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await authClient.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const { data: profile } = await authClient
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role = profile?.role ?? "student";
+  redirect(role === "owner" ? "/owner" : role === "admin" ? "/admin" : "/dashboard");
+}

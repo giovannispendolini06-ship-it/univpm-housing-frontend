@@ -12,6 +12,29 @@ type IconProps = {
   className?: string;
 };
 
+/** Home — hub studente (tetto + focolare) */
+export function IconHome({ size = 24, className = "" }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      <path
+        d="M5.5 14.5 L16 5.5 L26.5 14.5 V26 a1.5 1.5 0 0 1 -1.5 1.5 H7 A1.5 1.5 0 0 1 5.5 26 Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <circle cx="16" cy="19.5" r="2.2" fill={CORAL} />
+    </svg>
+  );
+}
+
 /** Casa — proprietario / stanze */
 export function IconCasa({ size = 28, className = "" }: IconProps) {
   return (

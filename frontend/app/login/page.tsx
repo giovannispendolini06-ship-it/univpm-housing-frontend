@@ -129,7 +129,8 @@ function LoginPageInner() {
           }
         }
 
-        router.push("/onboarding");
+        // Registrazione leggera: vai subito all'area ruolo (onboarding opzionale)
+        router.push(role === "owner" ? "/owner" : "/dashboard");
         router.refresh();
         return;
       } else {
@@ -137,6 +138,7 @@ function LoginPageInner() {
         if (error) throw error;
       }
 
+      // Sign-in: middleware reindirizza owner → /owner se atterrano su /dashboard
       router.push("/dashboard");
       router.refresh();
     } catch (err) {
