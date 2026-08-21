@@ -13,12 +13,12 @@ export const translations = {
       waitlist: "Lista d'attesa",
     },
     hero: {
-      badge: "Pensato per chi studia fuori sede ad Ancona",
+      badge: "Pensato per chi studia fuori sede",
       titlePart1: "La casa giusta. ",
       titleHighlight: "Le persone",
       titlePart2: " giuste.",
       subtitle:
-        "Marketplace abitativo per fuori sede ad Ancona: stanze trasparenti, profili verificabili e Compatibilità Coabito — per trovare stanza e coinquilini giusti, non solo un annuncio.",
+        "Marketplace abitativo per fuori sede: stanze trasparenti, profili verificabili e Compatibilità Coabito — per trovare stanza e coinquilini giusti, non solo un annuncio.",
       ctaStudent: "Trova il tuo match",
       ctaOwner: "Pubblica un immobile",
       ctaBrowse: "Sfoglia le stanze",
@@ -399,9 +399,9 @@ export const translations = {
       ariaLabel: "Scrivici su WhatsApp",
       generic: "Ciao! Ho visto Coabito e vorrei saperne di più",
       owners:
-        "Ciao! Ho un immobile ad Ancona e vorrei saperne di più su Coabito.",
+        "Ciao! Ho un immobile e vorrei saperne di più su Coabito.",
       waitlist:
-        "Ciao! Sto cercando casa da studente ad Ancona e vorrei info su Coabito / la lista d'attesa.",
+        "Ciao! Sto cercando casa da studente fuori sede e vorrei info su Coabito / la lista d'attesa.",
     },
     guidaAffittoAncona: {
       title: "Come affittare casa per studenti ad Ancona",
@@ -680,7 +680,7 @@ export const translations = {
       emptyBody:
         "Prova ad allargare la ricerca: alza il budget, togli qualche caratteristica o azzera i filtri.",
       emptyCta: "Azzera filtri",
-      pageTitle: "Stanze ad Ancona",
+      pageTitle: "Stanze disponibili",
       budget: "Budget mensile",
       zone: "Zona",
       roomType: "Tipo di stanza",
@@ -839,7 +839,7 @@ export const translations = {
       noMatchSubtitle:
         "Ho salvato le tue preferenze. Appena arriva un immobile compatibile con te, sarai tra i primi ad essere avvisato.",
       shareCta: "Condividi con un amico",
-      shareText: "Sto cercando casa ad Ancona con Coabito — entra in lista d'attesa:",
+      shareText: "Sto cercando casa da fuori sede con Coabito — entra in lista d'attesa:",
       loadingLabel: "Caricamento stanze compatibili…",
     },
     notFound: {
@@ -1001,13 +1001,17 @@ export const translations = {
       submit: "Iscriviti gratis",
       submitting: "Invio...",
       trustItems: ["Gratis, sempre", "Zero spam", "Cancellati quando vuoi"] as const,
-      statStudents: "Studenti UNIVPM",
+      comingSoonLabel: "Presto disponibile",
+      subtitleCity:
+        "Coabito sta arrivando a {city} ({status}). Iscriviti: ti avvisiamo appena apriamo le iscrizioni lì.",
+      statVacantHomes: "Case sfitte in Italia",
+      statStudentsQualitative: "Migliaia di studenti fuori sede in tutta Italia",
       statLaunch: "Prime stanze disponibili",
       statFees: "Commissioni",
       statFeesValue: "0€",
       successTitle: "Sei in lista!",
       successBody:
-        "Ti avviseremo appena arriva un immobile compatibile con le tue preferenze. Nel frattempo, puoi condividere il link con chi cerca casa ad Ancona.",
+        "Ti avviseremo appena arriva un immobile compatibile con le tue preferenze. Nel frattempo, puoi condividere il link con chi cerca casa da fuori sede.",
       positionHeadline: "Sei il {n}° in lista d'attesa",
       successBodyWithPosition:
         "Ti avviseremo appena ci sarà una stanza compatibile con il tuo profilo.",
@@ -1039,7 +1043,7 @@ export const translations = {
         whatsapp: "WhatsApp",
         whatsappAria: "Condividi il link di invito su WhatsApp",
         shareText:
-          "Sto cercando una stanza ad Ancona con Coabito — entra in lista d'attesa con il mio link:",
+          "Sto cercando una stanza da fuori sede con Coabito — entra in lista d'attesa con il mio link:",
       },
       facoltaOptions: [
         { value: "ingegneria_informatica", label: "Ingegneria informatica" },
@@ -1184,12 +1188,12 @@ export const translations = {
       waitlist: "Waitlist",
     },
     hero: {
-      badge: "Made for out-of-town students in Ancona",
+      badge: "Made for students living away from home",
       titlePart1: "The right home. ",
       titleHighlight: "The right",
       titlePart2: " people.",
       subtitle:
-        "Housing marketplace for students in Ancona: transparent rooms, verifiable profiles and Coabito Compatibility — find the right room and roommates, not just another listing.",
+        "Housing marketplace for students living away from home: transparent rooms, verifiable profiles and Coabito Compatibility — find the right room and roommates, not just another listing.",
       ctaStudent: "Find your match",
       ctaOwner: "List a room",
       ctaBrowse: "Browse rooms",
@@ -1570,9 +1574,9 @@ export const translations = {
       ariaLabel: "Message us on WhatsApp",
       generic: "Hi! I found Coabito and I'd like to know more",
       owners:
-        "Hi! I have a property in Ancona and I'd like to know more about Coabito.",
+        "Hi! I have a property and I'd like to know more about Coabito.",
       waitlist:
-        "Hi! I'm a student looking for a place in Ancona and I'd like info about Coabito / the waitlist.",
+        "Hi! I'm a student living away from home and I'd like info about Coabito / the waitlist.",
     },
     guidaAffittoAncona: {
       title: "How to rent student housing in Ancona",
@@ -1851,7 +1855,7 @@ export const translations = {
       emptyBody:
         "Try widening your search: raise the budget, remove a feature, or reset the filters.",
       emptyCta: "Reset filters",
-      pageTitle: "Rooms in Ancona",
+      pageTitle: "Available rooms",
       budget: "Monthly budget",
       zone: "Area",
       roomType: "Room type",
@@ -2009,7 +2013,7 @@ export const translations = {
       noMatchSubtitle:
         "I've saved your preferences. As soon as a compatible place becomes available, you'll be among the first to know.",
       shareCta: "Share with a friend",
-      shareText: "I'm looking for a room in Ancona with Coabito — join the waitlist:",
+      shareText: "I'm looking for a room with Coabito while studying away from home — join the waitlist:",
       loadingLabel: "Loading compatible rooms…",
     },
     notFound: {
@@ -2171,13 +2175,17 @@ export const translations = {
       submit: "Join for free",
       submitting: "Submitting...",
       trustItems: ["Always free", "Zero spam", "Unsubscribe anytime"] as const,
-      statStudents: "UNIVPM students",
+      comingSoonLabel: "Coming soon",
+      subtitleCity:
+        "Coabito is coming to {city} ({status}). Join the waitlist and we'll notify you when we open there.",
+      statVacantHomes: "Vacant homes in Italy",
+      statStudentsQualitative: "Thousands of students living away from home across Italy",
       statLaunch: "First rooms available",
       statFees: "Fees",
       statFeesValue: "€0",
       successTitle: "You're on the list!",
       successBody:
-        "We'll notify you as soon as a compatible place becomes available. In the meantime, feel free to share the link with friends looking for a room in Ancona.",
+        "We'll notify you as soon as a compatible place becomes available. In the meantime, feel free to share the link with friends looking for a room while studying away from home.",
       positionHeadline: "You're #{n} on the waitlist",
       successBodyWithPosition:
         "We'll let you know as soon as a room compatible with your profile becomes available.",
@@ -2208,7 +2216,7 @@ export const translations = {
         whatsapp: "WhatsApp",
         whatsappAria: "Share your invite link on WhatsApp",
         shareText:
-          "I'm looking for a room in Ancona with Coabito — join the waitlist with my link:",
+          "I'm looking for a room with Coabito while studying away from home — join the waitlist with my link:",
       },
       facoltaOptions: [
         { value: "ingegneria_informatica", label: "Computer Engineering" },
