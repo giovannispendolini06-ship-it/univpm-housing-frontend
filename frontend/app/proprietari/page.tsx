@@ -16,7 +16,7 @@ export default function OwnersPage() {
   const whatsappLink = whatsappNumber
     ? buildWhatsAppLink(
         whatsappNumber,
-        "Ciao! Ho un immobile ad Ancona e vorrei saperne di più sul marketplace Coabito.",
+        "Ciao! Ho un immobile e vorrei saperne di più sul marketplace Coabito.",
       )
     : null;
 

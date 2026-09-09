@@ -15,7 +15,11 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenAIClient, OPENAI_MODEL } from "@/lib/openai";
-import { DADO_SYSTEM_PROMPT } from "@/lib/system-prompt";
+import { buildVestaSystemPrompt } from "@/lib/system-prompt";
+import {
+  ANCONA_POLO_TO_CAMPUS_NAME,
+  getCityBySlug,
+} from "@/lib/geo/catalog";
 import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
@@ -139,7 +143,7 @@ export async function POST(request: NextRequest) {
       model: OPENAI_MODEL,
       max_completion_tokens: 1024,
       messages: [
-        { role: "system", content: DADO_SYSTEM_PROMPT },
+        { role: "system", content: buildVestaSystemPrompt() },
         ...trimmedHistory.map((item) => ({
           role: item.role,
           content: item.content,
@@ -220,31 +224,42 @@ export async function POST(request: NextRequest) {
     );
 
     if (studentProfile?.campus_id && studentProfile?.budget_max) {
-      rooms = await computeRoomMatches(
-        db,
-        studentProfile as StudentProfileRow,
-        locale,
-      );
+      const citySlug =
+        typeof studentProfile.city_slug === "string"
+          ? studentProfile.city_slug
+          : null;
+      const cityMeta = citySlug ? getCityBySlug(citySlug) : undefined;
+      const cityIsActive =
+        !citySlug || cityMeta?.status === "active" || citySlug === "ancona";
 
-      if (rooms.length === 0) {
-        waitlisted = true;
-        const position = await upsertWaitlistFromStudentProfile(
+      // Matching solo per città operative (oggi: Ancona). Niente stanze fake altrove.
+      if (cityIsActive) {
+        rooms = await computeRoomMatches(
           db,
-          userId,
-          studentProfile,
-          "vesta_chat",
+          studentProfile as StudentProfileRow,
+          locale,
         );
 
-        const { data: userRow } = await db
-          .from("users")
-          .select("phone")
-          .eq("id", userId)
-          .maybeSingle();
+        if (rooms.length === 0) {
+          waitlisted = true;
+          const position = await upsertWaitlistFromStudentProfile(
+            db,
+            userId,
+            studentProfile,
+            "vesta_chat",
+          );
 
-        const hasPhone = Boolean(userRow?.phone?.trim());
-        if (!replyContainsWaitlistNotice(finalReply)) {
-          const fallback = buildWaitlistChatFallback(locale, hasPhone, position);
-          finalReply = finalReply ? `${finalReply}\n\n${fallback}` : fallback;
+          const { data: userRow } = await db
+            .from("users")
+            .select("phone")
+            .eq("id", userId)
+            .maybeSingle();
+
+          const hasPhone = Boolean(userRow?.phone?.trim());
+          if (!replyContainsWaitlistNotice(finalReply)) {
+            const fallback = buildWaitlistChatFallback(locale, hasPhone, position);
+            finalReply = finalReply ? `${finalReply}\n\n${fallback}` : fallback;
+          }
         }
       }
     }
@@ -278,8 +293,7 @@ export async function POST(request: NextRequest) {
 // scriverlo su Supabase (non fidarsi mai ciecamente dell'output del modello).
 // ---------------------------------------------------------------------------
 const POLO_CODE_TO_CAMPUS_NAME: Record<string, string> = {
-  monte_dago: "Monte Dago",
-  torrette: "Torrette",
+  ...ANCONA_POLO_TO_CAMPUS_NAME,
   centro_economia_giurisprudenza: "Centro (Economia/Giurisprudenza)",
 };
 
@@ -299,6 +313,9 @@ async function buildProfileUpdatePayload(
     "has_pets",
     "cleanliness_level",
     "additional_notes",
+    "city_slug",
+    "university_slug",
+    "pole_slug",
   ] as const;
 
   const payload: Record<string, unknown> = {};
@@ -309,7 +326,41 @@ async function buildProfileUpdatePayload(
     }
   }
 
-  const polo = extracted.polo_univpm;
+  const citySlug =
+    typeof extracted.city_slug === "string" ? extracted.city_slug : null;
+  const universitySlug =
+    typeof extracted.university_slug === "string"
+      ? extracted.university_slug
+      : null;
+  const poleSlug =
+    typeof extracted.pole_slug === "string" ? extracted.pole_slug : null;
+
+  if (citySlug) {
+    const { data: city } = await db
+      .from("cities")
+      .select("id")
+      .eq("slug", citySlug)
+      .maybeSingle();
+    if (city?.id) payload.city_id = city.id;
+  }
+
+  if (citySlug && universitySlug) {
+    const { data: uni } = await db
+      .from("universities")
+      .select("id, city_id")
+      .eq("slug", universitySlug)
+      .maybeSingle();
+    if (uni?.id) {
+      payload.university_id = uni.id;
+      if (!payload.city_id && uni.city_id) payload.city_id = uni.city_id;
+    }
+  }
+
+  // Prefer pole_slug → campus; fall back to legacy polo_univpm codes.
+  const polo =
+    poleSlug ||
+    (typeof extracted.polo_univpm === "string" ? extracted.polo_univpm : null);
+
   if (typeof polo === "string" && polo !== "altro") {
     const campusName = POLO_CODE_TO_CAMPUS_NAME[polo];
     if (campusName) {
@@ -321,7 +372,19 @@ async function buildProfileUpdatePayload(
       if (campus?.id) {
         payload.campus_id = campus.id;
       }
+    } else if (poleSlug) {
+      let campusQuery = db.from("campuses").select("id").eq("slug", poleSlug);
+      if (payload.city_id) {
+        campusQuery = campusQuery.eq("city_id", payload.city_id as string);
+      }
+      const { data: campus } = await campusQuery.maybeSingle();
+      if (campus?.id) payload.campus_id = campus.id;
     }
+  }
+
+  // Compatibilità legacy Ancona
+  if (poleSlug === "villarey" && !extracted.polo_univpm) {
+    // campus già mappato via ANCONA_POLO_TO_CAMPUS_NAME
   }
 
   return payload;

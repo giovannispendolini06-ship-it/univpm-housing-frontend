@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Stanze disponibili | Coabito",
   description:
-    "Sfoglia stanze verificate ad Ancona: prezzo, zona e disponibilità. Candidati e trova coinquilini compatibili con Coabito.",
+    "Sfoglia stanze verificate per fuori sede: prezzo, zona e disponibilità. Candidati e trova coinquilini compatibili con Coabito.",
   alternates: { canonical: `${SITE_URL}/stanze` },
 };
 
