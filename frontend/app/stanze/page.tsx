@@ -77,6 +77,7 @@ export default async function StanzePage({
   let loadError: string | null = null;
   let useStudentChrome = false;
   let savedRoomIds: string[] = [];
+  let isAuthenticated = false;
   const params = await Promise.resolve(searchParams ?? {});
   const initialView =
     params.view === "map" ? ("map" as const) : ("list" as const);
@@ -84,6 +85,7 @@ export default async function StanzePage({
   try {
     const session = await getOptionalSession();
     useStudentChrome = session?.role === "student";
+    isAuthenticated = Boolean(session);
     // Filtri ricchi applicati client-side (vedi StanzeBrowse); qui carichiamo
     // l'elenco pubblico completo per matching/score e sort consigliati.
     listings = await listPublicListings({ sort: "price_asc" });
@@ -162,6 +164,7 @@ export default async function StanzePage({
             listings={listings}
             initialView={initialView}
             savedRoomIds={savedRoomIds}
+            isAuthenticated={isAuthenticated}
           />
         )}
       </div>

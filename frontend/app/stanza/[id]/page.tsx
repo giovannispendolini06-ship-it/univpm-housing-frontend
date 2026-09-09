@@ -10,6 +10,7 @@ import SaveListingButton from "@/components/listings/SaveListingButton";
 import ResumePendingFavorite from "@/components/listings/ResumePendingFavorite";
 import { getPublicListing } from "@/lib/listings";
 import { isRoomSavedForCurrentUser } from "@/app/favorites/actions";
+import { getOptionalSession } from "@/lib/auth/session";
 import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +25,7 @@ export async function generateMetadata({
   const { id } = await params;
   try {
     const listing = await getPublicListing(id);
-    if (!listing) return { title: "Stanza | Coabito" };
+    if (!listing) return { title: "Stanza" };
     const zone = listing.neighbourhood
       ? `${listing.neighbourhood}, ${listing.cityLabel}`
       : listing.cityLabel;
@@ -33,7 +34,7 @@ export async function generateMetadata({
         ? ` (+ ~${listing.utilitiesEstimate}€ utenze)`
         : ""
     }. Disponibile su Coabito — marketplace per fuori sede.`;
-    const title = `${listing.title} · ${listing.cityLabel} | Coabito`;
+    const title = `${listing.title} · ${listing.cityLabel}`;
     const ogImages = [
       {
         url: `${SITE_URL}/stanza/${id}/opengraph-image`,
@@ -64,7 +65,7 @@ export async function generateMetadata({
       robots: { index: true, follow: true },
     };
   } catch {
-    return { title: "Stanza | Coabito" };
+    return { title: "Stanza" };
   }
 }
 
@@ -80,6 +81,8 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
 
   const total = listing.monthlyRent + listing.utilitiesEstimate;
   const initialSaved = await isRoomSavedForCurrentUser(listing.id);
+  const session = await getOptionalSession();
+  const isAuthenticated = Boolean(session);
 
   return (
     <main className="bg-bg">
@@ -203,6 +206,7 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
             <SaveListingButton
               roomId={listing.id}
               initialSaved={initialSaved}
+              isAuthenticated={isAuthenticated}
               variant="detail"
             />
             <ApplyButton roomId={listing.id} roomTitle={listing.title} />

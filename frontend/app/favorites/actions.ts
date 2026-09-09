@@ -22,6 +22,11 @@ export type FavoriteResult =
     };
 
 async function assertRoomIsPublic(roomId: string): Promise<boolean> {
+  // Demo listings used when Supabase is offline in development
+  if (process.env.NODE_ENV === "development" && roomId.startsWith("demo-")) {
+    return true;
+  }
+
   const db = createServiceSupabaseClient();
   const { data } = await db
     .from("rooms")

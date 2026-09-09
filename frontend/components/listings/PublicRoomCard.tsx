@@ -15,12 +15,14 @@ export default function PublicRoomCard({
   compareDisabled = false,
   onToggleCompare,
   initialSaved = false,
+  isAuthenticated = false,
 }: {
   listing: Listing;
   compareSelected?: boolean;
   compareDisabled?: boolean;
   onToggleCompare?: () => void;
   initialSaved?: boolean;
+  isAuthenticated?: boolean;
 }) {
   const { t, locale } = useLocale();
   const total = listing.monthlyRent + listing.utilitiesEstimate;
@@ -96,7 +98,11 @@ export default function PublicRoomCard({
             score != null ? "right-2 top-16" : "right-2 top-2"
           }`}
         >
-          <SaveListingButton roomId={listing.id} initialSaved={initialSaved} />
+          <SaveListingButton
+            roomId={listing.id}
+            initialSaved={initialSaved}
+            isAuthenticated={isAuthenticated}
+          />
         </div>
       </div>
 

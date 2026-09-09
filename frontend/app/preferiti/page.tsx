@@ -74,6 +74,7 @@ export default async function PreferitiPage() {
               key={listing.id}
               listing={listing}
               initialSaved
+              isAuthenticated
             />
           ))}
         </div>

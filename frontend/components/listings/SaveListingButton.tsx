@@ -9,6 +9,8 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 type Props = {
   roomId: string;
   initialSaved?: boolean;
+  /** When false, click goes straight to login (no server round-trip). */
+  isAuthenticated?: boolean;
   /** compact = icon-only for cards; detail = labeled button */
   variant?: "compact" | "detail";
   className?: string;
@@ -24,9 +26,19 @@ function loginHref(roomId: string, returnPath: string): string {
   return `/login?${params.toString()}`;
 }
 
+function returnPathFor(pathname: string | null, roomId: string): string {
+  const search =
+    typeof window !== "undefined" ? window.location.search : "";
+  if (pathname?.startsWith("/stanza/") || pathname === "/stanze") {
+    return `${pathname}${search}`;
+  }
+  return `/stanza/${roomId}`;
+}
+
 export default function SaveListingButton({
   roomId,
   initialSaved = false,
+  isAuthenticated = false,
   variant = "compact",
   className = "",
 }: Props) {
@@ -46,29 +58,37 @@ export default function SaveListingButton({
     e.stopPropagation();
     setError(null);
 
+    const returnPath = returnPathFor(pathname, roomId);
+
+    // Anonymous: gate immediately (works even if Supabase/server actions are down).
+    if (!isAuthenticated) {
+      router.push(loginHref(roomId, returnPath));
+      return;
+    }
+
     startTransition(async () => {
-      const result = await toggleFavorite(roomId);
-      if (!result.ok) {
-        if (result.code === "unauthenticated") {
-          const search =
-            typeof window !== "undefined" ? window.location.search : "";
-          const base =
-            pathname?.startsWith("/stanza/") || pathname === "/stanze"
-              ? `${pathname}${search}`
-              : `/stanza/${roomId}`;
-          router.push(loginHref(roomId, base));
+      try {
+        const result = await toggleFavorite(roomId);
+        if (!result.ok) {
+          if (result.code === "unauthenticated") {
+            router.push(loginHref(roomId, returnPath));
+            return;
+          }
+          setError(result.error);
           return;
         }
-        setError(result.error);
-        return;
+        setSaved(result.saved);
+        if (result.saved) track("listing_saved", { roomId });
+        router.refresh();
+      } catch {
+        router.push(loginHref(roomId, returnPath));
       }
-      setSaved(result.saved);
-      if (result.saved) track("listing_saved", { roomId });
-      router.refresh();
     });
   }
 
-  const label = saved ? t.listingsCard.savedFavorite : t.listingsCard.saveFavorite;
+  const label = saved
+    ? t.listingsCard.savedFavorite
+    : t.listingsCard.saveFavorite;
   const base =
     variant === "detail"
       ? "inline-flex w-full items-center justify-center gap-2 rounded-full border border-sea-200 bg-white px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-sea-400 hover:bg-sea-50 disabled:opacity-60"
