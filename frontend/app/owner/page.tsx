@@ -13,6 +13,7 @@ import GuaranteedRentWidget from "@/components/owner/GuaranteedRentWidget";
 import OwnerPropertyCard, {
   type OwnerCandidate,
 } from "@/components/owner/OwnerPropertyCard";
+import OwnerPropertiesMap from "@/components/owner/OwnerPropertiesMap";
 import type { VerificationStatus } from "@/lib/verification";
 import {
   aggregateGuaranteedPayout,
@@ -53,15 +54,49 @@ export default async function OwnerDashboardPage() {
 
   const db = createServiceSupabaseClient();
 
-  const { data: properties } = await db
-    .from("properties")
-    .select(
-      "id, address, zone, status, monthly_rent_to_owner, guaranteed_rent, deposit_amount, escrow_coverage, rooms(id, room_label, is_available, price_monthly)",
-    )
-    .eq("owner_id", user.id)
-    .order("created_at", { ascending: false });
+  let propertyRows: Array<{
+    id: string;
+    address: string;
+    zone: string | null;
+    city?: string | null;
+    status: string;
+    monthly_rent_to_owner: number | null;
+    guaranteed_rent: boolean | null;
+    deposit_amount: number | null;
+    escrow_coverage: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    rooms: Array<{
+      id: string;
+      room_label: string;
+      is_available: boolean;
+      price_monthly: number;
+    }> | null;
+  }> = [];
 
-  const roomIds = (properties ?? []).flatMap((p) =>
+  {
+    const rich = await db
+      .from("properties")
+      .select(
+        "id, address, zone, city, status, monthly_rent_to_owner, guaranteed_rent, deposit_amount, escrow_coverage, latitude, longitude, rooms(id, room_label, is_available, price_monthly)",
+      )
+      .eq("owner_id", user.id)
+      .order("created_at", { ascending: false });
+    if (!rich.error && rich.data) {
+      propertyRows = rich.data as typeof propertyRows;
+    } else {
+      const fallback = await db
+        .from("properties")
+        .select(
+          "id, address, zone, city, status, monthly_rent_to_owner, guaranteed_rent, deposit_amount, escrow_coverage, rooms(id, room_label, is_available, price_monthly)",
+        )
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false });
+      propertyRows = (fallback.data ?? []) as typeof propertyRows;
+    }
+  }
+
+  const roomIds = propertyRows.flatMap((p) =>
     (p.rooms ?? []).map((r: { id: string }) => r.id),
   );
 
@@ -74,14 +109,14 @@ export default async function OwnerDashboardPage() {
       .is("ended_at", null);
     for (const t of tenancies ?? []) occupiedRoomIds.add(String(t.room_id));
     // Fallback: room marked unavailable counts as occupied for display
-    for (const p of properties ?? []) {
+    for (const p of propertyRows) {
       for (const r of p.rooms ?? []) {
         if (!r.is_available) occupiedRoomIds.add(r.id);
       }
     }
   }
 
-  const guaranteedSummaries: GuaranteedPropertySummary[] = (properties ?? [])
+  const guaranteedSummaries: GuaranteedPropertySummary[] = propertyRows
     .filter((p) => p.guaranteed_rent === true)
     .map((p) => {
       const rooms = p.rooms ?? [];
@@ -97,7 +132,7 @@ export default async function OwnerDashboardPage() {
 
   const { totalMonthly } = aggregateGuaranteedPayout(guaranteedSummaries);
 
-  const marketplaceRoomIds = (properties ?? [])
+  const marketplaceRoomIds = propertyRows
     .filter((p) => !p.guaranteed_rent)
     .flatMap((p) => (p.rooms ?? []).map((r: { id: string }) => r.id));
 
@@ -131,7 +166,7 @@ export default async function OwnerDashboardPage() {
 
   const candidatesByProperty = new Map<string, OwnerCandidate[]>();
   const roomToProperty = new Map<string, string>();
-  for (const p of properties ?? []) {
+  for (const p of propertyRows) {
     for (const r of p.rooms ?? []) {
       roomToProperty.set(r.id, p.id);
     }
@@ -205,7 +240,7 @@ export default async function OwnerDashboardPage() {
           />
         )}
 
-        {properties && properties.length > 0 && <OwnerInsight />}
+        {propertyRows.length > 0 && <OwnerInsight />}
 
         <div className="mb-6 flex flex-wrap gap-2">
           <Link
@@ -228,7 +263,24 @@ export default async function OwnerDashboardPage() {
           </Link>
         </div>
 
-        {!properties || properties.length === 0 ? (
+        {propertyRows.length > 0 && (
+          <OwnerPropertiesMap
+            properties={propertyRows.map((p) => ({
+              id: p.id,
+              address: p.address,
+              zone: p.zone,
+              city: p.city ?? null,
+              status: p.status,
+              statusLabel: STATUS_LABELS[p.status] ?? p.status,
+              monthlyRentToOwner: Number(p.monthly_rent_to_owner) || 0,
+              guaranteedRent: p.guaranteed_rent === true,
+              latitude: typeof p.latitude === "number" ? p.latitude : null,
+              longitude: typeof p.longitude === "number" ? p.longitude : null,
+            }))}
+          />
+        )}
+
+        {propertyRows.length === 0 ? (
           <div className="rounded-xl2 bg-surface p-6 text-center shadow-card">
             <p className="text-sm text-ink-muted">
               Non hai ancora nessun immobile collegato al tuo account.
@@ -249,7 +301,7 @@ export default async function OwnerDashboardPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {properties.map((property) => {
+            {propertyRows.map((property) => {
               const rooms = property.rooms ?? [];
               const occupied =
                 rooms.length > 0 &&

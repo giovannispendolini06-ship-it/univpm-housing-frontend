@@ -4,6 +4,7 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
+import AdminMarketplaceMap from "@/components/admin/AdminMarketplaceMap";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,20 @@ const STATUS_STYLES: Record<string, string> = {
   attivo: "bg-sea-50 text-sea-700",
   affittato: "bg-sea-600 text-white",
   sospeso: "bg-sunset-500/15 text-sunset-600",
+};
+
+type AdminPropertyRow = {
+  id: string;
+  address: string;
+  zone: string | null;
+  city?: string | null;
+  status: string;
+  monthly_rent_to_owner: number | null;
+  owner_contact_name: string | null;
+  guaranteed_rent?: boolean | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  rooms: Array<{ id: string; room_label: string; price_monthly: number }> | null;
 };
 
 export default async function AdminPropertiesPage() {
@@ -38,11 +53,28 @@ export default async function AdminPropertiesPage() {
   if (profile?.role !== "admin") redirect("/dashboard");
 
   const db = createServiceSupabaseClient();
-  const { data: properties } = await db
+
+  let properties: AdminPropertyRow[] = [];
+  const rich = await db
     .from("properties")
-    .select("id, address, zone, status, monthly_rent_to_owner, owner_contact_name, rooms(id, room_label, price_monthly)")
+    .select(
+      "id, address, zone, city, status, monthly_rent_to_owner, owner_contact_name, guaranteed_rent, latitude, longitude, rooms(id, room_label, price_monthly)",
+    )
     .order("created_at", { ascending: false })
-    .limit(100);
+    .limit(200);
+
+  if (!rich.error && rich.data) {
+    properties = rich.data as AdminPropertyRow[];
+  } else {
+    const fallback = await db
+      .from("properties")
+      .select(
+        "id, address, zone, city, status, monthly_rent_to_owner, owner_contact_name, rooms(id, room_label, price_monthly)",
+      )
+      .order("created_at", { ascending: false })
+      .limit(200);
+    properties = (fallback.data ?? []) as AdminPropertyRow[];
+  }
 
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
@@ -53,7 +85,7 @@ export default async function AdminPropertiesPage() {
               Immobili
             </h1>
             <p className="mt-1 text-sm text-ink-muted">
-              {properties?.length ?? 0} immobili inseriti
+              {properties.length} immobili inseriti
             </p>
           </div>
           <Link
@@ -64,7 +96,24 @@ export default async function AdminPropertiesPage() {
           </Link>
         </header>
 
-        {!properties || properties.length === 0 ? (
+        {properties.length > 0 && (
+          <AdminMarketplaceMap
+            properties={properties.map((p) => ({
+              id: p.id,
+              address: p.address,
+              zone: p.zone,
+              city: p.city ?? null,
+              status: p.status,
+              statusLabel: STATUS_LABELS[p.status] ?? p.status,
+              monthlyRentToOwner: Number(p.monthly_rent_to_owner) || 0,
+              guaranteedRent: p.guaranteed_rent === true,
+              latitude: typeof p.latitude === "number" ? p.latitude : null,
+              longitude: typeof p.longitude === "number" ? p.longitude : null,
+            }))}
+          />
+        )}
+
+        {properties.length === 0 ? (
           <p className="rounded-xl2 bg-surface p-6 text-sm text-ink-muted shadow-card">
             Nessun immobile ancora. Toccalo &quot;+ Nuovo immobile&quot; per
             iniziare.
@@ -88,7 +137,9 @@ export default async function AdminPropertiesPage() {
                       {property.address}
                     </h3>
                     <p className="text-xs text-ink-muted">
-                      {property.zone ?? "Zona non specificata"}
+                      {[property.city, property.zone ?? "Zona non specificata"]
+                        .filter(Boolean)
+                        .join(" · ")}
                       {property.owner_contact_name
                         ? ` · Proprietario: ${property.owner_contact_name}`
                         : ""}
@@ -101,14 +152,20 @@ export default async function AdminPropertiesPage() {
 
                 <div className="mt-3 flex flex-wrap gap-1.5 border-t border-bg pt-3">
                   {property.rooms && property.rooms.length > 0 ? (
-                    property.rooms.map((room: { id: string; room_label: string; price_monthly: number }) => (
-                      <span
-                        key={room.id}
-                        className="rounded-full border border-sea-100 px-2.5 py-1 text-[11px] text-ink"
-                      >
-                        {room.room_label} · {room.price_monthly}€
-                      </span>
-                    ))
+                    property.rooms.map(
+                      (room: {
+                        id: string;
+                        room_label: string;
+                        price_monthly: number;
+                      }) => (
+                        <span
+                          key={room.id}
+                          className="rounded-full border border-sea-100 px-2.5 py-1 text-[11px] text-ink"
+                        >
+                          {room.room_label} · {room.price_monthly}€
+                        </span>
+                      ),
+                    )
                   ) : (
                     <span className="text-[11px] text-ink-muted">
                       Nessuna stanza collegata
