@@ -198,3 +198,31 @@ export function IconProfilo({ size = 24, className = "" }: IconProps) {
     </svg>
   );
 }
+
+/** Verificato — badge / iscrizione confermata */
+export function IconVerificato({ size = 24, className = "" }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      className={className}
+      aria-hidden
+    >
+      <path
+        d="M16 4.5 L26.5 9 V16.2 C26.5 22.2 22.2 27.1 16 28.5 C9.8 27.1 5.5 22.2 5.5 16.2 V9 Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M11.5 16.2 L14.6 19.2 L21 12.6"
+        stroke={CORAL}
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}

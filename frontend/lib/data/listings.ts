@@ -72,6 +72,8 @@ function asProperty(raw: unknown): {
   min_contract_months: number | null;
   pets_allowed: boolean | null;
   smoking_allowed: boolean | null;
+  latitude?: number | null;
+  longitude?: number | null;
 } {
   const p = Array.isArray(raw) ? raw[0] : raw;
   return p as ReturnType<typeof asProperty>;
@@ -205,7 +207,9 @@ export async function fetchPublicListings(
         heating_type,
         min_contract_months,
         pets_allowed,
-        smoking_allowed
+        smoking_allowed,
+        latitude,
+        longitude
       )
     `;
 
@@ -377,6 +381,10 @@ export async function fetchPublicListings(
         typeof property.smoking_allowed === "boolean"
           ? property.smoking_allowed
           : null,
+      latitude:
+        typeof property.latitude === "number" ? property.latitude : null,
+      longitude:
+        typeof property.longitude === "number" ? property.longitude : null,
       createdAt: row.created_at ? String(row.created_at) : null,
       atmosphereTags: deriveAtmosphereTags({
         amenities,
