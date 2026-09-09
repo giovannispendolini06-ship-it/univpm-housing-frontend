@@ -17,7 +17,9 @@ export default function LandingNavbar() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2">
           <CoabitoLogo size={32} />
-          <span className="font-display text-base font-bold text-ink">Coabito</span>
+          <span className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl">
+            Coabito
+          </span>
         </Link>
 
         {/* Nav desktop */}
