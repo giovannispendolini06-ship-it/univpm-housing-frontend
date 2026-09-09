@@ -28,11 +28,17 @@ const ListingsMap = dynamic(() => import("@/components/listings/ListingsMap"), {
 
 type ViewMode = "list" | "map";
 
-export default function StanzeBrowse({ listings }: { listings: Listing[] }) {
+export default function StanzeBrowse({
+  listings,
+  initialView = "list",
+}: {
+  listings: Listing[];
+  initialView?: ViewMode;
+}) {
   const { t } = useLocale();
   const M = t.listingsMap;
   const F = t.listingsFilters;
-  const [view, setView] = useState<ViewMode>("list");
+  const [view, setView] = useState<ViewMode>(initialView);
   const [filters, setFilters] = useState<StanzeFilterState>(DEFAULT_FILTERS);
   const [sort, setSort] = useState<StanzeSort>("recommended");
   const [collapsed, setCollapsed] = useState(false);
@@ -47,6 +53,16 @@ export default function StanzeBrowse({ listings }: { listings: Listing[] }) {
   const resetFilters = useCallback(() => {
     setFilters(DEFAULT_FILTERS);
   }, []);
+
+  function selectView(next: ViewMode) {
+    setView(next);
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (next === "map") url.searchParams.set("view", "map");
+      else url.searchParams.delete("view");
+      window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+    }
+  }
 
   const showFilters = useCallback(() => {
     setCollapsed(false);
@@ -107,7 +123,7 @@ export default function StanzeBrowse({ listings }: { listings: Listing[] }) {
           >
             <button
               type="button"
-              onClick={() => setView("list")}
+              onClick={() => selectView("list")}
               aria-pressed={view === "list"}
               className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
                 view === "list"
@@ -119,7 +135,7 @@ export default function StanzeBrowse({ listings }: { listings: Listing[] }) {
             </button>
             <button
               type="button"
-              onClick={() => setView("map")}
+              onClick={() => selectView("map")}
               aria-pressed={view === "map"}
               className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
                 view === "map"

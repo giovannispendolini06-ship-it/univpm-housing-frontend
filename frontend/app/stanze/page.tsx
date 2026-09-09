@@ -67,10 +67,17 @@ async function attachMatchScores(listings: Listing[]): Promise<Listing[]> {
   });
 }
 
-export default async function StanzePage() {
+export default async function StanzePage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ view?: string }> | { view?: string };
+}) {
   let listings: Listing[] = [];
   let loadError: string | null = null;
   let useStudentChrome = false;
+  const params = await Promise.resolve(searchParams ?? {});
+  const initialView =
+    params.view === "map" ? ("map" as const) : ("list" as const);
 
   try {
     const session = await getOptionalSession();
@@ -104,8 +111,10 @@ export default async function StanzePage() {
             Stanze disponibili
           </h1>
           <p className="mt-3 text-base text-ink-muted">
-            Marketplace Coabito: annunci reali quando disponibili. L&apos;indirizzo
-            esatto non è pubblico. Per un matching personalizzato chatta con Vesta
+            Marketplace Coabito: annunci reali quando disponibili. Usa{" "}
+            <strong className="font-semibold text-ink">Mappa</strong> per
+            vedere le stanze disponibili nella zona. L&apos;indirizzo esatto
+            non è pubblico — per un matching personalizzato chatta con Vesta
             dopo l&apos;accesso.
           </p>
         </header>
@@ -145,7 +154,9 @@ export default async function StanzePage() {
           </div>
         )}
 
-        {listings.length > 0 && <StanzeBrowse listings={listings} />}
+        {listings.length > 0 && (
+          <StanzeBrowse listings={listings} initialView={initialView} />
+        )}
       </div>
   );
 
