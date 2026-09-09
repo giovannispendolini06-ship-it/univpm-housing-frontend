@@ -129,6 +129,11 @@ export const translations = {
       toggleStudent: "Sono studente",
       toggleOwner: "Sono proprietario",
       stepsAria: "Passaggi",
+      progressAria: "Avanzamento passaggi",
+      prev: "Indietro",
+      next: "Avanti",
+      expandHint: "Mostra dettagli",
+      collapseHint: "Nascondi dettagli",
       exampleBadge: "Esempio",
       ctaStudent: "Inizia a chattare con Vesta",
       ctaOwner: "Proponi il tuo immobile",
@@ -156,12 +161,16 @@ export const translations = {
             badge: "Zero commissioni",
             title: "Gratis per gli studenti",
             body: "Nessuna commissione di ricerca, mai — a differenza dei portali tradizionali.",
+            detail:
+              "A differenza dei portali tradizionali (7-15% sull'affitto), su Coabito la ricerca non ti costa nulla, ora e in futuro.",
             accent: "coral" as const,
           },
           {
             badge: "✓ Studente verificato",
             title: "Sai sempre con chi parli",
             body: "Badge assegnato solo dopo verifica reale dell'iscrizione universitaria.",
+            detail:
+              "La verifica controlla l'iscrizione universitaria attiva — non un'autodichiarazione.",
             accent: "teal" as const,
           },
         ],
@@ -221,12 +230,16 @@ export const translations = {
             badge: "✓ Canone garantito",
             title: "Zero sorprese, ogni mese",
             body: "Su alcuni immobili, il canone è garantito direttamente da Coabito — anche a stanza vuota.",
+            detail:
+              "Su alcuni immobili, Coabito garantisce il canone indipendentemente dall'occupazione — il rischio di vacanza è nostro, non tuo.",
             accent: "teal" as const,
           },
           {
             badge: "Un solo interlocutore",
             title: "Non decine di studenti separati",
             body: "Un unico contratto, una sola persona di riferimento per qualsiasi cosa.",
+            detail:
+              "Non devi gestire comunicazioni separate con ogni inquilino — un solo punto di contatto per tutto.",
             accent: "coral" as const,
           },
         ],
@@ -1304,6 +1317,11 @@ export const translations = {
       toggleStudent: "I'm a student",
       toggleOwner: "I'm a landlord",
       stepsAria: "Steps",
+      progressAria: "Step progress",
+      prev: "Back",
+      next: "Next",
+      expandHint: "Show details",
+      collapseHint: "Hide details",
       exampleBadge: "Example",
       ctaStudent: "Start chatting with Vesta",
       ctaOwner: "List your property",
@@ -1331,12 +1349,16 @@ export const translations = {
             badge: "Zero fees",
             title: "Free for students",
             body: "No search commission, ever — unlike traditional portals.",
+            detail:
+              "Unlike traditional portals (7–15% of rent), searching on Coabito costs you nothing — now and later.",
             accent: "coral" as const,
           },
           {
             badge: "✓ Verified student",
             title: "You always know who you're talking to",
             body: "Badge granted only after real university enrolment verification.",
+            detail:
+              "Verification checks active university enrolment — not a self-declaration.",
             accent: "teal" as const,
           },
         ],
@@ -1396,12 +1418,16 @@ export const translations = {
             badge: "✓ Guaranteed rent",
             title: "No surprises, every month",
             body: "On selected properties, Coabito guarantees the rent — even if the room is empty.",
+            detail:
+              "On selected properties, Coabito guarantees the rent regardless of occupancy — vacancy risk is ours, not yours.",
             accent: "teal" as const,
           },
           {
             badge: "One contact",
             title: "Not dozens of separate students",
             body: "One contract, one person to talk to for anything.",
+            detail:
+              "You don't manage separate threads with every tenant — one point of contact for everything.",
             accent: "coral" as const,
           },
         ],
