@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
 import ApplyButton from "@/components/listings/ApplyButton";
 import ListingViewTracker from "@/components/listings/ListingViewTracker";
+import SaveListingButton from "@/components/listings/SaveListingButton";
+import ResumePendingFavorite from "@/components/listings/ResumePendingFavorite";
 import { getPublicListing } from "@/lib/listings";
+import { isRoomSavedForCurrentUser } from "@/app/favorites/actions";
 import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -24,9 +28,22 @@ export async function generateMetadata({
     const zone = listing.neighbourhood
       ? `${listing.neighbourhood}, ${listing.cityLabel}`
       : listing.cityLabel;
-    const description = `Stanza a ${zone}: ${listing.monthlyRent}€/mese. Candidati su Coabito.`;
+    const description = `Stanza a ${zone}: ${listing.monthlyRent}€/mese${
+      listing.utilitiesEstimate > 0
+        ? ` (+ ~${listing.utilitiesEstimate}€ utenze)`
+        : ""
+    }. Disponibile su Coabito — marketplace per fuori sede.`;
+    const title = `${listing.title} · ${listing.cityLabel} | Coabito`;
+    const ogImages = [
+      {
+        url: `${SITE_URL}/stanza/${id}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: `${listing.title} a ${zone}`,
+      },
+    ];
     return {
-      title: `${listing.title} · ${listing.cityLabel} | Coabito`,
+      title,
       description,
       alternates: { canonical: `${SITE_URL}/stanza/${id}` },
       openGraph: {
@@ -36,12 +53,15 @@ export async function generateMetadata({
         siteName: "Coabito",
         locale: "it_IT",
         type: "website",
+        images: ogImages,
       },
       twitter: {
         card: "summary_large_image",
         title: `${listing.title} · ${zone}`,
         description,
+        images: [`${SITE_URL}/stanza/${id}/opengraph-image`],
       },
+      robots: { index: true, follow: true },
     };
   } catch {
     return { title: "Stanza | Coabito" };
@@ -59,10 +79,14 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
   if (!listing) notFound();
 
   const total = listing.monthlyRent + listing.utilitiesEstimate;
+  const initialSaved = await isRoomSavedForCurrentUser(listing.id);
 
   return (
     <main className="bg-bg">
       <LandingNavbar />
+      <Suspense fallback={null}>
+        <ResumePendingFavorite />
+      </Suspense>
       <ListingViewTracker roomId={listing.id} title={listing.title} />
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <Link href="/stanze" className="mb-6 inline-block text-sm text-ink-muted underline">
@@ -176,6 +200,11 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
           </div>
 
           <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+            <SaveListingButton
+              roomId={listing.id}
+              initialSaved={initialSaved}
+              variant="detail"
+            />
             <ApplyButton roomId={listing.id} roomTitle={listing.title} />
             <p className="text-[11px] leading-relaxed text-ink-muted">
               Coabito è un marketplace: facilita matching e fiducia. Il contratto di

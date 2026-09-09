@@ -7,6 +7,7 @@ import StudentShell from "@/components/student/StudentShell";
 import { listPublicListings } from "@/lib/listings";
 import { getOptionalSession } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
+import { getSavedRoomIdsForCurrentUser } from "@/app/favorites/actions";
 import type { Listing } from "@/lib/domain/types";
 import { SITE_URL } from "@/lib/site";
 import { DEMO_STANZE_LISTINGS } from "@/lib/demo-stanze-listings";
@@ -75,6 +76,7 @@ export default async function StanzePage({
   let listings: Listing[] = [];
   let loadError: string | null = null;
   let useStudentChrome = false;
+  let savedRoomIds: string[] = [];
   const params = await Promise.resolve(searchParams ?? {});
   const initialView =
     params.view === "map" ? ("map" as const) : ("list" as const);
@@ -86,6 +88,7 @@ export default async function StanzePage({
     // l'elenco pubblico completo per matching/score e sort consigliati.
     listings = await listPublicListings({ sort: "price_asc" });
     listings = await attachMatchScores(listings);
+    savedRoomIds = await getSavedRoomIdsForCurrentUser();
   } catch (err) {
     if (process.env.NODE_ENV === "development") {
       // Consente di testare UI filtri in locale senza Supabase configurato.
@@ -155,7 +158,11 @@ export default async function StanzePage({
         )}
 
         {listings.length > 0 && (
-          <StanzeBrowse listings={listings} initialView={initialView} />
+          <StanzeBrowse
+            listings={listings}
+            initialView={initialView}
+            savedRoomIds={savedRoomIds}
+          />
         )}
       </div>
   );

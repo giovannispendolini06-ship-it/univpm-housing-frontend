@@ -8,6 +8,7 @@ import SignOutButton from "@/components/SignOutButton";
 import {
   IconCasa,
   IconChat,
+  IconCuore,
   IconDocumento,
   IconMessaggi,
   IconProfilo,
@@ -17,6 +18,7 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 const NAV = [
   { href: "/dashboard", labelKey: "vesta" as const, Icon: IconChat },
   { href: "/stanze", labelKey: "stanze" as const, Icon: IconCasa },
+  { href: "/preferiti", labelKey: "preferiti" as const, Icon: IconCuore },
   { href: "/applications", labelKey: "candidature" as const, Icon: IconDocumento },
   { href: "/messages", labelKey: "messaggi" as const, Icon: IconMessaggi },
   { href: "/profilo", labelKey: "profilo" as const, Icon: IconProfilo },
@@ -26,6 +28,7 @@ const LABELS = {
   it: {
     vesta: "Vesta",
     stanze: "Stanze",
+    preferiti: "Preferiti",
     candidature: "Candidature",
     messaggi: "Messaggi",
     profilo: "Profilo",
@@ -35,6 +38,7 @@ const LABELS = {
   en: {
     vesta: "Vesta",
     stanze: "Rooms",
+    preferiti: "Saved",
     candidature: "Applications",
     messaggi: "Messages",
     profilo: "Profile",
@@ -143,7 +147,7 @@ export default function StudentShell({
         className="fixed inset-x-0 bottom-0 z-40 border-t border-sea-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
         aria-label={copy.area}
       >
-        <ul className="mx-auto grid max-w-lg grid-cols-5">
+        <ul className="mx-auto grid max-w-lg grid-cols-6">
           {NAV.map(({ href, labelKey, Icon }) => {
             const active = isActive(pathname, href);
             return (

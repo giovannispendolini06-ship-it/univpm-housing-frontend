@@ -69,9 +69,15 @@ export default function LandingNavbar() {
           </Link>
           <Link
             href="/login"
-            className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sea-700"
+            className="rounded-full border border-sea-200 px-3.5 py-2 text-sm font-semibold text-sea-700 transition hover:border-sea-400 hover:bg-sea-50"
           >
             {t.nav.login}
+          </Link>
+          <Link
+            href="/login?mode=signup"
+            className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sea-700"
+          >
+            {t.nav.signup}
           </Link>
         </div>
 
@@ -152,12 +158,20 @@ export default function LandingNavbar() {
           >
             📲 {t.nav.installApp}
           </Link>
-          <Link
-            href="/login"
-            className="mt-2 rounded-full bg-sea-600 px-4 py-2.5 text-center text-sm font-semibold text-white"
-          >
-            {t.nav.login}
-          </Link>
+          <div className="mt-2 flex flex-col gap-2">
+            <Link
+              href="/login"
+              className="rounded-full border border-sea-200 px-4 py-2.5 text-center text-sm font-semibold text-sea-700"
+            >
+              {t.nav.login}
+            </Link>
+            <Link
+              href="/login?mode=signup"
+              className="rounded-full bg-sea-600 px-4 py-2.5 text-center text-sm font-semibold text-white"
+            >
+              {t.nav.signup}
+            </Link>
+          </div>
         </nav>
       )}
     </header>

@@ -31,9 +31,11 @@ type ViewMode = "list" | "map";
 export default function StanzeBrowse({
   listings,
   initialView = "list",
+  savedRoomIds = [],
 }: {
   listings: Listing[];
   initialView?: ViewMode;
+  savedRoomIds?: string[];
 }) {
   const { t } = useLocale();
   const M = t.listingsMap;
@@ -242,6 +244,7 @@ export default function StanzeBrowse({
                 <StanzeListWithCompare
                   listings={filtered}
                   expandedGrid={!collapsed}
+                  savedRoomIds={savedRoomIds}
                 />
               )}
             </div>

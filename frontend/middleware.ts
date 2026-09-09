@@ -48,11 +48,14 @@ export async function middleware(request: NextRequest) {
     path.startsWith("/owner") ||
     path.startsWith("/applications") ||
     path.startsWith("/messages") ||
-    path.startsWith("/profilo");
+    path.startsWith("/profilo") ||
+    path.startsWith("/preferiti");
   const isOnboarding = path.startsWith("/onboarding");
   const isStudentExtra = path.startsWith("/applications");
   const isSharedAuth =
-    path.startsWith("/messages") || path.startsWith("/profilo");
+    path.startsWith("/messages") ||
+    path.startsWith("/profilo") ||
+    path.startsWith("/preferiti");
 
   // Non loggato e prova ad aprire un'area protetta → rimandalo al login
   if (!user && (isProtectedArea || isOnboarding)) {
@@ -73,10 +76,27 @@ export async function middleware(request: NextRequest) {
     // Gli admin non passano mai dall'onboarding.
     const needsOnboarding = profile?.role !== "admin" && profile?.profile_completed !== true;
 
-    // Già loggato e apre /login → mandalo dove deve andare
+    // Già loggato e apre /login → rispetta ?next= se sicuro, altrimenti home ruolo
     if (path === "/login") {
+      const nextRaw = request.nextUrl.searchParams.get("next");
+      const next =
+        nextRaw &&
+        nextRaw.startsWith("/") &&
+        !nextRaw.startsWith("//") &&
+        !nextRaw.includes("://")
+          ? nextRaw
+          : null;
       const url = request.nextUrl.clone();
-      url.pathname = needsOnboarding ? "/onboarding" : home;
+      url.pathname = next ?? (needsOnboarding ? "/onboarding" : home);
+      url.search = "";
+      // Preserve favorite resume params on the destination when next is a listing page
+      if (next && request.nextUrl.searchParams.get("action") === "favorite") {
+        const listingId = request.nextUrl.searchParams.get("listing_id");
+        if (listingId) {
+          url.searchParams.set("action", "favorite");
+          url.searchParams.set("listing_id", listingId);
+        }
+      }
       return NextResponse.redirect(url);
     }
 
@@ -128,5 +148,7 @@ export const config = {
     "/applications/:path*",
     "/messages/:path*",
     "/profilo/:path*",
+    "/preferiti",
+    "/preferiti/:path*",
   ],
 };
