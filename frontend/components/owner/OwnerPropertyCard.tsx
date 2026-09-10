@@ -4,6 +4,7 @@ import Link from "next/link";
 import ApplicationStatusButtons from "@/components/applications/ApplicationStatusButtons";
 import MatchScoreRing from "@/components/MatchScoreRing";
 import EscrowStatusPanel from "@/components/escrow/EscrowStatusPanel";
+import StudentReviewSummary from "@/components/reviews/StudentReviewSummary";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { EscrowCoverage } from "@/lib/escrow";
 
@@ -12,10 +13,15 @@ export type OwnerCandidate = {
   roomLabel: string;
   status: string;
   message: string | null;
+  studentId: string;
   studentName: string;
   studentVerified: boolean;
   studentEmail: string | null;
   matchScore: number | null;
+  reviewAverage: number | null;
+  reviewCount: number;
+  reviewsVerified: boolean;
+  reviewSnippets: { id: string; rating: number; comment: string }[];
 };
 
 export type OwnerPropertyCardProps = {
@@ -161,6 +167,18 @@ export default function OwnerPropertyCard({
                         {L.verifiedStudent}
                       </span>
                     )}
+                    <StudentReviewSummary
+                      reviews={c.reviewSnippets.map((r) => ({
+                        id: r.id,
+                        rating: r.rating,
+                        comment: r.comment,
+                        createdAt: "",
+                        authorDisplayName: null,
+                      }))}
+                      average={c.reviewAverage}
+                      count={c.reviewCount}
+                      verified={c.reviewsVerified}
+                    />
                   </div>
                   {c.matchScore != null && (
                     <div className="text-center">

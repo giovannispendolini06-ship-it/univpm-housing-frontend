@@ -544,9 +544,14 @@ export async function endTenancy(formData: FormData) {
     .eq("id", roomId);
   if (roomError) throw new Error(`Errore nell'aggiornare la stanza: ${roomError.message}`);
 
+  // Invito recensioni reciproche (studente + proprietario). Idempotente via review_invite_sent_at.
+  const { sendReviewInvitesForTenancy } = await import("@/lib/review-invites");
+  await sendReviewInvitesForTenancy(db, tenancyId);
+
   revalidatePath(`/admin/properties/${propertyId}`);
   revalidatePath("/admin");
   revalidatePath("/admin/users");
+  revalidatePath("/recensioni");
 }
 
 // ---------------------------------------------------------------------------

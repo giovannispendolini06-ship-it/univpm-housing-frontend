@@ -24,7 +24,7 @@ export default function RoomTenancyControl({
   if (tenancy) {
     function handleEnd() {
       const confirmed = window.confirm(
-        `Segnare come terminato l'affitto di ${tenancy!.tenantName}? La stanza tornerà disponibile.`,
+        `Segnare come terminato l'affitto di ${tenancy!.tenantName}? La stanza tornerà disponibile e verranno inviati gli inviti a lasciare una recensione.`,
       );
       if (!confirmed) return;
 

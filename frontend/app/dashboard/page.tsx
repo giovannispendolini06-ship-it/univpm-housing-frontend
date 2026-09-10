@@ -17,6 +17,7 @@ import {
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import VerificationPanel from "@/components/VerificationPanel";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import PendingReviewsBanner from "@/components/reviews/PendingReviewsBanner";
 import type { VerificationStatus } from "@/lib/verification";
 import Link from "next/link";
 
@@ -225,6 +226,8 @@ export default function StudentDashboardPage() {
             />
           </div>
         )}
+
+        {studentId && <PendingReviewsBanner />}
 
         {myTenancy && <MyHomeCard tenancy={myTenancy} />}
         {studentId && myTenancy && <MyPaymentsSection studentId={studentId} />}

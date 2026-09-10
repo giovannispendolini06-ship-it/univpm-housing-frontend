@@ -782,3 +782,118 @@ export function buildPaymentConfirmedEmail(input: {
     }),
   };
 }
+
+// ----------------------------------------------------------------------------
+// Email: invita a lasciare una recensione post-soggiorno
+// ----------------------------------------------------------------------------
+export function buildReviewInviteEmail(input: {
+  fullName: string;
+  role: "student" | "owner";
+  roomLabel: string;
+  zoneLabel: string;
+  reviewUrl: string;
+  locale?: "it" | "en";
+}) {
+  const locale = input.locale ?? "it";
+  const isEn = locale === "en";
+  const place = input.zoneLabel || input.roomLabel;
+
+  const bodyHtml = isEn
+    ? `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      How was your stay, ${input.fullName}?
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Your tenancy for <strong>${input.roomLabel}</strong>${
+        place ? ` (${place})` : ""
+      } has ended. Coabito only unlocks reviews after move-out —
+      so they stay honest and useful for the next person.
+    </p>
+    <p style="margin:0 0 24px; color:${COLORS.ink};">
+      ${
+        input.role === "student"
+          ? "Leave a short review of the room / landlord (1–5 ★)."
+          : "Leave a short review of your tenant (1–5 ★). Other landlords will see it when they receive an application — never on a public page."
+      }
+    </p>
+    <a href="${input.reviewUrl}"
+       style="display:inline-block; background-color:${COLORS.sea600}; color:#ffffff; text-decoration:none; font-weight:600; font-size:14px; padding:12px 22px; border-radius:999px;">
+      Leave a review
+    </a>
+  `
+    : `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Com'è andato, ${input.fullName}?
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Il soggiorno per <strong>${input.roomLabel}</strong>${
+        place ? ` (${place})` : ""
+      } è terminato. Su Coabito le recensioni si sbloccano solo a fine affitto —
+      così restano sincere e utili a chi viene dopo.
+    </p>
+    <p style="margin:0 0 24px; color:${COLORS.ink};">
+      ${
+        input.role === "student"
+          ? "Lascia una breve recensione della stanza / del proprietario (1–5 ★)."
+          : "Lascia una breve recensione dell'inquilino (1–5 ★). La vedranno altri proprietari solo quando ricevono una sua candidatura — mai in pubblico."
+      }
+    </p>
+    <a href="${input.reviewUrl}"
+       style="display:inline-block; background-color:${COLORS.sea600}; color:#ffffff; text-decoration:none; font-weight:600; font-size:14px; padding:12px 22px; border-radius:999px;">
+      Lascia una recensione
+    </a>
+  `;
+
+  return {
+    subject: isEn
+      ? "Your Coabito stay ended — leave a review"
+      : "Soggiorno terminato — lascia una recensione su Coabito",
+    html: renderEmailLayout({
+      preheader: isEn
+        ? "Reviews unlock only after move-out"
+        : "Le recensioni si sbloccano solo a fine soggiorno",
+      bodyHtml,
+      locale,
+    }),
+  };
+}
+
+// ----------------------------------------------------------------------------
+// Email interna: segnalazione recensione
+// ----------------------------------------------------------------------------
+export function buildReviewReportAdminEmail(input: {
+  reviewId: string;
+  reason: string;
+  reporterEmail: string | null;
+  rating: number;
+  comment: string;
+  targetType: string;
+}) {
+  const bodyHtml = `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Segnalazione recensione
+    </h1>
+    <p style="margin:0 0 8px; color:${COLORS.inkMuted}; font-size:13px;">
+      Review ID: <code>${input.reviewId}</code> · target: ${input.targetType} ·
+      stelline: ${input.rating}/5
+    </p>
+    <p style="margin:0 0 12px; color:${COLORS.ink};">
+      <strong>Motivo:</strong> ${input.reason}
+    </p>
+    <p style="margin:0 0 12px; color:${COLORS.ink};">
+      <strong>Testo recensito:</strong> ${input.comment}
+    </p>
+    <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
+      Segnalato da: ${input.reporterEmail ?? "sconosciuto"}
+    </p>
+  `;
+
+  return {
+    subject: `[Coabito] Segnalazione recensione ${input.reviewId.slice(0, 8)}`,
+    html: renderEmailLayout({
+      preheader: "Nuova segnalazione recensione",
+      bodyHtml,
+      locale: "it",
+    }),
+  };
+}

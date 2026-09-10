@@ -8,9 +8,15 @@ import ApplyButton from "@/components/listings/ApplyButton";
 import ListingViewTracker from "@/components/listings/ListingViewTracker";
 import SaveListingButton from "@/components/listings/SaveListingButton";
 import ResumePendingFavorite from "@/components/listings/ResumePendingFavorite";
+import ListingReviewsSection from "@/components/reviews/ListingReviewsSection";
 import { getPublicListing } from "@/lib/listings";
 import { isRoomSavedForCurrentUser } from "@/app/favorites/actions";
 import { getOptionalSession } from "@/lib/auth/session";
+import { createServiceSupabaseClient } from "@/lib/supabase/server";
+import {
+  listLandlordReviewsForRoom,
+  summarizeReviews,
+} from "@/lib/data/reviews";
 import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
@@ -84,6 +90,15 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
   const session = await getOptionalSession();
   const isAuthenticated = Boolean(session);
 
+  let listingReviews: Awaited<ReturnType<typeof listLandlordReviewsForRoom>> = [];
+  try {
+    const db = createServiceSupabaseClient();
+    listingReviews = await listLandlordReviewsForRoom(db, listing.id);
+  } catch {
+    listingReviews = [];
+  }
+  const reviewSummary = summarizeReviews(listingReviews);
+
   return (
     <main className="bg-bg">
       <LandingNavbar />
@@ -121,6 +136,11 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
                 {listing.landlordVerified && (
                   <span className="rounded-full bg-sea-50 px-2.5 py-1 text-[11px] font-semibold text-sea-700">
                     Proprietario verificato
+                  </span>
+                )}
+                {reviewSummary.verified && (
+                  <span className="rounded-full bg-sea-600 px-2.5 py-1 text-[11px] font-semibold text-white">
+                    Recensioni verificate
                   </span>
                 )}
               </div>
@@ -185,6 +205,13 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
                   </ul>
                 </div>
               )}
+
+              <ListingReviewsSection
+                reviews={listingReviews}
+                average={reviewSummary.average}
+                count={reviewSummary.count}
+                verified={reviewSummary.verified}
+              />
 
               <div className="rounded-xl2 bg-sea-50 px-4 py-3 text-sm text-ink-muted">
                 <p className="font-display text-sm font-bold text-ink">

@@ -249,6 +249,29 @@ export interface SavedListing {
   createdAt: string;
 }
 
+export type ReviewTargetType = "landlord" | "student";
+
+export interface Review {
+  id: string;
+  tenancyId: string;
+  authorId: string;
+  targetType: ReviewTargetType;
+  /** User id of landlord or student being reviewed */
+  targetId: string;
+  roomId: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+export interface ReviewReport {
+  id: string;
+  reviewId: string;
+  reporterId: string | null;
+  reason: string;
+  createdAt: string;
+}
+
 export interface Report {
   id: string;
   reporterId: string;
@@ -261,6 +284,7 @@ export interface Report {
 /* -------------------------------------------------------------------------- */
 /* TODO — not in schema yet                                                    */
 /* -------------------------------------------------------------------------- */
-// Review, Subscription, Transaction (marketplace take-rate), peer Conversation,
-// Report table, University as first-class SEO entity.
+// Subscription, Transaction (marketplace take-rate), peer Conversation,
+// University as first-class SEO entity.
 // SavedListing → public.saved_listings (migration_saved_listings.sql).
+// Review → public.reviews (migration_reviews.sql) — implemented.
