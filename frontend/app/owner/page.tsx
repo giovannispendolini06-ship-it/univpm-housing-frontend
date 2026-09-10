@@ -21,6 +21,10 @@ import {
 } from "@/lib/owner/guaranteed-payout";
 import { listApplicationsForOwnerRooms } from "@/lib/data/applications";
 import {
+  listStudentReviewsForOwners,
+  summarizeReviews,
+} from "@/lib/data/reviews";
+import {
   computeEscrowAmountCents,
   type EscrowCoverage,
 } from "@/lib/escrow";
@@ -180,11 +184,34 @@ export default async function OwnerDashboardPage() {
     const studentId = (student as { id?: string } | null)?.id ?? "";
     const verification = (student as { verification_status?: string } | null)
       ?.verification_status;
+
+    let reviewAverage: number | null = null;
+    let reviewCount = 0;
+    let reviewsVerified = false;
+    let reviewSnippets: { id: string; rating: number; comment: string }[] = [];
+    if (studentId) {
+      try {
+        const studentReviews = await listStudentReviewsForOwners(db, studentId);
+        const summary = summarizeReviews(studentReviews);
+        reviewAverage = summary.average;
+        reviewCount = summary.count;
+        reviewsVerified = summary.verified;
+        reviewSnippets = studentReviews.slice(0, 2).map((r) => ({
+          id: r.id,
+          rating: r.rating,
+          comment: r.comment,
+        }));
+      } catch {
+        /* table may not be migrated yet */
+      }
+    }
+
     const candidate: OwnerCandidate = {
       applicationId: String(app.id),
       roomLabel: (room as { room_label?: string } | null)?.room_label ?? "Stanza",
       status: String(app.status),
       message: app.message ? String(app.message) : null,
+      studentId,
       studentName:
         (student as { full_name?: string } | null)?.full_name?.trim() || "Studente",
       studentVerified: verification === "verified",
@@ -192,6 +219,10 @@ export default async function OwnerDashboardPage() {
       matchScore: studentId
         ? (scoreByKey.get(`${studentId}:${app.room_id}`) ?? null)
         : null,
+      reviewAverage,
+      reviewCount,
+      reviewsVerified,
+      reviewSnippets,
     };
     const list = candidatesByProperty.get(propertyId) ?? [];
     list.push(candidate);
@@ -260,6 +291,12 @@ export default async function OwnerDashboardPage() {
             className="rounded-full border border-sea-200 bg-white px-4 py-2 text-sm font-semibold text-ink"
           >
             Messaggi
+          </Link>
+          <Link
+            href="/recensioni"
+            className="rounded-full border border-sea-200 bg-white px-4 py-2 text-sm font-semibold text-ink"
+          >
+            Recensioni
           </Link>
         </div>
 

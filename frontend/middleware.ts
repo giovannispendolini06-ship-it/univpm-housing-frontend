@@ -49,13 +49,15 @@ export async function middleware(request: NextRequest) {
     path.startsWith("/applications") ||
     path.startsWith("/messages") ||
     path.startsWith("/profilo") ||
-    path.startsWith("/preferiti");
+    path.startsWith("/preferiti") ||
+    path.startsWith("/recensioni");
   const isOnboarding = path.startsWith("/onboarding");
   const isStudentExtra = path.startsWith("/applications");
   const isSharedAuth =
     path.startsWith("/messages") ||
     path.startsWith("/profilo") ||
-    path.startsWith("/preferiti");
+    path.startsWith("/preferiti") ||
+    path.startsWith("/recensioni");
 
   // Non loggato e prova ad aprire un'area protetta → rimandalo al login
   if (!user && (isProtectedArea || isOnboarding)) {
@@ -150,5 +152,7 @@ export const config = {
     "/profilo/:path*",
     "/preferiti",
     "/preferiti/:path*",
+    "/recensioni",
+    "/recensioni/:path*",
   ],
 };
