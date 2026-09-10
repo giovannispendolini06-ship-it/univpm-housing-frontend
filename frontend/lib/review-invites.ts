@@ -84,6 +84,7 @@ export async function processDueReviewInvites(
     }
 
     let allOk = true;
+    let anySent = false;
 
     if (studentEmail) {
       const mail = buildReviewInviteEmail({
@@ -98,8 +99,10 @@ export async function processDueReviewInvites(
         subject: mail.subject,
         html: mail.html,
       });
-      if (ok) sent += 1;
-      else {
+      if (ok) {
+        sent += 1;
+        anySent = true;
+      } else {
         failed += 1;
         allOk = false;
       }
@@ -118,16 +121,18 @@ export async function processDueReviewInvites(
         subject: mail.subject,
         html: mail.html,
       });
-      if (ok) sent += 1;
-      else {
+      if (ok) {
+        sent += 1;
+        anySent = true;
+      } else {
         failed += 1;
         allOk = false;
       }
     }
 
-    // Stamp even if one side failed, to avoid infinite retries flooding the other.
-    // Only skip stamp when both failed and we want retry — prefer stamp after attempt.
-    if (allOk || studentEmail || ownerEmail) {
+    // Stamp only when every attempted send succeeded, so cron can retry
+    // if Resend/network failed for either party.
+    if (anySent && allOk) {
       await db
         .from("room_tenancies")
         .update({ review_invite_sent_at: new Date().toISOString() })

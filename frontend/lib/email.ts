@@ -874,17 +874,17 @@ export function buildReviewReportAdminEmail(input: {
       Segnalazione recensione
     </h1>
     <p style="margin:0 0 8px; color:${COLORS.inkMuted}; font-size:13px;">
-      Review ID: <code>${input.reviewId}</code> · target: ${input.targetType} ·
+      Review ID: <code>${escapeHtml(input.reviewId)}</code> · target: ${escapeHtml(input.targetType)} ·
       stelline: ${input.rating}/5
     </p>
     <p style="margin:0 0 12px; color:${COLORS.ink};">
-      <strong>Motivo:</strong> ${input.reason}
+      <strong>Motivo:</strong> ${escapeHtml(input.reason)}
     </p>
     <p style="margin:0 0 12px; color:${COLORS.ink};">
-      <strong>Testo recensito:</strong> ${input.comment}
+      <strong>Testo recensito:</strong> ${escapeHtml(input.comment)}
     </p>
     <p style="margin:0; color:${COLORS.inkMuted}; font-size:13px;">
-      Segnalato da: ${input.reporterEmail ?? "sconosciuto"}
+      Segnalato da: ${escapeHtml(input.reporterEmail ?? "sconosciuto")}
     </p>
   `;
 
