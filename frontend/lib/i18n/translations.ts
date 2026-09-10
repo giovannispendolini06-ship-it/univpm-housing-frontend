@@ -8,8 +8,11 @@ export const translations = {
       howItWorks: "Come funziona",
       services: "Servizi",
       rooms: "Stanze",
+      favorites: "Preferiti",
       installApp: "Installa l'app",
       login: "Accedi",
+      signup: "Registrati",
+      loginSignup: "Accedi / Registrati",
       waitlist: "Lista d'attesa",
     },
     hero: {
@@ -677,6 +680,9 @@ export const translations = {
       shareAria: "Condividi questa stanza",
       shareCopied: "Link copiato",
       filterGuaranteed: "Solo canone garantito Coabito",
+      saveFavorite: "Salva nei preferiti",
+      savedFavorite: "Nei preferiti",
+      savingFavorite: "Un attimo…",
     },
     listingsFilters: {
       title: "Filtri",
@@ -1213,8 +1219,11 @@ export const translations = {
       howItWorks: "How it works",
       services: "Services",
       rooms: "Rooms",
+      favorites: "Favorites",
       installApp: "Install the app",
       login: "Log in",
+      signup: "Sign up",
+      loginSignup: "Log in / Sign up",
       waitlist: "Waitlist",
     },
     hero: {
@@ -1882,6 +1891,9 @@ export const translations = {
       shareAria: "Share this room",
       shareCopied: "Link copied",
       filterGuaranteed: "Coabito guaranteed rent only",
+      saveFavorite: "Save to favorites",
+      savedFavorite: "Saved",
+      savingFavorite: "One moment…",
     },
     listingsFilters: {
       title: "Filters",

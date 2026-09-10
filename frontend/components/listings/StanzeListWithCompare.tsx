@@ -17,10 +17,14 @@ const MAX_COMPARE = 3;
 export default function StanzeListWithCompare({
   listings,
   expandedGrid = false,
+  savedRoomIds = [],
+  isAuthenticated = false,
 }: {
   listings: Listing[];
   /** When filters panel is collapsed on large screens → 4 columns */
   expandedGrid?: boolean;
+  savedRoomIds?: string[];
+  isAuthenticated?: boolean;
 }) {
   const { t } = useLocale();
   const C = t.listingsCompare;
@@ -54,6 +58,8 @@ export default function StanzeListWithCompare({
           <PublicRoomCard
             key={listing.id}
             listing={listing}
+            initialSaved={savedRoomIds.includes(listing.id)}
+            isAuthenticated={isAuthenticated}
             compareSelected={selectedIds.includes(listing.id)}
             compareDisabled={
               !selectedIds.includes(listing.id) && selectedIds.length >= MAX_COMPARE

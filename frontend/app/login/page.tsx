@@ -8,6 +8,8 @@ import { createClientSupabaseClient } from "@/lib/supabase/client";
 import { mapAuthErrorMessage } from "@/lib/auth-errors";
 import VestaAvatar from "@/components/VestaAvatar";
 import { IconCasa, IconStudente } from "@/components/icons/CoabitoIcons";
+import { addFavorite } from "@/app/favorites/actions";
+import { safeNextPath } from "@/lib/auth/safe-next";
 import styles from "./SignupSteps.module.css";
 type Mode = "signin" | "signup" | "forgot";
 type SignupRole = "student" | "owner";
@@ -53,6 +55,31 @@ function LoginPageInner() {
   const [signupStep, setSignupStep] = useState<SignupStep>(1);
   const [stepHint, setStepHint] = useState<string | null>(null);
   const [signupComplete, setSignupComplete] = useState(false);
+
+  const nextPath = safeNextPath(searchParams.get("next"), "/dashboard");
+  const pendingFavoriteId =
+    searchParams.get("action") === "favorite"
+      ? searchParams.get("listing_id")?.trim() || null
+      : null;
+
+  async function finishAuthRedirect(opts?: { preferOnboarding?: boolean }) {
+    if (pendingFavoriteId) {
+      try {
+        await addFavorite(pendingFavoriteId);
+      } catch {
+        /* best-effort: user can tap preferiti again */
+      }
+    }
+    // Resume favorite: always return to the listing context (no onboarding dump).
+    if (pendingFavoriteId && nextPath !== "/dashboard") {
+      router.push(nextPath);
+    } else if (opts?.preferOnboarding) {
+      router.push("/onboarding");
+    } else {
+      router.push(nextPath);
+    }
+    router.refresh();
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -129,16 +156,14 @@ function LoginPageInner() {
           }
         }
 
-        router.push("/onboarding");
-        router.refresh();
+        await finishAuthRedirect({ preferOnboarding: true });
         return;
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
 
-      router.push("/dashboard");
-      router.refresh();
+      await finishAuthRedirect();
     } catch (err) {
       setError(
         mapAuthErrorMessage(err, {

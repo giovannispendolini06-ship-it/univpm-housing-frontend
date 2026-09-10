@@ -6,6 +6,7 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 import MatchScoreRing from "@/components/MatchScoreRing";
 import VestaAvatar from "@/components/VestaAvatar";
 import ShareListingButton from "@/components/listings/ShareListingButton";
+import SaveListingButton from "@/components/listings/SaveListingButton";
 import { buildMatchFitSentence } from "@/lib/match-explanation";
 
 export default function PublicRoomCard({
@@ -13,11 +14,15 @@ export default function PublicRoomCard({
   compareSelected = false,
   compareDisabled = false,
   onToggleCompare,
+  initialSaved = false,
+  isAuthenticated = false,
 }: {
   listing: Listing;
   compareSelected?: boolean;
   compareDisabled?: boolean;
   onToggleCompare?: () => void;
+  initialSaved?: boolean;
+  isAuthenticated?: boolean;
 }) {
   const { t, locale } = useLocale();
   const total = listing.monthlyRent + listing.utilitiesEstimate;
@@ -88,6 +93,17 @@ export default function PublicRoomCard({
             <MatchScoreRing score={score} size={48} />
           </div>
         )}
+        <div
+          className={`absolute z-10 ${
+            score != null ? "right-2 top-16" : "right-2 top-2"
+          }`}
+        >
+          <SaveListingButton
+            roomId={listing.id}
+            initialSaved={initialSaved}
+            isAuthenticated={isAuthenticated}
+          />
+        </div>
       </div>
 
       <div className="flex flex-1 flex-col gap-2.5 p-4">

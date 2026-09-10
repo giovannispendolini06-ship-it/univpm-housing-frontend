@@ -50,25 +50,34 @@ export async function requireRole(roles: UserRole[]): Promise<SessionUser> {
 }
 
 export async function getOptionalSession(): Promise<SessionUser | null> {
-  const auth = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await auth.auth.getUser();
-  if (!user) return null;
+  try {
+    const auth = await createServerSupabaseClient();
+    const {
+      data: { user },
+    } = await auth.auth.getUser();
+    if (!user) return null;
 
-  const db = createServiceSupabaseClient();
-  const { data: profile } = await db
-    .from("users")
-    .select("role, full_name, profile_completed, verification_status, email")
-    .eq("id", user.id)
-    .single();
+    const db = createServiceSupabaseClient();
+    const { data: profile } = await db
+      .from("users")
+      .select("role, full_name, profile_completed, verification_status, email")
+      .eq("id", user.id)
+      .single();
 
-  return {
-    id: user.id,
-    email: profile?.email ?? user.email ?? null,
-    role: (profile?.role as UserRole) ?? "student",
-    fullName: profile?.full_name ?? null,
-    profileCompleted: profile?.profile_completed === true,
-    verificationStatus: profile?.verification_status ?? "none",
-  };
+    return {
+      id: user.id,
+      email: profile?.email ?? user.email ?? null,
+      role: (profile?.role as UserRole) ?? "student",
+      fullName: profile?.full_name ?? null,
+      profileCompleted: profile?.profile_completed === true,
+      verificationStatus: profile?.verification_status ?? "none",
+    };
+  } catch (err) {
+    // Unreachable Supabase / missing cookies → treat as anonymous
+    console.warn(
+      "[auth] getOptionalSession failed:",
+      err instanceof Error ? err.message : err,
+    );
+    return null;
+  }
 }

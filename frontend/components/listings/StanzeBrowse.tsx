@@ -31,9 +31,13 @@ type ViewMode = "list" | "map";
 export default function StanzeBrowse({
   listings,
   initialView = "list",
+  savedRoomIds = [],
+  isAuthenticated = false,
 }: {
   listings: Listing[];
   initialView?: ViewMode;
+  savedRoomIds?: string[];
+  isAuthenticated?: boolean;
 }) {
   const { t } = useLocale();
   const M = t.listingsMap;
@@ -242,6 +246,8 @@ export default function StanzeBrowse({
                 <StanzeListWithCompare
                   listings={filtered}
                   expandedGrid={!collapsed}
+                  savedRoomIds={savedRoomIds}
+                  isAuthenticated={isAuthenticated}
                 />
               )}
             </div>

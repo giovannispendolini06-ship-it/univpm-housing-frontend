@@ -262,4 +262,5 @@ export interface Report {
 /* TODO — not in schema yet                                                    */
 /* -------------------------------------------------------------------------- */
 // Review, Subscription, Transaction (marketplace take-rate), peer Conversation,
-// SavedListing table, Report table, University as first-class SEO entity.
+// Report table, University as first-class SEO entity.
+// SavedListing → public.saved_listings (migration_saved_listings.sql).
