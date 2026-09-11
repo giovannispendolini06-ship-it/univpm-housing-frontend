@@ -561,6 +561,44 @@ export function buildApplicationStatusEmail(input: {
   };
 }
 
+export function buildNewApplicationOwnerEmail(input: {
+  ownerName: string;
+  applicantName: string;
+  roomLabel: string;
+  zone?: string | null;
+  message?: string | null;
+}) {
+  const where = input.zone ? ` (${input.zone})` : "";
+  const messageBlock = input.message
+    ? `<p style="margin:16px 0; padding:12px; background:#f7f7f5; border-radius:8px; color:${COLORS.ink}; font-size:14px;">
+        <strong>Messaggio del candidato:</strong><br/>${input.message}
+      </p>`
+    : "";
+  const bodyHtml = `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Nuova candidatura
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Ciao ${input.ownerName || ""}, <strong>${input.applicantName}</strong> si è
+      candidato/a per <strong>${input.roomLabel}</strong>${where}.
+    </p>
+    ${messageBlock}
+    <p style="margin:0 0 16px; color:${COLORS.inkMuted}; font-size:13px;">
+      Puoi accettare o rifiutare dalla tua area proprietario. Se accetti, Coabito
+      registra automaticamente la tenancy e chiude le altre candidature su quella stanza.
+    </p>
+    ${ctaButton("Apri le candidature", `${SITE_URL}/owner`)}
+  `;
+
+  return {
+    subject: `Nuova candidatura — ${input.roomLabel} | Coabito`,
+    html: renderEmailLayout({
+      preheader: `${input.applicantName} si è candidato/a per ${input.roomLabel}`,
+      bodyHtml,
+    }),
+  };
+}
+
 // ----------------------------------------------------------------------------
 // Email 4: nuova stanza compatibile (notifica proattiva Vesta)
 // ----------------------------------------------------------------------------

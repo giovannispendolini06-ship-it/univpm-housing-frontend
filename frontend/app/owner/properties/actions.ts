@@ -162,3 +162,51 @@ export async function publishOwnerProperty(formData: FormData): Promise<void> {
   revalidatePath("/stanze");
   redirect(`/owner/properties/${propertyId}`);
 }
+
+/** Pause or reactivate a property listing owned by the current owner. */
+export async function setOwnerPropertyStatus(formData: FormData): Promise<void> {
+  const session = await requireRole(["owner"]);
+  const db = createServiceSupabaseClient();
+  const propertyId = String(formData.get("property_id") ?? "").trim();
+  const nextStatus = String(formData.get("status") ?? "").trim();
+  if (!propertyId || !["attivo", "sospeso"].includes(nextStatus)) return;
+
+  const { data: property } = await db
+    .from("properties")
+    .select("id, owner_id")
+    .eq("id", propertyId)
+    .maybeSingle();
+  if (!property || property.owner_id !== session.id) return;
+
+  await db.from("properties").update({ status: nextStatus }).eq("id", propertyId);
+
+  if (nextStatus === "sospeso") {
+    await db
+      .from("rooms")
+      .update({ is_available: false })
+      .eq("property_id", propertyId);
+  } else {
+    // Reactivate only rooms without an active tenancy
+    const { data: rooms } = await db
+      .from("rooms")
+      .select("id")
+      .eq("property_id", propertyId);
+    const roomIds = (rooms ?? []).map((r) => r.id as string);
+    if (roomIds.length > 0) {
+      const { data: active } = await db
+        .from("room_tenancies")
+        .select("room_id")
+        .in("room_id", roomIds)
+        .is("ended_at", null);
+      const occupied = new Set((active ?? []).map((t) => String(t.room_id)));
+      for (const id of roomIds) {
+        if (occupied.has(id)) continue;
+        await db.from("rooms").update({ is_available: true }).eq("id", id);
+      }
+    }
+  }
+
+  revalidatePath("/owner");
+  revalidatePath(`/owner/properties/${propertyId}`);
+  revalidatePath("/stanze");
+}

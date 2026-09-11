@@ -5,6 +5,7 @@ import ApplicationStatusButtons from "@/components/applications/ApplicationStatu
 import MatchScoreRing from "@/components/MatchScoreRing";
 import EscrowStatusPanel from "@/components/escrow/EscrowStatusPanel";
 import StudentReviewSummary from "@/components/reviews/StudentReviewSummary";
+import { setOwnerPropertyStatus } from "@/app/owner/properties/actions";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import type { EscrowCoverage } from "@/lib/escrow";
 
@@ -111,6 +112,8 @@ export default function OwnerPropertyCard({
     (c) => !["accepted", "rejected", "withdrawn"].includes(c.status),
   );
   const shown = candidates.slice(0, 8);
+  const isPaused = property.status === "sospeso";
+  const isActive = property.status === "attivo";
 
   return (
     <article className="rounded-xl2 border border-sea-100 bg-white p-4 shadow-card sm:p-5">
@@ -123,10 +126,44 @@ export default function OwnerPropertyCard({
             {property.zone ?? property.address}
           </h3>
           <p className="text-xs text-ink-muted">{property.address}</p>
+          <p className="mt-1 text-[11px] text-ink-muted">
+            {openCandidates.length === 1
+              ? "1 candidatura in corso"
+              : `${openCandidates.length} candidature in corso`}
+            {candidates.length > openCandidates.length
+              ? ` · ${candidates.length} totali`
+              : null}
+          </p>
         </div>
-        <span className="shrink-0 text-[11px] font-medium text-ink-muted">
-          {property.statusLabel}
-        </span>
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          <span className="text-[11px] font-medium text-ink-muted">
+            {property.statusLabel}
+          </span>
+          {isActive ? (
+            <form action={setOwnerPropertyStatus}>
+              <input type="hidden" name="property_id" value={property.id} />
+              <input type="hidden" name="status" value="sospeso" />
+              <button
+                type="submit"
+                className="rounded-full border border-sea-200 px-2.5 py-1 text-[11px] font-semibold text-ink"
+              >
+                Metti in pausa
+              </button>
+            </form>
+          ) : null}
+          {isPaused ? (
+            <form action={setOwnerPropertyStatus}>
+              <input type="hidden" name="property_id" value={property.id} />
+              <input type="hidden" name="status" value="attivo" />
+              <button
+                type="submit"
+                className="rounded-full bg-sea-600 px-2.5 py-1 text-[11px] font-semibold text-white"
+              >
+                Riattiva annuncio
+              </button>
+            </form>
+          ) : null}
+        </div>
       </div>
 
       <ul className="mt-3 space-y-1.5 border-t border-bg pt-3">
