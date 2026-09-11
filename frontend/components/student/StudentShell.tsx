@@ -9,6 +9,7 @@ import {
   IconCasa,
   IconChat,
   IconCuore,
+  IconStudente,
   IconDocumento,
   IconMessaggi,
   IconProfilo,
@@ -18,6 +19,7 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 const NAV = [
   { href: "/dashboard", labelKey: "vesta" as const, Icon: IconChat },
   { href: "/stanze", labelKey: "stanze" as const, Icon: IconCasa },
+  { href: "/coinquilini", labelKey: "coinquilini" as const, Icon: IconStudente },
   { href: "/preferiti", labelKey: "preferiti" as const, Icon: IconCuore },
   { href: "/applications", labelKey: "candidature" as const, Icon: IconDocumento },
   { href: "/messages", labelKey: "messaggi" as const, Icon: IconMessaggi },
@@ -28,6 +30,7 @@ const LABELS = {
   it: {
     vesta: "Vesta",
     stanze: "Stanze",
+    coinquilini: "Coinquilini",
     preferiti: "Preferiti",
     candidature: "Candidature",
     messaggi: "Messaggi",
@@ -38,6 +41,7 @@ const LABELS = {
   en: {
     vesta: "Vesta",
     stanze: "Rooms",
+    coinquilini: "Roommates",
     preferiti: "Saved",
     candidature: "Applications",
     messaggi: "Messages",
@@ -147,7 +151,7 @@ export default function StudentShell({
         className="fixed inset-x-0 bottom-0 z-40 border-t border-sea-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
         aria-label={copy.area}
       >
-        <ul className="mx-auto grid max-w-lg grid-cols-6">
+        <ul className="mx-auto grid max-w-lg grid-cols-7">
           {NAV.map(({ href, labelKey, Icon }) => {
             const active = isActive(pathname, href);
             return (

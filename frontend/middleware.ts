@@ -49,6 +49,7 @@ export async function middleware(request: NextRequest) {
     path.startsWith("/applications") ||
     path.startsWith("/messages") ||
     path.startsWith("/profilo") ||
+    path.startsWith("/coinquilini") ||
     path.startsWith("/preferiti") ||
     path.startsWith("/recensioni");
   const isOnboarding = path.startsWith("/onboarding");
@@ -56,6 +57,7 @@ export async function middleware(request: NextRequest) {
   const isSharedAuth =
     path.startsWith("/messages") ||
     path.startsWith("/profilo") ||
+    path.startsWith("/coinquilini") ||
     path.startsWith("/preferiti") ||
     path.startsWith("/recensioni");
 
@@ -150,6 +152,8 @@ export const config = {
     "/applications/:path*",
     "/messages/:path*",
     "/profilo/:path*",
+    "/coinquilini",
+    "/coinquilini/:path*",
     "/preferiti",
     "/preferiti/:path*",
     "/recensioni",

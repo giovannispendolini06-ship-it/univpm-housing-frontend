@@ -5,12 +5,16 @@ import { notFound } from "next/navigation";
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import LandingFooter from "@/components/landing/LandingFooter";
 import ApplyButton from "@/components/listings/ApplyButton";
+import GroupApplyPanel from "@/components/roommates/GroupApplyPanel";
 import ListingViewTracker from "@/components/listings/ListingViewTracker";
 import SaveListingButton from "@/components/listings/SaveListingButton";
 import ResumePendingFavorite from "@/components/listings/ResumePendingFavorite";
 import ListingReviewsSection from "@/components/reviews/ListingReviewsSection";
 import { getPublicListing } from "@/lib/listings";
 import { isRoomSavedForCurrentUser } from "@/app/favorites/actions";
+import {
+  listMatchedRoommateIds,
+} from "@/lib/data/roommates";
 import { getOptionalSession } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import {
@@ -89,10 +93,30 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
   const initialSaved = await isRoomSavedForCurrentUser(listing.id);
   const session = await getOptionalSession();
   const isAuthenticated = Boolean(session);
+  const db = createServiceSupabaseClient();
+
+  let groupMatchOptions: { userId: string; displayName: string }[] = [];
+  if (session?.role === "student") {
+    try {
+      const matchedIds = await listMatchedRoommateIds(db, session.id);
+      if (matchedIds.length > 0) {
+        const { data: matchedUsers } = await db
+          .from("users")
+          .select("id, full_name")
+          .in("id", matchedIds);
+        groupMatchOptions = (matchedUsers ?? []).map((u) => ({
+          userId: String(u.id),
+          displayName: (u.full_name as string | null)?.trim() || "Studente",
+        }));
+      }
+    } catch {
+      groupMatchOptions = [];
+    }
+  }
+
 
   let listingReviews: Awaited<ReturnType<typeof listLandlordReviewsForRoom>> = [];
   try {
-    const db = createServiceSupabaseClient();
     listingReviews = await listLandlordReviewsForRoom(db, listing.id);
   } catch {
     listingReviews = [];
@@ -237,6 +261,9 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
               variant="detail"
             />
             <ApplyButton roomId={listing.id} roomTitle={listing.title} />
+            {groupMatchOptions.length > 0 && (
+              <GroupApplyPanel roomId={listing.id} matches={groupMatchOptions} />
+            )}
             <p className="text-[11px] leading-relaxed text-ink-muted">
               Coabito è un marketplace: facilita matching e fiducia. Il contratto di
               locazione resta tra studente e proprietario, salvo diversa struttura

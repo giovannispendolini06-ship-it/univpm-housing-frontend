@@ -6,6 +6,8 @@ import { getLifestyleProfile } from "@/lib/data/profiles";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import type { VerificationStatus } from "@/lib/verification";
 import StudentShell from "@/components/student/StudentShell";
+import OpenToMatchingToggle from "@/components/roommates/OpenToMatchingToggle";
+import { getOpenToGroupMatching } from "@/lib/data/roommates";
 import SignOutButton from "@/components/SignOutButton";
 import DeleteAccountButton from "@/components/DeleteAccountButton";
 
@@ -26,6 +28,11 @@ export default async function ProfiloPage() {
     )
     .eq("id", session.id)
     .single();
+
+  const optedInMatching =
+    session.role === "student"
+      ? await getOpenToGroupMatching(db, session.id)
+      : false;
 
   const lifestyle =
     session.role === "student"
@@ -94,6 +101,12 @@ export default async function ProfiloPage() {
           )}
         </dl>
       </section>
+
+      {isStudent && (
+        <div className="mt-4">
+          <OpenToMatchingToggle initialOpen={optedInMatching} />
+        </div>
+      )}
 
       {lifestyle && (
         <section className="mt-4 rounded-xl2 bg-white p-5 shadow-card">
