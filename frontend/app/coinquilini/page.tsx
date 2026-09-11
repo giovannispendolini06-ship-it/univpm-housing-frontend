@@ -18,17 +18,33 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function CoinquiliniPage() {
+type Search = Promise<{ city?: string; university?: string }>;
+
+export default async function CoinquiliniPage({
+  searchParams,
+}: {
+  searchParams: Search;
+}) {
   const session = await requireSession();
   if (session.role !== "student") {
     redirect(session.role === "owner" ? "/owner" : "/dashboard");
   }
 
+  const sp = await searchParams;
+  const citySlug = sp.city?.trim() || null;
+  const universitySlug = sp.university?.trim() || null;
+
   const db = createServiceSupabaseClient();
   const optedIn = await getOpenToGroupMatching(db, session.id);
   const suggestions = optedIn
-    ? await listRoommateSuggestions(db, session.id, { limit: 8 })
+    ? await listRoommateSuggestions(db, session.id, {
+        limit: 8,
+        citySlug,
+        universitySlug,
+      })
     : [];
+
+  const filterLabel = [citySlug, universitySlug].filter(Boolean).join(" · ");
 
   return (
     <StudentShell>
@@ -48,6 +64,22 @@ export default async function CoinquiliniPage() {
             </Link>
             .
           </p>
+          {filterLabel ? (
+            <p className="mt-2 rounded-full bg-sea-50 px-3 py-1 text-xs font-semibold text-sea-700 inline-block">
+              Filtro community: {filterLabel}{" "}
+              <Link href="/coinquilini" className="ml-1 underline font-medium">
+                togli
+              </Link>
+            </p>
+          ) : (
+            <p className="mt-2 text-xs text-ink-muted">
+              Suggerimento: apri un gruppo in{" "}
+              <Link href="/community" className="font-semibold text-sea-700 underline">
+                Community
+              </Link>{" "}
+              per filtrare per città/università.
+            </p>
+          )}
         </header>
 
         <OpenToMatchingToggle initialOpen={optedIn} />

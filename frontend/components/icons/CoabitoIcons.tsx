@@ -222,6 +222,36 @@ export function IconCuore({ size = 24, className = "" }: IconProps) {
   );
 }
 
+/** Community — gruppi città / università */
+export function IconCommunity({ size = 24, className = "" }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden
+    >
+      <circle cx="9" cy="8" r="3" stroke="currentColor" strokeWidth="1.75" />
+      <circle cx="16.5" cy="9.5" r="2.25" stroke="currentColor" strokeWidth="1.75" />
+      <path
+        d="M3.5 18.5c.6-2.4 2.6-4 5.5-4s4.9 1.6 5.5 4"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+      <path
+        d="M14 18.5c.4-1.6 1.6-2.8 3.5-2.8 1.2 0 2.2.5 2.8 1.3"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function IconVerificato({ size = 24, className = "" }: IconProps) {
   return (
     <svg

@@ -67,10 +67,19 @@ export async function getOpenToGroupMatching(db: Db, userId: string) {
 export async function listRoommateSuggestions(
   db: Db,
   viewerId: string,
-  opts?: { limit?: number; locale?: MatchLocale },
+  opts?: {
+    limit?: number;
+    locale?: MatchLocale;
+    /** Optional city slug filter (from Community deep-link). */
+    citySlug?: string | null;
+    /** Optional university slug filter (from Community deep-link). */
+    universitySlug?: string | null;
+  },
 ): Promise<RoommateCard[]> {
   const limit = Math.min(Math.max(opts?.limit ?? 8, 5), 10);
   const locale = opts?.locale ?? "it";
+  const citySlug = opts?.citySlug?.trim() || null;
+  const universitySlug = opts?.universitySlug?.trim() || null;
 
   const { data: meRaw } = await db
     .from("student_profiles")
@@ -110,7 +119,7 @@ export async function listRoommateSuggestions(
     conversationByPeer.set(peer, m.conversation_id ? String(m.conversation_id) : null);
   }
 
-  const { data: candidates } = await db
+  let candidatesQuery = db
     .from("student_profiles")
     .select(
       `
@@ -123,6 +132,40 @@ export async function listRoommateSuggestions(
     .neq("user_id", viewerId)
     .limit(80);
 
+  // Prefer DB filter when slug columns are populated; still soft-filter below.
+  if (citySlug) {
+    candidatesQuery = candidatesQuery.or(
+      `city_slug.eq.${citySlug},city_slug.is.null`,
+    );
+  }
+  if (universitySlug) {
+    candidatesQuery = candidatesQuery.or(
+      `university_slug.eq.${universitySlug},university_slug.is.null`,
+    );
+  }
+
+  const { data: candidates } = await candidatesQuery;
+
+  // Resolve null slugs via city_id / university_id when filters are active
+  let cityIdForSlug: string | null = null;
+  let universityIdForSlug: string | null = null;
+  if (citySlug) {
+    const { data: city } = await db
+      .from("cities")
+      .select("id")
+      .eq("slug", citySlug)
+      .maybeSingle();
+    cityIdForSlug = city?.id ? String(city.id) : null;
+  }
+  if (universitySlug) {
+    const { data: uni } = await db
+      .from("universities")
+      .select("id")
+      .eq("slug", universitySlug)
+      .maybeSingle();
+    universityIdForSlug = uni?.id ? String(uni.id) : null;
+  }
+
   const scored: RoommateCard[] = [];
 
   for (const row of candidates ?? []) {
@@ -131,6 +174,25 @@ export async function listRoommateSuggestions(
 
     const user = Array.isArray(row.users) ? row.users[0] : row.users;
     if (!user || (user as { role?: string }).role !== "student") continue;
+
+    if (citySlug) {
+      const rowSlug = row.city_slug ? String(row.city_slug) : null;
+      const rowCityId = row.city_id ? String(row.city_id) : null;
+      const ok =
+        rowSlug === citySlug ||
+        (rowSlug == null && cityIdForSlug != null && rowCityId === cityIdForSlug);
+      if (!ok) continue;
+    }
+    if (universitySlug) {
+      const rowSlug = row.university_slug ? String(row.university_slug) : null;
+      const rowUniId = row.university_id ? String(row.university_id) : null;
+      const ok =
+        rowSlug === universitySlug ||
+        (rowSlug == null &&
+          universityIdForSlug != null &&
+          rowUniId === universityIdForSlug);
+      if (!ok) continue;
+    }
 
     const peer = toStudentProfileRow(row as Record<string, unknown>);
     if (!peer) continue;

@@ -10,6 +10,7 @@ import {
   IconChat,
   IconCuore,
   IconStudente,
+  IconCommunity,
   IconDocumento,
   IconMessaggi,
   IconProfilo,
@@ -19,6 +20,7 @@ import { useLocale } from "@/lib/i18n/LocaleContext";
 const NAV = [
   { href: "/dashboard", labelKey: "vesta" as const, Icon: IconChat },
   { href: "/stanze", labelKey: "stanze" as const, Icon: IconCasa },
+  { href: "/community", labelKey: "community" as const, Icon: IconCommunity },
   { href: "/coinquilini", labelKey: "coinquilini" as const, Icon: IconStudente },
   { href: "/preferiti", labelKey: "preferiti" as const, Icon: IconCuore },
   { href: "/applications", labelKey: "candidature" as const, Icon: IconDocumento },
@@ -30,6 +32,7 @@ const LABELS = {
   it: {
     vesta: "Vesta",
     stanze: "Stanze",
+    community: "Community",
     coinquilini: "Coinquilini",
     preferiti: "Preferiti",
     candidature: "Candidature",
@@ -41,6 +44,7 @@ const LABELS = {
   en: {
     vesta: "Vesta",
     stanze: "Rooms",
+    community: "Community",
     coinquilini: "Roommates",
     preferiti: "Saved",
     candidature: "Applications",
@@ -151,16 +155,16 @@ export default function StudentShell({
         className="fixed inset-x-0 bottom-0 z-40 border-t border-sea-100 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
         aria-label={copy.area}
       >
-        <ul className="mx-auto grid max-w-lg grid-cols-7">
+        <ul className="mx-auto flex max-w-lg gap-0.5 overflow-x-auto px-1">
           {NAV.map(({ href, labelKey, Icon }) => {
             const active = isActive(pathname, href);
             return (
-              <li key={href}>
+              <li key={href} className="min-w-[3.25rem] flex-1">
                 <Link
                   href={href}
                   aria-current={active ? "page" : undefined}
                   className={[
-                    "flex flex-col items-center gap-0.5 px-1 py-2 text-[10px] font-semibold transition",
+                    "flex flex-col items-center gap-0.5 px-0.5 py-2 text-[9px] font-semibold transition",
                     active ? "text-sea-700" : "text-ink-muted",
                   ].join(" ")}
                 >
