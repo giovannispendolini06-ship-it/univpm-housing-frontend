@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Coabito  Trova casa. Trova il coinquilino giusto.</title>
+  <desc id="desc">Placeholder banner di presentazione Coabito. Sostituisci con /assets/coabito-presentation.png quando disponibile.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F6E6A"/>
+      <stop offset="55%" stop-color="#14807B"/>
+      <stop offset="100%" stop-color="#0B4F4C"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.06"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="980" cy="120" r="160" fill="#FF6B4A" opacity="0.18"/>
+  <circle cx="180" cy="520" r="200" fill="#FFFFFF" opacity="0.06"/>
+
+  <!-- Building / apartment hint -->
+  <g transform="translate(780,210)">
+    <rect x="0" y="40" width="160" height="220" rx="16" fill="url(#card)" stroke="#FFFFFF" stroke-opacity="0.35"/>
+    <rect x="24" y="70" width="40" height="36" rx="6" fill="#FFFFFF" opacity="0.55"/>
+    <rect x="84" y="70" width="40" height="36" rx="6" fill="#FFFFFF" opacity="0.35"/>
+    <rect x="24" y="126" width="40" height="36" rx="6" fill="#FFFFFF" opacity="0.35"/>
+    <rect x="84" y="126" width="40" height="36" rx="6" fill="#FFFFFF" opacity="0.55"/>
+    <rect x="24" y="182" width="40" height="36" rx="6" fill="#FFFFFF" opacity="0.45"/>
+    <rect x="84" y="182" width="40" height="36" rx="6" fill="#FFFFFF" opacity="0.25"/>
+  </g>
+
+  <!-- Matching / people hint -->
+  <g transform="translate(720,250)">
+    <circle cx="0" cy="0" r="28" fill="#FFFFFF" opacity="0.9"/>
+    <circle cx="70" cy="8" r="24" fill="#FF6B4A" opacity="0.95"/>
+    <path d="M28 8 H46" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.8"/>
+  </g>
+
+  <text x="72" y="210" font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700" fill="#FFFFFF">Coabito</text>
+  <text x="72" y="280" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="32" fill="#FFFFFF" opacity="0.95">Trova casa. Trova il coinquilino giusto.</text>
+  <text x="72" y="340" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="20" fill="#FFFFFF" opacity="0.75">Piattaforma per studenti e proprietari · matching compatibile</text>
+  <text x="72" y="560" font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="16" fill="#FFFFFF" opacity="0.55">PLACEHOLDER  sostituisci con coabito-presentation.png</text>
+</svg>

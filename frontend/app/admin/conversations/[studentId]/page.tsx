@@ -6,6 +6,10 @@ import {
 } from "@/lib/supabase/server";
 import ChatBubble from "@/components/ChatBubble";
 import type { ChatMessage } from "@/lib/types";
+import AdminWhatsAppContactPanel from "@/components/admin/whatsapp/AdminWhatsAppContactPanel";
+import { getWhatsAppTemplates } from "@/app/admin/whatsapp/actions";
+import { splitFullName } from "@/lib/whatsapp-templates";
+import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +62,9 @@ export default async function AdminConversationDetailPage({
 
   if (!person) notFound();
 
+  const templates = await getWhatsAppTemplates();
+  const { firstName, lastName } = splitFullName(person.full_name);
+
   const { count: matchCount } = await db
     .from("match_scores")
     .select("*", { count: "exact", head: true })
@@ -87,6 +94,28 @@ export default async function AdminConversationDetailPage({
             <p className="text-sm text-ink-muted">Tel: {person.phone}</p>
           )}
         </header>
+
+        <div className="mb-6">
+          <AdminWhatsAppContactPanel
+            phone={person.phone}
+            displayName={person.full_name ?? "Studente"}
+            contactData={{
+              contactType: "student",
+              fullName: person.full_name,
+              firstName,
+              lastName,
+              phone: person.phone,
+              city: "Ancona",
+              coabitoLink: SITE_URL,
+            }}
+            entityKind="user"
+            entityId={person.id}
+            source="admin_conversation"
+            lastContactedAt={person.last_contacted_at ?? null}
+            lastContactStatus={person.last_contact_status ?? null}
+            templateOverrides={templates}
+          />
+        </div>
 
         <section className="mb-6 rounded-xl2 bg-surface p-5 shadow-card">
           <h2 className="mb-3 font-display text-sm font-bold text-ink">Profilo studente</h2>

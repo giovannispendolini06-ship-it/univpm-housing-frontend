@@ -3,19 +3,67 @@
  * WhatsApp già pronto con il numero giusto e il testo scritto, pronto solo
  * da rivedere e inviare — non parte nulla in automatico.
  *
- * Ripulisce il numero da spazi/trattini/parentesi. Se non inizia già con
- * "+", assume un numero italiano e antepone +39 — assunzione ragionevole
- * per ora, dato che i proprietari sono tutti italiani; se in futuro
- * Coabito gestirà proprietari esteri, andrà rivista.
+ * Formato consigliato per NEXT_PUBLIC_WHATSAPP_NUMBER:
+ *   393758222238
+ * (internazionale, senza + né spazi)
+ *
+ * Accetta anche: +393758222238, 3758222238, 03758222238
+ *
+ * Importante: se il numero include già il prefisso paese 39, NON ne
+ * antepone un altro (prima produceva 39393758222238 → “numero inesistente”).
  */
+
+/** Solo cifre E.164 senza `+`, o null se inutilizzabile. */
+export function normalizeWhatsAppDigits(phone: string): string | null {
+  const trimmed = phone.trim();
+  if (!trimmed) return null;
+
+  let digits = trimmed.replace(/\D/g, "");
+  if (!digits) return null;
+
+  // Già internazionale IT: 39 + 9–10 cifre nazionali (es. 393758222238)
+  if (/^39\d{9,10}$/.test(digits)) {
+    return digits;
+  }
+
+  // Altro prefisso paese già presente (11–15 cifre, non inizia con 0)
+  if (!digits.startsWith("0") && digits.length >= 11 && digits.length <= 15) {
+    return digits;
+  }
+
+  // Nazionale IT con 0 iniziale (es. 03758222238)
+  if (digits.startsWith("0")) {
+    digits = `39${digits.slice(1)}`;
+  } else if (digits.length >= 9 && digits.length <= 10) {
+    // Nazionale senza 0 (es. 3758222238)
+    digits = `39${digits}`;
+  }
+
+  if (digits.length < 10 || digits.length > 15) return null;
+  return digits;
+}
+
 export function buildWhatsAppLink(phone: string, message: string): string | null {
-  if (!phone) return null;
-
-  const cleaned = phone.replace(/[\s()-]/g, "");
-  const withCountryCode = cleaned.startsWith("+") ? cleaned : `+39${cleaned.replace(/^0/, "")}`;
-  const digitsOnly = withCountryCode.replace(/\D/g, "");
-
-  if (digitsOnly.length < 8) return null;
+  const digitsOnly = normalizeWhatsAppDigits(phone);
+  if (!digitsOnly) return null;
 
   return `https://wa.me/${digitsOnly}?text=${encodeURIComponent(message)}`;
+}
+
+/**
+ * Alias semantico per il flusso CRM admin.
+ * Normalizza telefono, URL-encode del testo, restituisce wa.me o null.
+ */
+export function createWhatsAppUrl(
+  phone: string | null | undefined,
+  message: string,
+): string | null {
+  if (!phone?.trim()) return null;
+  return buildWhatsAppLink(phone, message);
+}
+
+/** True se il numero è utilizzabile per wa.me. */
+export function isValidWhatsAppPhone(phone: string | null | undefined): boolean {
+  if (!phone?.trim()) return false;
+  return normalizeWhatsAppDigits(phone) != null;
 }
