@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { requireSession } from "@/lib/auth/session";
+import { isSeekerRole } from "@/lib/auth/roles";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import StudentShell from "@/components/student/StudentShell";
 import CommunityComposer from "@/components/community/CommunityComposer";
@@ -31,7 +32,7 @@ export default async function CommunityGroupPage({
   params: Params;
 }) {
   const session = await requireSession();
-  if (session.role !== "student") {
+  if (!isSeekerRole(session.role)) {
     redirect(session.role === "owner" ? "/owner" : "/dashboard");
   }
 

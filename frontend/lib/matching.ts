@@ -1,35 +1,37 @@
 // lib/matching.ts
 //
-// Calcolo del compatibility score tra uno studente e una stanza.
-// Pesi (totale 100): budget 30, distanza dal polo 20, affinità di studio
-// con i coinquilini 20, pulizia 15, socievolezza/ospiti 15.
+// Compatibility score between a seeker (student or worker) and a room.
+// Weights (total 100) depend on seeker type — see MATCH_WEIGHTS.
 //
-// NB: per confrontare con "i coinquilini già presenti" serve sapere chi
-// occupa già le altre stanze della stessa property. Lo schema originale
-// non aveva questa relazione: aggiungi una tabella di appoggio, es.
+// Student: budget 30, distance 20, study affinity 20, cleanliness 15, social 15
+// Worker:  budget 30, distance 25, quiet/SW focus 20, cleanliness 15, social 10
 //
-//   create table public.room_tenancies (
-//     id uuid primary key default gen_random_uuid(),
-//     room_id uuid not null references public.rooms(id) on delete cascade,
-//     student_id uuid not null references public.users(id) on delete cascade,
-//     started_at date not null default current_date,
-//     ended_at date
-//   );
-//
-// e considera "coinquilino attuale" chi ha ended_at is null.
-//
-// NOTA SUI POLI / campus_id: il punteggio distanza usa campus_id (FK a
-// campuses) e property_campus_distances — NON polo_univpm né le colonne
-// legacy distance_* su properties. polo_univpm resta nel profilo per Vesta
-// e i form; campus_id viene risolto in /api/chat dal codice polo che Vesta
-// estrae nel blocco STUDENT_DATA_JSON.
-//
-// NOTA SUL BILINGUISMO: i punteggi (i numeri) sono identici in ogni lingua
-// — cambia solo il testo di label/detail mostrato allo studente. Il
-// parametro "locale" qui sotto sceglie solo quale testo generare, non
-// influisce mai sul calcolo del punteggio stesso.
+// Distance still uses campus_id + property_campus_distances when available
+// (workers without campus get the neutral distance midpoint).
+
+import type { SeekerRole } from "@/lib/auth/roles";
 
 export type MatchLocale = "it" | "en";
+
+/** Compatibility weights by seeker type (must sum to 100). */
+export const MATCH_WEIGHTS = {
+  student: {
+    budget: 30,
+    distance: 20,
+    focus: 20,
+    cleanliness: 15,
+    social: 15,
+  },
+  worker: {
+    budget: 30,
+    distance: 25,
+    focus: 20,
+    cleanliness: 15,
+    social: 10,
+  },
+} as const;
+
+export type MatchWeights = (typeof MATCH_WEIGHTS)[SeekerRole];
 
 export interface StudentProfileRow {
   user_id: string;
@@ -73,10 +75,12 @@ const GUEST_FREQUENCY_RANK: Record<StudentProfileRow["guests_frequency"], number
   spesso: 3,
 };
 
+
 function scoreBudget(
   student: StudentProfileRow,
   room: RoomForMatching,
   locale: MatchLocale,
+  maxPoints: number,
 ): { points: number; reason: MatchReason } {
   const totalCost = room.price_monthly + room.estimated_utilities;
   const diff = student.budget_max - totalCost;
@@ -89,7 +93,7 @@ function scoreBudget(
     ratio = Math.max(0, 1 + diff / student.budget_max);
   }
 
-  const points = ratio * 30;
+  const points = ratio * maxPoints;
   return {
     points,
     reason: {
@@ -110,49 +114,73 @@ function scoreBudget(
 function scoreDistance(
   distanceKm: number | null,
   locale: MatchLocale,
+  maxPoints: number,
+  seekerType: SeekerRole,
 ): { points: number; reason: MatchReason } {
   const isIt = locale === "it";
+  const label =
+    seekerType === "worker"
+      ? isIt
+        ? "Vicinanza / spostamenti"
+        : "Commute / proximity"
+      : isIt
+        ? "Vicinanza al polo"
+        : "Distance from campus";
 
   if (distanceKm === null) {
     return {
-      points: 10,
+      points: maxPoints * 0.5,
       reason: {
-        label: isIt ? "Distanza dal polo" : "Distance from campus",
+        label,
         detail: isIt
-          ? "Distanza dal tuo polo non ancora disponibile per questa zona"
-          : "Distance from your campus not yet available for this area",
+          ? seekerType === "worker"
+            ? "Distanza dal luogo di riferimento non ancora disponibile per questa zona"
+            : "Distanza dal tuo polo non ancora disponibile per questa zona"
+          : seekerType === "worker"
+            ? "Distance from your reference area not yet available for this zone"
+            : "Distance from your campus not yet available for this area",
         weight: "basso",
       },
     };
   }
 
   const ratio = Math.max(0, Math.min(1, 1 - (distanceKm - 2) / 8));
-  const points = ratio * 20;
+  const points = ratio * maxPoints;
 
   return {
     points,
     reason: {
-      label: isIt ? "Vicinanza al polo" : "Distance from campus",
+      label,
       detail: isIt
-        ? `${distanceKm.toFixed(1)} km dal tuo polo di riferimento`
-        : `${distanceKm.toFixed(1)} km from your reference campus`,
+        ? `${distanceKm.toFixed(1)} km dal tuo punto di riferimento`
+        : `${distanceKm.toFixed(1)} km from your reference point`,
       weight: ratio >= 0.7 ? "alto" : ratio >= 0.4 ? "medio" : "basso",
     },
   };
 }
 
-function scoreRoommateAffinity(
+function scoreFocusAffinity(
   student: StudentProfileRow,
   roommates: StudentProfileRow[],
   locale: MatchLocale,
+  maxPoints: number,
+  seekerType: SeekerRole,
 ): { points: number; reason: MatchReason } {
   const isIt = locale === "it";
+  const label =
+    seekerType === "worker"
+      ? isIt
+        ? "Tranquillità / smart working"
+        : "Quiet / smart working"
+      : isIt
+        ? "Orari di studio"
+        : "Study hours";
 
   if (roommates.length === 0) {
     return {
-      points: 15,
+      points: maxPoints * 0.75,
       reason: {
-        label: isIt ? "Orari di studio" : "Study hours",
+        label,
         detail: isIt
           ? "Nessun coinquilino attuale: nessun potenziale conflitto di abitudini"
           : "No current roommates: no known habit conflicts",
@@ -166,24 +194,33 @@ function scoreRoommateAffinity(
   ).length;
   const habitRatio = sameHabitCount / roommates.length;
 
-  const smokingConflict = !student.tolerates_smokers && roommates.some((r) => r.is_smoker);
-  const points = habitRatio * 20 - (smokingConflict ? 8 : 0);
+  const smokingConflict =
+    !student.tolerates_smokers && roommates.some((r) => r.is_smoker);
+  const points = habitRatio * maxPoints - (smokingConflict ? 8 : 0);
 
   return {
     points: Math.max(0, points),
     reason: {
-      label: isIt ? "Orari di studio" : "Study hours",
+      label,
       detail: smokingConflict
         ? isIt
           ? "Attenzione: tra i coinquilini attuali c'è chi fuma in casa"
           : "Note: one of the current roommates smokes at home"
         : habitRatio >= 0.5
           ? isIt
-            ? "Le tue abitudini di studio combaciano con quelle di chi vive già lì"
-            : "Your study habits match those of who already lives there"
+            ? seekerType === "worker"
+              ? "Le tue esigenze di concentrazione combaciano con chi vive già lì"
+              : "Le tue abitudini di studio combaciano con quelle di chi vive già lì"
+            : seekerType === "worker"
+              ? "Your focus needs match who already lives there"
+              : "Your study habits match those of who already lives there"
           : isIt
-            ? "Abitudini di studio diverse rispetto ai coinquilini attuali"
-            : "Study habits differ from current roommates",
+            ? seekerType === "worker"
+              ? "Esigenze di tranquillità diverse rispetto ai coinquilini attuali"
+              : "Abitudini di studio diverse rispetto ai coinquilini attuali"
+            : seekerType === "worker"
+              ? "Quiet needs differ from current roommates"
+              : "Study habits differ from current roommates",
       weight: habitRatio >= 0.5 && !smokingConflict ? "alto" : "medio",
     },
   };
@@ -193,12 +230,13 @@ function scoreCleanliness(
   student: StudentProfileRow,
   roommates: StudentProfileRow[],
   locale: MatchLocale,
+  maxPoints: number,
 ): { points: number; reason: MatchReason } {
   const isIt = locale === "it";
 
   if (roommates.length === 0) {
     return {
-      points: 12,
+      points: maxPoints * 0.8,
       reason: {
         label: isIt ? "Pulizia" : "Cleanliness",
         detail: isIt
@@ -213,7 +251,7 @@ function scoreCleanliness(
     roommates.reduce((sum, r) => sum + r.cleanliness_level, 0) / roommates.length;
   const diff = Math.abs(student.cleanliness_level - avgCleanliness);
   const ratio = Math.max(0, 1 - diff / 4);
-  const points = ratio * 15;
+  const points = ratio * maxPoints;
 
   return {
     points,
@@ -236,12 +274,13 @@ function scoreSociability(
   student: StudentProfileRow,
   roommates: StudentProfileRow[],
   locale: MatchLocale,
+  maxPoints: number,
 ): { points: number; reason: MatchReason } {
   const isIt = locale === "it";
 
   if (roommates.length === 0) {
     return {
-      points: 12,
+      points: maxPoints * 0.8,
       reason: {
         label: isIt ? "Vita sociale" : "Social life",
         detail: isIt
@@ -258,7 +297,7 @@ function scoreSociability(
   const studentGuestRank = GUEST_FREQUENCY_RANK[student.guests_frequency];
   const diff = Math.abs(studentGuestRank - avgGuestRank);
   const ratio = Math.max(0, 1 - diff / 3);
-  const points = ratio * 15;
+  const points = ratio * maxPoints;
 
   return {
     points,
@@ -284,23 +323,47 @@ export function calculateMatchScore(
   currentRoommates: StudentProfileRow[],
   distanceKm: number | null,
   locale: MatchLocale = "it",
+  seekerType: SeekerRole = "student",
 ): MatchResult {
-  const budget = scoreBudget(student, room, locale);
-  const distance = scoreDistance(distanceKm, locale);
-  const roommateAffinity = scoreRoommateAffinity(student, currentRoommates, locale);
-  const cleanliness = scoreCleanliness(student, currentRoommates, locale);
-  const sociability = scoreSociability(student, currentRoommates, locale);
+  const weights = MATCH_WEIGHTS[seekerType];
+  const budget = scoreBudget(student, room, locale, weights.budget);
+  const distance = scoreDistance(distanceKm, locale, weights.distance, seekerType);
+  const focus = scoreFocusAffinity(
+    student,
+    currentRoommates,
+    locale,
+    weights.focus,
+    seekerType,
+  );
+  const cleanliness = scoreCleanliness(
+    student,
+    currentRoommates,
+    locale,
+    weights.cleanliness,
+  );
+  const sociability = scoreSociability(
+    student,
+    currentRoommates,
+    locale,
+    weights.social,
+  );
 
   const rawScore =
     budget.points +
     distance.points +
-    roommateAffinity.points +
+    focus.points +
     cleanliness.points +
     sociability.points;
 
   const score = Math.round(Math.max(0, Math.min(100, rawScore)));
 
-  const reasoning = [budget.reason, distance.reason, roommateAffinity.reason, cleanliness.reason, sociability.reason]
+  const reasoning = [
+    budget.reason,
+    distance.reason,
+    focus.reason,
+    cleanliness.reason,
+    sociability.reason,
+  ]
     .sort((a, b) => {
       const rank = { alto: 0, medio: 1, basso: 2 };
       return rank[a.weight] - rank[b.weight];

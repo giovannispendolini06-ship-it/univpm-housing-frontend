@@ -39,7 +39,14 @@ export async function POST(req: NextRequest) {
     .toLowerCase();
   const password = String(body.password ?? "");
   const fullName = String(body.fullName ?? "").trim();
-  const role = body.role === "owner" ? "owner" : body.role === "student" ? "student" : null;
+  const role =
+    body.role === "owner"
+      ? "owner"
+      : body.role === "worker"
+        ? "worker"
+        : body.role === "student"
+          ? "student"
+          : null;
   const consentGiven = body.consentGiven === true;
 
   if (!fullName) {

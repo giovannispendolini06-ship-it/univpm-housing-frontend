@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/auth/session";
+import { isSeekerRole } from "@/lib/auth/roles";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import {
   createCommunityPost,
@@ -11,7 +12,7 @@ import {
 
 export async function joinGroupAction(groupId: string) {
   const session = await requireSession();
-  if (session.role !== "student") {
+  if (!isSeekerRole(session.role)) {
     return { ok: false as const, error: "Solo gli studenti possono unirsi." };
   }
   const id = groupId?.trim();
@@ -28,7 +29,7 @@ export async function joinGroupAction(groupId: string) {
 
 export async function leaveGroupAction(groupId: string) {
   const session = await requireSession();
-  if (session.role !== "student") {
+  if (!isSeekerRole(session.role)) {
     return { ok: false as const, error: "Non autorizzato." };
   }
   const id = groupId?.trim();
@@ -48,7 +49,7 @@ export async function createPostAction(input: {
   content: string;
 }) {
   const session = await requireSession();
-  if (session.role !== "student") {
+  if (!isSeekerRole(session.role)) {
     return { ok: false as const, error: "Solo gli studenti possono scrivere." };
   }
   const groupId = input.groupId?.trim();

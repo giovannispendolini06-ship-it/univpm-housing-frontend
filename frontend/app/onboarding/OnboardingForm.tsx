@@ -7,7 +7,8 @@ import { track } from "@/lib/analytics";
 
 type Step = 1 | 2;
 
-export default function OnboardingForm({ role }: { role: "student" | "owner" }) {
+export default function OnboardingForm({ role }: { role: "student" | "worker" | "owner" }) {
+  const isSeeker = role === "student" || role === "worker";
   const { t } = useLocale();
   const [step, setStep] = useState<Step>(1);
   const [preview, setPreview] = useState<string | null>(null);
@@ -22,7 +23,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
   function goNext(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    if (role === "student" && step === 1) {
+    if (isSeeker && step === 1) {
       const fd = new FormData(e.currentTarget);
       if (!(fd.get("avatar") instanceof File) || (fd.get("avatar") as File).size === 0) {
         setError("La foto profilo è obbligatoria.");
@@ -48,7 +49,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
 
   function handleSubmit(formData: FormData) {
     setError(null);
-    track("onboarding_started", { role, step: role === "student" ? 2 : 1 });
+    track("onboarding_started", { role, step: isSeeker ? 2 : 1 });
     startTransition(async () => {
       const result = await completeOnboarding(formData);
       if (result?.error) setError(result.error);
@@ -59,10 +60,10 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
   return (
     <form
       action={handleSubmit}
-      onSubmit={role === "student" && step === 1 ? goNext : undefined}
+      onSubmit={isSeeker && step === 1 ? goNext : undefined}
       className="space-y-5"
     >
-      {role === "student" && (
+      {isSeeker && (
         <p className="text-xs font-medium text-ink-muted">
           Passaggio {step} di 2 — {step === 1 ? "Profilo" : "Preferenze casa"}
         </p>
@@ -125,7 +126,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
           />
         </div>
 
-        {role === "student" && (
+        {isSeeker && (
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
               {t.onboarding.dateOfBirth}
@@ -140,7 +141,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
         )}
       </div>
 
-      {role === "student" && step === 2 && (
+      {isSeeker && step === 2 && (
         <div className="space-y-4">
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
@@ -167,6 +168,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
               className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
             />
           </div>
+          {role === "student" && (
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
               Polo / campus *
@@ -186,6 +188,48 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
               <option value="altro">Altro</option>
             </select>
           </div>
+          )}
+          {role === "worker" && (
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Settore / tipo di lavoro (facoltativo)
+              </label>
+              <input
+                type="text"
+                name="job_sector"
+                placeholder="es. consulenza, sanità, tech…"
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Smart working
+              </label>
+              <select
+                name="smart_working_preference"
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+                defaultValue="hybrid"
+              >
+                <option value="never">Quasi mai da remoto</option>
+                <option value="hybrid">Ibrido</option>
+                <option value="mostly">Prevalentemente da remoto</option>
+                <option value="full">Full remote</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Orari indicativi (facoltativo)
+              </label>
+              <input
+                type="text"
+                name="work_hours_notes"
+                placeholder="es. 9–18, turni, weekend…"
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              />
+            </div>
+          </div>
+          )}
           <div>
             <label className="mb-1 block text-xs font-medium text-ink-muted">
               Livello di ordine (1 = rilassato, 5 = molto ordinato) *
@@ -246,7 +290,7 @@ export default function OnboardingForm({ role }: { role: "student" | "owner" }) 
         </p>
       )}
 
-      {role === "student" && step === 1 ? (
+      {isSeeker && step === 1 ? (
         <button
           type="submit"
           className="w-full rounded-full bg-sea-600 py-2.5 text-sm font-semibold text-white transition hover:bg-sea-700"

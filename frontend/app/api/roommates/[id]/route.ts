@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { getRoommateSafeProfile } from "@/lib/data/roommates";
+import { isSeekerRole } from "@/lib/auth/roles";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ type Params = { params: Promise<{ id: string }> };
 export async function GET(_req: Request, { params }: Params) {
   try {
     const session = await requireSession();
-    if (session.role !== "student") {
+    if (!isSeekerRole(session.role)) {
       return NextResponse.json({ error: "Solo studenti." }, { status: 403 });
     }
 

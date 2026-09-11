@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth/session";
+import { isSeekerRole } from "@/lib/auth/roles";
 import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
@@ -16,7 +17,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
     const session = await requireSession();
-    if (session.role !== "student") {
+    if (!isSeekerRole(session.role)) {
       return NextResponse.json({ error: "Solo studenti." }, { status: 403 });
     }
 

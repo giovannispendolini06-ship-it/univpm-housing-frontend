@@ -1,3 +1,4 @@
+import { isSeekerRole } from "@/lib/auth/roles";
 // app/api/chat/route.ts
 //
 // Flusso:
@@ -135,6 +136,16 @@ export async function POST(request: NextRequest) {
   // esporrebbero (es. profili di altri studenti per il confronto coinquilini).
   const db = createServiceSupabaseClient();
 
+  let seekerType: "student" | "worker" = "student";
+  {
+    const { data: roleRow } = await db
+      .from("users")
+      .select("role")
+      .eq("id", userId)
+      .maybeSingle();
+    if (roleRow?.role === "worker") seekerType = "worker";
+  }
+
   // --- 3. Chiamata a OpenAI ------------------------------------------------
   let assistantReplyRaw: string;
   try {
@@ -143,7 +154,7 @@ export async function POST(request: NextRequest) {
       model: OPENAI_MODEL,
       max_completion_tokens: 1024,
       messages: [
-        { role: "system", content: buildVestaSystemPrompt() },
+        { role: "system", content: buildVestaSystemPrompt(seekerType /* student|worker */) },
         ...trimmedHistory.map((item) => ({
           role: item.role,
           content: item.content,

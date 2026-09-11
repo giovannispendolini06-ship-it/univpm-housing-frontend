@@ -16,6 +16,9 @@ export type LifestyleUpsert = {
   toleratesSmokers?: boolean | null;
   campusId?: string | null;
   poloUnivpm?: string | null;
+  jobSector?: string | null;
+  smartWorkingPreference?: string | null;
+  workHoursNotes?: string | null;
 };
 
 export async function upsertLifestyleProfile(db: Db, input: LifestyleUpsert) {
@@ -44,6 +47,13 @@ export async function upsertLifestyleProfile(db: Db, input: LifestyleUpsert) {
   }
   if (input.campusId !== undefined) row.campus_id = input.campusId;
   if (input.poloUnivpm !== undefined) row.polo_univpm = input.poloUnivpm;
+  if (input.jobSector !== undefined) row.job_sector = input.jobSector;
+  if (input.smartWorkingPreference !== undefined) {
+    row.smart_working_preference = input.smartWorkingPreference;
+  }
+  if (input.workHoursNotes !== undefined) {
+    row.work_hours_notes = input.workHoursNotes;
+  }
 
   return db.from("student_profiles").upsert(row, { onConflict: "user_id" });
 }

@@ -10,6 +10,7 @@ import {
 } from "@/lib/data/applications";
 import { ensurePeerConversation } from "@/lib/data/messages";
 import { sendEmail, buildApplicationStatusEmail } from "@/lib/email";
+import { isSeekerRole } from "@/lib/auth/roles";
 
 export type ApplyResult =
   | { ok: true; applicationId: string }
@@ -35,7 +36,7 @@ export async function submitRoomApplication(input: {
     };
   }
 
-  if (session.role !== "student") {
+  if (!isSeekerRole(session.role)) {
     return {
       ok: false,
       error: "Solo gli account studente possono candidarsi.",

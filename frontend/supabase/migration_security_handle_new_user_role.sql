@@ -14,7 +14,7 @@ declare
   safe_role text;
 begin
   safe_role := case
-    when new.raw_user_meta_data->>'role' in ('student', 'owner')
+    when new.raw_user_meta_data->>'role' in ('student', 'worker', 'owner')
       then new.raw_user_meta_data->>'role'
     else 'student'
   end;
@@ -33,4 +33,4 @@ end;
 $$;
 
 comment on function public.handle_new_user() is
-  'Copies auth.users → public.users. Role limited to student|owner; admin only via ops SQL.';
+  'Copies auth.users → public.users. Role limited to student|worker|owner; admin only via ops SQL.';

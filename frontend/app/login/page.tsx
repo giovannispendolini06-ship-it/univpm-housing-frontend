@@ -12,7 +12,7 @@ import { addFavorite } from "@/app/favorites/actions";
 import { safeNextPath } from "@/lib/auth/safe-next";
 import styles from "./SignupSteps.module.css";
 type Mode = "signin" | "signup" | "forgot";
-type SignupRole = "student" | "owner";
+type SignupRole = "student" | "worker" | "owner";
 type SignupStep = 1 | 2 | 3;
 
 const SIGNUP_TOTAL = 3;
@@ -406,7 +406,7 @@ function LoginPageInner() {
 
               {signupStep === 1 && (
                 <>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => setRole("student")}
@@ -417,6 +417,17 @@ function LoginPageInner() {
                     >
                       <IconStudente size={30} />
                       <span>{t.login.iAmStudent}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRole("worker")}
+                      aria-pressed={role === "worker"}
+                      className={`${styles.roleCard} text-sea-600 ${
+                        role === "worker" ? styles.roleCardSelected : ""
+                      }`}
+                    >
+                      <IconStudente size={30} />
+                      <span>{t.login.iAmWorker}</span>
                     </button>
                     <button
                       type="button"

@@ -3,7 +3,7 @@ export type Locale = "it" | "en";
 export const translations = {
   it: {
     nav: {
-      forStudents: "Per gli studenti",
+      forStudents: "Per chi cerca casa",
       forOwners: "Per i proprietari",
       howItWorks: "Come funziona",
       services: "Servizi",
@@ -16,19 +16,19 @@ export const translations = {
       waitlist: "Lista d'attesa",
     },
     hero: {
-      badge: "Pensato per chi studia fuori sede",
+      badge: "Per chi si trasferisce per studio o lavoro",
       titlePart1: "La casa giusta. ",
       titleHighlight: "Le persone",
       titlePart2: " giuste.",
       subtitle:
-        "Marketplace abitativo per fuori sede: stanze trasparenti, profili verificabili e Compatibilità Coabito — per trovare stanza e coinquilini giusti, non solo un annuncio.",
+        "Marketplace abitativo per chi si trasferisce: stanze trasparenti, profili verificabili e Compatibilità Coabito — per trovare stanza e coinquilini giusti, non solo un annuncio.",
       ctaStudent: "Trova il tuo match",
       ctaOwner: "Pubblica un immobile",
       ctaBrowse: "Sfoglia le stanze",
-      freeNote: "Gratuito per gli studenti. Nessuna carta di credito richiesta.",
+      freeNote: "Gratuito per chi cerca casa. Nessuna carta di credito richiesta.",
       alreadyAccount: "Hai già un account? Accedi",
       seeExample: "Vedi un esempio",
-      socialProof: "{count} studenti già in lista d'attesa",
+      socialProof: "{count} persone già in lista d'attesa",
       liveCompatibility: "Compatibilità calcolata in tempo reale",
       mockBot: "Che facoltà fai, e quanto puoi spendere al mese?",
       mockUser: "Ingegneria, secondo anno. Max 420€",
@@ -37,7 +37,7 @@ export const translations = {
       badgeCompatTitle: "Compatibilità 92%",
       badgeCompatSub: "Calcolata in tempo reale",
       badgeFeesTitle: "Zero commissioni",
-      badgeFeesSub: "Per lo studente",
+      badgeFeesSub: "Per chi cerca casa",
     },
     launchCountdown: {
       days: "Le prime stanze arrivano tra {n} giorni",
@@ -50,7 +50,7 @@ export const translations = {
       ariaLabel: "Introduzione animata di Coabito",
     },
     howItWorksStudents: {
-      eyebrow: "Per gli studenti",
+      eyebrow: "Per chi cerca casa",
       title: "Tre passaggi, e Vesta fa il resto",
       ctaLabel: "Inizia a chattare con Vesta",
       steps: [
@@ -58,13 +58,13 @@ export const translations = {
           number: "1",
           title: "Racconta chi sei",
           description:
-            "Facoltà, ateneo, budget e data d'ingresso: bastano due minuti di chat, niente moduli infiniti.",
+            "Città, budget e data d'ingresso (e università se studi): bastano due minuti di chat, niente moduli infiniti.",
         },
         {
           number: "2",
           title: "Vesta capisce le tue abitudini",
           description:
-            "Orari di studio, vita sociale, pulizia: informazioni che di solito si scoprono solo dopo aver firmato.",
+            "Orari, vita sociale, pulizia e (se lavori) esigenze di smart working: informazioni che di solito si scoprono solo dopo aver firmato.",
         },
         {
           number: "3",
@@ -89,7 +89,7 @@ export const translations = {
           number: "2",
           title: "Pre-filtro degli interessati",
           description:
-            "Solo studenti compatibili — e, appena disponibili, verificati — arrivano fino a te: niente perditempo.",
+            "Solo profili compatibili — e, appena disponibili, verificati — arrivano fino a te: niente perditempo.",
         },
         {
           number: "3",
@@ -129,7 +129,7 @@ export const translations = {
       titleLine1: "Non te lo raccontiamo.",
       titleLine2: "Te lo facciamo vedere.",
       toggleAria: "Scegli il tuo punto di vista",
-      toggleStudent: "Sono studente",
+      toggleStudent: "Cerco casa",
       toggleOwner: "Sono proprietario",
       stepsAria: "Passaggi",
       progressAria: "Avanzamento passaggi",
@@ -290,7 +290,7 @@ export const translations = {
       eyebrow: "Domande frequenti",
       title: "Le domande che ci fate davvero",
       seeAll: "Tutte le FAQ per studenti",
-      toggleStudent: "Sono studente",
+      toggleStudent: "Cerco casa",
       toggleOwner: "Sono proprietario",
       toggleAria: "Scegli se vedere le FAQ per studenti o proprietari",
       studentItems: [
@@ -354,7 +354,7 @@ export const translations = {
       ],
     },
     faqStudenti: {
-      eyebrow: "Per gli studenti",
+      eyebrow: "Per chi cerca casa",
       title: "Domande frequenti per chi cerca casa",
       subtitle:
         "Costi, matching con Vesta, lista d'attesa e come scegliamo le stanze compatibili — risposte chiare prima di iscriverti.",
@@ -401,7 +401,7 @@ export const translations = {
     },
     footer: {
       tagline:
-        "Piattaforma indipendente per studenti fuori sede e proprietari di casa. Non affiliata a nessuna università.",
+        "Piattaforma indipendente per chi si trasferisce per studio o lavoro, e per i proprietari di casa.",
       rights: "Tutti i diritti riservati.",
       privacy: "Privacy",
       terms: "Termini di servizio",
@@ -587,6 +587,7 @@ export const translations = {
       signupSubtitle: "Per parlare con Vesta e vedere le stanze consigliate",
       signinSubtitle: "Accedi per continuare",
       iAmStudent: "Sono studente",
+      iAmWorker: "Sono lavoratore",
       iAmOwner: "Sono proprietario",
       fullNamePlaceholder: "Nome e cognome",
       emailPlaceholder: "Email",
@@ -890,7 +891,7 @@ export const translations = {
       title: "Ti accompagniamo in ogni fase, non solo nella ricerca",
       intro:
         "Coabito non è parte del contratto di locazione: studente e proprietario firmano direttamente. Il nostro ruolo è fiducia, matching e sicurezza della transazione.",
-      toggleStudent: "Sono studente",
+      toggleStudent: "Cerco casa",
       toggleOwner: "Sono proprietario",
       ctaBody: "Pronto a iniziare? Entra in lista d'attesa o proponi un immobile.",
       ctaStudent: "Sono uno studente",
@@ -1214,7 +1215,7 @@ export const translations = {
   },
   en: {
     nav: {
-      forStudents: "For students",
+      forStudents: "For movers",
       forOwners: "For property owners",
       howItWorks: "How it works",
       services: "Services",
@@ -1261,7 +1262,7 @@ export const translations = {
       ariaLabel: "Coabito animated introduction",
     },
     howItWorksStudents: {
-      eyebrow: "For students",
+      eyebrow: "For people looking for a home",
       title: "Three steps, and Vesta does the rest",
       ctaLabel: "Start chatting with Vesta",
       steps: [
@@ -1340,7 +1341,7 @@ export const translations = {
       titleLine1: "We won't just tell you.",
       titleLine2: "We'll show you.",
       toggleAria: "Choose your point of view",
-      toggleStudent: "I'm a student",
+      toggleStudent: "I'm looking for a home",
       toggleOwner: "I'm a landlord",
       stepsAria: "Steps",
       progressAria: "Step progress",
@@ -1501,7 +1502,7 @@ export const translations = {
       eyebrow: "Frequently asked questions",
       title: "The questions you really ask us",
       seeAll: "All student FAQs",
-      toggleStudent: "I'm a student",
+      toggleStudent: "I'm looking for a home",
       toggleOwner: "I'm an owner",
       toggleAria: "Choose student or owner FAQs",
       studentItems: [
@@ -1565,7 +1566,7 @@ export const translations = {
       ],
     },
     faqStudenti: {
-      eyebrow: "For students",
+      eyebrow: "For people looking for a home",
       title: "Frequently asked questions for students",
       subtitle:
         "Costs, matching with Vesta, the waitlist, and how we pick compatible rooms — clear answers before you sign up.",
@@ -1612,7 +1613,7 @@ export const translations = {
     },
     footer: {
       tagline:
-        "Independent platform for out-of-town students and property owners. Not affiliated with any university.",
+        "Independent platform for people relocating for study or work, and for property owners.",
       rights: "All rights reserved.",
       privacy: "Privacy",
       terms: "Terms of service",
@@ -1798,6 +1799,7 @@ export const translations = {
       signupSubtitle: "To chat with Vesta and see recommended rooms",
       signinSubtitle: "Log in to continue",
       iAmStudent: "I'm a student",
+      iAmWorker: "I'm a worker",
       iAmOwner: "I'm a property owner",
       fullNamePlaceholder: "Full name",
       emailPlaceholder: "Email",
@@ -2100,7 +2102,7 @@ export const translations = {
       title: "We support you at every stage, not just the search",
       intro:
         "Coabito is not a party to the lease: student and landlord sign directly. Our role is trust, matching, and transaction safety.",
-      toggleStudent: "I'm a student",
+      toggleStudent: "I'm looking for a home",
       toggleOwner: "I'm a landlord",
       ctaBody: "Ready to start? Join the waitlist or list a property.",
       ctaStudent: "I'm a student",

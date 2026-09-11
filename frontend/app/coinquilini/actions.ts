@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireSession } from "@/lib/auth/session";
+import { isSeekerRole } from "@/lib/auth/roles";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import {
   expressRoommateInterest,
@@ -14,7 +15,7 @@ import {
 
 export async function toggleOpenToGroupMatching(open: boolean) {
   const session = await requireSession();
-  if (session.role !== "student") {
+  if (!isSeekerRole(session.role)) {
     return { ok: false as const, error: "Solo gli studenti possono attivare il matching." };
   }
   const db = createServiceSupabaseClient();
@@ -27,7 +28,7 @@ export async function toggleOpenToGroupMatching(open: boolean) {
 
 export async function interestInRoommateAction(targetUserId: string) {
   const session = await requireSession();
-  if (session.role !== "student") {
+  if (!isSeekerRole(session.role)) {
     return { ok: false as const, error: "Non autorizzato." };
   }
   const db = createServiceSupabaseClient();
@@ -40,7 +41,7 @@ export async function interestInRoommateAction(targetUserId: string) {
 
 export async function passRoommateAction(targetUserId: string) {
   const session = await requireSession();
-  if (session.role !== "student") {
+  if (!isSeekerRole(session.role)) {
     return { ok: false as const, error: "Non autorizzato." };
   }
   const db = createServiceSupabaseClient();
@@ -56,7 +57,7 @@ export async function submitGroupRoomApplication(input: {
   coApplicantIds?: string[];
 }) {
   const session = await requireSession();
-  if (session.role !== "student") {
+  if (!isSeekerRole(session.role)) {
     return { ok: false as const, error: "Solo gli studenti possono candidarsi." };
   }
 

@@ -28,11 +28,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Coabito | Trova casa vicino alla tua università",
+    default: "Coabito | Trova casa per studio o lavoro",
     template: "%s | Coabito",
   },
   description:
-    "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+    "Chatta con Vesta e scopri le stanze più compatibili con te, per chi si trasferisce.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -51,23 +51,23 @@ export const metadata: Metadata = {
     locale: "it_IT",
     url: SITE_URL,
     siteName: "Coabito",
-    title: "Coabito | Trova casa vicino alla tua università",
+    title: "Coabito | Trova casa per studio o lavoro",
     description:
-      "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+      "Chatta con Vesta e scopri le stanze più compatibili con te, per chi si trasferisce.",
     images: [
       {
         url: "/opengraph-image",
         width: 1200,
         height: 630,
-        alt: "Coabito | Trova casa vicino alla tua università",
+        alt: "Coabito | Trova casa per studio o lavoro",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Coabito | Trova casa vicino alla tua università",
+    title: "Coabito | Trova casa per studio o lavoro",
     description:
-      "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+      "Chatta con Vesta e scopri le stanze più compatibili con te, per chi si trasferisce.",
     images: ["/twitter-image"],
   },
   robots: {

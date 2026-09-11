@@ -46,15 +46,27 @@ function isFilled(value: unknown): boolean {
 
 export function computeChatProgressFromProfile(
   profile: Record<string, unknown> | null | undefined,
+  seekerType: "student" | "worker" = "student",
 ): ChatProgress {
   if (!profile) {
-    return { done: 0, total: CHAT_PROGRESS_TOTAL, current: CHAT_PROGRESS_STEPS[0].key };
+    const emptySteps = seekerType === "worker"
+      ? CHAT_PROGRESS_STEPS.filter((s) => s.key !== "university" && s.key !== "campus")
+      : CHAT_PROGRESS_STEPS;
+    return { done: 0, total: emptySteps.length, current: emptySteps[0]?.key ?? null };
   }
 
   let done = 0;
   let current: ChatProgressStepKey | null = null;
 
-  for (const step of CHAT_PROGRESS_STEPS) {
+  const steps =
+    seekerType === "worker"
+      ? CHAT_PROGRESS_STEPS.filter(
+          (s) => s.key !== "university" && s.key !== "campus",
+        )
+      : CHAT_PROGRESS_STEPS;
+  const total = steps.length;
+
+  for (const step of steps) {
     const complete = step.anyOf.some((field) => isFilled(profile[field]));
     if (complete) {
       done += 1;
@@ -63,7 +75,7 @@ export function computeChatProgressFromProfile(
     }
   }
 
-  return { done, total: CHAT_PROGRESS_TOTAL, current };
+  return { done, total, current };
 }
 
 export function stripProgressTag(text: string): string {

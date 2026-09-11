@@ -10,7 +10,7 @@ export function organizationJsonLd() {
     logo: `${SITE_URL}/icons/icon-512.png`,
     email: "info@coabito.it",
     description:
-      "Piattaforma per studenti fuori sede: trova casa chattando con Vesta, vicino al tuo ateneo.",
+      "Piattaforma per chi si trasferisce per studio o lavoro: trova casa chattando con Vesta, per chi si trasferisce.",
     areaServed: {
       "@type": "Country",
       name: "Italia",
