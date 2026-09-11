@@ -7,6 +7,7 @@ import MatchScoreRing from "@/components/MatchScoreRing";
 import VestaAvatar from "@/components/VestaAvatar";
 import ShareListingButton from "@/components/listings/ShareListingButton";
 import SaveListingButton from "@/components/listings/SaveListingButton";
+import PartnerBadge from "@/components/listings/PartnerBadge";
 import { buildMatchFitSentence } from "@/lib/match-explanation";
 
 export default function PublicRoomCard({
@@ -109,11 +110,14 @@ export default function PublicRoomCard({
       <div className="flex flex-1 flex-col gap-2.5 p-4">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <h2 className="font-display text-base font-bold text-ink">{listing.title}</h2>
-          {listing.landlordVerified && (
-            <span className="rounded-full bg-sea-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sea-700">
-              {t.listingsCard.verifiedOwner}
-            </span>
-          )}
+          <div className="flex flex-wrap items-center gap-1.5">
+            <PartnerBadge tier={listing.partnerTier} />
+            {listing.landlordVerified && (
+              <span className="rounded-full bg-sea-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sea-700">
+                {t.listingsCard.verifiedOwner}
+              </span>
+            )}
+          </div>
         </div>
 
         <p className="text-xs text-ink-muted">{zoneLabel}</p>

@@ -1,4 +1,3 @@
-import { isSeekerRole } from "@/lib/auth/roles";
 "use server";
 
 import { redirect } from "next/navigation";
@@ -11,6 +10,7 @@ import { sendEmail, buildWelcomeEmail } from "@/lib/email";
 import { upsertLifestyleProfile } from "@/lib/data/profiles";
 import { computeRoomMatches } from "@/lib/matching-rooms";
 import type { StudentProfileRow } from "@/lib/matching";
+import { isSeekerRole } from "@/lib/auth/roles";
 
 interface OnboardingResult {
   error?: string;

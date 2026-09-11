@@ -304,8 +304,17 @@ export async function fetchPublicListings(
           .order("sort_order", { ascending: true })
       : Promise.resolve({ data: [] as { property_id: string; url: string }[] }),
     ownerIds.length
-      ? db.from("users").select("id, verification_status").in("id", ownerIds)
-      : Promise.resolve({ data: [] as { id: string; verification_status: string }[] }),
+      ? db
+          .from("users")
+          .select("id, verification_status, partner_tier")
+          .in("id", ownerIds)
+      : Promise.resolve({
+          data: [] as {
+            id: string;
+            verification_status: string;
+            partner_tier?: string | null;
+          }[],
+        }),
   ]);
 
   const photosByProperty = new Map<string, string[]>();
@@ -320,6 +329,14 @@ export async function fetchPublicListings(
       .filter((o) => o.verification_status === "verified")
       .map((o) => o.id),
   );
+
+  const partnerTierByOwner = new Map<string, "standard" | "partner" | "fondatrice">();
+  for (const o of owners ?? []) {
+    const tier = o.partner_tier;
+    if (tier === "partner" || tier === "fondatrice" || tier === "standard") {
+      partnerTierByOwner.set(o.id, tier);
+    }
+  }
 
   let listings: Listing[] = rows.map((row) => {
     const property = asProperty(row.properties);
@@ -353,6 +370,7 @@ export async function fetchPublicListings(
       hasRealPhoto,
       landlordVerified: verifiedOwners.has(property.owner_id),
       guaranteedRent: property.guaranteed_rent === true,
+      partnerTier: partnerTierByOwner.get(property.owner_id) ?? "standard",
       propertyStatus: property.status,
       sizeSqm:
         row.size_sqm != null && Number.isFinite(Number(row.size_sqm))

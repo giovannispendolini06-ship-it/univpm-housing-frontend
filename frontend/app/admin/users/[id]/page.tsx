@@ -3,7 +3,7 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import { updateUserProfile, setUserVerification } from "../actions";
+import { updateUserProfile, setUserVerification, setUserPartnerTier } from "../actions";
 import SubmitButton from "@/components/SubmitButton";
 import DeleteUserButton from "../DeleteUserButton";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
@@ -164,6 +164,44 @@ export default async function EditUserPage({
             Salva verifica
           </SubmitButton>
         </form>
+
+        {person.role === "owner" && (
+          <form
+            action={setUserPartnerTier}
+            className="mb-6 space-y-3 rounded-xl2 bg-surface p-5 shadow-card"
+          >
+            <input type="hidden" name="user_id" value={person.id} />
+            <h2 className="font-display text-sm font-bold text-ink">
+              Programma partner agenzie
+            </h2>
+            <p className="text-xs text-ink-muted">
+              Fondatrice è assegnata solo da admin. Partner può anche arrivare
+              automaticamente con 3 contratti chiusi in 12 mesi. Non declassare
+              mai una Fondatrice senza motivo esplicito.
+            </p>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Livello
+              </label>
+              <select
+                name="partner_tier"
+                defaultValue={person.partner_tier ?? "standard"}
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              >
+                <option value="standard">Standard</option>
+                <option value="partner">Partner</option>
+                <option value="fondatrice">Fondatrice</option>
+              </select>
+            </div>
+            <p className="text-[11px] text-ink-muted">
+              founding_rate attuale:{" "}
+              {person.founding_rate ? "true (fee ridotta)" : "false"}
+            </p>
+            <SubmitButton className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sea-700">
+              Salva livello partner
+            </SubmitButton>
+          </form>
+        )}
 
         {ownerSummary && (
           <div className="mb-6 rounded-xl2 bg-surface p-5 shadow-card">

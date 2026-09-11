@@ -148,7 +148,11 @@ export function sortListings(
         if (sa !== sb) return sb - sa;
         // Prefer guaranteed + verified when no match scores
         const trust = (l: Listing) =>
-          (l.guaranteedRent ? 2 : 0) + (l.landlordVerified ? 1 : 0);
+          (l.guaranteedRent ? 2 : 0) +
+          (l.landlordVerified ? 1 : 0) +
+          (l.partnerTier === "fondatrice" || l.partnerTier === "partner"
+            ? 3
+            : 0);
         const td = trust(b) - trust(a);
         if (td !== 0) return td;
         return a.monthlyRent - b.monthlyRent;

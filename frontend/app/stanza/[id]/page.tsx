@@ -8,6 +8,7 @@ import ApplyButton from "@/components/listings/ApplyButton";
 import GroupApplyPanel from "@/components/roommates/GroupApplyPanel";
 import ListingViewTracker from "@/components/listings/ListingViewTracker";
 import SaveListingButton from "@/components/listings/SaveListingButton";
+import PartnerBadge from "@/components/listings/PartnerBadge";
 import ResumePendingFavorite from "@/components/listings/ResumePendingFavorite";
 import ListingReviewsSection from "@/components/reviews/ListingReviewsSection";
 import { getPublicListing } from "@/lib/listings";
@@ -157,6 +158,7 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
             <div className="mt-6 space-y-4">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-3xl font-bold text-ink">{listing.title}</h1>
+                <PartnerBadge tier={listing.partnerTier} />
                 {listing.landlordVerified && (
                   <span className="rounded-full bg-sea-50 px-2.5 py-1 text-[11px] font-semibold text-sea-700">
                     Proprietario verificato
