@@ -64,10 +64,13 @@ export async function middleware(request: NextRequest) {
     path.startsWith("/recensioni");
 
   // Non loggato e prova ad aprire un'area protetta → rimandalo al login
+  // Preserve query (e.g. /coinquilini?city=ancona&university=univpm from Community)
   if (!user && (isProtectedArea || isOnboarding)) {
     const url = request.nextUrl.clone();
+    const nextTarget = `${path}${request.nextUrl.search}`;
     url.pathname = "/login";
-    url.searchParams.set("next", path);
+    url.search = "";
+    url.searchParams.set("next", nextTarget);
     return NextResponse.redirect(url);
   }
 
@@ -85,7 +88,7 @@ export async function middleware(request: NextRequest) {
     // Già loggato e apre /login → rispetta ?next= se sicuro, altrimenti home ruolo
     if (path === "/login") {
       const nextRaw = request.nextUrl.searchParams.get("next");
-      const next =
+      const nextSafe =
         nextRaw &&
         nextRaw.startsWith("/") &&
         !nextRaw.startsWith("//") &&
@@ -93,10 +96,16 @@ export async function middleware(request: NextRequest) {
           ? nextRaw
           : null;
       const url = request.nextUrl.clone();
-      url.pathname = next ?? (needsOnboarding ? "/onboarding" : home);
-      url.search = "";
+      if (nextSafe) {
+        const q = nextSafe.indexOf("?");
+        url.pathname = q >= 0 ? nextSafe.slice(0, q) : nextSafe;
+        url.search = q >= 0 ? nextSafe.slice(q) : "";
+      } else {
+        url.pathname = needsOnboarding ? "/onboarding" : home;
+        url.search = "";
+      }
       // Preserve favorite resume params on the destination when next is a listing page
-      if (next && request.nextUrl.searchParams.get("action") === "favorite") {
+      if (nextSafe && request.nextUrl.searchParams.get("action") === "favorite") {
         const listingId = request.nextUrl.searchParams.get("listing_id");
         if (listingId) {
           url.searchParams.set("action", "favorite");

@@ -8,6 +8,7 @@ import CommunityComposer from "@/components/community/CommunityComposer";
 import GroupMembershipButton from "@/components/community/GroupMembershipButton";
 import {
   coinquiliniHrefForGroup,
+  ensureCommunityAutoJoin,
   getCommunityGroup,
   listCommunityPosts,
 } from "@/lib/data/community";
