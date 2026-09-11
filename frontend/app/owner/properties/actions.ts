@@ -37,7 +37,7 @@ export async function createOwnerListing(
 
   const address = String(formData.get("address") ?? "").trim();
   const zone = String(formData.get("zone") ?? "").trim();
-  const city = String(formData.get("city") ?? "Ancona").trim() || "Ancona";
+  const city = String(formData.get("city") ?? "").trim();
   const roomLabel = String(formData.get("room_label") ?? "").trim();
   const price = numberOrNull(formData.get("price_monthly"));
   const utilities = numberOrNull(formData.get("estimated_utilities")) ?? 0;
@@ -69,6 +69,7 @@ export async function createOwnerListing(
 
   if (!address) return { error: "Indirizzo obbligatorio (resta privato in pubblico)." };
   if (!zone) return { error: "Zona / quartiere obbligatorio (visibile in annuncio)." };
+  if (!city) return { error: "Città obbligatoria." };
   if (!roomLabel) return { error: "Nome stanza obbligatorio." };
   if (price === null || price < 50) return { error: "Prezzo mensile non valido." };
 
