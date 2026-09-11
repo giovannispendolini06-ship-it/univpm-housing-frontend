@@ -324,28 +324,54 @@ export function calculateMatchScore(
   distanceKm: number | null,
   locale: MatchLocale = "it",
   seekerType: SeekerRole = "student",
+  options?: { wholeUnit?: boolean },
 ): MatchResult {
-  const weights = MATCH_WEIGHTS[seekerType];
-  const budget = scoreBudget(student, room, locale, weights.budget);
-  const distance = scoreDistance(distanceKm, locale, weights.distance, seekerType);
+  const base = MATCH_WEIGHTS[seekerType];
+  const wholeUnit = options?.wholeUnit === true;
+
+  // Whole units: roommate lifestyle dimensions do not apply — renormalize
+  // budget + distance so they still sum to 100 without changing MATCH_WEIGHTS.
+  let budgetWeight = base.budget;
+  let distanceWeight = base.distance;
+  if (wholeUnit) {
+    const sum = base.budget + base.distance;
+    budgetWeight = (base.budget / sum) * 100;
+    distanceWeight = (base.distance / sum) * 100;
+  }
+
+  const budget = scoreBudget(student, room, locale, budgetWeight);
+  const distance = scoreDistance(distanceKm, locale, distanceWeight, seekerType);
+
+  if (wholeUnit) {
+    const rawScore = budget.points + distance.points;
+    const score = Math.round(Math.max(0, Math.min(100, rawScore)));
+    const reasoning = [budget.reason, distance.reason]
+      .sort((a, b) => {
+        const rank = { alto: 0, medio: 1, basso: 2 };
+        return rank[a.weight] - rank[b.weight];
+      })
+      .slice(0, 3);
+    return { score, reasoning };
+  }
+
   const focus = scoreFocusAffinity(
     student,
     currentRoommates,
     locale,
-    weights.focus,
+    base.focus,
     seekerType,
   );
   const cleanliness = scoreCleanliness(
     student,
     currentRoommates,
     locale,
-    weights.cleanliness,
+    base.cleanliness,
   );
   const sociability = scoreSociability(
     student,
     currentRoommates,
     locale,
-    weights.social,
+    base.social,
   );
 
   const rawScore =

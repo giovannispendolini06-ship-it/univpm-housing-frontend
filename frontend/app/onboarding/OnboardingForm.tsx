@@ -228,6 +228,17 @@ export default function OnboardingForm({ role }: { role: "student" | "worker" | 
                 className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
               />
             </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-ink-muted">
+                Datore di lavoro / azienda (facoltativo)
+              </label>
+              <input
+                type="text"
+                name="employer_name"
+                placeholder="es. nome azienda — utile per il badge lavoratore"
+                className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm focus:border-sea-400 focus:outline-none"
+              />
+            </div>
           </div>
           )}
           <div>

@@ -4,6 +4,7 @@ import {
   listingHasFeature,
   sizeBand,
 } from "@/lib/data/listings";
+import { matchesContractDurationFilter } from "@/lib/property-listing";
 
 export type StanzeSort =
   | "recommended"
@@ -15,9 +16,11 @@ export type StanzeFilterState = {
   maxPrice: number;
   zona: string; // "all" | zone slug/label
   tipo: string; // all | singola | doppia | dus
+  propertyType: string; // all | stanza_singola | stanza_doppia | appartamento_intero | monolocale
   mq: string; // all | s | m | l
   data: string; // all | subito | settembre
-  durata: string; // all | 6 | 12
+  /** all | anno_accademico | annuale | breve_periodo | flessibile */
+  durata: string;
   coinq: string; // all | 1 | 2 | 3
   risc: string; // all | autonomo | centralizzato
   features: string[]; // bagno, arredata, …
@@ -31,6 +34,7 @@ export const DEFAULT_FILTERS: StanzeFilterState = {
   maxPrice: DEFAULT_MAX_PRICE,
   zona: "all",
   tipo: "all",
+  propertyType: "all",
   mq: "all",
   data: "all",
   durata: "all",
@@ -90,6 +94,10 @@ export function matchesFilters(
     if (listing.roomType !== filters.tipo) return false;
   }
 
+  if (filters.propertyType !== "all") {
+    if (listing.propertyType !== filters.propertyType) return false;
+  }
+
   if (filters.mq !== "all") {
     if (sizeBand(listing.sizeSqm) !== filters.mq) return false;
   }
@@ -98,9 +106,10 @@ export function matchesFilters(
     if (availabilityBand(listing.availableFrom) !== filters.data) return false;
   }
 
-  if (filters.durata !== "all") {
-    const months = listing.minContractMonths;
-    if (months == null || String(months) !== filters.durata) return false;
+  if (
+    !matchesContractDurationFilter(listing.contractDurationType, filters.durata)
+  ) {
+    return false;
   }
 
   if (filters.coinq !== "all") {

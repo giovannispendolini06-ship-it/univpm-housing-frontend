@@ -65,6 +65,20 @@ export type RoomType = "singola" | "doppia" | "dus";
 /** Heating typology for marketplace filters */
 export type HeatingType = "autonomo" | "centralizzato";
 
+/** Explicit lodging typology on properties (migration_property_type_duration). */
+export type PropertyType =
+  | "stanza_singola"
+  | "stanza_doppia"
+  | "appartamento_intero"
+  | "monolocale";
+
+/** Structured contract duration for search filters. */
+export type ContractDurationType =
+  | "anno_accademico"
+  | "annuale"
+  | "breve_periodo"
+  | "flessibile";
+
 /** properties — supply side (never expose exact address publicly). */
 export interface Property {
   id: string;
@@ -92,6 +106,10 @@ export interface Property {
   minContractMonths?: number | null;
   petsAllowed?: boolean | null;
   smokingAllowed?: boolean | null;
+  /** NEW (migration_property_type_duration) */
+  propertyType?: PropertyType | null;
+  contractDurationType?: ContractDurationType | null;
+  availableUntil?: string | null;
 }
 
 /** rooms — the bookable unit; public "Listing" is Room + Property + images */
@@ -161,6 +179,12 @@ export interface Listing {
   minContractMonths?: number | null;
   petsAllowed?: boolean | null;
   smokingAllowed?: boolean | null;
+  /** Lodging typology (room vs whole unit) */
+  propertyType?: PropertyType | null;
+  /** Structured duration: academic year / annual / short / flexible */
+  contractDurationType?: ContractDurationType | null;
+  /** Optional end of availability window */
+  availableUntil?: string | null;
   /** ISO created_at for "newest" sort */
   createdAt?: string | null;
 }

@@ -45,6 +45,7 @@ export default function StudentDashboardPage() {
   const [activeTab, setActiveTab] = useState<MobileTab>("chat");
   const [studentId, setStudentId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [seekerRole, setSeekerRole] = useState<"student" | "worker">("student");
   const [verificationStatus, setVerificationStatus] = useState<string>("none");
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [rooms, setRooms] = useState<RecommendedRoom[]>([]);
@@ -73,6 +74,7 @@ export default function StudentDashboardPage() {
         .single()
         .then(({ data: profile }) => {
           setIsAdmin(profile?.role === "admin");
+          setSeekerRole(profile?.role === "worker" ? "worker" : "student");
           setVerificationStatus(profile?.verification_status ?? "none");
           setUserEmail(profile?.email ?? null);
         });
@@ -216,11 +218,11 @@ export default function StudentDashboardPage() {
             <div className="mb-2 flex items-center gap-2">
               <VerifiedBadge
                 status={verificationStatus as VerificationStatus}
-                role="student"
+                role={seekerRole}
               />
             </div>
             <VerificationPanel
-              role="student"
+              role={seekerRole}
               status={verificationStatus as VerificationStatus}
               email={userEmail}
             />

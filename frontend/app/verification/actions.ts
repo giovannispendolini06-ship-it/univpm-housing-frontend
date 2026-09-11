@@ -5,7 +5,11 @@ import {
   createServerSupabaseClient,
   createServiceSupabaseClient,
 } from "@/lib/supabase/server";
-import { isInstitutionalEmail, type VerificationMethod } from "@/lib/verification";
+import {
+  isInstitutionalEmail,
+  looksLikeCorporateEmail,
+  type VerificationMethod,
+} from "@/lib/verification";
 
 async function getAuthedUser() {
   const supabase = await createServerSupabaseClient();
@@ -58,6 +62,79 @@ export async function requestStudentVerification(): Promise<{ ok: true } | { ok:
 
     revalidatePath("/dashboard");
     revalidatePath("/owner");
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Errore imprevisto.",
+    };
+  }
+}
+
+/**
+ * Lavoratore: verifica soft opzionale (non obbligatoria in registrazione).
+ * corporate_email se l’account non è free-mail; altrimenti employer_declaration
+ * se ha dichiarato employer_name sul profilo.
+ */
+export async function requestWorkerVerification(): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    const { user } = await getAuthedUser();
+    const db = createServiceSupabaseClient();
+
+    const { data: profile } = await db
+      .from("users")
+      .select("role, email, verification_status")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile || profile.role !== "worker") {
+      return { ok: false, error: "Solo i lavoratori possono usare questa verifica." };
+    }
+    if (profile.verification_status === "verified") {
+      return { ok: false, error: "Sei già verificato." };
+    }
+
+    const email = profile.email || user.email || "";
+    let method: VerificationMethod | null = null;
+    let note: string | null = null;
+
+    if (looksLikeCorporateEmail(email)) {
+      method = "corporate_email";
+      note = null;
+    } else {
+      const { data: lifestyle } = await db
+        .from("student_profiles")
+        .select("employer_name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const employer = String(lifestyle?.employer_name ?? "").trim();
+      if (employer) {
+        method = "employer_declaration";
+        note = `Datore dichiarato: ${employer}`;
+      }
+    }
+
+    if (!method) {
+      return {
+        ok: false,
+        error:
+          "Per il badge lavoratore: usa un’email aziendale sull’account, oppure dichiara il nome del datore di lavoro nel profilo. Non è obbligatorio in registrazione.",
+      };
+    }
+
+    const { error } = await db
+      .from("users")
+      .update({
+        verification_status: "verified",
+        verification_method: method,
+        verification_note: note,
+        verified_at: new Date().toISOString(),
+      })
+      .eq("id", user.id);
+
+    if (error) return { ok: false, error: error.message };
+
+    revalidatePath("/dashboard");
     return { ok: true };
   } catch (err) {
     return {

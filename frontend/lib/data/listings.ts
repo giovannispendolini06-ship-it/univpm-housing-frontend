@@ -1,5 +1,10 @@
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import type { HeatingType, Listing, RoomType } from "@/lib/domain/types";
+import {
+  inferContractDurationType,
+  inferPropertyType,
+  isWholeUnitProperty,
+} from "@/lib/property-listing";
 
 const PLACEHOLDER_PHOTO =
   "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=800&auto=format&fit=crop";
@@ -72,6 +77,9 @@ function asProperty(raw: unknown): {
   min_contract_months: number | null;
   pets_allowed: boolean | null;
   smoking_allowed: boolean | null;
+  property_type?: string | null;
+  contract_duration_type?: string | null;
+  available_until?: string | null;
   latitude?: number | null;
   longitude?: number | null;
 } {
@@ -208,6 +216,9 @@ export async function fetchPublicListings(
         min_contract_months,
         pets_allowed,
         smoking_allowed,
+        property_type,
+        contract_duration_type,
+        available_until,
         latitude,
         longitude
       )
@@ -346,10 +357,23 @@ export async function fetchPublicListings(
       ? (row.services_included as string[])
       : [];
     const label = String(row.room_label ?? "Stanza");
+    const propertyType = inferPropertyType(
+      property.property_type,
+      property.contract_type,
+    );
+    const contractDurationType = inferContractDurationType(
+      property.contract_duration_type,
+      property.contract_type,
+      property.min_contract_months,
+    );
+    const wholeUnit = isWholeUnitProperty(propertyType);
     const totalRooms =
       typeof property.total_rooms === "number" ? property.total_rooms : null;
-    const flatmatesCount =
-      totalRooms != null && totalRooms >= 1 ? Math.max(0, totalRooms - 1) : null;
+    const flatmatesCount = wholeUnit
+      ? 0
+      : totalRooms != null && totalRooms >= 1
+        ? Math.max(0, totalRooms - 1)
+        : null;
 
     return {
       id: String(row.id),
@@ -362,6 +386,9 @@ export async function fetchPublicListings(
       deposit: property.deposit_amount,
       contractType: property.contract_type,
       availableFrom: row.available_from ? String(row.available_from) : null,
+      availableUntil: property.available_until
+        ? String(property.available_until)
+        : null,
       roomTypeLabel: label,
       furnished: property.is_furnished,
       privateBathroom: Boolean(row.has_private_bathroom),
@@ -399,6 +426,8 @@ export async function fetchPublicListings(
         typeof property.smoking_allowed === "boolean"
           ? property.smoking_allowed
           : null,
+      propertyType,
+      contractDurationType,
       latitude:
         typeof property.latitude === "number" ? property.latitude : null,
       longitude:

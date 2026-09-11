@@ -6,6 +6,14 @@ import { requireRole } from "@/lib/auth/session";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { recalculateMatchesForRoom } from "@/lib/matching-rooms";
 import { assertEscrowDoesNotBlockPublish } from "@/lib/escrow";
+import {
+  isContractDurationType,
+  isPropertyType,
+  isWholeUnitProperty,
+  legacyContractType,
+  minMonthsFromDuration,
+  roomTypeFromPropertyType,
+} from "@/lib/property-listing";
 
 function numberOrNull(value: FormDataEntryValue | null): number | null {
   if (value === null || value === "") return null;
@@ -34,8 +42,30 @@ export async function createOwnerListing(
   const price = numberOrNull(formData.get("price_monthly"));
   const utilities = numberOrNull(formData.get("estimated_utilities")) ?? 0;
   const deposit = numberOrNull(formData.get("deposit_amount"));
-  const availableFrom = String(formData.get("available_from") ?? "").trim() || null;
+  const availableFrom =
+    String(formData.get("available_from") ?? "").trim() || null;
+  const availableUntil =
+    String(formData.get("available_until") ?? "").trim() || null;
   const publish = formData.get("publish") === "on";
+
+  const propertyTypeRaw = String(
+    formData.get("property_type") ?? "stanza_singola",
+  );
+  const propertyType = isPropertyType(propertyTypeRaw)
+    ? propertyTypeRaw
+    : "stanza_singola";
+  const durationRaw = String(
+    formData.get("contract_duration_type") ?? "anno_accademico",
+  );
+  const contractDurationType = isContractDurationType(durationRaw)
+    ? durationRaw
+    : "anno_accademico";
+  const wholeUnit = isWholeUnitProperty(propertyType);
+  const totalRooms = wholeUnit
+    ? 1
+    : Math.max(1, numberOrNull(formData.get("total_rooms")) ?? 2);
+  const roomType = roomTypeFromPropertyType(propertyType);
+  const minContractMonths = minMonthsFromDuration(contractDurationType);
 
   if (!address) return { error: "Indirizzo obbligatorio (resta privato in pubblico)." };
   if (!zone) return { error: "Zona / quartiere obbligatorio (visibile in annuncio)." };
@@ -51,13 +81,17 @@ export async function createOwnerListing(
       address,
       city,
       zone,
-      contract_type: String(formData.get("contract_type") ?? "stanza_singola"),
+      contract_type: legacyContractType(propertyType),
+      property_type: propertyType,
+      contract_duration_type: contractDurationType,
+      available_until: availableUntil,
+      min_contract_months: minContractMonths,
       // Legacy quarantine field — ops economics for seed supply when applicable
       monthly_rent_to_owner: price,
       guarantee_status: "nessuna",
       guaranteed_rent: false,
       deposit_amount: deposit,
-      total_rooms: 1,
+      total_rooms: totalRooms,
       bathrooms: numberOrNull(formData.get("bathrooms")) ?? 1,
       is_furnished: formData.get("is_furnished") === "on",
       status: publish ? "attivo" : "bozza",
@@ -80,7 +114,8 @@ export async function createOwnerListing(
       estimated_utilities: utilities,
       has_private_bathroom: formData.get("has_private_bathroom") === "on",
       has_balcony: formData.get("has_balcony") === "on",
-      max_occupants: 1,
+      max_occupants: wholeUnit ? 1 : propertyType === "stanza_doppia" ? 2 : 1,
+      room_type: roomType,
       services_included: services,
       is_available: publish,
       available_from: availableFrom,

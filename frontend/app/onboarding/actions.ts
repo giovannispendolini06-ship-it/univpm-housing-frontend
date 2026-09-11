@@ -60,6 +60,7 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
   let jobSector: string | null = null;
   let smartWorking: string | null = null;
   let workHoursNotes: string | null = null;
+  let employerName: string | null = null;
 
   if (seeker) {
     budgetMax = Number(formData.get("budget_max"));
@@ -83,6 +84,7 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
       jobSector = String(formData.get("job_sector") ?? "").trim() || null;
       smartWorking = String(formData.get("smart_working_preference") ?? "").trim() || null;
       workHoursNotes = String(formData.get("work_hours_notes") ?? "").trim() || null;
+      employerName = String(formData.get("employer_name") ?? "").trim() || null;
     }
   }
 
@@ -141,6 +143,14 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
       sociabilityLevel: 3,
       guestsFrequency: "a_volte",
       studyHabit: "flessibile",
+      ...(role === "worker"
+        ? {
+            jobSector,
+            smartWorkingPreference: smartWorking,
+            workHoursNotes,
+            employerName,
+          }
+        : {}),
     });
 
     if (lifestyleError) {

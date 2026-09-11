@@ -5,6 +5,7 @@ import VerifiedBadge from "@/components/VerifiedBadge";
 import {
   requestOwnerVerification,
   requestStudentVerification,
+  requestWorkerVerification,
 } from "@/app/verification/actions";
 import type { VerificationStatus } from "@/lib/verification";
 
@@ -13,7 +14,7 @@ export default function VerificationPanel({
   status,
   email,
 }: {
-  role: "student" | "owner";
+  role: "student" | "worker" | "owner";
   status: VerificationStatus | string;
   email?: string | null;
 }) {
@@ -38,13 +39,17 @@ export default function VerificationPanel({
       const result =
         role === "student"
           ? await requestStudentVerification()
-          : await requestOwnerVerification();
+          : role === "worker"
+            ? await requestWorkerVerification()
+            : await requestOwnerVerification();
       if (result.ok) {
-        setCurrent(role === "student" ? "verified" : "pending");
+        setCurrent(role === "owner" ? "pending" : "verified");
         setMessage(
           role === "student"
             ? "Badge attivato: studente verificato."
-            : "Richiesta inviata: ti ricontattiamo per il documento di proprietà/delega.",
+            : role === "worker"
+              ? "Badge attivato: lavoratore verificato."
+              : "Richiesta inviata: ti ricontattiamo per il documento di proprietà/delega.",
         );
       } else {
         setMessage(result.error);
@@ -52,16 +57,24 @@ export default function VerificationPanel({
     });
   }
 
+  const title =
+    role === "student"
+      ? "Badge studente verificato"
+      : role === "worker"
+        ? "Badge lavoratore verificato"
+        : "Badge proprietario verificato";
+
+  const body =
+    role === "student"
+      ? `Conferma l’iscrizione universitaria con email istituzionale UNIVPM${email ? ` (account: ${email})` : ""}.`
+      : role === "worker"
+        ? `Verifica soft opzionale: email aziendale sull’account oppure dichiarazione del datore di lavoro${email ? ` (account: ${email})` : ""}. Non è obbligatoria in registrazione.`
+        : "Richiedi la verifica del documento di proprietà o delega: un admin la revisiona manualmente.";
+
   return (
     <div className="rounded-xl2 border border-sea-100 bg-white px-4 py-3 shadow-card">
-      <p className="font-display text-sm font-bold text-ink">
-        {role === "student" ? "Badge studente verificato" : "Badge proprietario verificato"}
-      </p>
-      <p className="mt-1 text-xs leading-relaxed text-ink-muted">
-        {role === "student"
-          ? `Conferma l’iscrizione universitaria con email istituzionale UNIVPM${email ? ` (account: ${email})` : ""}.`
-          : "Richiedi la verifica del documento di proprietà o delega: un admin la revisiona manualmente."}
-      </p>
+      <p className="font-display text-sm font-bold text-ink">{title}</p>
+      <p className="mt-1 text-xs leading-relaxed text-ink-muted">{body}</p>
       {current === "pending" ? (
         <p className="mt-2 text-xs font-medium text-sea-700">Richiesta in revisione…</p>
       ) : (

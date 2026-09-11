@@ -9,6 +9,7 @@ import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { calculateMatchScore, type StudentProfileRow } from "@/lib/matching";
 import { sendEmail, buildNewRoomMatchEmail } from "@/lib/email";
 import { stopWaitlistNurture } from "@/lib/waitlist-nurture";
+import { isWholeUnitProperty } from "@/lib/property-listing";
 
 import { isSeekerRole, type SeekerRole } from "@/lib/auth/roles";
 
@@ -18,6 +19,12 @@ async function resolveSeekerType(
 ): Promise<SeekerRole> {
   const { data } = await db.from("users").select("role").eq("id", userId).maybeSingle();
   return isSeekerRole(data?.role) ? data.role : "student";
+}
+
+function wholeUnitFromProperty(
+  property: { property_type?: string | null } | null | undefined,
+): boolean {
+  return isWholeUnitProperty(property?.property_type);
 }
 
 function buildDistancesByProperty(
@@ -67,7 +74,7 @@ export async function computeRoomMatches(
       `
       id, price_monthly, estimated_utilities, is_available, room_label,
       services_included, available_from,
-      properties:property_id!inner ( id, zone, city_id, status )
+      properties:property_id!inner ( id, zone, city_id, status, property_type )
     `,
     )
     .eq("is_available", true)
@@ -136,7 +143,10 @@ export async function computeRoomMatches(
 
   const enrichedRooms = roomsData.map((room: any) => {
     const property = room.properties;
-    const roommates = roommatesByProperty.get(property?.id) ?? [];
+    const wholeUnit = wholeUnitFromProperty(property);
+    const roommates = wholeUnit
+      ? []
+      : roommatesByProperty.get(property?.id) ?? [];
     const distanceKm = distanceKmFromMap(
       distancesByProperty,
       property?.id,
@@ -151,6 +161,7 @@ export async function computeRoomMatches(
       distanceKm,
       locale,
       seekerType,
+      { wholeUnit },
     );
 
     matchRows.push({
@@ -202,7 +213,7 @@ export async function recalculateMatchesForRoom(
     .select(
       `
       id, room_label, price_monthly, estimated_utilities, is_available,
-      properties:property_id ( id, zone, city_id )
+      properties:property_id ( id, zone, city_id, property_type )
     `,
     )
     .eq("id", roomId)
@@ -234,10 +245,10 @@ export async function recalculateMatchesForRoom(
     return distancesByCampus.get(campusId) ?? null;
   }
 
+  // Include workers without campus_id (budget is the required signal).
   const { data: students } = await db
     .from("student_profiles")
     .select("*")
-    .not("campus_id", "is", null)
     .not("budget_max", "is", null);
 
   if (!students || students.length === 0) return;
@@ -259,6 +270,11 @@ export async function recalculateMatchesForRoom(
     ? await db.from("student_profiles").select("*").in("user_id", roommateIds)
     : { data: [] as StudentProfileRow[] };
 
+  const wholeUnit = wholeUnitFromProperty(property);
+  const roommatesForScore = wholeUnit
+    ? ([] as StudentProfileRow[])
+    : ((roommateProfiles ?? []) as StudentProfileRow[]);
+
   const matchRows = await Promise.all(
     (students as StudentProfileRow[]).map(async (student) => {
       const distanceKm = distanceKmForCampus(student.campus_id);
@@ -267,10 +283,11 @@ export async function recalculateMatchesForRoom(
         student,
         room as any,
         property,
-        (roommateProfiles ?? []) as StudentProfileRow[],
+        roommatesForScore,
         distanceKm,
         "it",
         seekerType,
+        { wholeUnit },
       );
       return {
         student_id: student.user_id,

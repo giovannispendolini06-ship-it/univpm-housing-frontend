@@ -213,6 +213,26 @@ export default function StanzeFiltersPanel({
         ))}
       </ChipGroup>
 
+      <ChipGroup label={F.propertyType}>
+        {(
+          [
+            ["all", F.all],
+            ["stanza_singola", F.propStanzaSingola],
+            ["stanza_doppia", F.propStanzaDoppia],
+            ["appartamento_intero", F.propAppartamentoIntero],
+            ["monolocale", F.propMonolocale],
+          ] as const
+        ).map(([v, label]) => (
+          <Chip
+            key={v}
+            active={filters.propertyType === v}
+            onClick={() => setChip("propertyType", v)}
+          >
+            {label}
+          </Chip>
+        ))}
+      </ChipGroup>
+
       <ChipGroup label={F.size}>
         {(
           [
@@ -246,8 +266,10 @@ export default function StanzeFiltersPanel({
         {(
           [
             ["all", F.any],
-            ["6", F.months6],
-            ["12", F.months12],
+            ["anno_accademico", F.durataAnnoAccademico],
+            ["annuale", F.durataAnnuale],
+            ["breve_periodo", F.durataBrevePeriodo],
+            ["flessibile", F.durataFlessibile],
           ] as const
         ).map(([v, label]) => (
           <Chip

@@ -1,11 +1,22 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { createOwnerListing } from "../actions";
+import {
+  isWholeUnitProperty,
+  type PropertyType,
+} from "@/lib/property-listing";
 
 export default function OwnerListingForm() {
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [propertyType, setPropertyType] =
+    useState<PropertyType>("stanza_singola");
+
+  const wholeUnit = useMemo(
+    () => isWholeUnitProperty(propertyType),
+    [propertyType],
+  );
 
   function onSubmit(formData: FormData) {
     setError(null);
@@ -16,7 +27,10 @@ export default function OwnerListingForm() {
   }
 
   return (
-    <form action={onSubmit} className="space-y-4 rounded-xl2 bg-white p-5 shadow-card">
+    <form
+      action={onSubmit}
+      className="space-y-4 rounded-xl2 bg-white p-5 shadow-card"
+    >
       <div>
         <label className="mb-1 block text-xs font-medium text-ink-muted">
           Indirizzo completo (privato) *
@@ -33,7 +47,9 @@ export default function OwnerListingForm() {
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs font-medium text-ink-muted">Zona *</label>
+          <label className="mb-1 block text-xs font-medium text-ink-muted">
+            Zona *
+          </label>
           <input
             name="zone"
             required
@@ -42,7 +58,9 @@ export default function OwnerListingForm() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-ink-muted">Città</label>
+          <label className="mb-1 block text-xs font-medium text-ink-muted">
+            Città
+          </label>
           <input
             name="city"
             defaultValue="Ancona"
@@ -50,17 +68,57 @@ export default function OwnerListingForm() {
           />
         </div>
       </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-ink-muted">
+            Tipo di alloggio *
+          </label>
+          <select
+            name="property_type"
+            value={propertyType}
+            onChange={(e) => setPropertyType(e.target.value as PropertyType)}
+            className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm"
+          >
+            <option value="stanza_singola">Stanza singola</option>
+            <option value="stanza_doppia">Stanza doppia</option>
+            <option value="appartamento_intero">Appartamento intero</option>
+            <option value="monolocale">Monolocale</option>
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-ink-muted">
+            Durata contratto *
+          </label>
+          <select
+            name="contract_duration_type"
+            defaultValue="anno_accademico"
+            className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm"
+          >
+            <option value="anno_accademico">Anno accademico</option>
+            <option value="annuale">Annuale</option>
+            <option value="breve_periodo">Breve periodo</option>
+            <option value="flessibile">Flessibile</option>
+          </select>
+        </div>
+      </div>
+
       <div>
         <label className="mb-1 block text-xs font-medium text-ink-muted">
-          Titolo stanza *
+          {wholeUnit ? "Titolo annuncio *" : "Titolo stanza *"}
         </label>
         <input
           name="room_label"
           required
           className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm"
-          placeholder="es. Singola luminosa"
+          placeholder={
+            wholeUnit
+              ? "es. Bilocale arredato Torrette"
+              : "es. Singola luminosa"
+          }
         />
       </div>
+
       <div className="grid gap-3 sm:grid-cols-3">
         <div>
           <label className="mb-1 block text-xs font-medium text-ink-muted">
@@ -87,7 +145,9 @@ export default function OwnerListingForm() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-ink-muted">Cauzione €</label>
+          <label className="mb-1 block text-xs font-medium text-ink-muted">
+            Cauzione €
+          </label>
           <input
             name="deposit_amount"
             type="number"
@@ -96,6 +156,7 @@ export default function OwnerListingForm() {
           />
         </div>
       </div>
+
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <label className="mb-1 block text-xs font-medium text-ink-muted">
@@ -108,19 +169,36 @@ export default function OwnerListingForm() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-ink-muted">Contratto</label>
-          <select
-            name="contract_type"
+          <label className="mb-1 block text-xs font-medium text-ink-muted">
+            Disponibile fino a (facoltativo)
+          </label>
+          <input
+            name="available_until"
+            type="date"
             className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm"
-            defaultValue="stanza_singola"
-          >
-            <option value="stanza_singola">Stanza singola</option>
-            <option value="stanza_doppia">Stanza doppia</option>
-            <option value="intero_appartamento">Intero appartamento</option>
-            <option value="transitorio">Transitorio</option>
-          </select>
+          />
         </div>
       </div>
+
+      {!wholeUnit && (
+        <div>
+          <label className="mb-1 block text-xs font-medium text-ink-muted">
+            Stanze in casa (stima coinquilini)
+          </label>
+          <input
+            name="total_rooms"
+            type="number"
+            min={1}
+            max={12}
+            defaultValue={2}
+            className="w-full rounded-xl border border-sea-100 px-3 py-2 text-sm"
+          />
+          <p className="mt-1 text-[11px] text-ink-muted">
+            Coinquilini stimati = stanze − 1. Non richiesto per alloggi interi.
+          </p>
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-4 text-sm text-ink">
         <label className="flex items-center gap-2">
           <input type="checkbox" name="is_furnished" defaultChecked /> Arredato
@@ -132,6 +210,7 @@ export default function OwnerListingForm() {
           <input type="checkbox" name="has_balcony" /> Balcone
         </label>
       </div>
+
       <div>
         <p className="mb-1 text-xs font-medium text-ink-muted">Servizi</p>
         <div className="flex flex-wrap gap-3 text-sm">
@@ -142,23 +221,34 @@ export default function OwnerListingForm() {
           ))}
         </div>
       </div>
+
       <div>
-        <label className="mb-1 block text-xs font-medium text-ink-muted">Foto</label>
-        <input type="file" name="photo" accept="image/*" className="text-xs text-ink-muted" />
+        <label className="mb-1 block text-xs font-medium text-ink-muted">
+          Foto
+        </label>
+        <input
+          type="file"
+          name="photo"
+          accept="image/*"
+          className="text-xs text-ink-muted"
+        />
       </div>
+
       <label className="flex items-center gap-2 text-sm font-medium text-ink">
         <input type="checkbox" name="publish" defaultChecked />
         Pubblica subito su /stanze
       </label>
       <p className="text-[11px] text-ink-muted">
-        Nessun Stripe richiesto per pubblicare. L&apos;escrow (quando sarà attivo)
-        resterà opzionale e separato dalla messa online dell&apos;annuncio.
+        Nessun Stripe richiesto per pubblicare. L&apos;escrow (quando sarà
+        attivo) resterà opzionale e separato dalla messa online dell&apos;annuncio.
       </p>
+
       {error && (
         <p className="text-sm text-sunset-600" role="alert">
           {error}
         </p>
       )}
+
       <button
         type="submit"
         disabled={pending}

@@ -19,6 +19,7 @@ export type LifestyleUpsert = {
   jobSector?: string | null;
   smartWorkingPreference?: string | null;
   workHoursNotes?: string | null;
+  employerName?: string | null;
 };
 
 export async function upsertLifestyleProfile(db: Db, input: LifestyleUpsert) {
@@ -53,6 +54,9 @@ export async function upsertLifestyleProfile(db: Db, input: LifestyleUpsert) {
   }
   if (input.workHoursNotes !== undefined) {
     row.work_hours_notes = input.workHoursNotes;
+  }
+  if (input.employerName !== undefined) {
+    row.employer_name = input.employerName;
   }
 
   return db.from("student_profiles").upsert(row, { onConflict: "user_id" });
