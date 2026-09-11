@@ -28,6 +28,11 @@ import {
   computeEscrowAmountCents,
   type EscrowCoverage,
 } from "@/lib/escrow";
+import {
+  syncOwnerPartnerTier,
+  fetchOwnerMarketReport,
+} from "@/lib/partner-tier";
+import OwnerPartnerPanel from "@/components/owner/OwnerPartnerPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -57,6 +62,11 @@ export default async function OwnerDashboardPage() {
   }
 
   const db = createServiceSupabaseClient();
+  const partnerSnapshot = await syncOwnerPartnerTier(db, user.id);
+  const marketReport =
+    partnerSnapshot.tier === "partner" || partnerSnapshot.tier === "fondatrice"
+      ? await fetchOwnerMarketReport(db, user.id)
+      : [];
 
   let propertyRows: Array<{
     id: string;
@@ -263,6 +273,11 @@ export default async function OwnerDashboardPage() {
             email={profile?.email}
           />
         </div>
+
+        <OwnerPartnerPanel
+          snapshot={partnerSnapshot}
+          marketReport={marketReport}
+        />
 
         {guaranteedSummaries.length > 0 && (
           <GuaranteedRentWidget

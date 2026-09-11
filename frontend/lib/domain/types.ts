@@ -137,6 +137,8 @@ export interface Listing {
   landlordVerified: boolean;
   /** True = seed supply with Coabito guaranteed rent (trust badge) */
   guaranteedRent: boolean;
+  /** Agency partner program badge on public listings (null/standard = none) */
+  partnerTier?: "standard" | "partner" | "fondatrice" | null;
   propertyStatus: string;
   /** Optional exact pin; prefer approximate zone centroid when absent */
   latitude?: number | null;

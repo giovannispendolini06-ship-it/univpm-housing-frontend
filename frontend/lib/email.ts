@@ -561,6 +561,40 @@ export function buildApplicationStatusEmail(input: {
   };
 }
 
+export function buildPartnerUpgradeEmail(input: { fullName: string }) {
+  const bodyHtml = `
+    <h1 style="margin:0 0 16px; font-size:20px; font-weight:bold; color:${COLORS.ink};">
+      Benvenuti tra i Partner Coabito
+    </h1>
+    <p style="margin:0 0 16px; color:${COLORS.ink};">
+      Ciao ${input.fullName || ""}, la vostra agenzia ha chiuso almeno
+      <strong>3 contratti</strong> su Coabito negli ultimi 12 mesi.
+      Siete ufficialmente <strong>Partner Coabito</strong>.
+    </p>
+    <p style="margin:0 0 8px; color:${COLORS.ink}; font-weight:600;">
+      Cosa sbloccate da oggi:
+    </p>
+    <ul style="margin:0 0 16px; padding-left:18px; color:${COLORS.inkMuted}; font-size:14px; line-height:1.6;">
+      <li>Badge <strong>«Partner Coabito»</strong> su tutti i vostri annunci pubblici</li>
+      <li>Priorità di visibilità nei risultati di ricerca (peso aggiuntivo fisso)</li>
+      <li>Report di mercato in dashboard (prezzi medi di zona e tempi di occupazione)</li>
+    </ul>
+    <p style="margin:0 0 16px; color:${COLORS.inkMuted}; font-size:13px;">
+      Continuate a pubblicare il catalogo completo: più stanze online, più matching
+      qualificati — e, per le Agenzie Fondatrici, una success fee ridotta permanente.
+    </p>
+    ${ctaButton("Apri la dashboard", `${SITE_URL}/owner`)}
+  `;
+
+  return {
+    subject: "Siete Partner Coabito — vantaggi sbloccati",
+    html: renderEmailLayout({
+      preheader: "Badge, priorità di ricerca e report di mercato",
+      bodyHtml,
+    }),
+  };
+}
+
 export function buildNewApplicationOwnerEmail(input: {
   ownerName: string;
   applicantName: string;

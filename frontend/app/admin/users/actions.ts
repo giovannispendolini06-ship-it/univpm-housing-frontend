@@ -103,6 +103,48 @@ export async function setUserVerification(formData: FormData) {
   revalidatePath("/owner");
 }
 
+/** Admin-only: assign Partner / Fondatrice / Standard. Owners cannot self-set. */
+export async function setUserPartnerTier(formData: FormData) {
+  await assertAdmin();
+  const db = createServiceSupabaseClient();
+
+  const userId = String(formData.get("user_id") ?? "");
+  if (!userId) throw new Error("ID utente mancante.");
+
+  const tier = String(formData.get("partner_tier") ?? "standard");
+  if (!["standard", "partner", "fondatrice"].includes(tier)) {
+    throw new Error("Livello partner non valido.");
+  }
+
+  const { data: person } = await db
+    .from("users")
+    .select("id, role")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!person || person.role !== "owner") {
+    throw new Error("Il programma partner vale solo per account proprietario/agenzia.");
+  }
+
+  const updates: Record<string, unknown> = {
+    partner_tier: tier,
+    tier_updated_at: new Date().toISOString(),
+  };
+  if (tier === "fondatrice") {
+    updates.founding_rate = true;
+  } else if (tier === "standard") {
+    updates.founding_rate = false;
+  }
+  // partner keeps founding_rate as-is (Fondatrice never auto-demoted elsewhere)
+
+  const { error } = await db.from("users").update(updates).eq("id", userId);
+  if (error) throw new Error(`Errore partner tier: ${error.message}`);
+
+  revalidatePath("/admin/users");
+  revalidatePath(`/admin/users/${userId}`);
+  revalidatePath("/owner");
+  revalidatePath("/stanze");
+}
+
 // ---------------------------------------------------------------------------
 // Elimina completamente un account: prima la foto dallo Storage, poi
 // l'account di autenticazione vero e proprio. Cancellare da auth.users fa
