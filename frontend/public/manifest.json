@@ -1,7 +1,7 @@
 {
-  "name": "Coabito — Trova casa vicino alla tua università",
+  "name": "Coabito — Trova casa per studio o lavoro",
   "short_name": "Coabito",
-  "description": "Chatta con Vesta e scopri le stanze più compatibili con te, vicino al tuo ateneo.",
+  "description": "Chatta con Vesta e scopri le stanze più compatibili con te, per chi si trasferisce.",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#F4F8F7",

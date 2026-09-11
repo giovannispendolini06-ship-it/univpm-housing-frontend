@@ -11,6 +11,7 @@ import { getSavedRoomIdsForCurrentUser } from "@/app/favorites/actions";
 import type { Listing } from "@/lib/domain/types";
 import { SITE_URL } from "@/lib/site";
 import { DEMO_STANZE_LISTINGS } from "@/lib/demo-stanze-listings";
+import { isSeekerRole } from "@/lib/auth/roles";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,7 @@ async function attachMatchScores(listings: Listing[]): Promise<Listing[]> {
   if (listings.length === 0) return listings;
 
   const session = await getOptionalSession();
-  if (!session || session.role !== "student") return listings;
+  if (!session || !isSeekerRole(session.role)) return listings;
 
   const db = createServiceSupabaseClient();
   const roomIds = listings.map((l) => l.id);
@@ -84,7 +85,7 @@ export default async function StanzePage({
 
   try {
     const session = await getOptionalSession();
-    useStudentChrome = session?.role === "student";
+    useStudentChrome = isSeekerRole(session?.role);
     isAuthenticated = Boolean(session);
     // Filtri ricchi applicati client-side (vedi StanzeBrowse); qui carichiamo
     // l'elenco pubblico completo per matching/score e sort consigliati.

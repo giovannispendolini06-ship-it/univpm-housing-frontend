@@ -9,7 +9,7 @@
  * ops field for seed-supply economics when applicable.
  */
 
-export type UserRole = "student" | "owner" | "admin";
+export type UserRole = "student" | "worker" | "owner" | "admin";
 
 export type VerificationStatus = "none" | "pending" | "verified" | "rejected";
 

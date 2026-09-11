@@ -9,6 +9,8 @@ import type {
   MatchResult,
   StudentProfileRow,
 } from "@/lib/matching";
+import type { SeekerRole } from "@/lib/auth/roles";
+import { MATCH_WEIGHTS } from "@/lib/matching";
 
 const GUEST_FREQUENCY_RANK: Record<StudentProfileRow["guests_frequency"], number> = {
   mai: 0,
@@ -183,15 +185,32 @@ export function calculateRoommateMatchScore(
   a: StudentProfileRow,
   b: StudentProfileRow,
   locale: MatchLocale = "it",
+  seekerType: SeekerRole = "student",
 ): MatchResult {
+  const weights = MATCH_WEIGHTS[seekerType];
+  // Peer scorers still return student-scale points; rescale to seeker weights.
   const budget = scorePeerBudget(a, b, locale);
   const campus = scorePeerCampus(a, b, locale);
   const study = scorePeerStudy(a, b, locale);
   const cleanliness = scorePeerCleanliness(a, b, locale);
   const social = scorePeerSocial(a, b, locale);
 
-  const raw =
-    budget.points + campus.points + study.points + cleanliness.points + social.points;
+  const scaled = [
+    (budget.points / 30) * weights.budget,
+    (campus.points / 20) * weights.distance,
+    (study.points / 20) * weights.focus,
+    (cleanliness.points / 15) * weights.cleanliness,
+    (social.points / 15) * weights.social,
+  ];
+
+  // Relabel focus/distance for workers
+  if (seekerType === "worker") {
+    const isIt = locale === "it";
+    campus.reason.label = isIt ? "Zona / spostamenti" : "Area / commute";
+    study.reason.label = isIt ? "Tranquillità / smart working" : "Quiet / smart working";
+  }
+
+  const raw = scaled.reduce((s, n) => s + n, 0);
   const score = Math.round(Math.max(0, Math.min(100, raw)));
 
   const reasoning = [

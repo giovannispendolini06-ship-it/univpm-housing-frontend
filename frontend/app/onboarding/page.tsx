@@ -10,7 +10,7 @@ import OnboardingForm from "./OnboardingForm";
 export default function OnboardingPage() {
   const router = useRouter();
   const { t } = useLocale();
-  const [role, setRole] = useState<"student" | "owner" | null>(null);
+  const [role, setRole] = useState<"student" | "worker" | "owner" | null>(null);
 
   useEffect(() => {
     const supabase = createClientSupabaseClient();

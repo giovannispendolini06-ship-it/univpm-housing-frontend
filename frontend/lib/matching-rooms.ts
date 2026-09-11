@@ -10,6 +10,16 @@ import { calculateMatchScore, type StudentProfileRow } from "@/lib/matching";
 import { sendEmail, buildNewRoomMatchEmail } from "@/lib/email";
 import { stopWaitlistNurture } from "@/lib/waitlist-nurture";
 
+import { isSeekerRole, type SeekerRole } from "@/lib/auth/roles";
+
+async function resolveSeekerType(
+  db: ReturnType<typeof createServiceSupabaseClient>,
+  userId: string,
+): Promise<SeekerRole> {
+  const { data } = await db.from("users").select("role").eq("id", userId).maybeSingle();
+  return isSeekerRole(data?.role) ? data.role : "student";
+}
+
 function buildDistancesByProperty(
   rows: { property_id: string; campus_id: string; distance_km: number | null }[],
 ): Map<string, Map<string, number | null>> {
@@ -122,6 +132,8 @@ export async function computeRoomMatches(
     algorithm_version: string;
   }[] = [];
 
+  const seekerType = await resolveSeekerType(db, student.user_id);
+
   const enrichedRooms = roomsData.map((room: any) => {
     const property = room.properties;
     const roommates = roommatesByProperty.get(property?.id) ?? [];
@@ -138,6 +150,7 @@ export async function computeRoomMatches(
       roommates,
       distanceKm,
       locale,
+      seekerType,
     );
 
     matchRows.push({
@@ -246,23 +259,28 @@ export async function recalculateMatchesForRoom(
     ? await db.from("student_profiles").select("*").in("user_id", roommateIds)
     : { data: [] as StudentProfileRow[] };
 
-  const matchRows = (students as StudentProfileRow[]).map((student) => {
-    const distanceKm = distanceKmForCampus(student.campus_id);
-    const { score, reasoning } = calculateMatchScore(
-      student,
-      room as any,
-      property,
-      (roommateProfiles ?? []) as StudentProfileRow[],
-      distanceKm,
-    );
-    return {
-      student_id: student.user_id,
-      room_id: roomId,
-      compatibility_score: score,
-      ai_reasoning: { reasons: reasoning },
-      algorithm_version: "v2-multicity",
-    };
-  });
+  const matchRows = await Promise.all(
+    (students as StudentProfileRow[]).map(async (student) => {
+      const distanceKm = distanceKmForCampus(student.campus_id);
+      const seekerType = await resolveSeekerType(db, student.user_id);
+      const { score, reasoning } = calculateMatchScore(
+        student,
+        room as any,
+        property,
+        (roommateProfiles ?? []) as StudentProfileRow[],
+        distanceKm,
+        "it",
+        seekerType,
+      );
+      return {
+        student_id: student.user_id,
+        room_id: roomId,
+        compatibility_score: score,
+        ai_reasoning: { reasons: reasoning },
+        algorithm_version: "v2-multicity",
+      };
+    }),
+  );
 
   const { error } = await db
     .from("match_scores")

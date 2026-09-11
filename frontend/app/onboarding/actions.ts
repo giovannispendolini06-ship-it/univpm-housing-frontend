@@ -10,6 +10,7 @@ import { sendEmail, buildWelcomeEmail } from "@/lib/email";
 import { upsertLifestyleProfile } from "@/lib/data/profiles";
 import { computeRoomMatches } from "@/lib/matching-rooms";
 import type { StudentProfileRow } from "@/lib/matching";
+import { isSeekerRole } from "@/lib/auth/roles";
 
 interface OnboardingResult {
   error?: string;
@@ -37,7 +38,8 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
 
   if (!phone) return { error: "Il numero di telefono è obbligatorio." };
   if (!fiscalCode) return { error: "Il codice fiscale (o P.IVA) è obbligatorio." };
-  if (role === "student" && !dateOfBirth) {
+  const seeker = isSeekerRole(role);
+  if (seeker && !dateOfBirth) {
     return { error: "La data di nascita è obbligatoria." };
   }
 
@@ -55,7 +57,11 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
   let toleratesSmokers: boolean | null = null;
   let hasPets: boolean | null = null;
 
-  if (role === "student") {
+  let jobSector: string | null = null;
+  let smartWorking: string | null = null;
+  let workHoursNotes: string | null = null;
+
+  if (seeker) {
     budgetMax = Number(formData.get("budget_max"));
     if (!Number.isFinite(budgetMax) || budgetMax < 100) {
       return { error: "Indica un budget mensile realistico (minimo 100€)." };
@@ -63,7 +69,9 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
     moveIn = String(formData.get("preferred_move_in_date") ?? "").trim() || null;
     if (!moveIn) return { error: "Indica una data di ingresso preferita." };
     polo = String(formData.get("polo_univpm") ?? "").trim() || null;
-    if (!polo) return { error: "Seleziona il tuo polo / campus." };
+    if (role === "student" && !polo) {
+      return { error: "Seleziona il tuo polo / campus." };
+    }
     cleanliness = Number(formData.get("cleanliness_level"));
     if (!Number.isFinite(cleanliness) || cleanliness < 1 || cleanliness > 5) {
       return { error: "Indica il tuo livello di ordine (1–5)." };
@@ -71,6 +79,11 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
     isSmoker = formData.get("is_smoker") === "yes";
     toleratesSmokers = formData.get("tolerates_smokers") === "yes";
     hasPets = formData.get("has_pets") === "yes";
+    if (role === "worker") {
+      jobSector = String(formData.get("job_sector") ?? "").trim() || null;
+      smartWorking = String(formData.get("smart_working_preference") ?? "").trim() || null;
+      workHoursNotes = String(formData.get("work_hours_notes") ?? "").trim() || null;
+    }
   }
 
   const db = createServiceSupabaseClient();
@@ -96,7 +109,7 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
     .update({
       phone,
       fiscal_code: fiscalCode,
-      date_of_birth: role === "student" ? dateOfBirth : null,
+      date_of_birth: seeker ? dateOfBirth : null,
       avatar_url: publicUrlData.publicUrl,
       profile_completed: true,
     })
@@ -106,7 +119,7 @@ export async function completeOnboarding(formData: FormData): Promise<Onboarding
     return { error: `Errore nel salvataggio: ${updateError.message}` };
   }
 
-  if (role === "student") {
+  if (seeker) {
     // Resolve campus_id from polo code when possible
     let campusId: string | null = null;
     const { data: campuses } = await db

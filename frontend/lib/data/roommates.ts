@@ -1,3 +1,4 @@
+import { isSeekerRole } from "@/lib/auth/roles";
 import type { createServiceSupabaseClient } from "@/lib/supabase/server";
 import type { MatchLocale, MatchReason } from "@/lib/matching";
 import {
@@ -89,6 +90,15 @@ export async function listRoommateSuggestions(
   const me = meRaw ? toStudentProfileRow(meRaw as Record<string, unknown>) : null;
   if (!me) return [];
 
+  const { data: viewerUser } = await db
+    .from("users")
+    .select("role")
+    .eq("id", viewerId)
+    .maybeSingle();
+  const viewerRole = viewerUser?.role;
+  if (!isSeekerRole(viewerRole)) return [];
+
+
   const { data: myIntents } = await db
     .from("roommate_intents")
     .select("to_student_id, status")
@@ -173,7 +183,9 @@ export async function listRoommateSuggestions(
     if (passedIds.has(userId)) continue;
 
     const user = Array.isArray(row.users) ? row.users[0] : row.users;
-    if (!user || (user as { role?: string }).role !== "student") continue;
+    const peerRole = (user as { role?: string }).role;
+    // Same-type only: students with students, workers with workers
+    if (!user || peerRole !== viewerRole) continue;
 
     if (citySlug) {
       const rowSlug = row.city_slug ? String(row.city_slug) : null;

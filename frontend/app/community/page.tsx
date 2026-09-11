@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireSession } from "@/lib/auth/session";
+import { isSeekerRole } from "@/lib/auth/roles";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import StudentShell from "@/components/student/StudentShell";
 import GroupMembershipButton from "@/components/community/GroupMembershipButton";
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
 
 export default async function CommunityPage() {
   const session = await requireSession();
-  if (session.role !== "student") {
+  if (!isSeekerRole(session.role)) {
     redirect(session.role === "owner" ? "/owner" : "/dashboard");
   }
 

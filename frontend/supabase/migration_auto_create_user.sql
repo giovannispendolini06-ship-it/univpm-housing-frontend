@@ -5,7 +5,7 @@
 -- i suoi dati nella tabella public.users (quella collegata al resto dello
 -- schema: properties, student_profiles, ecc.).
 --
--- SECURITY: role da metadata SOLO student|owner. Mai admin (solo SQL/ops).
+-- SECURITY: role da metadata SOLO student|worker|owner. Mai admin (solo SQL/ops).
 -- ============================================================================
 
 create or replace function public.handle_new_user()
@@ -19,7 +19,7 @@ declare
 begin
   -- Non fidarsi di raw_user_meta_data per privilegi: admin non è mai ammesso qui.
   safe_role := case
-    when new.raw_user_meta_data->>'role' in ('student', 'owner')
+    when new.raw_user_meta_data->>'role' in ('student', 'worker', 'owner')
       then new.raw_user_meta_data->>'role'
     else 'student'
   end;
