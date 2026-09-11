@@ -82,6 +82,9 @@ function asProperty(raw: unknown): {
   available_until?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  description?: string | null;
+  virtual_tour_url?: string | null;
+  nearby_pois?: unknown;
 } {
   const p = Array.isArray(raw) ? raw[0] : raw;
   return p as ReturnType<typeof asProperty>;
@@ -220,7 +223,10 @@ export async function fetchPublicListings(
         contract_duration_type,
         available_until,
         latitude,
-        longitude
+        longitude,
+        description,
+        virtual_tour_url,
+        nearby_pois
       )
     `;
 
@@ -433,6 +439,26 @@ export async function fetchPublicListings(
       longitude:
         typeof property.longitude === "number" ? property.longitude : null,
       createdAt: row.created_at ? String(row.created_at) : null,
+      description: property.description ? String(property.description) : null,
+      virtualTourUrl: property.virtual_tour_url
+        ? String(property.virtual_tour_url)
+        : null,
+      nearbyPois: Array.isArray(property.nearby_pois)
+        ? (property.nearby_pois as {
+            id?: string;
+            name?: string;
+            category?: string;
+            distanceM?: number | null;
+          }[])
+            .filter((p) => p?.name)
+            .map((p, i) => ({
+              id: String(p.id ?? `poi-${i}`),
+              name: String(p.name),
+              category: String(p.category ?? ""),
+              distanceM:
+                typeof p.distanceM === "number" ? p.distanceM : null,
+            }))
+        : [],
       atmosphereTags: deriveAtmosphereTags({
         amenities,
         privateBathroom: Boolean(row.has_private_bathroom),

@@ -187,6 +187,17 @@ export interface Listing {
   availableUntil?: string | null;
   /** ISO created_at for "newest" sort */
   createdAt?: string | null;
+  /** Owner-edited public description (may be Vesta-drafted) */
+  description?: string | null;
+  /** Optional Matterport / 3D tour URL */
+  virtualTourUrl?: string | null;
+  /** Cached Mapbox POIs near the pin */
+  nearbyPois?: {
+    id: string;
+    name: string;
+    category: string;
+    distanceM: number | null;
+  }[];
 }
 
 export type ApplicationStatus =

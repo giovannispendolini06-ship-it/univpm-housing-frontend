@@ -178,6 +178,58 @@ export default async function StanzaDetailPage({ params }: { params: Params }) {
                 marketplace.
               </p>
 
+              {listing.virtualTourUrl && (
+                <a
+                  href={listing.virtualTourUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-sunset-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sunset-600"
+                  style={{
+                    transitionTimingFunction: "cubic-bezier(0.34, 1.4, 0.64, 1)",
+                  }}
+                >
+                  Tour virtuale disponibile
+                </a>
+              )}
+
+              {listing.description && (
+                <div className="rounded-xl2 border border-sea-100 bg-white p-4">
+                  <h2 className="mb-2 font-display text-sm font-bold text-ink">
+                    Descrizione
+                  </h2>
+                  <p className="whitespace-pre-line text-sm leading-relaxed text-ink">
+                    {listing.description}
+                  </p>
+                </div>
+              )}
+
+              {listing.nearbyPois && listing.nearbyPois.length > 0 && (
+                <div>
+                  <h2 className="mb-2 font-display text-sm font-bold text-ink">
+                    Punti di interesse vicini
+                  </h2>
+                  <ul className="space-y-1 text-sm text-ink-muted">
+                    {listing.nearbyPois.slice(0, 6).map((poi) => (
+                      <li key={poi.id} className="flex justify-between gap-2">
+                        <span>
+                          <span className="font-medium text-ink">{poi.name}</span>
+                          {poi.category ? (
+                            <span className="ml-1.5 text-xs">· {poi.category}</span>
+                          ) : null}
+                        </span>
+                        {poi.distanceM != null && (
+                          <span className="shrink-0 text-xs">
+                            {poi.distanceM < 1000
+                              ? `${poi.distanceM} m`
+                              : `${(poi.distanceM / 1000).toFixed(1)} km`}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <dl className="grid gap-3 rounded-xl2 border border-sea-100 bg-white p-4 text-sm sm:grid-cols-2">
                 <div>
                   <dt className="text-xs text-ink-muted">Canone</dt>
