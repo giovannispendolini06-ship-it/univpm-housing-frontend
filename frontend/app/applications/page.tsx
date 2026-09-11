@@ -12,7 +12,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export default async function ApplicationsPage() {
-  const session = await requireRole(["student"]);
+  const session = await requireRole(["student", "worker"]);
   const db = createServiceSupabaseClient();
   const { data: apps, error } = await listApplicationsForStudent(db, session.id);
 

@@ -4,12 +4,17 @@ import { revalidatePath } from "next/cache";
 import { createServiceSupabaseClient } from "@/lib/supabase/server";
 import { getOptionalSession, requireRole } from "@/lib/auth/session";
 import {
+  acceptApplicationAndOpenTenancy,
   getApplicationOwnedByOwner,
   upsertStudentApplication,
   updateApplicationStatus,
 } from "@/lib/data/applications";
 import { ensurePeerConversation } from "@/lib/data/messages";
-import { sendEmail, buildApplicationStatusEmail } from "@/lib/email";
+import {
+  sendEmail,
+  buildApplicationStatusEmail,
+  buildNewApplicationOwnerEmail,
+} from "@/lib/email";
 import { isSeekerRole } from "@/lib/auth/roles";
 
 export type ApplyResult =
@@ -39,7 +44,7 @@ export async function submitRoomApplication(input: {
   if (!isSeekerRole(session.role)) {
     return {
       ok: false,
-      error: "Solo gli account studente possono candidarsi.",
+      error: "Solo studenti e lavoratori possono candidarsi.",
       code: "forbidden",
     };
   }
@@ -48,7 +53,12 @@ export async function submitRoomApplication(input: {
 
   const { data: room } = await db
     .from("rooms")
-    .select("id, is_available, properties:property_id!inner ( status )")
+    .select(
+      `
+      id, is_available, room_label, price_monthly,
+      properties:property_id!inner ( status, owner_id, zone, address )
+    `,
+    )
     .eq("id", roomId)
     .maybeSingle();
 
@@ -64,6 +74,29 @@ export async function submitRoomApplication(input: {
     };
   }
 
+  const { data: existing } = await db
+    .from("room_applications")
+    .select("id, status")
+    .eq("room_id", roomId)
+    .eq("student_id", session.id)
+    .maybeSingle();
+
+  if (
+    existing &&
+    (existing.status === "submitted" ||
+      existing.status === "under_review" ||
+      existing.status === "accepted")
+  ) {
+    return {
+      ok: false,
+      error:
+        existing.status === "accepted"
+          ? "Hai già una candidatura accettata per questa stanza."
+          : "Hai già una candidatura in corso per questa stanza.",
+      code: "duplicate",
+    };
+  }
+
   const message = (input.message ?? "").trim().slice(0, 1000) || null;
 
   const { data, error } = await upsertStudentApplication(db, {
@@ -72,13 +105,40 @@ export async function submitRoomApplication(input: {
     message,
   });
 
-  if (error) {
-    console.error("[applications]", error.message);
+  if (error || !data) {
+    console.error("[applications]", error?.message);
     return {
       ok: false,
       error:
         "Non siamo riusciti a salvare la candidatura. Se il problema continua, scrivi a info@coabito.it.",
     };
+  }
+
+  try {
+    const ownerId = (property as { owner_id?: string } | null)?.owner_id;
+    if (ownerId) {
+      const [{ data: ownerRow }, { data: applicant }] = await Promise.all([
+        db.from("users").select("email, full_name").eq("id", ownerId).maybeSingle(),
+        db.from("users").select("full_name").eq("id", session.id).maybeSingle(),
+      ]);
+      if (ownerRow?.email) {
+        await sendEmail({
+          to: ownerRow.email,
+          ...buildNewApplicationOwnerEmail({
+            ownerName: ownerRow.full_name ?? "",
+            applicantName: applicant?.full_name ?? "Un candidato",
+            roomLabel: String(room.room_label ?? "Stanza"),
+            zone:
+              (property as { zone?: string | null } | null)?.zone ??
+              (property as { address?: string | null } | null)?.address ??
+              null,
+            message,
+          }),
+        });
+      }
+    }
+  } catch (err) {
+    console.error("[applications] owner notify", err);
   }
 
   revalidatePath("/stanze");
@@ -93,14 +153,100 @@ export async function setApplicationStatus(input: {
   applicationId: string;
   status: "under_review" | "accepted" | "rejected";
 }): Promise<{ ok: true } | { ok: false; error: string }> {
-  const owner = await requireRole(["owner", "admin"]);
+  const actor = await requireRole(["owner", "admin"]);
   const db = createServiceSupabaseClient();
 
-  if (owner.role === "owner") {
-    const owned = await getApplicationOwnedByOwner(db, input.applicationId, owner.id);
+  if (actor.role === "owner") {
+    const owned = await getApplicationOwnedByOwner(
+      db,
+      input.applicationId,
+      actor.id,
+    );
     if (!owned.data) {
-      return { ok: false, error: "Candidatura non trovata o non di tua competenza." };
+      return {
+        ok: false,
+        error: "Candidatura non trovata o non di tua competenza.",
+      };
     }
+  }
+
+  if (input.status === "accepted") {
+    let ownerId = actor.id;
+    if (actor.role === "admin") {
+      const { data: appRow } = await db
+        .from("room_applications")
+        .select(
+          `id, rooms:room_id!inner ( properties:property_id!inner ( owner_id ) )`,
+        )
+        .eq("id", input.applicationId)
+        .maybeSingle();
+      const room = Array.isArray(appRow?.rooms) ? appRow?.rooms[0] : appRow?.rooms;
+      const propRaw = room
+        ? (room as { properties?: unknown }).properties
+        : null;
+      const prop = Array.isArray(propRaw) ? propRaw[0] : propRaw;
+      ownerId =
+        (prop as { owner_id?: string } | null | undefined)?.owner_id ?? actor.id;
+    }
+
+    const result = await acceptApplicationAndOpenTenancy(db, {
+      applicationId: input.applicationId,
+      actorOwnerId: ownerId,
+    });
+    if (!result.ok) return result;
+
+    try {
+      await ensurePeerConversation(db, {
+        listingId: result.roomId,
+        applicationId: input.applicationId,
+        participantIds: [ownerId, result.studentId],
+      });
+    } catch (err) {
+      console.error("[applications] conversation", err);
+    }
+
+    try {
+      const notifyIds = [
+        result.studentId,
+        ...result.rejected.map((r) => r.studentId),
+      ];
+      const { data: users } = await db
+        .from("users")
+        .select("id, email, full_name")
+        .in("id", notifyIds);
+      const byId = new Map((users ?? []).map((u) => [String(u.id), u]));
+
+      const acceptedUser = byId.get(result.studentId);
+      if (acceptedUser?.email) {
+        await sendEmail({
+          to: acceptedUser.email,
+          ...buildApplicationStatusEmail({
+            fullName: acceptedUser.full_name ?? "",
+            statusLabel: "accettata",
+          }),
+        });
+      }
+      for (const rej of result.rejected) {
+        const u = byId.get(rej.studentId);
+        if (!u?.email) continue;
+        await sendEmail({
+          to: u.email,
+          ...buildApplicationStatusEmail({
+            fullName: u.full_name ?? "",
+            statusLabel: "rifiutata",
+          }),
+        });
+      }
+    } catch (err) {
+      console.error("[applications] notify accept", err);
+    }
+
+    revalidatePath("/applications");
+    revalidatePath("/owner");
+    revalidatePath("/messages");
+    revalidatePath(`/stanza/${result.roomId}`);
+    revalidatePath("/dashboard");
+    return { ok: true };
   }
 
   const { data, error } = await updateApplicationStatus(db, {
@@ -112,30 +258,6 @@ export async function setApplicationStatus(input: {
     return { ok: false, error: error?.message ?? "Aggiornamento non riuscito." };
   }
 
-  // On accept: open peer conversation architecture (best-effort)
-  if (input.status === "accepted") {
-    try {
-      const { data: roomRow } = await db
-        .from("rooms")
-        .select("id, properties:property_id ( owner_id )")
-        .eq("id", data.room_id)
-        .maybeSingle();
-      const prop = Array.isArray(roomRow?.properties)
-        ? roomRow?.properties[0]
-        : roomRow?.properties;
-      const landlordId =
-        (prop as { owner_id?: string } | null | undefined)?.owner_id ?? owner.id;
-      await ensurePeerConversation(db, {
-        listingId: data.room_id,
-        applicationId: data.id,
-        participantIds: [landlordId, data.student_id],
-      });
-    } catch (err) {
-      console.error("[applications] conversation", err);
-    }
-  }
-
-  // Notify student (best-effort)
   try {
     const { data: student } = await db
       .from("users")
@@ -144,16 +266,14 @@ export async function setApplicationStatus(input: {
       .single();
     if (student?.email) {
       const statusLabel =
-        input.status === "accepted"
-          ? "accettata"
-          : input.status === "rejected"
-            ? "rifiutata"
-            : "in revisione";
-      const mail = buildApplicationStatusEmail({
-        fullName: student.full_name ?? "",
-        statusLabel,
+        input.status === "rejected" ? "rifiutata" : "in revisione";
+      await sendEmail({
+        to: student.email,
+        ...buildApplicationStatusEmail({
+          fullName: student.full_name ?? "",
+          statusLabel,
+        }),
       });
-      await sendEmail({ to: student.email, ...mail });
     }
   } catch (err) {
     console.error("[applications] notify", err);

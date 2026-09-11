@@ -338,6 +338,12 @@ export default async function OwnerDashboardPage() {
           </div>
         ) : (
           <div className="space-y-4">
+            <h2 className="font-display text-lg font-bold text-ink">
+              I miei annunci
+            </h2>
+            <p className="text-sm text-ink-muted">
+              Stato, candidature ricevute e azioni rapide (pausa / riattiva).
+            </p>
             {propertyRows.map((property) => {
               const rooms = property.rooms ?? [];
               const occupied =
