@@ -31,7 +31,7 @@ import {
 import {
   syncOwnerPartnerTier,
   fetchOwnerMarketReport,
-} from "@/lib/partner-tier";
+} from "@/lib/partner-tier-server";
 import OwnerPartnerPanel from "@/components/owner/OwnerPartnerPanel";
 
 export const dynamic = "force-dynamic";
