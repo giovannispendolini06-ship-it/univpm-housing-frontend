@@ -3,8 +3,8 @@ export type Locale = "it" | "en";
 export const translations = {
   it: {
     nav: {
-      forStudents: "Per chi cerca casa",
-      forOwners: "Per i proprietari",
+      forStudents: "Cerca casa",
+      forOwners: "Pubblica immobile",
       howItWorks: "Come funziona",
       services: "Servizi",
       rooms: "Stanze",
@@ -21,19 +21,19 @@ export const translations = {
       titleHighlight: "Le persone",
       titlePart2: " giuste.",
       subtitle:
-        "Marketplace abitativo per chi si trasferisce: stanze trasparenti, profili verificabili e Compatibilità Coabito — per trovare stanza e coinquilini giusti, non solo un annuncio.",
-      ctaStudent: "Trova il tuo match",
-      ctaOwner: "Pubblica un immobile",
+        "Marketplace abitativo per chi si trasferisce: stanze e appartamenti trasparenti, profili verificabili e Compatibilità Coabito — per trovare alloggio e coinquilini giusti, non solo un annuncio.",
+      ctaStudent: "Cerca casa",
+      ctaOwner: "Pubblica il tuo immobile",
       ctaBrowse: "Sfoglia le stanze",
       freeNote: "Gratuito per chi cerca casa. Nessuna carta di credito richiesta.",
       alreadyAccount: "Hai già un account? Accedi",
       seeExample: "Vedi un esempio",
       socialProof: "{count} persone già in lista d'attesa",
       liveCompatibility: "Compatibilità calcolata in tempo reale",
-      mockBot: "Che facoltà fai, e quanto puoi spendere al mese?",
-      mockUser: "Ingegneria, secondo anno. Max 420€",
+      mockBot: "Studio o lavoro, e quanto puoi spendere al mese?",
+      mockUser: "Lavoro in centro. Max 450€",
       mockRoomTitle: "Singola luminosa con balcone",
-      mockRoomMeta: "380€/mese · 9 min dall'ateneo",
+      mockRoomMeta: "380€/mese · vicino a stazione e uffici",
       badgeCompatTitle: "Compatibilità 92%",
       badgeCompatSub: "Calcolata in tempo reale",
       badgeFeesTitle: "Zero commissioni",
@@ -128,9 +128,11 @@ export const translations = {
       eyebrow: "Come funziona",
       titleLine1: "Non te lo raccontiamo.",
       titleLine2: "Te lo facciamo vedere.",
-      toggleAria: "Scegli il tuo punto di vista",
+      toggleAria: "Scegli il tuo percorso",
       toggleStudent: "Cerco casa",
-      toggleOwner: "Sono proprietario",
+      toggleOwner: "Pubblico un immobile",
+      pathHintStudent: "Per studio o lavoro — stesso percorso, preferenze diverse dopo.",
+      pathHintOwner: "Privato o agenzia — stessi strumenti base, vantaggi partner in dashboard.",
       stepsAria: "Passaggi",
       progressAria: "Avanzamento passaggi",
       prev: "Indietro",
@@ -138,13 +140,13 @@ export const translations = {
       expandHint: "Mostra dettagli",
       collapseHint: "Nascondi dettagli",
       exampleBadge: "Esempio",
-      ctaStudent: "Inizia a chattare con Vesta",
-      ctaOwner: "Proponi il tuo immobile",
+      ctaStudent: "Cerca casa",
+      ctaOwner: "Pubblica il tuo immobile",
       student: {
         steps: [
           {
             title: "Parli con Vesta",
-            subtitle: "Facoltà, budget, orari di studio",
+            subtitle: "Studio o lavoro, budget, orari e abitudini",
           },
           {
             title: "Vedi il costo reale, non solo l'affitto",
@@ -162,29 +164,29 @@ export const translations = {
         proofs: [
           {
             badge: "Zero commissioni",
-            title: "Gratis per gli studenti",
+            title: "Gratis per chi cerca casa",
             body: "Nessuna commissione di ricerca, mai — a differenza dei portali tradizionali.",
             detail:
               "A differenza dei portali tradizionali (7-15% sull'affitto), su Coabito la ricerca non ti costa nulla, ora e in futuro.",
             accent: "coral" as const,
           },
           {
-            badge: "✓ Studente verificato",
+            badge: "✓ Profilo verificato",
             title: "Sai sempre con chi parli",
-            body: "Badge assegnato solo dopo verifica reale dell'iscrizione universitaria.",
+            body: "Badge dopo verifica reale — iscrizione universitaria o dati professionali.",
             detail:
-              "La verifica controlla l'iscrizione universitaria attiva — non un'autodichiarazione.",
+              "Studenti e lavoratori: la verifica conferma chi sei, non un'autodichiarazione.",
             accent: "teal" as const,
           },
         ],
         screens: {
           chat: {
-            bot1: "Che facoltà frequenti, e quanto puoi spendere al mese?",
-            me: "Ingegneria, secondo anno. Max 420€",
-            bot2: "Perfetto, iniziamo a cercare 🔥",
+            bot1: "Cerchi casa per studio o lavoro? E quanto puoi spendere al mese?",
+            me: "Lavoro in centro. Max 450€",
+            bot2: "Perfetto, iniziamo a cercare",
           },
           cost: {
-            title: "Singola · Zona universitaria",
+            title: "Singola · Vicino stazione",
             match: "92%",
             rent: "Canone: 320€",
             utilities: "Utenze: 40€",
@@ -195,9 +197,9 @@ export const translations = {
           roommates: {
             title: "I tuoi coinquilini",
             people: [
-              { initials: "GM", tag: "Studia molto" },
+              { initials: "GM", tag: "Orari regolari" },
               { initials: "LR", tag: "Casa tranquilla" },
-              { initials: "+1", tag: "Orari simili" },
+              { initials: "+1", tag: "Abitudini simili" },
             ],
           },
           escrow: {
@@ -212,12 +214,12 @@ export const translations = {
       owner: {
         steps: [
           {
-            title: "Racconti il tuo immobile a Vesta",
-            subtitle: "Niente form lunghi da compilare",
+            title: "Racconti il tuo immobile",
+            subtitle: "Una stanza o un catalogo — senza form inutili",
           },
           {
-            title: "Ricevi candidati già verificati",
-            subtitle: "Iscrizione universitaria confermata",
+            title: "Ricevi candidati già filtrati",
+            subtitle: "Studenti e lavoratori con profilo verificabile",
           },
           {
             title: "Il canone arriva puntuale",
@@ -239,17 +241,17 @@ export const translations = {
           },
           {
             badge: "Un solo interlocutore",
-            title: "Non decine di studenti separati",
-            body: "Un unico contratto, una sola persona di riferimento per qualsiasi cosa.",
+            title: "Non decine di candidati sparsi",
+            body: "Matching chiaro e un punto di contatto: ideale per privati e gestibile per le agenzie.",
             detail:
-              "Non devi gestire comunicazioni separate con ogni inquilino — un solo punto di contatto per tutto.",
+              "Non devi gestire comunicazioni caotiche: profili filtrati, candidature ordinate, stesso flusso per uno o più annunci.",
             accent: "coral" as const,
           },
         ],
         screens: {
           chat: {
             bot1: "Quante stanze ha l'immobile, e in che zona?",
-            me: "3 stanze, zona universitaria, vicino al mio polo",
+            me: "3 stanze, vicino alla stazione",
             bot2: "Annuncio pronto — lo rivedi tu prima di pubblicarlo",
           },
           applicants: {
@@ -257,13 +259,13 @@ export const translations = {
               {
                 initials: "GM",
                 name: "Giulia M.",
-                badge: "✓ Studentessa verificata",
+                badge: "✓ Profilo verificato",
                 score: "91%",
               },
               {
                 initials: "LR",
                 name: "Luca R.",
-                badge: "✓ Studente verificato",
+                badge: "✓ Profilo verificato",
                 score: "84%",
               },
             ],
@@ -274,7 +276,7 @@ export const translations = {
             sub: "15 settembre · Immobile occupato · Nessuna azione richiesta",
           },
           whatIf: {
-            question: "Se lo studente non paga?",
+            question: "Se l'inquilino non paga?",
             answer:
               "Sulle proprietà a canone garantito, il rischio è nostro: tu ricevi comunque il canone.",
           },
@@ -283,20 +285,20 @@ export const translations = {
     },
     founderNote: {
       quote:
-        "Anche io ho cercato casa ad Ancona da studente, senza sapere nulla delle persone con cui avrei convissuto. Coabito è il servizio che avrei voluto avere io, il primo anno.",
+        "Anche io ho cercato casa da fuori sede, senza sapere nulla delle persone con cui avrei convissuto. Coabito è il servizio che avrei voluto avere io, al primo trasferimento.",
       attribution: "— Giovanni, fondatore di Coabito",
     },
     faq: {
       eyebrow: "Domande frequenti",
       title: "Le domande che ci fate davvero",
-      seeAll: "Tutte le FAQ per studenti",
+      seeAll: "Tutte le FAQ per chi cerca casa",
       toggleStudent: "Cerco casa",
-      toggleOwner: "Sono proprietario",
-      toggleAria: "Scegli se vedere le FAQ per studenti o proprietari",
+      toggleOwner: "Pubblico un immobile",
+      toggleAria: "Scegli se vedere le FAQ per chi cerca casa o per chi pubblica",
       studentItems: [
         {
           question: "Quanto costa usare Coabito?",
-          answer: "Niente. Zero commissioni di ricerca per gli studenti, sempre.",
+          answer: "Niente. Zero commissioni di ricerca per chi cerca casa, sempre.",
         },
         {
           question: "I miei soldi sono al sicuro?",
@@ -324,7 +326,7 @@ export const translations = {
       ],
       ownerItems: [
         {
-          question: "E se lo studente non paga?",
+          question: "E se l'inquilino non paga?",
           answer:
             "Sulle proprietà a canone garantito, il rischio è nostro: tu ricevi comunque il canone concordato, ogni mese.",
           worry: true,
@@ -332,7 +334,7 @@ export const translations = {
         {
           question: "E se lascia danni all'immobile?",
           answer:
-            "La cauzione versata dallo studente resta a garanzia. Per i casi sul marketplace indipendente, valutiamo insieme l'attivazione di una garanzia aggiuntiva opzionale.",
+            "La cauzione versata dall'inquilino resta a garanzia. Per i casi sul marketplace indipendente, valutiamo insieme l'attivazione di una garanzia aggiuntiva opzionale.",
           worry: true,
         },
         {
@@ -407,7 +409,7 @@ export const translations = {
       terms: "Termini di servizio",
       cookies: "Cookie",
       guide: "Guida affitto Ancona",
-      faq: "FAQ studenti",
+      faq: "FAQ per chi cerca casa",
       guideFirstTime: "Prima volta fuori sede",
       services: "Servizi",
     },
@@ -534,7 +536,7 @@ export const translations = {
     },
     founderContact: {
       title: "Hai domande prima di iscriverti?",
-      body: "Scrivimi direttamente. Sono Giovanni, il fondatore di Coabito — studio anch'io all'UNIVPM e conosco bene la ricerca casa da fuori sede. Se hai dubbi su come funziona la piattaforma, o semplicemente vuoi capire se fa al caso tuo, scrivimi su WhatsApp: ti rispondo io.",
+      body: "Scrivimi direttamente. Sono Giovanni, il fondatore di Coabito — ho cercato casa da fuori sede e conosco bene cosa significa trasferirsi. Se hai dubbi su come funziona la piattaforma, o semplicemente vuoi capire se fa al caso tuo, scrivimi su WhatsApp: ti rispondo io.",
       cta: "Scrivimi su WhatsApp",
       whatsappMessage:
         "Ciao Giovanni! Ho una domanda su Coabito / sulla guida Prima volta fuori sede.",
@@ -643,9 +645,12 @@ export const translations = {
       chatTab: "Chat",
       roomsTab: "Stanze",
       loadingChat: "Sto ritrovando la tua chat...",
+      roomsFromVesta: "Stanze proposte dalla chat con Vesta",
     },
     chat: {
-      subtitle: "Il tuo assistente casa · fuori sede",
+      subtitle: "Il tuo assistente casa",
+      subtitleStudent: "Il tuo assistente casa · studio",
+      subtitleWorker: "Il tuo assistente casa · lavoro",
       inputPlaceholder: "Scrivi un messaggio...",
       sendLabel: "Invia messaggio",
       progressLabel: "{done}/{total} · {step}",
@@ -656,7 +661,7 @@ export const translations = {
         campus: "Polo / facoltà",
         budget: "Budget",
         moveIn: "Data ingresso",
-        study: "Studio",
+        study: "Studio / lavoro",
         social: "Vita sociale",
         clean: "Pulizia",
         extras: "Fumo / animali",
@@ -897,12 +902,12 @@ export const translations = {
       eyebrow: "I nostri servizi",
       title: "Ti accompagniamo in ogni fase, non solo nella ricerca",
       intro:
-        "Coabito non è parte del contratto di locazione: studente e proprietario firmano direttamente. Il nostro ruolo è fiducia, matching e sicurezza della transazione.",
+        "Coabito non è parte del contratto di locazione: chi cerca casa e chi pubblica firmano direttamente. Il nostro ruolo è fiducia, matching e sicurezza della transazione.",
       toggleStudent: "Cerco casa",
-      toggleOwner: "Sono proprietario",
-      ctaBody: "Pronto a iniziare? Entra in lista d'attesa o proponi un immobile.",
-      ctaStudent: "Sono uno studente",
-      ctaOwner: "Sono un proprietario",
+      toggleOwner: "Pubblico un immobile",
+      ctaBody: "Pronto a iniziare? Cerca casa o pubblica un immobile.",
+      ctaStudent: "Cerca casa",
+      ctaOwner: "Pubblica il tuo immobile",
       student: {
         phases: [
           {
@@ -1222,8 +1227,8 @@ export const translations = {
   },
   en: {
     nav: {
-      forStudents: "For movers",
-      forOwners: "For property owners",
+      forStudents: "Find a home",
+      forOwners: "List a property",
       howItWorks: "How it works",
       services: "Services",
       rooms: "Rooms",
@@ -1235,28 +1240,28 @@ export const translations = {
       waitlist: "Waitlist",
     },
     hero: {
-      badge: "Made for students living away from home",
+      badge: "For people relocating for study or work",
       titlePart1: "The right home. ",
       titleHighlight: "The right",
       titlePart2: " people.",
       subtitle:
-        "Housing marketplace for students living away from home: transparent rooms, verifiable profiles and Coabito Compatibility — find the right room and roommates, not just another listing.",
-      ctaStudent: "Find your match",
-      ctaOwner: "List a room",
+        "Housing marketplace for movers: transparent rooms and flats, verifiable profiles and Coabito Compatibility — find the right place and roommates, not just another listing.",
+      ctaStudent: "Find a home",
+      ctaOwner: "List your property",
       ctaBrowse: "Browse rooms",
-      freeNote: "Free for students. No credit card required.",
+      freeNote: "Free for seekers. No credit card required.",
       alreadyAccount: "Already have an account? Sign in",
       seeExample: "See an example",
-      socialProof: "{count} students already on the waitlist",
+      socialProof: "{count} people already on the waitlist",
       liveCompatibility: "Compatibility calculated in real time",
-      mockBot: "What are you studying, and what's your monthly budget?",
-      mockUser: "Engineering, second year. Max €420",
+      mockBot: "Study or work — and what's your monthly budget?",
+      mockUser: "I work downtown. Max €450",
       mockRoomTitle: "Bright single with balcony",
-      mockRoomMeta: "€380/month · 9 min from campus",
+      mockRoomMeta: "€380/month · near station and offices",
       badgeCompatTitle: "92% compatibility",
       badgeCompatSub: "Calculated in real time",
       badgeFeesTitle: "Zero fees",
-      badgeFeesSub: "For students",
+      badgeFeesSub: "For seekers",
     },
     launchCountdown: {
       days: "The first rooms arrive in {n} days",
@@ -1277,13 +1282,13 @@ export const translations = {
           number: "1",
           title: "Tell us who you are",
           description:
-            "Degree course, university, budget and move-in date: just a couple of minutes of chat, no endless forms.",
+            "City, budget and move-in date (and university if you study): just a couple of minutes of chat, no endless forms.",
         },
         {
           number: "2",
           title: "Vesta learns your habits",
           description:
-            "Study hours, social life, cleanliness: things you'd normally only find out after signing.",
+            "Schedule, social life, cleanliness (and remote-work needs if you work): things you'd normally only find out after signing.",
         },
         {
           number: "3",
@@ -1308,13 +1313,13 @@ export const translations = {
           number: "2",
           title: "We pre-filter interested students",
           description:
-            "Only compatible students — and, as soon as available, verified ones — reach you: no time-wasters.",
+            "Only compatible profiles — students and workers, verified when available — reach you: no time-wasters.",
         },
         {
           number: "3",
           title: "You choose and sign directly",
           description:
-            "The lease stays between you and the student. Coabito supports matching, trust and transaction safety.",
+            "The lease stays between you and the tenant. Coabito supports matching, trust and transaction safety.",
         },
       ],
     },
@@ -1347,9 +1352,11 @@ export const translations = {
       eyebrow: "How it works",
       titleLine1: "We won't just tell you.",
       titleLine2: "We'll show you.",
-      toggleAria: "Choose your point of view",
+      toggleAria: "Choose your path",
       toggleStudent: "I'm looking for a home",
-      toggleOwner: "I'm a landlord",
+      toggleOwner: "I'm listing a property",
+      pathHintStudent: "For study or work — same path, preferences diverge later.",
+      pathHintOwner: "Private owner or agency — same basics, partner perks in the dashboard.",
       stepsAria: "Steps",
       progressAria: "Step progress",
       prev: "Back",
@@ -1357,13 +1364,13 @@ export const translations = {
       expandHint: "Show details",
       collapseHint: "Hide details",
       exampleBadge: "Example",
-      ctaStudent: "Start chatting with Vesta",
+      ctaStudent: "Find a home",
       ctaOwner: "List your property",
       student: {
         steps: [
           {
             title: "You chat with Vesta",
-            subtitle: "Course, budget, study hours",
+            subtitle: "Study or work, budget, schedule and habits",
           },
           {
             title: "See the real cost, not just rent",
@@ -1381,29 +1388,29 @@ export const translations = {
         proofs: [
           {
             badge: "Zero fees",
-            title: "Free for students",
+            title: "Free for seekers",
             body: "No search commission, ever — unlike traditional portals.",
             detail:
               "Unlike traditional portals (7–15% of rent), searching on Coabito costs you nothing — now and later.",
             accent: "coral" as const,
           },
           {
-            badge: "✓ Verified student",
+            badge: "✓ Verified profile",
             title: "You always know who you're talking to",
-            body: "Badge granted only after real university enrolment verification.",
+            body: "Badge after real verification — student enrolment or professional details.",
             detail:
-              "Verification checks active university enrolment — not a self-declaration.",
+              "Students and workers: verification confirms who you are — not a self-declaration.",
             accent: "teal" as const,
           },
         ],
         screens: {
           chat: {
-            bot1: "What are you studying, and what's your monthly budget?",
-            me: "Engineering, second year. Max €420",
-            bot2: "Perfect — let's start looking 🔥",
+            bot1: "Looking for a place for study or work? What's your monthly budget?",
+            me: "I work downtown. Max €450",
+            bot2: "Perfect — let's start looking",
           },
           cost: {
-            title: "Single · Campus area",
+            title: "Single · Near the station",
             match: "92%",
             rent: "Rent: €320",
             utilities: "Utilities: €40",
@@ -1414,9 +1421,9 @@ export const translations = {
           roommates: {
             title: "Your roommates",
             people: [
-              { initials: "GM", tag: "Studies a lot" },
+              { initials: "GM", tag: "Regular hours" },
               { initials: "LR", tag: "Quiet home" },
-              { initials: "+1", tag: "Similar hours" },
+              { initials: "+1", tag: "Similar habits" },
             ],
           },
           escrow: {
@@ -1431,12 +1438,12 @@ export const translations = {
       owner: {
         steps: [
           {
-            title: "You tell Vesta about your property",
-            subtitle: "No long forms to fill in",
+            title: "You tell us about your property",
+            subtitle: "One room or a catalog — no useless forms",
           },
           {
-            title: "Get pre-verified applicants",
-            subtitle: "University enrolment confirmed",
+            title: "Get pre-filtered applicants",
+            subtitle: "Students and workers with verifiable profiles",
           },
           {
             title: "Rent arrives on time",
@@ -1458,17 +1465,17 @@ export const translations = {
           },
           {
             badge: "One contact",
-            title: "Not dozens of separate students",
-            body: "One contract, one person to talk to for anything.",
+            title: "Not dozens of scattered applicants",
+            body: "Clear matching and one point of contact — simple for privates, scalable for agencies.",
             detail:
-              "You don't manage separate threads with every tenant — one point of contact for everything.",
+              "You don't manage chaotic threads: filtered profiles, ordered applications, same flow for one or many listings.",
             accent: "coral" as const,
           },
         ],
         screens: {
           chat: {
             bot1: "How many rooms, and which area?",
-            me: "3 rooms, campus area, near my faculty",
+            me: "3 rooms, near the station",
             bot2: "Listing ready — you review it before it goes live",
           },
           applicants: {
@@ -1476,13 +1483,13 @@ export const translations = {
               {
                 initials: "GM",
                 name: "Giulia M.",
-                badge: "✓ Verified student",
+                badge: "✓ Verified profile",
                 score: "91%",
               },
               {
                 initials: "LR",
                 name: "Luca R.",
-                badge: "✓ Verified student",
+                badge: "✓ Verified profile",
                 score: "84%",
               },
             ],
@@ -1493,7 +1500,7 @@ export const translations = {
             sub: "15 September · Occupied · No action needed",
           },
           whatIf: {
-            question: "What if the student doesn't pay?",
+            question: "What if the tenant doesn't pay?",
             answer:
               "On guaranteed-rent properties, the risk is ours: you still receive the rent.",
           },
@@ -1502,20 +1509,20 @@ export const translations = {
     },
     founderNote: {
       quote:
-        "I also searched for a room in Ancona as a student, without knowing anything about the people I'd end up living with. Coabito is the service I wish I'd had, my first year.",
+        "I also looked for a place when I moved away, without knowing anything about the people I'd live with. Coabito is the service I wish I'd had on my first move.",
       attribution: "— Giovanni, founder of Coabito",
     },
     faq: {
       eyebrow: "Frequently asked questions",
       title: "The questions you really ask us",
-      seeAll: "All student FAQs",
+      seeAll: "All FAQ for seekers",
       toggleStudent: "I'm looking for a home",
-      toggleOwner: "I'm an owner",
-      toggleAria: "Choose student or owner FAQs",
+      toggleOwner: "I'm listing a property",
+      toggleAria: "Choose FAQ for seekers or publishers",
       studentItems: [
         {
           question: "How much does Coabito cost?",
-          answer: "Nothing. Zero search fees for students, always.",
+          answer: "Nothing. Zero search fees for people looking for a home, always.",
         },
         {
           question: "Is my money safe?",
@@ -1543,7 +1550,7 @@ export const translations = {
       ],
       ownerItems: [
         {
-          question: "What if the student doesn't pay?",
+          question: "What if the tenant doesn't pay?",
           answer:
             "On guaranteed-rent properties, the risk is ours: you still receive the agreed rent, every month.",
           worry: true,
@@ -1551,7 +1558,7 @@ export const translations = {
         {
           question: "What if they damage the property?",
           answer:
-            "The student's deposit stays as security. For independent marketplace listings, we can discuss activating an optional extra guarantee together.",
+            "The tenant's deposit stays as security. For independent marketplace listings, we can discuss activating an optional extra guarantee together.",
           worry: true,
         },
         {
@@ -1626,7 +1633,7 @@ export const translations = {
       terms: "Terms of service",
       cookies: "Cookies",
       guide: "Ancona student housing guide",
-      faq: "Student FAQ",
+      faq: "FAQ for seekers",
       guideFirstTime: "First time living away",
       services: "Services",
     },
@@ -1753,7 +1760,7 @@ export const translations = {
     },
     founderContact: {
       title: "Questions before you sign up?",
-      body: "Message me directly. I’m Giovanni, the founder of Coabito — I also study at UNIVPM and know the out-of-town housing search well. If you’re unsure how the platform works, or simply want to know if it’s right for you, write on WhatsApp: I’ll reply myself.",
+      body: "Message me directly. I’m Giovanni, the founder of Coabito — I’ve looked for housing after moving away and know what relocating feels like. If you’re unsure how the platform works, or simply want to know if it’s right for you, write on WhatsApp: I’ll reply myself.",
       cta: "Message me on WhatsApp",
       whatsappMessage:
         "Hi Giovanni! I have a question about Coabito / the First time living away guide.",
@@ -1862,9 +1869,12 @@ export const translations = {
       chatTab: "Chat",
       roomsTab: "Rooms",
       loadingChat: "Loading your chat...",
+      roomsFromVesta: "Rooms suggested from your chat with Vesta",
     },
     chat: {
-      subtitle: "Your housing assistant · away from home",
+      subtitle: "Your housing assistant",
+      subtitleStudent: "Your housing assistant · study",
+      subtitleWorker: "Your housing assistant · work",
       inputPlaceholder: "Write a message...",
       sendLabel: "Send message",
       progressLabel: "{done}/{total} · {step}",
@@ -1875,7 +1885,7 @@ export const translations = {
         campus: "Campus / course",
         budget: "Budget",
         moveIn: "Move-in date",
-        study: "Study habits",
+        study: "Study / work",
         social: "Social life",
         clean: "Cleanliness",
         extras: "Smoking / pets",
@@ -2115,12 +2125,12 @@ export const translations = {
       eyebrow: "Our services",
       title: "We support you at every stage, not just the search",
       intro:
-        "Coabito is not a party to the lease: student and landlord sign directly. Our role is trust, matching, and transaction safety.",
+        "Coabito is not a party to the lease: seekers and publishers sign directly. Our role is trust, matching, and transaction safety.",
       toggleStudent: "I'm looking for a home",
-      toggleOwner: "I'm a landlord",
-      ctaBody: "Ready to start? Join the waitlist or list a property.",
-      ctaStudent: "I'm a student",
-      ctaOwner: "I'm a landlord",
+      toggleOwner: "I'm listing a property",
+      ctaBody: "Ready to start? Find a home or list a property.",
+      ctaStudent: "Find a home",
+      ctaOwner: "List your property",
       student: {
         phases: [
           {

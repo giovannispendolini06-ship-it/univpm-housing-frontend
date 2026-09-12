@@ -30,7 +30,7 @@ const TIERS = [
   },
   {
     name: "Agenzia Fondatrice",
-    requirement: "Assegnato manualmente alle prime agenzie di Ancona",
+    requirement: "Assegnato manualmente alle agenzie fondatrici del programma",
     perks: [
       "Badge «Agenzia Fondatrice»",
       "Stessi vantaggi Partner",
@@ -128,7 +128,8 @@ export default function AgenciesPage() {
           </h2>
           <p className="mt-2 text-sm text-ink-muted">
             Tre livelli. Il passaggio a Partner è automatico; Fondatrice è
-            riservata alle prime agenzie che aderiscono ad Ancona.
+            assegnata manualmente alle agenzie che aprono il programma in una
+            città.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             {TIERS.map((tier) => (

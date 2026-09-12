@@ -148,6 +148,9 @@ export default function HowItWorksInteractive() {
               {D.toggleOwner}
             </button>
           </div>
+          <p className="mx-auto mt-3 max-w-md text-sm text-ink-muted">
+            {audience === "student" ? D.pathHintStudent : D.pathHintOwner}
+          </p>
         </header>
 
         <div
@@ -326,7 +329,7 @@ export default function HowItWorksInteractive() {
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href={audience === "student" ? "/login" : "/proprietari"}
+            href={audience === "student" ? "/stanze" : "/proprietari"}
             className={[
               "inline-flex rounded-full px-6 py-3 text-sm font-semibold text-white transition",
               audience === "student"

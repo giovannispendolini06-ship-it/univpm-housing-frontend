@@ -23,9 +23,22 @@ import Link from "next/link";
 
 type MobileTab = "chat" | "rooms";
 
-const WELCOME_MESSAGES: Record<"it" | "en", string> = {
-  it: "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa vicino al tuo ateneo. <QUESTION>In che città studi o cerchi casa?</QUESTION>",
-  en: "Hey! 👋 I'm Vesta — I'll help you find a place near your campus. <QUESTION>Which city are you studying in / looking for housing in?</QUESTION>",
+const WELCOME_MESSAGES: Record<
+  "it" | "en",
+  Record<"student" | "worker", string>
+> = {
+  it: {
+    student:
+      "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa per studio o lavoro. <QUESTION>In che città cerchi casa?</QUESTION>",
+    worker:
+      "Ehi! 👋 Sono Vesta, ti aiuto a trovare casa vicino al lavoro o ai collegamenti che ti servono. <QUESTION>In che città lavori o cerchi casa?</QUESTION>",
+  },
+  en: {
+    student:
+      "Hey! 👋 I'm Vesta — I'll help you find a place for study or work. <QUESTION>Which city are you looking in?</QUESTION>",
+    worker:
+      "Hey! 👋 I'm Vesta — I'll help you find a place near work or the connections you need. <QUESTION>Which city do you work in / look for housing in?</QUESTION>",
+  },
 };
 
 /**
@@ -35,12 +48,6 @@ const WELCOME_MESSAGES: Record<"it" | "en", string> = {
  */
 export default function StudentDashboardPage() {
   const { locale, t } = useLocale();
-  const welcomeMessage: ChatMessage = {
-    id: "welcome",
-    role: "assistant",
-    content: WELCOME_MESSAGES[locale],
-    createdAt: new Date().toISOString(),
-  };
 
   const [activeTab, setActiveTab] = useState<MobileTab>("chat");
   const [studentId, setStudentId] = useState<string | null>(null);
@@ -54,6 +61,19 @@ export default function StudentDashboardPage() {
   const [myTenancy, setMyTenancy] = useState<MyTenancy | null>(null);
   const [initialMessages, setInitialMessages] = useState<ChatMessage[] | null>(null);
   const [chatProgress, setChatProgress] = useState<ChatProgress | null>(null);
+  const [seekerProfile, setSeekerProfile] = useState<Record<
+    string,
+    unknown
+  > | null>(null);
+
+  function welcomeFor(role: "student" | "worker"): ChatMessage {
+    return {
+      id: "welcome",
+      role: "assistant",
+      content: WELCOME_MESSAGES[locale][role],
+      createdAt: new Date().toISOString(),
+    };
+  }
 
   useEffect(() => {
     const supabase = createClientSupabaseClient();
@@ -63,7 +83,7 @@ export default function StudentDashboardPage() {
       setStudentId(userId);
 
       if (!userId) {
-        setInitialMessages([welcomeMessage]);
+        setInitialMessages([welcomeFor("student")]);
         return;
       }
 
@@ -73,10 +93,17 @@ export default function StudentDashboardPage() {
         .eq("id", userId)
         .single()
         .then(({ data: profile }) => {
+          const role = profile?.role === "worker" ? "worker" : "student";
           setIsAdmin(profile?.role === "admin");
-          setSeekerRole(profile?.role === "worker" ? "worker" : "student");
+          setSeekerRole(role);
           setVerificationStatus(profile?.verification_status ?? "none");
           setUserEmail(profile?.email ?? null);
+          setInitialMessages((prev) => {
+            if (!prev || prev.length !== 1 || prev[0]?.id !== "welcome") {
+              return prev;
+            }
+            return [welcomeFor(role)];
+          });
         });
 
       // Scoped to this student only; chronological thread (no session_id in schema)
@@ -88,7 +115,7 @@ export default function StudentDashboardPage() {
         .then(({ data: history, error }) => {
           if (error) {
             console.error("Errore nel caricamento della cronologia chat:", error);
-            setInitialMessages([welcomeMessage]);
+            setInitialMessages([welcomeFor("student")]);
             return;
           }
           if (history && history.length > 0) {
@@ -101,7 +128,7 @@ export default function StudentDashboardPage() {
               })),
             );
           } else {
-            setInitialMessages([welcomeMessage]);
+            setInitialMessages([welcomeFor("student")]);
           }
         });
 
@@ -113,7 +140,7 @@ export default function StudentDashboardPage() {
         .eq("user_id", userId)
         .maybeSingle()
         .then(({ data: profile }) => {
-          setChatProgress(computeChatProgressFromProfile(profile));
+          setSeekerProfile((profile as Record<string, unknown> | null) ?? null);
         });
 
       fetch(`/api/my-tenancy?studentId=${userId}`)
@@ -121,9 +148,13 @@ export default function StudentDashboardPage() {
         .then((data) => setMyTenancy(data.tenancy ?? null))
         .catch(() => setMyTenancy(null));
     });
-    // welcomeMessage is locale-stable for this mount
+    // welcomeFor is locale-stable for this mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setChatProgress(computeChatProgressFromProfile(seekerProfile, seekerRole));
+  }, [seekerProfile, seekerRole]);
 
   useEffect(() => {
     if (!studentId) return;
@@ -257,6 +288,7 @@ export default function StudentDashboardPage() {
               <ChatPanel
                 initialMessages={initialMessages}
                 initialProgress={chatProgress}
+                seekerRole={seekerRole}
                 onSendMessage={handleSendMessage}
                 onRoomsUpdate={handleRoomsUpdate}
               />
@@ -277,11 +309,7 @@ export default function StudentDashboardPage() {
               <h2 className="font-display text-sm font-bold text-ink">
                 {t.dashboard.roomsTab}
               </h2>
-              <p className="text-xs text-ink-muted">
-                {locale === "en"
-                  ? "Rooms matched from your chat with Vesta"
-                  : "Stanze proposte dalla chat con Vesta"}
-              </p>
+              <p className="text-xs text-ink-muted">{t.dashboard.roomsFromVesta}</p>
             </div>
             <RoomList rooms={rooms} waitlisted={waitlisted} loading={roomsLoading} />
           </div>

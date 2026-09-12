@@ -239,6 +239,13 @@ export default async function OwnerDashboardPage() {
     candidatesByProperty.set(propertyId, list);
   }
 
+  const showAgencyTools =
+    partnerSnapshot.tier === "partner" ||
+    partnerSnapshot.tier === "fondatrice" ||
+    propertyRows.length > 1;
+  const isSmallPrivateOwner =
+    partnerSnapshot.tier === "standard" && propertyRows.length <= 1;
+
   return (
     <main className="min-h-dvh bg-bg px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-3xl">
@@ -248,7 +255,9 @@ export default async function OwnerDashboardPage() {
               <h1 className="font-display text-2xl font-bold text-ink">
                 {profile?.full_name
                   ? `Buongiorno, ${profile.full_name}`
-                  : "Area proprietario"}
+                  : isSmallPrivateOwner
+                    ? "Il tuo annuncio"
+                    : "Area pubblicatore"}
               </h1>
               <VerifiedBadge
                 status={profile?.verification_status as VerificationStatus}
@@ -256,8 +265,9 @@ export default async function OwnerDashboardPage() {
               />
             </div>
             <p className="mt-1 text-sm text-ink-muted">
-              Vestiamo il tuo immobile su misura per l&apos;inquilino giusto —
-              con canone garantito Coabito o sul marketplace indipendente.
+              {isSmallPrivateOwner
+                ? "Pubblica, ricevi candidature e scegli a chi affittare — in modo semplice."
+                : "Gestisci i tuoi annunci, le candidature e — se Partner — i vantaggi del programma."}
             </p>
           </div>
           <div className="flex flex-col items-end gap-1.5">
@@ -274,10 +284,20 @@ export default async function OwnerDashboardPage() {
           />
         </div>
 
-        <OwnerPartnerPanel
-          snapshot={partnerSnapshot}
-          marketReport={marketReport}
-        />
+        {showAgencyTools ? (
+          <OwnerPartnerPanel
+            snapshot={partnerSnapshot}
+            marketReport={marketReport}
+          />
+        ) : (
+          <div className="mb-6 rounded-xl2 border border-sea-100 bg-white px-4 py-3 text-sm text-ink-muted shadow-card">
+            Gestisci un catalogo o sei un&apos;agenzia?{" "}
+            <Link href="/agenzie" className="font-semibold text-sea-700 underline">
+              Scopri il programma partner
+            </Link>
+            .
+          </div>
+        )}
 
         {guaranteedSummaries.length > 0 && (
           <GuaranteedRentWidget
@@ -293,7 +313,7 @@ export default async function OwnerDashboardPage() {
             href="/owner/properties/new"
             className="rounded-full bg-sea-600 px-4 py-2 text-sm font-semibold text-white"
           >
-            + Nuovo annuncio marketplace
+            {isSmallPrivateOwner ? "+ Pubblica un annuncio" : "+ Nuovo annuncio"}
           </Link>
           <Link
             href="/profilo"

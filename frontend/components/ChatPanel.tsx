@@ -17,6 +17,7 @@ const VESTA_ABANDONED_KEY = "coabito_vesta_abandoned";
 interface ChatPanelProps {
   initialMessages: ChatMessage[];
   initialProgress?: ChatProgress | null;
+  seekerRole?: "student" | "worker";
   onSendMessage: (
     text: string,
     history: { role: ChatMessage["role"]; content: string }[],
@@ -88,6 +89,7 @@ function shouldShowDayBreak(
 export default function ChatPanel({
   initialMessages,
   initialProgress = null,
+  seekerRole = "student",
   onSendMessage,
   onRoomsUpdate,
 }: ChatPanelProps) {
@@ -227,7 +229,7 @@ export default function ChatPanel({
           <VestaAvatar size={40} />
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-base font-bold text-ink">Vesta</h1>
-            <p className="text-xs text-ink-muted">{t.chat.subtitle}</p>
+            <p className="text-xs text-ink-muted">{seekerRole === "worker" ? t.chat.subtitleWorker : t.chat.subtitleStudent}</p>
           </div>
         </div>
 

@@ -7,7 +7,7 @@ import LanguageSwitcher from "@/components/landing/LanguageSwitcher";
 import { createClientSupabaseClient } from "@/lib/supabase/client";
 import { mapAuthErrorMessage } from "@/lib/auth-errors";
 import VestaAvatar from "@/components/VestaAvatar";
-import { IconCasa, IconStudente } from "@/components/icons/CoabitoIcons";
+import { IconCasa, IconProfilo, IconStudente } from "@/components/icons/CoabitoIcons";
 import { addFavorite } from "@/app/favorites/actions";
 import { safeNextPath } from "@/lib/auth/safe-next";
 import styles from "./SignupSteps.module.css";
@@ -426,7 +426,7 @@ function LoginPageInner() {
                         role === "worker" ? styles.roleCardSelected : ""
                       }`}
                     >
-                      <IconStudente size={30} />
+                      <IconProfilo size={30} />
                       <span>{t.login.iAmWorker}</span>
                     </button>
                     <button
