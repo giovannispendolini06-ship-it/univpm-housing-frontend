@@ -408,7 +408,7 @@ export const translations = {
       privacy: "Privacy",
       terms: "Termini di servizio",
       cookies: "Cookie",
-      guide: "Guida affitto Ancona",
+      guide: "Guida affitto fuori sede",
       faq: "FAQ per chi cerca casa",
       guideFirstTime: "Prima volta fuori sede",
       services: "Servizi",
@@ -531,7 +531,7 @@ export const translations = {
       ],
       closing:
         "Non serve arrivare preparati al 100% — quasi nessuno lo è alla prima esperienza fuori sede. Serve solo sapere a cosa prestare attenzione. Se hai dubbi specifici sulla tua situazione, scrivici — vedi sotto.",
-      relatedGuide: "Guida: affittare casa per studenti ad Ancona",
+      relatedGuide: "Guida: affittare casa da fuori sede",
       backHome: "← Torna alla home",
     },
     founderContact: {
@@ -1632,7 +1632,7 @@ export const translations = {
       privacy: "Privacy",
       terms: "Terms of service",
       cookies: "Cookies",
-      guide: "Ancona student housing guide",
+      guide: "Student housing guide",
       faq: "FAQ for seekers",
       guideFirstTime: "First time living away",
       services: "Services",
@@ -1755,7 +1755,7 @@ export const translations = {
       ],
       closing:
         "You don’t need to arrive 100% prepared — almost nobody is the first time they live away. You just need to know what to watch for. If you have specific questions about your situation, write to us — see below.",
-      relatedGuide: "Guide: renting student housing in Ancona",
+      relatedGuide: "Guide: renting as a student away from home",
       backHome: "← Back to home",
     },
     founderContact: {
